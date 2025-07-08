@@ -1,0 +1,69 @@
+Database Migration Setup Prompt for Replit Agent:
+
+You need to set up a complete database migration for a Next.js social networking platform called "Maly". Here's what you need to do:
+
+Step 1: Environment Setup
+First, ensure these environment variables are configured in the Secrets tool:
+
+DATABASE_URL - PostgreSQL connection string
+NODE_ENV=production - CRITICAL: Set this to production, not development
+CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET - for image uploads
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET - for payments
+OPENAI_API_KEY - for AI features
+Step 2: Database Schema Creation
+The database uses Drizzle ORM with PostgreSQL. Create these tables in order:
+
+Users table - Core user profiles with fields for username, email, password, profile info, location, interests, moods, premium status, referral system
+Events table - Event listings with title, description, location, date, pricing, capacity, creator relationship
+Event Participants - Junction table linking users to events with status, payment info, tickets
+Messages - Direct messaging between users
+User Connections - Follow/friend relationships
+Invitations - User invitation system
+User Cities - City preferences and suggestions
+Sessions - User session management
+Payments - Stripe payment tracking
+Subscriptions - Premium subscription management
+Subscription Payments - Payment history for subscriptions
+Step 3: Key Schema Features
+JSONB fields for arrays (interests, moods, profile images, tags, itinerary)
+Foreign key relationships between all related tables
+Unique constraints on usernames, emails, referral codes
+Default values for timestamps, boolean flags, and status fields
+Self-referencing foreign key on users table for referral system
+Step 4: Migration Files Structure
+Create a migrations folder with:
+
+meta/_journal.json - migration tracking
+Individual .sql migration files for each schema change
+Snapshot files for version control
+Step 5: Database Utilities
+Set up these utility scripts:
+
+db/migrate.ts - runs migrations using Drizzle
+db/seed.ts - populates test data
+db/create-tables.ts - manual table creation if needed
+Reset scripts for development
+Step 6: Production Configuration
+IMPORTANT: Ensure the application runs in production mode by:
+
+Setting NODE_ENV=production in environment variables
+The app should use the production build commands: npm run build then npm start
+Verify static assets are served correctly in production mode
+Ensure session management works with production settings
+Step 7: Data Import Process
+Once the schema is ready, import the JSON data by:
+
+Clearing existing data (if any)
+Inserting users first (due to foreign key dependencies)
+Then events, participants, messages, connections in that order
+Verify all relationships are properly linked
+Step 8: Verification Steps
+After migration:
+
+Check all tables exist with correct columns
+Verify foreign key constraints are working
+Test a few sample queries to ensure data integrity
+Confirm user authentication works in production mode
+Test event creation and participation flows
+Verify the app serves correctly on port 5000 in production
+The schema supports a full social networking platform with events, messaging, payments, and premium subscriptions. All tables use proper indexing and constraints for performance and data integrity. The application must run in production mode to ensure proper deployment behavior.
