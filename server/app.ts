@@ -64,14 +64,8 @@ export async function createApp() {
     res.status(status).json({ message });
   });
 
-  // Setup Vite or static serving in non-test environment
-  if (process.env.NODE_ENV !== 'test') {
-    if (routedApp.get("env") === "development") {
-      await setupVite(routedApp, httpServer);
-    } else {
-      serveStatic(routedApp);
-    }
-  }
+  // Skip Vite setup here - it will be handled in index.ts
+  // This allows for proper environment detection and setup
 
   return { app: routedApp, httpServer };
 }

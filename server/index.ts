@@ -5,6 +5,9 @@ import { setupVite, serveStatic, log } from "./vite";
 import { createApp } from "./app";
 import path from 'path';
 
+// Force development mode when running with tsx (override any existing NODE_ENV)
+process.env.NODE_ENV = 'development';
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -72,21 +75,18 @@ app.use((req, res, next) => {
     };
 
     await cleanupPort();
-    const { httpServer } = await createApp();
-
-    // Error handling middleware
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      log(`Error: ${message}`);
-      res.status(status).json({ message });
-    });
+    const { app: routedApp, httpServer } = await createApp();
 
     // Setup Vite or static serving
-    if (app.get("env") === "development") {
-      await setupVite(app, httpServer);
+    const isProduction = process.env.NODE_ENV === "production";
+    log(`NODE_ENV: ${process.env.NODE_ENV}, isProduction: ${isProduction}`);
+    
+    if (isProduction) {
+      log("Using static file serving for production");
+      serveStatic(routedApp);
     } else {
-      serveStatic(app);
+      log("Using Vite dev server for development");
+      await setupVite(routedApp, httpServer);
     }
 
     const startServer = async () => {

@@ -590,7 +590,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     noLongerParticipating: 'Ya no estás participando en este evento',
     successfullyUpdated: 'Actualizado con éxito',
     proceedToPayment: 'Proceder al Pago',
-    login: 'Iniciar Sesión',
     purchaseTickets: 'Comprar Entradas',
     ticketQuantity: 'Cantidad de Entradas',
     ticketsAvailable: 'entradas disponibles',
