@@ -4,6 +4,16 @@
 
 Maly is a comprehensive social networking platform designed to connect people in cities around the world through events, connections, and AI-powered interactions. It combines modern web technologies with intelligent features to create a dynamic social experience focused on local community building and professional networking.
 
+## Recent Changes
+
+**July 8, 2025 - Database Migration Setup Completed**
+- ✓ Created PostgreSQL database with all required tables
+- ✓ Migrated complete database schema with 11 tables
+- ✓ Imported 34 users, 24 events, and 23 event participants from backup
+- ✓ Set up foreign key relationships and constraints
+- ✓ Configured session management with PostgreSQL store
+- ✓ Verified all data integrity and relationships
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
