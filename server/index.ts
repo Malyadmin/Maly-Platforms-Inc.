@@ -5,8 +5,10 @@ import { setupVite, serveStatic, log } from "./vite";
 import { createApp } from "./app";
 import path from 'path';
 
-// Force development mode when running with tsx (override any existing NODE_ENV)
-process.env.NODE_ENV = 'development';
+// Set NODE_ENV to production if not already set
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
 
 const app = express();
 app.use(express.json());
