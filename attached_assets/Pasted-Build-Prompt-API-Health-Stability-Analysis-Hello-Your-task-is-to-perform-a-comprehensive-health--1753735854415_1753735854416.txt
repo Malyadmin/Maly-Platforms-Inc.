@@ -1,0 +1,34 @@
+Build Prompt: API Health & Stability Analysis
+Hello! Your task is to perform a comprehensive health and stability analysis of all existing API endpoints in the server/ directory. The goal is to identify any issues related to performance, error handling, and security that could impact the application's stability at scale.
+
+Please execute the following analysis for every endpoint and provide a consolidated report.
+
+1. Performance Analysis:
+
+Database Query Efficiency: For each endpoint that interacts with the database, analyze the Drizzle ORM query.
+
+Check for N+1 query problems (i.e., making multiple database calls inside a loop).
+
+Identify any queries that select all columns (SELECT *) instead of only the necessary fields.
+
+Flag any complex queries that could be slow without proper database indexing.
+
+Response Payload Size: Identify any endpoints that return excessively large JSON payloads which could be slow for a mobile client to download and parse.
+
+2. Error Handling Analysis:
+
+Input Validation: Verify that every POST and PUT endpoint uses a validation library (like Zod) to sanitize and validate the incoming request body.
+
+Graceful Failure: Check that database queries and other I/O operations are wrapped in try/catch blocks. Ensure that if an error occurs, the endpoint returns a meaningful JSON error message and a correct HTTP status code (e.g., 500) instead of crashing the server.
+
+Edge Cases: Identify any missing checks for edge cases, such as handling requests for resources that don't exist (which should return a 404).
+
+3. Security Analysis:
+
+Middleware Verification: For every protected endpoint listed in the API documentation, confirm that the correct authentication middleware (e.g., verifyToken) is applied.
+
+Authorization Logic: For endpoints that modify data (e.g., PUT /api/users/profile), verify that there is logic to ensure a user can only modify their own data and not someone else's.
+
+Final Report:
+
+Based on your analysis, generate a report that lists each API endpoint and provides a health check summary covering the three areas above. Flag any endpoints that require immediate refactoring with a "High Priority" label.
