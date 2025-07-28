@@ -1,0 +1,65 @@
+Build Prompt: Full API Refactoring & Validation
+Hello! Your task is to perform a complete refactoring of the backend API based on the "API Health & Stability Analysis Report". You will address all critical performance, security, and error-handling issues, and then create a new testing suite to validate that all fixes are working correctly.
+
+Please execute the following steps in order.
+
+1. Fix Critical Security Vulnerabilities (Highest Priority)
+Secure Admin Endpoints:
+
+Locate the POST /api/admin/make-admin endpoint.
+
+Apply a new middleware to this route that strictly checks if the authenticated user has an admin role. If not, the request must be rejected with a 403 Forbidden status.
+
+Remove Password Hash Exposure:
+
+Locate the GET /api/users/browse endpoint.
+
+Modify the database query to explicitly exclude the password hash and any other sensitive fields from the response.
+
+Add Authorization to Messaging:
+
+Apply authentication middleware to the POST /api/messages endpoint.
+
+Add authorization logic to ensure the senderId in the message body matches the ID of the authenticated user from the JWT.
+
+2. Fix Critical Performance Bottlenecks (N+1 Queries)
+Refactor Event Participant Queries:
+
+Locate the GET /api/events/:id endpoint.
+
+Find the two for...of loops that fetch attending and interested users one by one (identified in the report at lines 1413-1425 and 1447-1459).
+
+Replace these loops with a single, efficient batch query using Drizzle's inArray() operator to fetch all required user data at once, as recommended in the report.
+
+Refactor User Browse Query:
+
+Locate the GET /api/users/browse endpoint.
+
+Refactor the complex query logic to use efficient JOINs where possible, eliminating any nested loops that make database calls.
+
+3. Implement Input Validation & Pagination
+Add Zod Schemas:
+
+For every POST and PUT endpoint marked as missing input validation (e.g., POST /api/events, PUT /api/events/:id), create and apply a Zod schema to validate the request body. Return a 400 Bad Request error for invalid data.
+
+Implement Pagination:
+
+Modify the GET /api/users/browse and GET /api/events endpoints to implement cursor-based or limit/offset pagination. They must accept limit and cursor/page query parameters and return a paginated data structure, including pagination metadata (e.g., nextCursor or totalPages).
+
+4. Resolve All TypeScript Errors
+Systematically go through server/routes.ts and server/premium.ts and fix all 52 identified TypeScript errors. This includes adding proper type guards, correcting Drizzle ORM type mismatches, and adding null checks.
+
+5. Create a Comprehensive Validation Test Suite
+Create a new testing directory server/__tests__/.
+
+Using Jest, write a new suite of backend tests that specifically validate the fixes you have implemented:
+
+Security Test: Write a test that attempts to call the POST /api/admin/make-admin endpoint as a non-admin user and asserts that it receives a 403 Forbidden response.
+
+Performance Test: Write a test for the GET /api/users/browse endpoint with limit=10 and assert that the response contains exactly 10 items and the correct pagination metadata.
+
+Validation Test: Write a test that sends a request with an invalid body to the POST /api/events endpoint and asserts that it receives a 400 Bad Request response.
+
+Data Exposure Test: Write a test for GET /api/users/browse and assert that the password field is undefined in the response objects.
+
+Execute these steps in order. The final result should be a stable, secure, and performant API with a new test suite that proves the fixes are effective.

@@ -33,6 +33,10 @@ import { upload as cloudinaryUpload } from './middleware/upload';
 import { generateReferralCode, recordReferral, buildShareUrl, getShareMessage } from './services/referralService';
 // Import JWT authentication middleware
 import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
+// Import admin authentication middleware
+import { requireAdmin } from './middleware/adminAuth';
+// Import validation schemas
+import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema } from './validation/schemas';
 
 const categories = [
   "Retail",
@@ -1081,48 +1085,23 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
   app.get("/api/users/browse", async (req, res) => {
     try {
+      // Validate and parse query parameters
+      const validationResult = userBrowseSchema.safeParse(req.query);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Invalid query parameters', 
+          details: validationResult.error.errors 
+        });
+      }
+      
+      const { location: city, gender, minAge, maxAge, moods, interests, name, limit, offset } = validationResult.data;
+      
       // Comprehensive debug logging to see all query parameters
       console.log("Full request query object:", req.query);
-      
-      // Get location parameter as 'location' or 'city' (for backward compatibility)
-      const city = req.query.location || req.query.city || 'all';
-      const { gender, minAge: minAgeStr, maxAge: maxAgeStr } = req.query;
-      
-      // Check if moods are coming in different formats and normalize
-      let moods;
-      
-      // Look for moods in all possible formats and log everything
-      console.log("moods[] =", req.query['moods[]']);
-      console.log("moods =", req.query.moods);
-      
-      // If moods[] is present as array, use it directly
-      if (Array.isArray(req.query['moods[]'])) {
-        moods = req.query['moods[]'];
-        console.log("Using moods[] as array:", moods);
-      }
-      // If moods[] is present as string, convert to array with single item
-      else if (req.query['moods[]'] && typeof req.query['moods[]'] === 'string') {
-        moods = [req.query['moods[]']];
-        console.log("Converting moods[] string to array:", moods);
-      }
-      // If moods is present as array, use it directly (for Express 4's handling of query parameters)
-      else if (Array.isArray(req.query.moods)) {
-        moods = req.query.moods;
-        console.log("Using req.query.moods as array:", moods);
-      }
-      // If moods is present as a comma-separated string, split it
-      else if (req.query.moods && typeof req.query.moods === 'string' && req.query.moods.includes(',')) {
-        moods = req.query.moods.split(',');
-        console.log("Splitting comma-separated moods string:", moods);
-      }
-      // If moods is present as string, convert to array with single item
-      else if (req.query.moods && typeof req.query.moods === 'string') {
-        moods = [req.query.moods];
-        console.log("Converting moods string to array:", moods);
-      }
-      
-      const interests = req.query['interests[]'] as string[] | string;
-      const name = req.query.name as string;
+
+      // Normalize moods parameter from validation
+      const normalizedMoods = Array.isArray(moods) ? moods : (moods ? [moods] : undefined);
+      const normalizedInterests = Array.isArray(interests) ? interests : (interests ? [interests] : undefined);
       
       // Enhanced logic to get the current user ID from multiple sources
       let currentUserId: number | undefined = undefined;
@@ -1169,8 +1148,34 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       console.log(`User browse request received with city=${city}`);
       console.log(`Mood filters: ${moods ? (Array.isArray(moods) ? moods.join(', ') : moods) : 'none'}`);
       
-      // Database query to get real users
-      let query = db.select().from(users);
+      // Database query to get real users (exclude sensitive fields)
+      let query = db.select({
+        id: users.id,
+        username: users.username,
+        fullName: users.fullName,
+        profileType: users.profileType,
+        gender: users.gender,
+        sexualOrientation: users.sexualOrientation,
+        bio: users.bio,
+        profileImage: users.profileImage,
+        profileImages: users.profileImages,
+        location: users.location,
+        birthLocation: users.birthLocation,
+        nextLocation: users.nextLocation,
+        interests: users.interests,
+        currentMoods: users.currentMoods,
+        profession: users.profession,
+        age: users.age,
+        businessName: users.businessName,
+        businessDescription: users.businessDescription,
+        websiteUrl: users.websiteUrl,
+        createdAt: users.createdAt,
+        lastActive: users.lastActive,
+        isPremium: users.isPremium,
+        preferredLanguage: users.preferredLanguage,
+        referralCode: users.referralCode
+        // Explicitly exclude: password, email, isAdmin, referredBy
+      }).from(users);
 
       // Always exclude the current user from results if available
       if (currentUserId && !isNaN(currentUserId)) {
@@ -1183,67 +1188,40 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       if (gender && gender !== 'all') {
-        query = query.where(eq(users.gender, gender as string));
+        query = query.where(eq(users.gender, gender));
       }
-      
-      const minAge = minAgeStr ? parseInt(minAgeStr as string, 10) : undefined;
-      const maxAge = maxAgeStr ? parseInt(maxAgeStr as string, 10) : undefined;
 
-      if (minAge !== undefined && !isNaN(minAge)) {
+      if (minAge !== undefined) {
         query = query.where(gte(users.age, minAge));
       }
 
-      if (maxAge !== undefined && !isNaN(maxAge)) {
+      if (maxAge !== undefined) {
         query = query.where(lte(users.age, maxAge));
       }
       
-      // Properly handle mood filters using PostgreSQL's array overlap operator '&&'
-      // This ensures that we only return users who have at least one of the selected moods
-      if (moods && (Array.isArray(moods) ? moods.length > 0 : true)) {
-        const moodArray = Array.isArray(moods) ? moods : [moods];
-        console.log(`Applying mood filters at database level: ${moodArray.join(', ')}`);
-
-        // DEBUG: Log user moods before filtering
-        console.log("DEBUG: About to filter users by the following moods:", moodArray);
-        
-        // Use a more compatible approach for JSONB arrays
-        const jsonMoodArray = JSON.stringify(moodArray);
+      // Apply mood filters using PostgreSQL's array overlap operator
+      if (normalizedMoods && normalizedMoods.length > 0) {
+        console.log(`Applying mood filters at database level: ${normalizedMoods.join(', ')}`);
+        const jsonMoodArray = JSON.stringify(normalizedMoods);
         query = query.where(sql`${users.currentMoods}::jsonb && ${jsonMoodArray}::jsonb`);
-        
-        // Log query plan for debugging
-        console.log("Filtering users whose currentMoods contain ANY of:", moodArray);
       }
       
-      // Log the query parameters for debugging
-      console.log("Users browse query params:", {
-        city,
-        gender,
-        minAge,
-        maxAge,
-        interests: req.query['interests[]'],
-        moods: req.query['moods[]']
-      });
+      // Add ordering and pagination to the query
+      query = query.orderBy(desc(users.createdAt));
+      query = query.limit(limit).offset(offset);
 
-      // Get all users with the applied filters
+      // Get users with pagination
       let dbUsers = await query;
-      console.log(`Initial query returned ${dbUsers.length} users before additional filtering`);
+      console.log(`Query returned ${dbUsers.length} users (limit: ${limit}, offset: ${offset})`);
 
-      // Further filtering that's harder to do at the DB level
-      if (interests) {
-        const interestArray = Array.isArray(interests) ? interests : [interests];
-        console.log(`Filtering by interests: ${JSON.stringify(interestArray)}`);
-        
+      // Additional filtering that's harder to do at database level
+      if (normalizedInterests && normalizedInterests.length > 0) {
         dbUsers = dbUsers.filter(user => 
-          user.interests && interestArray.some(interest => 
+          user.interests && normalizedInterests.some(interest => 
             user.interests?.includes(interest)
           )
         );
-        
-        console.log(`Found ${dbUsers.length} users with matching interests`);
       }
-
-      // Mood filtering is now handled entirely at the database level
-      // We don't need additional JS-based filtering
 
       if (name) {
         const lowercaseName = name.toLowerCase();
@@ -1253,16 +1231,21 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         );
       }
 
-      // Sort users by most recently created first
-      dbUsers.sort((a, b) => {
-        const dateA = new Date(a.createdAt || 0).getTime();
-        const dateB = new Date(b.createdAt || 0).getTime();
-        return dateB - dateA;
+      // Get total count for pagination metadata (simplified for performance)
+      const totalQuery = db.select({ count: sql`count(*)` }).from(users);
+      const [{ count: totalCount }] = await totalQuery;
+
+      console.log(`Found ${dbUsers.length} users, total: ${totalCount}`);
+
+      res.json({
+        users: dbUsers,
+        pagination: {
+          limit,
+          offset,
+          total: Number(totalCount),
+          hasMore: offset + dbUsers.length < Number(totalCount)
+        }
       });
-
-      console.log(`Found ${dbUsers.length} real users in database`);
-
-      res.json(dbUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });
@@ -1403,64 +1386,48 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           .filter(p => p.status === 'interested')
           .map(p => p.userId);
           
-        // Fetch user details for all participants
+        // Fetch user details for all participants in a single batch query
         let attendingUsers: { id: number; name: string; username: string; image: string }[] = [];
         let interestedUsers: { id: number; name: string; username: string; image: string }[] = [];
         
-        if (attendingUserIds.length > 0) {
-          // Fetch each attending user individually
-          const attendingUsersData = [];
-          for (const userId of attendingUserIds) {
-            const userData = await db.select({
-              id: users.id,
-              username: users.username,
-              fullName: users.fullName,
-              profileImage: users.profileImage
-            })
-            .from(users)
-            .where(eq(users.id, userId))
-            .limit(1);
-            
-            if (userData && userData.length > 0) {
-              attendingUsersData.push(userData[0]);
-            }
-          }
-          
-          // Format for client
-          attendingUsers = attendingUsersData.map(user => ({
-            id: user.id,
-            name: user.fullName || user.username,
-            username: user.username,
-            image: user.profileImage || '/default-avatar.png'
-          }));
-        }
+        // Combine all user IDs for batch fetching
+        const allUserIds = [...attendingUserIds, ...interestedUserIds];
         
-        if (interestedUserIds.length > 0) {
-          // Fetch each interested user individually
-          const interestedUsersData = [];
-          for (const userId of interestedUserIds) {
-            const userData = await db.select({
-              id: users.id,
-              username: users.username,
-              fullName: users.fullName,
-              profileImage: users.profileImage
-            })
-            .from(users)
-            .where(eq(users.id, userId))
-            .limit(1);
-            
-            if (userData && userData.length > 0) {
-              interestedUsersData.push(userData[0]);
-            }
-          }
+        if (allUserIds.length > 0) {
+          // Single batch query to fetch all user data
+          const allUsersData = await db.select({
+            id: users.id,
+            username: users.username,
+            fullName: users.fullName,
+            profileImage: users.profileImage
+          })
+          .from(users)
+          .where(inArray(users.id, allUserIds));
           
-          // Format for client
-          interestedUsers = interestedUsersData.map(user => ({
-            id: user.id,
-            name: user.fullName || user.username,
-            username: user.username,
-            image: user.profileImage || '/default-avatar.png'
-          }));
+          // Create lookup map for efficient access
+          const userDataMap = new Map(allUsersData.map(user => [user.id, user]));
+          
+          // Build attending users array
+          attendingUsers = attendingUserIds.map(userId => {
+            const user = userDataMap.get(userId);
+            return user ? {
+              id: user.id,
+              name: user.fullName || user.username,
+              username: user.username,
+              image: user.profileImage || '/default-avatar.png'
+            } : null;
+          }).filter(Boolean) as { id: number; name: string; username: string; image: string }[];
+          
+          // Build interested users array
+          interestedUsers = interestedUserIds.map(userId => {
+            const user = userDataMap.get(userId);
+            return user ? {
+              id: user.id,
+              name: user.fullName || user.username,
+              username: user.username,
+              image: user.profileImage || '/default-avatar.png'
+            } : null;
+          }).filter(Boolean) as { id: number; name: string; username: string; image: string }[];
         }
 
         // If we have a creatorId, fetch the creator information
@@ -1664,80 +1631,32 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // Create a new event
-  app.post("/api/events", cloudinaryUpload.single('image'), async (req, res) => {
+  app.post("/api/events", requireAuth, cloudinaryUpload.single('image'), async (req, res) => {
     try {
-      // Use only user ID-based authentication methods (no session ID)
-      let currentUser = null;
-
-      // Method 1: Check if user is authenticated via passport (primary method)
-      if (req.isAuthenticated() && req.user) {
-        currentUser = req.user;
-        console.log("User authenticated via passport for event creation:", currentUser.username);
-      }
-      
-      // Method 2: Check X-User-ID header (secondary method)
-      if (!currentUser) {
-        const headerUserId = req.headers['x-user-id'] as string;
-        
-        if (headerUserId) {
-          console.log("Trying to authenticate via User-ID header:", headerUserId);
-          
-          try {
-            const userId = parseInt(headerUserId);
-            const [user] = await db.select()
-              .from(users)
-              .where(eq(users.id, userId))
-              .limit(1);
-              
-            if (user) {
-              currentUser = user;
-              console.log("User authenticated via User-ID header for event creation:", user.username);
-            }
-          } catch (err) {
-            console.error("Error checking user by header ID:", err);
-          }
-        }
-      }
-
-      // Method 3: Allow using userId directly from body as a fallback
-      if (!currentUser && req.body.userId) {
-        const userId = parseInt(req.body.userId);
-        console.log("Trying to authenticate via direct userId from body:", userId);
-
-        try {
-          const [user] = await db.select()
-            .from(users)
-            .where(eq(users.id, userId))
-            .limit(1);
-
-          if (user) {
-            currentUser = user;
-            console.log("User authenticated via direct userId for event creation:", user.username);
-          }
-        } catch (err) {
-          console.error("Error checking user by ID:", err);
-        }
-      }
-
-      // If no authenticated user found through user ID methods, return error
-      if (!currentUser) {
-        console.error("Unable to authenticate user for event creation - no valid user ID found");
-        return res.status(401).json({ error: "Authentication required to create events - valid user ID required" });
-      }
-
-      console.log("User authenticated for event creation:", currentUser.username);
+      const currentUser = req.user as any;
 
       console.log("Event creation request received from user:", currentUser.username);
       console.log("Form data:", req.body);
       console.log("File:", req.file);
 
-      // Required field validation
-      if (!req.body.title || !req.body.description || !req.body.location) {
-        return res.status(400).json({ 
-          error: "Missing required fields",
-          details: "Title, description, and location are required"
+      // Validate input data with Zod schema
+      const validationResult = createEventSchema.safeParse({
+        ...req.body,
+        date: req.body.date || new Date().toISOString(),
+        price: req.body.price ? parseFloat(req.body.price) : 0,
+        capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
+        itinerary: req.body.itinerary ? JSON.parse(req.body.itinerary) : undefined,
+        tags: req.body.tags ? (Array.isArray(req.body.tags) ? req.body.tags : JSON.parse(req.body.tags)) : undefined
+      });
+      
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: 'Invalid event data',
+          details: validationResult.error.errors
         });
       }
+      
+      const validatedData = validationResult.data;
 
       // Parse the incoming form data with proper validation
       let tags = [];
@@ -2032,9 +1951,24 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.post('/api/messages', async (req: Request, res: Response) => {
+  app.post('/api/messages', requireAuth, async (req: Request, res: Response) => {
     try {
       const { senderId, receiverId, content } = req.body;
+      const authenticatedUserId = (req.user as any).id;
+      
+      // Security check: ensure senderId matches authenticated user
+      if (senderId !== authenticatedUserId) {
+        return res.status(403).json({ 
+          error: 'You can only send messages as yourself' 
+        });
+      }
+      
+      // Validate required fields
+      if (!receiverId || !content) {
+        return res.status(400).json({ 
+          error: 'Receiver ID and content are required' 
+        });
+      }
       
       // Log request for debugging
       console.log(`Sending message from user ${senderId} to user ${receiverId}: ${content.substring(0, 20)}...`);
@@ -2047,19 +1981,13 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       res.json(message);
     } catch (error) {
       console.error('Error sending message:', error);
-
-      // Simply return a default response instead of error for now
-      console.log(`Returning empty message array for senderId ${req.body.senderId} and receiverId ${req.body.receiverId} due to error`);
-      return res.json([]); 
       
-      /* Commented out error handling for now
       // Return appropriate error status for connection-related errors
       if (error instanceof Error && error.message.includes('Users must be connected')) {
         return res.status(403).json({ error: error.message });
       }
 
       res.status(500).json({ error: 'Failed to send message' });
-      */
     }
   });
 
@@ -4095,18 +4023,23 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     }
   });
 
-  // Add an endpoint to make a user an admin 
-  app.post('/api/admin/make-admin', async (req, res) => {
+  // Add an endpoint to make a user an admin (ADMIN ONLY)
+  app.post('/api/admin/make-admin', requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { username } = req.body;
-      
-      if (!username) {
-        return res.status(400).json({ error: 'Username is required' });
+      // Validate input with Zod schema
+      const validationResult = makeAdminSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: 'Invalid request data',
+          details: validationResult.error.errors
+        });
       }
+      
+      const { userId } = validationResult.data;
 
-      // Find the user by username
+      // Find the user by ID
       const user = await db.query.users.findFirst({
-        where: eq(users.username, username)
+        where: eq(users.id, userId)
       });
       
       if (!user) {
@@ -4118,7 +4051,11 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         .set({ isAdmin: true })
         .where(eq(users.id, user.id));
       
-      return res.json({ success: true, message: `User ${username} is now an admin` });
+      return res.json({ 
+        success: true, 
+        message: `User ${user.username} is now an admin`,
+        userId: user.id 
+      });
     } catch (error) {
       console.error('Error making user admin:', error);
       return res.status(500).json({ error: 'Failed to update user' });
