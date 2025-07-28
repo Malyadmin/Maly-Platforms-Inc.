@@ -1,10 +1,18 @@
 import request from 'supertest';
 import express from 'express';
-import { jest } from '@jest/globals';
+import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
 // Mock database with performance tracking
 let queryCount = 0;
-const mockDb = {
+
+interface MockUser {
+  id: number;
+  username: string;
+  fullName: string;
+  profileImage: string;
+}
+
+const mockDb: any = {
   select: jest.fn().mockImplementation(() => {
     queryCount++;
     return mockDb;
@@ -19,7 +27,7 @@ const mockDb = {
     { id: 1, username: 'user1', fullName: 'User One', profileImage: '/img1.jpg' },
     { id: 2, username: 'user2', fullName: 'User Two', profileImage: '/img2.jpg' },
     { id: 3, username: 'user3', fullName: 'User Three', profileImage: '/img3.jpg' }
-  ])
+  ] as MockUser[])
 };
 
 jest.mock('../../db', () => ({ db: mockDb }));

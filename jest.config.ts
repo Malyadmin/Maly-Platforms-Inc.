@@ -1,6 +1,6 @@
 export default {
   preset: "ts-jest",
-  testEnvironment: "jsdom",
+  testEnvironment: "node",
   testMatch: ["<rootDir>/tests/**/*.test.ts?(x)", "<rootDir>/server/__tests__/**/*.test.ts"],
   collectCoverage: true,
   coverageDirectory: "coverage",
@@ -11,7 +11,9 @@ export default {
   },
   transform: {
     "^.+\\.tsx?$": ["ts-jest", {
-      tsconfig: "tsconfig.json"
+      tsconfig: "tsconfig.json",
+      useESM: true
     }]
-  }
+  },
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"]
 };
