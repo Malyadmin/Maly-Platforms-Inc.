@@ -6,6 +6,15 @@ Maly is a comprehensive social networking platform designed to connect people in
 
 ## Recent Changes
 
+**July 28, 2025 - JWT Authentication System Implementation**
+- ✓ Installed jsonwebtoken and @types/jsonwebtoken dependencies
+- ✓ Updated POST /api/login endpoint to generate JWT tokens alongside sessions
+- ✓ Created JWT verification middleware (verifyToken and verifyTokenOptional)
+- ✓ Added comprehensive API documentation for mobile authentication
+- ✓ Implemented dual authentication support (sessions for web, JWT for mobile)
+- ✓ JWT tokens expire in 30 days matching session expiry
+- ✓ Created middleware for both required and optional JWT authentication
+
 **July 8, 2025 - Database Migration Setup Completed**
 - ✓ Created PostgreSQL database with all required tables
 - ✓ Migrated complete database schema with 11 tables
@@ -48,9 +57,13 @@ Preferred communication style: Simple, everyday language.
 
 ### Authentication System
 - Registration and login with username/email and password
-- Session-based authentication with persistent storage
+- **Dual authentication support**:
+  - **Session-based authentication** for web applications (cookies)
+  - **JWT token-based authentication** for mobile applications (Bearer tokens)
 - Password hashing with bcrypt
 - Authentication middleware for protected routes
+- JWT middleware with required and optional verification modes
+- 30-day token/session expiration for both authentication methods
 
 ### User Management
 - Comprehensive user profiles with bio, location, interests, and moods

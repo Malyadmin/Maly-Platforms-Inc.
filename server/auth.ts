@@ -610,11 +610,28 @@ export function setupAuth(app: Express) {
           // Sanitize the user object before sending it (remove password)
           const { password, ...userWithoutPassword } = user as any;
 
+          // Generate JWT token for mobile app support
+          const jwt = require('jsonwebtoken');
+          const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
+          
+          const token = jwt.sign(
+            { 
+              id: user.id, 
+              email: user.email,
+              username: user.username 
+            },
+            SESSION_SECRET,
+            { 
+              expiresIn: '30d' // 30 days to match session expiry
+            }
+          );
+
           console.log("Login successful, session established");
           return res.json({
             user: userWithoutPassword,
             authenticated: true,
-            sessionId: req.session.id // Include the session ID in the response
+            sessionId: req.session.id, // Include the session ID in the response for web compatibility
+            token: token // Include JWT token for mobile app support
           });
         });
       });
