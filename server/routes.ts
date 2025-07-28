@@ -31,6 +31,8 @@ import { Readable } from 'stream';
 import { upload as cloudinaryUpload } from './middleware/upload';
 // Import referral service
 import { generateReferralCode, recordReferral, buildShareUrl, getShareMessage } from './services/referralService';
+// Import JWT authentication middleware
+import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 
 const categories = [
   "Retail",
@@ -4201,6 +4203,39 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     } catch (error) {
       console.error("Error deleting event:", error);
       res.status(500).json({ error: "Failed to delete event" });
+    }
+  });
+
+  // Add JWT test endpoint to demonstrate token authentication
+  
+  app.get('/api/jwt-test', verifyToken, (req: Request, res: Response) => {
+    res.json({
+      message: 'JWT authentication successful!',
+      user: {
+        id: req.user?.id,
+        username: req.user?.username,
+        email: req.user?.email
+      },
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get('/api/jwt-test-optional', verifyTokenOptional, (req: Request, res: Response) => {
+    if (req.user) {
+      res.json({
+        message: 'JWT authentication successful (optional)!',
+        user: {
+          id: req.user.id,
+          username: req.user.username,
+          email: req.user.email
+        },
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.json({
+        message: 'No JWT token provided, but access granted (optional endpoint)',
+        timestamp: new Date().toISOString()
+      });
     }
   });
 
