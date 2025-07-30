@@ -43,8 +43,8 @@ export const events = pgTable("events", {
   address: text("address"), // Exact address of the event
   date: timestamp("date").notNull(),
   endDate: timestamp("end_date"), // Added for multi-day events
-  image: text("image"),
-  image_url: text("image_url"), 
+  image: text("image"), // Consolidated single image field for cover image
+  videoUrls: jsonb("video_urls").$type<string[]>().default([]), // Array of video URLs
   category: text("category").notNull(),
   creatorId: integer("creator_id").references(() => users.id),
   capacity: integer("capacity"),
