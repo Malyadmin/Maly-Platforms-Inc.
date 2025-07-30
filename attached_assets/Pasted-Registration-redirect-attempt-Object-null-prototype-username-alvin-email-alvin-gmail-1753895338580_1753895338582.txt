@@ -1,0 +1,63 @@
+Registration+redirect attempt: [Object: null prototype] {
+  username: 'alvin',
+  email: 'alvin@gmail.com',
+  password: 'password',
+  fullName: 'alvin',
+  location: 'Miami',
+  age: '33',
+  interests: '["Networking & Business","Outdoor & Nature"]'
+}
+File upload received: Yes
+File details: {
+  fieldname: 'profileImage',
+  originalname: 'CbOpQJREMM1UHylf_if5B.png',
+  mimetype: 'image/png',
+  size: 698274,
+  buffer: 'Buffer present',
+  path: 'No path'
+}
+Starting Cloudinary upload...
+Successfully uploaded profile image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1753895297/profiles/1753895297427/alvin-profile-1753895297427.png
+Hashing new password
+Generated hash length: 64
+User registered successfully for redirect flow: alvin
+Login after registration failed in redirect flow: error: relation "session_pkey" already exists
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PGStore._asyncQuery (/home/runner/workspace/node_modules/connect-pg-simple/index.js:322:21)
+    at async PGStore._rawEnsureSessionStoreTable (/home/runner/workspace/node_modules/connect-pg-simple/index.js:186:9)
+    at async PGStore._asyncQuery (/home/runner/workspace/node_modules/connect-pg-simple/index.js:315:7) {
+  length: 94,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'index.c',
+  line: '885',
+  routine: 'index_create'
+}
+5:08:18 PM [express] POST /api/register-redirect 302 in 1754ms
+5:08:18 PM [express] Error: relation "session_pkey" already exists
+Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:655:11)
+    at ServerResponse.header (/home/runner/workspace/node_modules/express/lib/response.js:794:10)
+    at ServerResponse.send (/home/runner/workspace/node_modules/express/lib/response.js:174:12)
+    at ServerResponse.json (/home/runner/workspace/node_modules/express/lib/response.js:278:15)
+    at res.json (file:///home/runner/workspace/dist/index.js:5526:30)
+    at file:///home/runner/workspace/dist/index.js:5548:24
+    at Layer.handle_error (/home/runner/workspace/node_modules/express/lib/router/layer.js:71:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:326:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+5:08:18 PM [express] Error: relation "session_pkey" already exists
+5:08:18 PM [express] Error: relation "session_pkey" already exists
+5:08:19 PM [express] Error: relation "session_pkey" already exists
