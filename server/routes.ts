@@ -1,7 +1,6 @@
-import multer from 'multer';
-import path from 'path';
 import express, { Request, Response, Express, NextFunction } from 'express';
 import { createServer, Server } from 'http';
+import path from 'path';
 import { setupAuth } from './auth';
 import { handleChatMessage } from './chat';
 import { findMatches } from './services/matchingService';
@@ -13,23 +12,22 @@ import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllM
 import { db } from "../db";
 import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
-import { stripe } from './lib/stripe'; // Import Stripe client from server/lib
-import Stripe from 'stripe'; // Ensure Stripe type is available if needed later
+import { stripe } from './lib/stripe';
+import Stripe from 'stripe';
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import { isNotNull } from "drizzle-orm";
 import { recordSubscriptionPayment, getUserPaymentHistory, getSubscriptionWithPayments, getPaymentStats } from "./lib/payments";
 import { sql } from 'drizzle-orm';
-// Add import for premium router
+// Import premium router and AI router
 import premiumRouter from './premium';
 import aiRouter from './ai';
 // Import object storage utilities
 import { uploadToObjectStorage } from './lib/objectStorage';
-// Import Cloudinary and stream utilities 
-import cloudinary from './lib/cloudinary';
-import { Readable } from 'stream';
-// Import new upload middleware
-import { upload as cloudinaryUpload } from './middleware/upload';
+// Import consolidated upload middleware
+import { uploadImage, uploadImageAndVideo } from './middleware/upload';
+// Import cloudinary service
+import { uploadToCloudinary, uploadMultipleToCloudinary } from './services/cloudinaryService';
 // Import referral service
 import { generateReferralCode, recordReferral, buildShareUrl, getShareMessage } from './services/referralService';
 // Import JWT authentication middleware
@@ -727,38 +725,7 @@ export const MOCK_EVENTS = DIGITAL_NOMAD_CITIES.reduce((acc, city) => {
   return acc;
 }, {} as Record<string, any[]>);
 
-// Ensure uploads directory exists
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads', { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname))
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // Increased to 10MB
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Not an image! Please upload an image.'));
-    }
-  }
-});
+// Directory creation is now handled by consolidated upload middleware
 
 // Type definitions
 interface User {
@@ -935,7 +902,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
   
   // Profile image upload endpoint
-  app.post("/api/upload-profile-image", requireAuth, cloudinaryUpload.single('image'), async (req, res) => {
+  app.post("/api/upload-profile-image", requireAuth, uploadImage.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No image file provided" });
@@ -947,32 +914,16 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       let imageUrl = '';
 
       try {
-        // Stream the buffer to Cloudinary
-        const bufferStream = new Readable();
-        bufferStream.push(req.file.buffer);
-        bufferStream.push(null);
-
         const username = user.username || 'user';
-        
-        const result = await new Promise<any>((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { 
-              folder: `profiles/${userId}`,
-              public_id: `${username}-${Date.now()}`
-            },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          
-          bufferStream.pipe(uploadStream);
-        });
-        
+        const result = await uploadToCloudinary(
+          req.file.buffer, 
+          req.file.originalname, 
+          'image',
+          `profiles/${username}`
+        );
         imageUrl = result.secure_url;
         console.log(`Uploaded profile image to Cloudinary: ${imageUrl}`);
-      } 
-      catch (cloudinaryError) {
+      } catch (cloudinaryError) {
         console.error("Error uploading to Cloudinary:", cloudinaryError);
         return res.status(500).json({ error: "Failed to upload image to Cloudinary" });
       }
@@ -1439,7 +1390,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // Update an existing event
-  app.put("/api/events/:id", cloudinaryUpload.single('image'), async (req, res) => {
+  app.put("/api/events/:id", uploadImageAndVideo.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'videos', maxCount: 5 }
+  ]), async (req, res) => {
     try {
       const { id } = req.params;
       const eventId = parseInt(id);
@@ -1545,6 +1499,42 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }
       }
 
+
+      // Handle new image and video uploads
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      // Process new image upload
+      if (files && files.image && files.image[0]) {
+        try {
+          const imageFile = files.image[0];
+          const result = await uploadToCloudinary(imageFile.buffer, imageFile.originalname, 'image');
+          updateData.image = result.secure_url;
+          console.log(`Updated event image: ${result.secure_url}`);
+        } catch (error) {
+          console.error("Error uploading image to Cloudinary:", error);
+        }
+      }
+      
+      // Process new video uploads (append to existing videos if any)
+      if (files && files.videos && files.videos.length > 0) {
+        try {
+          const videoFiles = files.videos.map(file => ({
+            buffer: file.buffer,
+            originalname: file.originalname,
+            mimetype: file.mimetype
+          }));
+          
+          const uploadResults = await uploadMultipleToCloudinary(videoFiles);
+          const newVideoUrls = uploadResults.map(result => result.secure_url);
+          
+          // Merge with existing videos if any
+          const existingVideos = existingEvent.videoUrls || [];
+          updateData.videoUrls = [...existingVideos, ...newVideoUrls];
+          console.log(`Updated event videos: ${newVideoUrls.length} new videos added`);
+        } catch (error) {
+          console.error("Error uploading videos to Cloudinary:", error);
+        }
+
       // Get coordinates from Mapbox geocoding service if location changed
       if (location || req.body.address) {
         const locationQuery = req.body.address || location || '';
@@ -1559,11 +1549,6 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
             console.log('Geocoding failed or returned no results');
           }
         }
-      }
-
-      // If a new image was uploaded, add it to the update data
-      if (req.file) {
-        updateData.image = req.file.path;
       }
 
       // Update the event in the database
@@ -1589,7 +1574,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // Create a new event
-  app.post("/api/events", requireAuth, cloudinaryUpload.single('image'), async (req, res) => {
+  app.post("/api/events", requireAuth, uploadImageAndVideo.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'videos', maxCount: 5 }
+  ]), async (req, res) => {
     try {
       const currentUser = req.user as any;
 
@@ -1649,39 +1637,44 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         price = 0;
       }
 
-      // Process image upload to Cloudinary if a file was provided
+      // Process image and video uploads to Cloudinary
       let imageUrl = '';
-      if (req.file) {
+      let videoUrls: string[] = [];
+      
+      // Handle uploaded files
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      // Process image upload
+      if (files && files.image && files.image[0]) {
         try {
-          // Stream the buffer to Cloudinary
-          const bufferStream = new Readable();
-          bufferStream.push(req.file.buffer);
-          bufferStream.push(null);
-          
-          const result = await new Promise<any>((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-              { 
-                folder: `events/${currentUser.id}`,
-                public_id: `event-${Date.now()}`
-              },
-              (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-              }
-            );
-            
-            bufferStream.pipe(uploadStream);
-          });
-          
+          const imageFile = files.image[0];
+          const result = await uploadToCloudinary(imageFile.buffer, imageFile.originalname, 'image');
           imageUrl = result.secure_url;
           console.log(`Uploaded event image to Cloudinary: ${imageUrl}`);
-        } 
-        catch (cloudinaryError) {
-          console.error("Error uploading to Cloudinary:", cloudinaryError);
+        } catch (error) {
+          console.error("Error uploading image to Cloudinary:", error);
           imageUrl = getEventImage(req.body.category || 'Social');
         }
       } else {
         imageUrl = getEventImage(req.body.category || 'Social');
+      }
+      
+      // Process video uploads
+      if (files && files.videos && files.videos.length > 0) {
+        try {
+          const videoFiles = files.videos.map(file => ({
+            buffer: file.buffer,
+            originalname: file.originalname,
+            mimetype: file.mimetype
+          }));
+          
+          const uploadResults = await uploadMultipleToCloudinary(videoFiles);
+          videoUrls = uploadResults.map(result => result.secure_url);
+          console.log(`Uploaded ${videoUrls.length} videos to Cloudinary`);
+        } catch (error) {
+          console.error("Error uploading videos to Cloudinary:", error);
+          // Continue without videos if upload fails
+        }
       }
 
       // Get coordinates from Mapbox geocoding service
@@ -1713,6 +1706,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         date: new Date(req.body.date || new Date()),
         tags: tags,
         image: imageUrl,
+
+        videoUrls: videoUrls, // Add video URLs array
+
         creatorId: currentUser.id,
         isPrivate: req.body.isPrivate === 'true',
         createdAt: new Date(),

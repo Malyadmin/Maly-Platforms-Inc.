@@ -1,0 +1,86 @@
+Build Prompt: Refactor, Implement, and Test Media Uploads
+Hello! Your task is to refactor the existing file upload system and implement the full media upload functionality for events and profiles. This task is not complete until a new testing suite with at least 20 distinct tests has been created and passes successfully.
+
+Please execute the following steps in order:
+
+1. Foundational Cleanup (Database & Configuration)
+Update Event Schema:
+
+Modify the Drizzle schema in db/schema.ts.
+
+In the events table, add the new field for videos: videoUrls: jsonb("video_urls").$type<string[]>().default([]).
+
+Consolidate the duplicate image fields. Remove the image_url field and ensure all logic uses the primary image field for the event cover image URL.
+
+Consolidate Multer Configuration:
+
+Remove the redundant multer configurations from server/utils/fileUpload.ts and server/routes.ts.
+
+Establish the configuration in server/middleware/upload.ts as the single, authoritative middleware for all file uploads.
+
+Refactor this middleware to be flexible, allowing it to accept different file type filters (e.g., images only, or images and videos) and file size limits as arguments.
+
+2. Implement Core Upload Logic
+Refactor Endpoints to Use Consolidated Middleware:
+
+Modify the POST /api/events endpoint to use the newly consolidated upload.ts middleware for handling the event cover image.
+
+Modify the POST /api/upload-profile-image endpoint to use the same middleware for handling profile picture uploads. Ensure it correctly updates the profileImage field in the users table.
+
+Add Video Upload Capability to Event Creation:
+
+Update the POST /api/events endpoint to accept an array of video files in addition to the single cover image.
+
+Use the Cloudinary upload service to upload each video.
+
+Save the array of resulting video URLs to the new videoUrls field in the database for the created event.
+
+3. Comprehensive Validation & Testing (Task Completion Requirement)
+Create a new test file at server/__tests__/mediaUpload.test.ts.
+
+Using a testing framework like Jest, write at least 20 distinct tests to validate the entire media upload functionality. The tests must cover the following scenarios:
+
+Middleware Unit Tests (at least 5 tests):
+
+Test successful image upload handling.
+
+Test successful video upload handling.
+
+Test rejection of an incorrect file type (e.g., a .txt file).
+
+Test rejection of a file that exceeds the size limit.
+
+Test graceful handling of a request with no file attached.
+
+Event Creation Endpoint (POST /api/events) Integration Tests (at least 8 tests):
+
+Test creating an event with only a cover image.
+
+Test creating an event with only videos.
+
+Test creating an event with both a cover image and videos.
+
+Test that an unauthenticated request is rejected with a 401 error.
+
+Test that a request with invalid data (e.g., missing title) is rejected with a 400 error.
+
+Test that the correct Cloudinary URLs are saved to the image and videoUrls fields in the database.
+
+Profile Image Endpoint (POST /api/upload-profile-image) Integration Tests (at least 7 tests):
+
+Test a successful profile image upload for the authenticated user.
+
+Test that the profileImage field in the users table is correctly updated.
+
+Test that uploading a non-image file is rejected.
+
+Test that an unauthenticated request is rejected with a 401 error.
+
+4. Update API Documentation
+Update the API_DOCUMENTATION.md file to reflect these changes.
+
+For the POST /api/events and POST /api/upload-profile-image endpoints, specify that they now expect a multipart/form-data request.
+
+Provide a clear example of how to structure the request, showing both the JSON data fields and the file field(s).
+
+The task is only considered complete when all refactoring is done, the new features are implemented, and the new testing suite with at least 20 tests passes successfully.

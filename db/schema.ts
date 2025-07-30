@@ -45,7 +45,10 @@ export const events = pgTable("events", {
   longitude: decimal("longitude", { precision: 10, scale: 7 }), // Geographic longitude
   date: timestamp("date").notNull(),
   endDate: timestamp("end_date"), // Added for multi-day events
-  image: text("image"), 
+
+  image: text("image"), // Consolidated single image field for cover image
+  videoUrls: jsonb("video_urls").$type<string[]>().default([]), // Array of video URLs
+
   category: text("category").notNull(),
   creatorId: integer("creator_id").references(() => users.id),
   capacity: integer("capacity"),
