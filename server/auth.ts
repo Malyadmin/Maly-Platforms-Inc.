@@ -539,10 +539,10 @@ export function setupAuth(app: Express) {
           const { password, ...userWithoutPassword } = user as any;
 
           // Generate JWT token for mobile app support
-          const jwt = require('jsonwebtoken');
+          const jwt = await import('jsonwebtoken');
           const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
           
-          const token = jwt.sign(
+          const token = jwt.default.sign(
             { 
               id: user.id, 
               email: user.email,
