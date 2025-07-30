@@ -598,40 +598,36 @@ export function setupAuth(app: Express) {
         console.log("Session managed by connect-pg-simple for redirect flow:", sessionId);
 
         // Save session and redirect with session cookie and header
-          req.session.save((err) => {
-            if (err) {
-              console.error("Session save error during redirect flow:", err);
-              return res.redirect('/auth?error=Session+error');
-            }
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error during redirect flow:", err);
+            return res.redirect('/auth?error=Session+error');
+          }
 
-            console.log("Login successful, redirecting to homepage with session:", req.sessionID);
+          console.log("Login successful, redirecting to homepage with session:", req.sessionID);
 
-            // Set cookies with different names to maximize persistence
-            // Main session ID cookie
-            res.cookie('maly_session_id', sessionId, {
-              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-              httpOnly: true,
-              sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
-            });
-            
-            // Backup session ID cookie
-            res.cookie('sessionId', sessionId, {
-              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-              httpOnly: true,
-              sameSite: 'lax'
-            });
-            
-            // Set x-session-id header
-            res.setHeader('x-session-id', sessionId);
-
-            // Add a timestamp to break browser caching and include session ID in URL
-            const timestamp = Date.now();
-            return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+          // Set cookies with different names to maximize persistence
+          // Main session ID cookie
+          res.cookie('maly_session_id', sessionId, {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
           });
-        } catch (error) {
-          console.error("Database error during session creation:", error);
-          return res.redirect('/auth?error=Session+creation+failed');
-        }
+          
+          // Backup session ID cookie
+          res.cookie('sessionId', sessionId, {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: 'lax'
+          });
+          
+          // Set x-session-id header
+          res.setHeader('x-session-id', sessionId);
+
+          // Add a timestamp to break browser caching and include session ID in URL
+          const timestamp = Date.now();
+          return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+        });
       });
     })(req, res, next);
   });
