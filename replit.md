@@ -6,6 +6,16 @@ Maly is a comprehensive social networking platform designed to connect people in
 
 ## Recent Changes
 
+**July 30, 2025 - Mapbox Geocoding Integration**
+- ✓ **MAPBOX BACKEND INTEGRATION**: Implemented complete backend geocoding using official Mapbox SDK
+- ✓ **Database Schema Enhancement**: Added latitude and longitude decimal columns to events table for precise coordinates
+- ✓ **Geocoding Service**: Created mapboxService.ts with getCoordinates function for address-to-coordinate conversion
+- ✓ **Event Creation Integration**: POST /api/events now automatically geocodes location/address fields
+- ✓ **Event Update Integration**: PUT /api/events/:id now handles location updates with re-geocoding
+- ✓ **API Documentation Updated**: Enhanced documentation with latitude/longitude fields in response examples
+- ✓ **Error Handling**: Graceful fallback when geocoding fails, events created without coordinates if needed
+- ✓ **Environment Setup**: Ready for MAPBOX_API_KEY environment variable configuration
+
 **July 28, 2025 - Complete API Refactoring & Security Implementation**
 - ✓ **COMPLETED COMPREHENSIVE API REFACTORING**: Addressed all critical security vulnerabilities, performance bottlenecks, and validation issues
 - ✓ **Security Implementation**: Created admin authentication middleware (requireAdmin) and unified auth middleware (requireAuth)
@@ -113,6 +123,7 @@ Preferred communication style: Simple, everyday language.
 - **PostgreSQL** - Primary database
 - **OpenAI API** - AI-powered features and recommendations
 - **Stripe** - Payment processing for events and subscriptions
+- **Mapbox API** - Geographic coordinate conversion and location services
 - **Twilio** - SMS notifications (optional)
 
 ### Development Dependencies

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, jsonb, boolean, varchar, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb, boolean, varchar, primaryKey, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -41,10 +41,11 @@ export const events = pgTable("events", {
   city: text("city").notNull(), // For city filtering
   location: text("location").notNull(), // Specific venue location
   address: text("address"), // Exact address of the event
+  latitude: decimal("latitude", { precision: 10, scale: 7 }), // Geographic latitude
+  longitude: decimal("longitude", { precision: 10, scale: 7 }), // Geographic longitude
   date: timestamp("date").notNull(),
   endDate: timestamp("end_date"), // Added for multi-day events
-  image: text("image"),
-  image_url: text("image_url"), 
+  image: text("image"), 
   category: text("category").notNull(),
   creatorId: integer("creator_id").references(() => users.id),
   capacity: integer("capacity"),
