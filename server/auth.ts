@@ -4,7 +4,7 @@ import { type Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { createHash } from "crypto";
-import { users } from "@db/schema";
+import { users, sessions } from "@db/schema";
 import { db } from "@db";
 import { eq, or, lte } from "drizzle-orm";
 import { checkAuthentication } from './middleware/auth.middleware';
@@ -531,10 +531,58 @@ export function setupAuth(app: Express) {
             return next(err);
           }
 
-          // Session is now handled by Express with connect-pg-simple - no custom DB operations needed
+          // Store the session ID in our database for header-based authentication
             try {
               const sessionId = req.session.id;
-              console.log("Using Express session ID:", sessionId);
+              console.log("Storing session ID in database:", sessionId);
+
+              // Delete any expired sessions for this user
+              await db.delete(sessions)
+                .where(
+                  or(
+                    eq(sessions.userId, user.id),
+                    lte(sessions.expiresAt, new Date())
+                  )
+                );
+
+              // Create new session
+              await db.insert(sessions).values({
+                id: sessionId,
+                userId: user.id,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: { 
+                  username: user.username, 
+                  email: user.email,
+                  lastLogin: new Date().toISOString()
+                }
+              }).onConflictDoUpdate({
+                target: sessions.id,
+                set: {
+                  userId: user.id,
+                  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                  updatedAt: new Date(),
+                  data: { 
+                    username: user.username, 
+                    email: user.email,
+                    lastLogin: new Date().toISOString()
+                  }
+                }
+              });
+
+              // Validate session was created
+              const sessionCheck = await db.select()
+                .from(sessions)
+                .where(eq(sessions.id, sessionId))
+                .limit(1);
+
+              if (!sessionCheck.length) {
+                console.error("Failed to create session:", sessionId);
+                return res.status(500).json({ error: "Failed to create session" });
+              }
+
+              console.log("Session stored in database successfully");
 
               // Set cookies with different names to maximize persistence
               // Primary session cookie
@@ -617,9 +665,47 @@ export function setupAuth(app: Express) {
         }
 
         try {
-          // Session is now handled entirely by Express with connect-pg-simple
+          // Create a session record in the database that matches our session ID
+          // First, check if a session already exists
           const sessionId = req.sessionID;
-          console.log("Using Express session (no custom DB operations needed):", sessionId);
+          const existingSession = await db.select()
+            .from(sessions)
+            .where(eq(sessions.id, sessionId))
+            .limit(1);
+
+          // If no session exists, create it
+          if (existingSession.length === 0) {
+            console.log("Creating new session record in database:", sessionId);
+            // Set session expiration to 30 days from now
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 30);
+
+            await db.insert(sessions).values({
+              id: sessionId,
+              userId: user.id,
+              expiresAt: expiresAt,
+              data: JSON.stringify({ 
+                userId: user.id,
+                username: user.username,
+                email: user.email 
+              }),
+              createdAt: new Date(),
+              updatedAt: new Date()
+            });
+          } else {
+            console.log("Updating existing session record:", sessionId);
+            await db.update(sessions)
+              .set({
+                userId: user.id,
+                updatedAt: new Date(),
+                data: JSON.stringify({ 
+                  userId: user.id,
+                  username: user.username,
+                  email: user.email
+                })
+              })
+              .where(eq(sessions.id, sessionId));
+          }
 
           // Save session and redirect with session cookie and header
           req.session.save((err) => {
