@@ -1534,6 +1534,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         } catch (error) {
           console.error("Error uploading videos to Cloudinary:", error);
         }
+      }
 
       // Get coordinates from Mapbox geocoding service if location changed
       if (location || req.body.address) {
