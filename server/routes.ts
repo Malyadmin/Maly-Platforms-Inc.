@@ -10,7 +10,7 @@ import { getEventImage } from './services/eventsService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, sessions, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
+import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe'; // Import Stripe client from server/lib
 import Stripe from 'stripe'; // Ensure Stripe type is available if needed later
@@ -840,51 +840,14 @@ app.get('/api/users/:city', (req: Request, res: Response) => {
 
 // Middleware to check if user is authenticated
 // Import centralized authentication functions instead of duplicated local implementations
-import { isAuthenticated, checkAuthentication } from './middleware/auth.middleware';
+import { isAuthenticated, checkAuthentication, requireAuth } from './middleware/auth.middleware';
 
-// Authentication middleware
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  // Method 1: Check if already authenticated via passport
-  if (req.isAuthenticated() && req.user) {
-    return next();
-  }
-  
-  // Method 2: Try to authenticate via session ID in headers or cookies
-  const headerSessionId = req.headers['x-session-id'] as string;
-  const cookieSessionId = req.cookies?.maly_session_id || req.cookies?.sessionId;
-  
-  if (headerSessionId || cookieSessionId) {
-    const sessionId = headerSessionId || cookieSessionId;
-    
-    try {
-      // Check for session in the database
-      const sessionResults = await db
-        .select()
-        .from(sessions)
-        .where(eq(sessions.id, sessionId));
-      
-      if (sessionResults.length > 0 && sessionResults[0].userId) {
-        // Session is valid, find the user
-        const userResults = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, sessionResults[0].userId));
-        
-        if (userResults.length > 0) {
-          // Set the user on the request so it's available to route handlers
-          req.user = userResults[0] as any;
-          console.log(`User authenticated via session ID: ${userResults[0].username}`);
-          return next();
-        }
-      }
-    } catch (err: any) {
-      console.error("Error authenticating via session:", err);
-    }
-  }
-  
-  // If we get here, authentication failed
-  return res.status(401).json({ error: 'Authentication required' });
-};
+// Import centralized authentication middleware instead of defining local version
+// This removes the conflicting manual session database queries
+// const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+//   // Use centralized authentication from middleware instead
+//   return await checkAuthentication(req, res, next);
+// };
 
 export function registerRoutes(app: Express): { app: Express; httpServer: Server } {
   app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
@@ -1120,29 +1083,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           console.warn("Invalid currentUserId in query:", req.query.currentUserId);
         }
       }
-      // 3. Try to get from session ID header or cookie
-      else {
-        const headerSessionId = req.headers['x-session-id'] as string;
-        const cookieSessionId = req.cookies?.maly_session_id || req.cookies?.sessionId;
-        
-        if (headerSessionId || cookieSessionId) {
-          const sessionId = headerSessionId || cookieSessionId;
-          try {
-            const sessionResult = await db
-              .select()
-              .from(sessions)
-              .where(eq(sessions.id, sessionId))
-              .limit(1);
-              
-            if (sessionResult.length > 0 && sessionResult[0].userId) {
-              currentUserId = sessionResult[0].userId;
-              console.log("User browse: Authenticated via session ID:", currentUserId);
-            }
-          } catch (err) {
-            console.error("Error checking session for user browse:", err);
-          }
-        }
-      }
+      // 3. No manual session lookup - rely on passport authentication only
+      // (Manual session queries removed to prevent database schema conflicts)
       
       // More detailed logging for debugging
       console.log(`User browse request received with city=${city}`);
@@ -2274,12 +2216,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   // Add authentication check endpoint that specifically looks for the session ID from various sources
 // Auth check endpoint is now defined in server/auth.ts to avoid duplicate routes
 
-  // Add endpoint to get user by session ID
+  // Add endpoint to get user by session ID - simplified to use passport auth only
   app.get('/api/user-by-session', async (req: Request, res: Response) => {
     try {
-      // First check if user is authenticated via passport
+      // Use passport authentication only (no manual session queries)
       if (req.isAuthenticated() && req.user) {
-        console.log("User already authenticated via passport:", (req.user as any).username);
+        console.log("User authenticated via passport:", (req.user as any).username);
         
         // Sanitize user object to remove sensitive info (like password)
         const { password, ...userWithoutPassword } = req.user as any;
@@ -2290,92 +2232,22 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         });
       }
       
-      // Try to get session ID from multiple sources
-      const headerSessionId = req.headers['x-session-id'] as string;
-      const cookieSessionId = req.cookies?.sessionId || req.cookies?.maly_session_id;
-      const expressSessionId = req.sessionID;
+      // Authentication failed
+      console.log("User not authenticated in user-by-session request");
       
-      const sessionId = headerSessionId || cookieSessionId || expressSessionId;
+      // Check if the request wants HTML (browser) vs API (JSON) response
+      const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
       
-      console.log("User by session request, checking session ID sources:", {
-        'x-session-id': headerSessionId || 'not_present',
-        'cookie.sessionId': req.cookies?.sessionId || 'not_present',
-        'cookie.maly_session_id': req.cookies?.maly_session_id || 'not_present',
-        'express.sessionID': expressSessionId || 'not_present',
-        'final_session_id': sessionId || 'none_found'
-      });
-
-      if (!sessionId) {
-        console.log("No session ID provided in user-by-session request");
-        
-        // Check if the request wants HTML (browser) vs API (JSON) response
-        const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
-        
-        // For browser requests, redirect to login page
-        if (acceptsHtml) {
-          console.log("Redirecting unauthenticated user to login page from user-by-session");
-          return res.redirect('/login');
-        }
-        
-        // For API requests, return JSON
-        return res.status(401).json({
-          error: "No session ID provided",
-          authenticated: false
-        });
+      // For browser requests, redirect to login page
+      if (acceptsHtml) {
+        console.log("Redirecting unauthenticated user to login page");
+        return res.redirect('/login');
       }
-
-      // Find the user ID in the session
-      const sessionQuery = await db.select().from(sessions).where(eq(sessions.id, sessionId));
-
-      if (sessionQuery.length === 0 || !sessionQuery[0].userId) {
-        console.log("No user found in session:", sessionId);
-        
-        // Check if the request wants HTML (browser) vs API (JSON) response
-        const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
-        
-        // For browser requests, redirect to login page
-        if (acceptsHtml) {
-          console.log("Redirecting user with invalid session to login page");
-          return res.redirect('/login');
-        }
-        
-        // For API requests, return JSON
-        return res.status(401).json({
-          error: "Session not found or invalid",
-          authenticated: false
-        });
-      }
-
-      // Find the user by ID
-      const userId = sessionQuery[0].userId;
-      const userQuery = await db.select().from(users).where(eq(users.id, userId));
-
-      if (userQuery.length === 0) {
-        console.log("User not found for ID:", userId);
-        
-        // Check if the request wants HTML (browser) vs API (JSON) response
-        const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
-        
-        // For browser requests, redirect to login page
-        if (acceptsHtml) {
-          console.log("Redirecting user not found in database to login page");
-          return res.redirect('/login');
-        }
-        
-        // For API requests, return JSON
-        return res.status(404).json({
-          error: "User not found",
-          authenticated: false
-        });
-      }
-
-      // Remove sensitive information before returning user
-      const { password, ...userWithoutPassword } = userQuery[0] as any;
-
-      console.log("User found by session ID:", userWithoutPassword.username);
-      return res.json({
-        ...userWithoutPassword,
-        authenticated: true
+      
+      // For API requests, return JSON
+      return res.status(401).json({
+        error: "Authentication required",
+        authenticated: false
       });
     } catch (error) {
       console.error("Error in user-by-session endpoint:", error);
@@ -3080,23 +2952,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         bodyUserId: bodyUserId || 'not_present'
       });
       
-      // Try to authenticate using the session if available
-      if (headerSessionId || cookieSessionId) {
-        const sessionId = headerSessionId || cookieSessionId;
-        try {
-          const sessionQuery = await db
-            .select()
-            .from(sessions)
-            .where(eq(sessions.id, sessionId));
-            
-          if (sessionQuery.length > 0 && sessionQuery[0].userId) {
-            userId = sessionQuery[0].userId;
-            console.log("User authenticated via sessionId:", sessionId);
-          }
-        } catch (error) {
-          console.error("Error checking session:", error);
-        }
-      }
+      // Manual session queries removed - rely on passport authentication only
+      // (prevents database schema conflicts with connect-pg-simple)
       
       // If still not authenticated, use X-User-ID header or body userId as a fallback
       if (!userId) {
@@ -4077,35 +3934,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         console.log("User authenticated via passport for event deletion:", currentUser.username);
       }
       
-      // Method 2: Check X-Session-ID header for API auth
-      if (!currentUser) {
-        const sessionId = req.headers['x-session-id'] as string || req.cookies?.session_id;
-        
-        if (sessionId) {
-          console.log("Trying to authenticate via session ID for event deletion:", sessionId);
-          
-          try {
-            const [session] = await db.select()
-              .from(sessions)
-              .where(eq(sessions.id, sessionId))
-              .limit(1);
-              
-            if (session && session.userId) {
-              const [user] = await db.select()
-                .from(users)
-                .where(eq(users.id, session.userId))
-                .limit(1);
-                
-              if (user) {
-                currentUser = user;
-                console.log("User authenticated via session for event deletion:", user.username);
-              }
-            }
-          } catch (err) {
-            console.error("Error checking session:", err);
-          }
-        }
-      }
+      // Manual session queries removed - rely on passport authentication only
+      // (prevents database schema conflicts with connect-pg-simple)
 
       if (!currentUser) {
         return res.status(401).json({ error: "Authentication required" });
