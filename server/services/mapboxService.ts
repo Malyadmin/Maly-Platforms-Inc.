@@ -1,4 +1,6 @@
-import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAPBOX_API_KEY! });
 
