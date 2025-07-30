@@ -1084,10 +1084,120 @@ Create a Stripe checkout session for event tickets.
 
 ### POST /api/webhooks/stripe
 
-Handle Stripe webhook events.
+Handle Stripe webhook events. Upon successful payment completion (`checkout.session.completed`), the system now sets the participant status to `'pending_approval'` instead of `'attending'`, requiring host approval before the user can attend the event.
 
 **Request Body:** Raw Stripe webhook payload
 **Response:** 200 OK for successful processing
+
+**Note:** Successful ticket purchases now result in a participant status of `'pending_approval'` which requires event host approval through the RSVP management endpoints.
+
+## RSVP Management
+
+### GET /api/events/:eventId/applications
+
+Fetch all pending RSVP applications for a specific event. Only accessible by the event creator.
+
+**Path Parameters:**
+- `eventId` (number): The ID of the event
+
+**Authorization:** Event creator verification required
+
+**Success Response (200 OK):**
+```json
+{
+  "eventId": 1,
+  "eventTitle": "Tech Meetup 2024",
+  "applications": [
+    {
+      "id": 123,
+      "userId": 456,
+      "status": "pending_approval",
+      "ticketQuantity": 2,
+      "purchaseDate": "2024-01-15T10:30:00Z",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "username": "johndoe",
+      "fullName": "John Doe",
+      "profileImage": "https://example.com/profile.jpg",
+      "email": "john@example.com",
+      "bio": "Software developer passionate about tech",
+      "location": "San Francisco, CA"
+    }
+  ],
+  "totalPending": 1
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "You can only manage applications for your own events"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": "Event not found"
+}
+```
+
+### PUT /api/events/:eventId/applications/:userId
+
+Approve or reject a pending RSVP application. Only accessible by the event creator.
+
+**Path Parameters:**
+- `eventId` (number): The ID of the event
+- `userId` (number): The ID of the user whose application to update
+
+**Authorization:** Event creator verification required
+
+**Request Body:**
+```json
+{
+  "status": "approved"  // or "rejected"
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Application approved successfully",
+  "application": {
+    "id": 123,
+    "eventId": 1,
+    "userId": 456,
+    "status": "attending",
+    "ticketQuantity": 2,
+    "updatedAt": "2024-01-15T11:00:00Z"
+  },
+  "applicant": {
+    "username": "johndoe",
+    "fullName": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "error": "Invalid status. Must be 'approved' or 'rejected'"
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "You can only manage applications for your own events"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": "Pending application not found for this user and event"
+}
+```
 
 ### GET /api/tickets/:participantId/qr
 

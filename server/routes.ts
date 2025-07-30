@@ -3589,10 +3589,11 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       const ticketIdentifier = uuidv4();
       console.log(`[Webhook] Generated new ticketIdentifier: ${ticketIdentifier} for participant ID: ${participantRecord.id}`);
 
-      // Update the event participant record
-      console.log(`[Webhook] Updating participant record ID: ${participantRecord.id} to status 'completed' and setting paymentIntentId to ${paymentIntentId}`);
+      // Update the event participant record with pending_approval status
+      console.log(`[Webhook] Updating participant record ID: ${participantRecord.id} to status 'pending_approval' and setting paymentIntentId to ${paymentIntentId}`);
       const updateResult = await db.update(eventParticipants)
         .set({
+          status: 'pending_approval', // Set status to pending_approval for host review
           paymentStatus: 'completed',
           paymentIntentId: paymentIntentId, // Update with the actual Payment Intent ID
           ticketIdentifier: ticketIdentifier,
@@ -4002,6 +4003,174 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
 
   // Add JWT test endpoint to demonstrate token authentication
   
+  // RSVP Management Endpoints
+  
+  // GET /api/events/:eventId/applications - Fetch pending RSVP applications for an event
+  app.get('/api/events/:eventId/applications', requireAuth, async (req, res) => {
+    try {
+      const { eventId } = req.params;
+      const eventIdNum = parseInt(eventId);
+      const currentUser = req.user as any;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Verify this event exists and the user is the creator
+      const [existingEvent] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!existingEvent) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+
+      if (existingEvent.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: "You can only manage applications for your own events" });
+      }
+
+      // Fetch all pending applications with user details
+      const applications = await db.select({
+        id: eventParticipants.id,
+        userId: eventParticipants.userId,
+        status: eventParticipants.status,
+        ticketQuantity: eventParticipants.ticketQuantity,
+        purchaseDate: eventParticipants.purchaseDate,
+        createdAt: eventParticipants.createdAt,
+        // User details
+        username: users.username,
+        fullName: users.fullName,
+        profileImage: users.profileImage,
+        email: users.email,
+        bio: users.bio,
+        location: users.location
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .where(
+        and(
+          eq(eventParticipants.eventId, eventIdNum),
+          eq(eventParticipants.status, 'pending_approval')
+        )
+      )
+      .orderBy(desc(eventParticipants.createdAt));
+
+      return res.json({
+        eventId: eventIdNum,
+        eventTitle: existingEvent.title,
+        applications,
+        totalPending: applications.length
+      });
+    } catch (error) {
+      console.error("Error fetching event applications:", error);
+      res.status(500).json({ error: "Failed to fetch event applications" });
+    }
+  });
+
+  // PUT /api/events/:eventId/applications/:userId - Approve or reject a pending application
+  app.put('/api/events/:eventId/applications/:userId', requireAuth, async (req, res) => {
+    try {
+      const { eventId, userId } = req.params;
+      const { status } = req.body;
+      const eventIdNum = parseInt(eventId);
+      const userIdNum = parseInt(userId);
+      const currentUser = req.user as any;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Validate status
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ 
+          error: "Invalid status. Must be 'approved' or 'rejected'" 
+        });
+      }
+
+      // Verify this event exists and the user is the creator
+      const [existingEvent] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!existingEvent) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+
+      if (existingEvent.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: "You can only manage applications for your own events" });
+      }
+
+      // Find the pending application
+      const [application] = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            eq(eventParticipants.eventId, eventIdNum),
+            eq(eventParticipants.userId, userIdNum),
+            eq(eventParticipants.status, 'pending_approval')
+          )
+        )
+        .limit(1);
+
+      if (!application) {
+        return res.status(404).json({ 
+          error: "Pending application not found for this user and event" 
+        });
+      }
+
+      // Update the application status
+      const finalStatus = status === 'approved' ? 'attending' : 'rejected';
+      
+      const [updatedApplication] = await db.update(eventParticipants)
+        .set({
+          status: finalStatus,
+          updatedAt: new Date()
+        })
+        .where(eq(eventParticipants.id, application.id))
+        .returning();
+
+      // If approved, update the event's attending count
+      if (status === 'approved') {
+        const currentCount = existingEvent.attendingCount || 0;
+        const ticketQuantity = application.ticketQuantity || 1;
+        
+        await db.update(events)
+          .set({ 
+            attendingCount: currentCount + ticketQuantity 
+          })
+          .where(eq(events.id, eventIdNum));
+      }
+
+      // Get user details for response
+      const [applicantUser] = await db.select({
+        username: users.username,
+        fullName: users.fullName,
+        email: users.email
+      })
+      .from(users)
+      .where(eq(users.id, userIdNum))
+      .limit(1);
+
+      return res.json({
+        message: `Application ${status} successfully`,
+        application: {
+          id: updatedApplication.id,
+          eventId: eventIdNum,
+          userId: userIdNum,
+          status: finalStatus,
+          ticketQuantity: application.ticketQuantity,
+          updatedAt: updatedApplication.updatedAt
+        },
+        applicant: applicantUser
+      });
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      res.status(500).json({ error: "Failed to update application status" });
+    }
+  });
+
   app.get('/api/jwt-test', verifyToken, (req: Request, res: Response) => {
     res.json({
       message: 'JWT authentication successful!',
