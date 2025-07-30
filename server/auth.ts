@@ -4,7 +4,7 @@ import { type Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { createHash } from "crypto";
-import { users, sessions } from "@db/schema";
+import { users } from "@db/schema";
 import { db } from "@db";
 import { eq, or, lte } from "drizzle-orm";
 import { checkAuthentication } from './middleware/auth.middleware';
@@ -503,90 +503,18 @@ export function setupAuth(app: Express) {
             return next(err);
           }
 
-          // Store the session ID in our database for header-based authentication
-            try {
-              const sessionId = req.session.id;
-              console.log("Storing session ID in database:", sessionId);
-
-              // Delete any expired sessions for this user
-              await db.delete(sessions)
-                .where(
-                  or(
-                    eq(sessions.userId, user.id),
-                    lte(sessions.expiresAt, new Date())
-                  )
-                );
-
-              // Create new session
-              await db.insert(sessions).values({
-                id: sessionId,
-                userId: user.id,
-                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                data: { 
-                  username: user.username, 
-                  email: user.email,
-                  lastLogin: new Date().toISOString()
-                }
-              }).onConflictDoUpdate({
-                target: sessions.id,
-                set: {
-                  userId: user.id,
-                  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                  updatedAt: new Date(),
-                  data: { 
-                    username: user.username, 
-                    email: user.email,
-                    lastLogin: new Date().toISOString()
-                  }
-                }
-              });
-
-              // Validate session was created
-              const sessionCheck = await db.select()
-                .from(sessions)
-                .where(eq(sessions.id, sessionId))
-                .limit(1);
-
-              if (!sessionCheck.length) {
-                console.error("Failed to create session:", sessionId);
-                return res.status(500).json({ error: "Failed to create session" });
-              }
-
-              console.log("Session stored in database successfully");
-
-              // Set cookies with different names to maximize persistence
-              // Primary session cookie
-              res.cookie('maly_session_id', sessionId, {
-                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-                httpOnly: true,
-                sameSite: 'lax'
-              });
-              
-              // Backup session cookie
-              res.cookie('sessionId', sessionId, {
-                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-                httpOnly: true,
-                sameSite: 'lax'
-              });
-              
-              // Set session ID header
-              res.setHeader('x-session-id', sessionId);
-
-            } catch (dbError) {
-              console.error("Error storing session in database:", dbError);
-              return res.status(500).json({ error: "Failed to create session" });
-            }
+          // Session management is now handled by connect-pg-simple
+          // Manual session database operations removed to prevent schema conflicts
+          console.log("Session managed by connect-pg-simple, sessionID:", req.session.id);
 
           // Sanitize the user object before sending it (remove password)
           const { password, ...userWithoutPassword } = user as any;
 
           // Generate JWT token for mobile app support
-          const jwt = require('jsonwebtoken');
+          const jwt = await import('jsonwebtoken');
           const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
           
-          const token = jwt.sign(
+          const token = jwt.default.sign(
             { 
               id: user.id, 
               email: user.email,
@@ -636,84 +564,42 @@ export function setupAuth(app: Express) {
           return res.redirect('/auth?error=Authentication+failed');
         }
 
-        try {
-          // Create a session record in the database that matches our session ID
-          // First, check if a session already exists
-          const sessionId = req.sessionID;
-          const existingSession = await db.select()
-            .from(sessions)
-            .where(eq(sessions.id, sessionId))
-            .limit(1);
+        // Session management handled by connect-pg-simple
+        // Manual session database operations removed to prevent schema conflicts
+        const sessionId = req.sessionID;
+        console.log("Session managed by connect-pg-simple for redirect flow:", sessionId);
 
-          // If no session exists, create it
-          if (existingSession.length === 0) {
-            console.log("Creating new session record in database:", sessionId);
-            // Set session expiration to 30 days from now
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 30);
-
-            await db.insert(sessions).values({
-              id: sessionId,
-              userId: user.id,
-              expiresAt: expiresAt,
-              data: JSON.stringify({ 
-                userId: user.id,
-                username: user.username,
-                email: user.email 
-              }),
-              createdAt: new Date(),
-              updatedAt: new Date()
-            });
-          } else {
-            console.log("Updating existing session record:", sessionId);
-            await db.update(sessions)
-              .set({
-                userId: user.id,
-                updatedAt: new Date(),
-                data: JSON.stringify({ 
-                  userId: user.id,
-                  username: user.username,
-                  email: user.email
-                })
-              })
-              .where(eq(sessions.id, sessionId));
+        // Save session and redirect with session cookie and header
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error during redirect flow:", err);
+            return res.redirect('/auth?error=Session+error');
           }
 
-          // Save session and redirect with session cookie and header
-          req.session.save((err) => {
-            if (err) {
-              console.error("Session save error during redirect flow:", err);
-              return res.redirect('/auth?error=Session+error');
-            }
+          console.log("Login successful, redirecting to homepage with session:", req.sessionID);
 
-            console.log("Login successful, redirecting to homepage with session:", req.sessionID);
-
-            // Set cookies with different names to maximize persistence
-            // Main session ID cookie
-            res.cookie('maly_session_id', sessionId, {
-              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-              httpOnly: true,
-              sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
-            });
-            
-            // Backup session ID cookie
-            res.cookie('sessionId', sessionId, {
-              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-              httpOnly: true,
-              sameSite: 'lax'
-            });
-            
-            // Set x-session-id header
-            res.setHeader('x-session-id', sessionId);
-
-            // Add a timestamp to break browser caching and include session ID in URL
-            const timestamp = Date.now();
-            return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+          // Set cookies with different names to maximize persistence
+          // Main session ID cookie
+          res.cookie('maly_session_id', sessionId, {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
           });
-        } catch (error) {
-          console.error("Database error during session creation:", error);
-          return res.redirect('/auth?error=Session+creation+failed');
-        }
+          
+          // Backup session ID cookie
+          res.cookie('sessionId', sessionId, {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: 'lax'
+          });
+          
+          // Set x-session-id header
+          res.setHeader('x-session-id', sessionId);
+
+          // Add a timestamp to break browser caching and include session ID in URL
+          const timestamp = Date.now();
+          return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+        });
       });
     })(req, res, next);
   });

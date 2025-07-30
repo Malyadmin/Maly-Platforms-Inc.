@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, jsonb, boolean, varchar, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb, boolean, varchar, primaryKey, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -41,10 +41,14 @@ export const events = pgTable("events", {
   city: text("city").notNull(), // For city filtering
   location: text("location").notNull(), // Specific venue location
   address: text("address"), // Exact address of the event
+  latitude: decimal("latitude", { precision: 10, scale: 7 }), // Geographic latitude
+  longitude: decimal("longitude", { precision: 10, scale: 7 }), // Geographic longitude
   date: timestamp("date").notNull(),
   endDate: timestamp("end_date"), // Added for multi-day events
+
   image: text("image"), // Consolidated single image field for cover image
   videoUrls: jsonb("video_urls").$type<string[]>().default([]), // Array of video URLs
+
   category: text("category").notNull(),
   creatorId: integer("creator_id").references(() => users.id),
   capacity: integer("capacity"),
@@ -130,14 +134,7 @@ export const userCities = pgTable("user_cities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sessions = pgTable("sessions", {
-  id: text("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  expiresAt: timestamp("expires_at").notNull(),
-  data: jsonb("data"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+
 
 // Table for storing payment details
 export const payments = pgTable("payments", {

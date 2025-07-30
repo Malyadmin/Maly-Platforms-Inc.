@@ -1,0 +1,121 @@
+
+2025-07-30 11:38:09.38
+1269cb22
+User
+code: '42703',
+2025-07-30 11:38:09.38
+1269cb22
+User
+hint: 'Perhaps you meant to reference the column "sessions.sid".',
+2025-07-30 11:38:09.38
+1269cb22
+User
+position: '8',
+2025-07-30 11:38:09.38
+1269cb22
+User
+file: 'parse_relation.c',
+2025-07-30 11:38:09.38
+1269cb22
+User
+line: '3729',
+2025-07-30 11:38:09.38
+1269cb22
+User
+routine: 'errorMissingColumn'
+2025-07-30 11:38:09.38
+1269cb22
+User
+}
+2025-07-30 11:38:09.38
+1269cb22
+User
+Auth check: User not authenticated
+2025-07-30 11:38:09.39
+1269cb22
+User
+4:38:09 PM [express] GET /api/auth/check 200 in 22ms :: {"authenticated":false,"message":"Not logged…
+2025-07-30 11:38:09.54
+1269cb22
+User
+4:38:09 PM [express] GET /api/replit-info 200 in 1ms :: {"isReplit":true,"replId":"1269cb22-3c30-4ff…
+2025-07-30 11:38:23.81
+1269cb22
+User
+Fetching events with params: { location: 'all', currentUserId: undefined }
+2025-07-30 11:38:23.81
+1269cb22
+User
+No location filter applied, showing all events
+2025-07-30 11:38:23.84
+1269cb22
+User
+Session ID in auth check: Qyy3r1cIyt9gMlmc331SYThdqD59Dwcx
+2025-07-30 11:38:23.84
+1269cb22
+User
+Auth check session sources: {
+2025-07-30 11:38:23.84
+1269cb22
+User
+fromHeader: 'not_present',
+2025-07-30 11:38:23.84
+1269cb22
+User
+fromCookie: 'not_present',
+2025-07-30 11:38:23.84
+1269cb22
+User
+fromExpressSession: 'Qyy3r1cIyt9gMlmc331SYThdqD59Dwcx',
+2025-07-30 11:38:23.84
+1269cb22
+User
+finalSessionId: 'Qyy3r1cIyt9gMlmc331SYThdqD59Dwcx',
+2025-07-30 11:38:23.84
+1269cb22
+User
+url: '/api/auth/check'
+2025-07-30 11:38:23.84
+1269cb22
+User
+}
+2025-07-30 11:38:23.86
+1269cb22
+User
+Found 24 events in database before filtering
+2025-07-30 11:38:23.86
+1269cb22
+User
+Found 24 events to display
+2025-07-30 11:38:23.86
+1269cb22
+User
+Returning 24 events from database
+2025-07-30 11:38:23.86
+1269cb22
+User
+4:38:23 PM [express] GET /api/events 200 in 49ms :: [{"id":70,"title":"Anjunadeep ","description":"A…
+2025-07-30 11:38:23.86
+1269cb22
+User
+Error authenticating via session: PostgresError: column "id" does not exist
+2025-07-30 11:38:23.86
+1269cb22
+User
+at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+2025-07-30 11:38:23.86
+1269cb22
+User
+at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+2025-07-30 11:38:23.86
+1269cb22
+User
+at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+2025-07-30 11:38:23.86
+1269cb22
+User
+at TLSSocket.emit (node:events:524:28)
+2025-07-30 11:38:23.86
+1269cb22
+User
+at addChunk (node:internal/streams/readable:561:12)

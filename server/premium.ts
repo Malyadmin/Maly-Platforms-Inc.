@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import Stripe from 'stripe';
 import { db } from '../db';
-import { users, sessions, payments } from '../db/schema';
+import { users, payments } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth } from './middleware/auth.middleware';
 
@@ -167,23 +167,8 @@ router.get('/verify-checkout', async (req: Request, res: Response) => {
         cookieSessionId: cookieSessionId || 'not_present',
       });
       
-      // If we have a session ID, try to get the user
-      if (headerSessionId || cookieSessionId) {
-        const sessionId = headerSessionId || cookieSessionId;
-        try {
-          const sessionQuery = await db
-            .select()
-            .from(sessions)
-            .where(eq(sessions.id, sessionId));
-            
-          if (sessionQuery.length > 0 && sessionQuery[0].userId) {
-            currentUserId = sessionQuery[0].userId;
-            console.log(`User authenticated via session ID: ${currentUserId}`);
-          }
-        } catch (error) {
-          console.error("Error checking session:", error);
-        }
-      }
+      // Manual session queries removed - rely on passport authentication only
+      // (prevents database schema conflicts with connect-pg-simple)
     }
 
     // Retrieve the checkout session from Stripe
