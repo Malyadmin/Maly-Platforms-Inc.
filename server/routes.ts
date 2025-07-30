@@ -7,6 +7,7 @@ import { handleChatMessage } from './chat';
 import { findMatches } from './services/matchingService';
 import { translateMessage } from './services/translationService';
 import { getEventImage } from './services/eventsService';
+import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead } from './services/messagingService';
 import { db } from "../db";
@@ -1544,10 +1545,25 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }
       }
 
+      // Get coordinates from Mapbox geocoding service if location changed
+      if (location || req.body.address) {
+        const locationQuery = req.body.address || location || '';
+        if (locationQuery) {
+          console.log(`Geocoding updated location: ${locationQuery}`);
+          const coordinates = await getCoordinates(locationQuery);
+          if (coordinates) {
+            console.log(`Geocoding successful: lat=${coordinates.latitude}, lng=${coordinates.longitude}`);
+            updateData.latitude = coordinates.latitude;
+            updateData.longitude = coordinates.longitude;
+          } else {
+            console.log('Geocoding failed or returned no results');
+          }
+        }
+      }
+
       // If a new image was uploaded, add it to the update data
       if (req.file) {
         updateData.image = req.file.path;
-        updateData.image_url = req.file.path;
       }
 
       // Update the event in the database
@@ -1668,12 +1684,27 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         imageUrl = getEventImage(req.body.category || 'Social');
       }
 
+      // Get coordinates from Mapbox geocoding service
+      let coordinates = null;
+      const locationQuery = req.body.address || req.body.location || '';
+      if (locationQuery) {
+        console.log(`Geocoding location: ${locationQuery}`);
+        coordinates = await getCoordinates(locationQuery);
+        if (coordinates) {
+          console.log(`Geocoding successful: lat=${coordinates.latitude}, lng=${coordinates.longitude}`);
+        } else {
+          console.log('Geocoding failed or returned no results');
+        }
+      }
+
       // Create event data object with all required fields from schema
       const eventData = {
         title: req.body.title,
         description: req.body.description,
         location: req.body.location,
         address: req.body.address || '', // Add the new address field
+        latitude: coordinates?.latitude || null,
+        longitude: coordinates?.longitude || null,
         city: req.body.city || 'Unknown',
         category: req.body.category || 'Other', // Add default category value
         ticketType: req.body.price && parseFloat(req.body.price) > 0 ? 'paid' : 'free',
@@ -1682,7 +1713,6 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         date: new Date(req.body.date || new Date()),
         tags: tags,
         image: imageUrl,
-        image_url: imageUrl, // Both image and image_url now use Cloudinary URL
         creatorId: currentUser.id,
         isPrivate: req.body.isPrivate === 'true',
         createdAt: new Date(),

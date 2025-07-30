@@ -1,0 +1,81 @@
+Build Prompt: Implement Backend Mapbox Geocoding
+Hello! Your task is to integrate Mapbox into the backend to convert event addresses into geographic coordinates. Please follow these steps to implement the full functionality.
+
+1. Install Dependencies
+In the server/ directory, install the official Mapbox SDK for Node.js:
+
+Bash
+
+npm install @mapbox/mapbox-sdk
+2. Update Database Schema
+Modify the events table schema in db/schema.ts.
+
+Add two new columns to store the precise coordinates. Using the decimal type is recommended for geographic precision.
+
+TypeScript
+
+// In the events table definition...
+latitude: decimal('latitude', { precision: 10, scale: 7 }),
+longitude: decimal('longitude', { precision: 10, scale: 7 }),
+3. Create a Mapbox Geocoding Service
+Create a new file at server/services/mapboxService.ts.
+
+In this file, initialize the Mapbox Geocoding client using the MAPBOX_API_KEY from your Replit Secrets.
+
+Create and export an async function, getCoordinates, that takes a location string (e.g., "Zilker Park, Austin, TX") as input, sends a request to the Mapbox Geocoding API, and returns an object containing the latitude and longitude of the first result.
+
+TypeScript
+
+// Example structure for server/services/mapboxService.ts
+import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
+
+const geocodingClient = mbxGeocoding({ accessToken: process.env.MAPBOX_API_KEY! });
+
+export async function getCoordinates(location: string) {
+  try {
+    const response = await geocodingClient.forwardGeocode({
+      query: location,
+      limit: 1
+    }).send();
+
+    const match = response.body.features[0];
+    if (match) {
+      return {
+        longitude: match.center[0],
+        latitude: match.center[1]
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error('Mapbox service error:', err);
+    return null;
+  }
+}
+4. Integrate Geocoding into Event Creation
+Modify the POST /api/events endpoint handler.
+
+When a request to create an event is received, call the new getCoordinates function from your mapboxService, passing it the location and/or address from the request body.
+
+If the service returns valid coordinates, save the latitude and longitude values to the new columns in the database when you create the new event record.
+
+If the service fails or returns no coordinates, handle the error gracefully (e.g., proceed with creating the event without coordinates, or return an error if coordinates are mandatory).
+
+5. Update API Documentation
+Update the API_DOCUMENTATION.md file.
+
+In the response examples for GET /api/events and POST /api/events, add the new latitude and longitude fields to show that they are now part of the event data model.
+
+JSON
+
+// Example for GET /api/events response
+{
+  "id": 101,
+  "title": "Tech Meetup",
+  "date": "2025-08-15T18:00:00Z",
+  "location": "Austin, TX",
+  "latitude": "30.2672",
+  "longitude": "-97.7431",
+  "coverImageUrl": "https://your-storage-url/path/to/event_image.jpg",
+  "ticketPrice": 10.00
+}
+After completing these steps, your backend will be fully equipped to automatically convert any new event's address into storable geographic coordinates.
