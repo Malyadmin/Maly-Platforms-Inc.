@@ -8,7 +8,8 @@ import { users } from "@db/schema";
 import { db } from "@db";
 import { eq, or, lte } from "drizzle-orm";
 import { checkAuthentication } from './middleware/auth.middleware';
-import { upload, getFileUrl } from './utils/fileUpload';
+import { uploadImage } from './middleware/upload';
+import { uploadToCloudinary } from './services/cloudinaryService';
 import fs from 'fs';
 import path from 'path';
 import pgPool from './lib/pg-pool';
@@ -182,7 +183,7 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/register", upload.single('profileImage'), async (req, res, next) => {
+  app.post("/api/register", uploadImage.single('profileImage'), async (req, res, next) => {
     try {
       console.log("Registration attempt:", req.body);
       const { 
@@ -304,7 +305,7 @@ export function setupAuth(app: Express) {
   });
 
   // Add a direct registration-with-redirect endpoint with file upload support
-  app.post("/api/register-redirect", upload.single('profileImage'), async (req, res) => {
+  app.post("/api/register-redirect", uploadImage.single('profileImage'), async (req, res) => {
     try {
       console.log("Registration+redirect attempt:", req.body);
       console.log("File upload received:", req.file ? "Yes" : "No");
@@ -338,47 +339,18 @@ export function setupAuth(app: Express) {
       
       if (req.file) {
         try {
-          // Import required modules
-          const cloudinary = (await import('./lib/cloudinary')).default;
-          const { Readable } = await import('stream');
-          
-          // Ensure we have a buffer to stream
-          if (!req.file.buffer && req.file.path) {
-            console.log("Reading file from disk path:", req.file.path);
-          }
-          
-          // Stream the buffer to Cloudinary
-          const bufferStream = new Readable();
-          bufferStream.push(req.file.buffer || fs.readFileSync(req.file.path));
-          bufferStream.push(null);
-          
-          console.log("Starting Cloudinary upload...");
-          const result = await new Promise<any>((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-              { 
-                folder: `profiles/${Date.now()}`,
-                public_id: `${username}-profile-${Date.now()}`
-              },
-              (error, result) => {
-                if (error) {
-                  console.error("Cloudinary upload stream error:", error);
-                  reject(error);
-                }
-                else resolve(result);
-              }
-            );
-            
-            bufferStream.pipe(uploadStream);
-          });
-          
+          const result = await uploadToCloudinary(
+            req.file.buffer, 
+            req.file.originalname, 
+            'image',
+            `profiles/${username}`
+          );
           profileImage = result.secure_url;
           console.log(`Successfully uploaded profile image to Cloudinary: ${profileImage}`);
-        } 
-        catch (cloudinaryError) {
+        } catch (cloudinaryError) {
           console.error("Error uploading to Cloudinary during registration:", cloudinaryError);
-          // Fallback to local storage if Cloudinary fails
-          profileImage = req.file.path ? getFileUrl(path.basename(req.file.path)) : null;
-          console.log("Using fallback local storage path:", profileImage);
+          // Don't use fallback - encourage proper Cloudinary setup
+          profileImage = null;
         }
       }
 

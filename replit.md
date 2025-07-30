@@ -6,6 +6,39 @@ Maly is a comprehensive social networking platform designed to connect people in
 
 ## Recent Changes
 
+**July 30, 2025 - Critical Authentication System Repair Completed**
+- ✓ **RESOLVED DATABASE SCHEMA CONFLICT**: Fixed critical authentication failure caused by session table schema mismatch between Drizzle ORM and connect-pg-simple
+- ✓ **Session Management System**: Successfully migrated from custom Drizzle sessions table to connect-pg-simple PostgreSQL session store
+- ✓ **Database Cleanup**: Removed all conflicting session table references and orphaned constraints preventing session creation
+- ✓ **Authentication Flow Restoration**: Both user registration and login now work perfectly without "column 'id' does not exist" errors
+- ✓ **ES Module Compatibility**: Fixed JWT token generation import syntax for proper ES module support
+- ✓ **Build System Repair**: Resolved syntax errors and orphaned catch blocks causing build failures
+- ✓ **Session Persistence**: Users receive both session cookies and JWT tokens for web and mobile app compatibility
+- ✓ **Production Ready**: Authentication system now stable and ready for user testing
+
+**July 30, 2025 - Complete Media Upload Infrastructure Refactoring**
+- ✓ **COMPLETED COMPREHENSIVE MEDIA UPLOAD REFACTORING**: Consolidated multiple conflicting multer configurations into a single, centralized upload system
+- ✓ **Database Schema Enhancement**: Updated events table to include videoUrls array field, removed duplicate image_url column
+- ✓ **Consolidated Upload Middleware**: Created unified upload system in `server/middleware/upload.ts` supporting both images and videos
+- ✓ **Cloudinary Service Integration**: Implemented centralized Cloudinary service (`server/services/cloudinaryService.ts`) with proper error handling and validation
+- ✓ **Multi-Media Event Support**: Enhanced event creation and editing to support both image and video uploads (up to 5 videos per event)
+- ✓ **Profile Image Upload Optimization**: Streamlined profile image upload process using new consolidated service
+- ✓ **File Type Validation**: Added comprehensive file type and size validation for both images (10MB max) and videos (50MB max)
+- ✓ **Error Handling Enhancement**: Implemented robust error handling with proper fallbacks and user feedback
+- ✓ **Legacy Code Cleanup**: Removed all conflicting and redundant upload configurations, ensuring single source of truth
+- ✓ **Production Ready**: All upload endpoints now use consistent, reliable Cloudinary integration with proper authentication
+
+**July 30, 2025 - Mapbox Geocoding Integration**
+- ✓ **MAPBOX BACKEND INTEGRATION**: Implemented complete backend geocoding using official Mapbox SDK
+- ✓ **Database Schema Enhancement**: Added latitude and longitude decimal columns to events table for precise coordinates
+- ✓ **Geocoding Service**: Created mapboxService.ts with getCoordinates function for address-to-coordinate conversion
+- ✓ **Event Creation Integration**: POST /api/events now automatically geocodes location/address fields
+- ✓ **Event Update Integration**: PUT /api/events/:id now handles location updates with re-geocoding
+- ✓ **API Documentation Updated**: Enhanced documentation with latitude/longitude fields in response examples
+- ✓ **Error Handling**: Graceful fallback when geocoding fails, events created without coordinates if needed
+- ✓ **Environment Setup**: Ready for MAPBOX_API_KEY environment variable configuration
+
+
 **July 28, 2025 - Complete API Refactoring & Security Implementation**
 - ✓ **COMPLETED COMPREHENSIVE API REFACTORING**: Addressed all critical security vulnerabilities, performance bottlenecks, and validation issues
 - ✓ **Security Implementation**: Created admin authentication middleware (requireAdmin) and unified auth middleware (requireAuth)
@@ -113,6 +146,7 @@ Preferred communication style: Simple, everyday language.
 - **PostgreSQL** - Primary database
 - **OpenAI API** - AI-powered features and recommendations
 - **Stripe** - Payment processing for events and subscriptions
+- **Mapbox API** - Geographic coordinate conversion and location services
 - **Twilio** - SMS notifications (optional)
 
 ### Development Dependencies
