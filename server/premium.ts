@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import Stripe from 'stripe';
 import { db } from '../db';
-import { users, payments } from '../db/schema';
+import { users, sessions, payments } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth } from './middleware/auth.middleware';
 
@@ -167,13 +167,21 @@ router.get('/verify-checkout', async (req: Request, res: Response) => {
         cookieSessionId: cookieSessionId || 'not_present',
       });
       
-      // Try to get user from Express session data
-      if (req.session && (req.session as any).passport && (req.session as any).passport.user) {
+      // If we have a session ID, try to get the user
+      if (headerSessionId || cookieSessionId) {
+        const sessionId = headerSessionId || cookieSessionId;
         try {
-          currentUserId = (req.session as any).passport.user;
-          console.log(`User authenticated via Express session: ${currentUserId}`);
+          const sessionQuery = await db
+            .select()
+            .from(sessions)
+            .where(eq(sessions.id, sessionId));
+            
+          if (sessionQuery.length > 0 && sessionQuery[0].userId) {
+            currentUserId = sessionQuery[0].userId;
+            console.log(`User authenticated via session ID: ${currentUserId}`);
+          }
         } catch (error) {
-          console.error("Error checking Express session:", error);
+          console.error("Error checking session:", error);
         }
       }
     }

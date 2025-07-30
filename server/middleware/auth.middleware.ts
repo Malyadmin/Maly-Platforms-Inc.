@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "@db";
-import { users } from "@db/schema";
+import { users, sessions } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 /**
@@ -91,13 +91,31 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 /**
  * Helper to find a user by their session ID
- * Note: This function is deprecated since we now use Express sessions with connect-pg-simple
- * Express sessions should be accessed through req.session.passport.user
  * @param sessionId The session ID to look up
  * @returns The user object if found, null otherwise
  */
 export async function getUserBySessionId(sessionId: string) {
-  console.warn("getUserBySessionId is deprecated. Use Express session instead: req.session.passport.user");
+  try {
+    // Find the user ID in the session
+    const sessionQuery = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+
+    if (sessionQuery.length > 0 && sessionQuery[0].userId) {
+      // Find the user by ID
+      const userId = sessionQuery[0].userId;
+      const userQuery = await db.select().from(users).where(eq(users.id, userId));
+
+      if (userQuery.length > 0) {
+        const user = userQuery[0];
+        
+        // Remove sensitive information
+        const { password, ...userWithoutPassword } = user as any;
+        return userWithoutPassword;
+      }
+    }
+  } catch (err) {
+    console.error("Error finding user by session ID:", err);
+  }
+  
   return null;
 }
 
@@ -157,49 +175,67 @@ export async function checkAuthentication(req: Request, res: Response, next?: Ne
     });
   }
 
-  // Try to get user from Express session data if available
-  if (req.session && (req.session as any).passport && (req.session as any).passport.user) {
+  // If not authenticated via passport, try with the provided session ID
+  if (sessionId) {
     try {
-      const userId = (req.session as any).passport.user;
-      console.log("Auth check: Found user ID in Express session:", userId);
-      
-      // Find the user by ID
-      const userResults = await db
+      // Find the session in the database
+      const sessionResults = await db
         .select()
-        .from(users)
-        .where(eq(users.id, userId));
+        .from(sessions)
+        .where(eq(sessions.id, sessionId));
       
-      console.log("Auth check: User lookup result count:", userResults.length);
+      console.log("Auth check: Session lookup result count:", sessionResults.length);
       
-      if (userResults.length > 0) {
-        const user = userResults[0];
-        console.log("Auth check: User authenticated via Express session:", user.username);
+      if (sessionResults.length > 0 && sessionResults[0].userId) {
+        const userId = sessionResults[0].userId;
         
-        // Attach the user to the request object so it's available in routes
-        req.user = user as any;
+        // Find the user by ID
+        const userResults = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, userId));
         
-        // If this is being used as middleware, call next
-        if (next) {
-          return next();
-        }
+        console.log("Auth check: User lookup result count:", userResults.length);
         
-        // Otherwise return authentication status with user data
-        return res.json({
-          authenticated: true,
-          user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            fullName: user.fullName,
-            profileImage: user.profileImage,
-            // Add other user fields as needed but exclude sensitive data
-            isPremium: user.isPremium,
-            isAdmin: user.isAdmin
+        if (userResults.length > 0) {
+          const user = userResults[0];
+          console.log("Auth check: User authenticated via session ID:", user.username);
+          
+          // Attach the user to the request object so it's available in routes
+          req.user = user as any;
+          
+          // Always ensure session ID is set in both headers and cookies
+          res.setHeader('x-session-id', sessionId);
+          // Set a cookie as well for more reliable persistence
+          res.cookie('maly_session_id', sessionId, { 
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: 'lax'
+          });
+          
+          // If this is being used as middleware, call next
+          if (next) {
+            return next();
           }
-        });
+          
+          // Otherwise return authentication status with user data
+          return res.json({
+            authenticated: true,
+            user: {
+              id: user.id,
+              username: user.username,
+              email: user.email,
+              fullName: user.fullName,
+              profileImage: user.profileImage,
+              // Add other user fields as needed but exclude sensitive data
+              isPremium: user.isPremium,
+              isAdmin: user.isAdmin
+            }
+          });
+        }
       }
     } catch (error) {
-      console.error("Error authenticating via Express session:", error);
+      console.error("Error authenticating via session:", error);
     }
   }
 
@@ -235,26 +271,35 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  // Try to get user from Express session data
-  // Express session should handle session persistence through connect-pg-simple
-  if (req.session && (req.session as any).passport && (req.session as any).passport.user) {
+  // Try alternative auth methods
+  const headerSessionId = req.headers['x-session-id'] as string;
+  const cookieSessionId = req.cookies?.maly_session_id || req.cookies?.sessionId;
+  
+  if (headerSessionId || cookieSessionId) {
+    const sessionId = headerSessionId || cookieSessionId;
     try {
-      const userId = (req.session as any).passport.user;
-      console.log("Found user ID in Express session:", userId);
-      
-      // Load the full user from database
-      const userQuery = await db
+      const sessionQuery = await db
         .select()
-        .from(users)
-        .where(eq(users.id, userId));
-        
-      if (userQuery.length > 0) {
-        req.user = userQuery[0] as any;
-        console.log("User loaded from Express session:", req.user?.username);
+        .from(sessions)
+        .where(eq(sessions.id, sessionId));
+      if (sessionQuery.length > 0 && sessionQuery[0].userId) {
+        // Create a minimal user object with required fields
+        req.user = {
+          id: sessionQuery[0].userId,
+          username: '',
+          email: '',
+          password: '',
+          fullName: '',
+          createdAt: new Date(),
+          bio: '',
+          profileImage: '',
+          location: '',
+          interests: []
+        };
         return next();
       }
     } catch (error) {
-      console.error("Error loading user from Express session:", error);
+      console.error("Error checking session:", error);
     }
   }
   

@@ -130,7 +130,14 @@ export const userCities = pgTable("user_cities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Sessions table removed - now using Express sessions with connect-pg-simple
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  expiresAt: timestamp("expires_at").notNull(),
+  data: jsonb("data"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 // Table for storing payment details
 export const payments = pgTable("payments", {
