@@ -1,0 +1,42 @@
+Build Prompt: Implement RSVP Application & Management System
+Hello! Your task is to implement the new RSVP management system. Based on the analysis, the core database schema, payment logic, and authorization systems are already in place. You will now extend them to support an approval workflow.
+
+Please execute the following steps in order:
+
+1. Modify Payment Completion Logic
+Locate the Stripe Webhook Handler: In server/routes.ts, find the handlePaymentCheckout() function that processes successful Stripe payments.
+
+Update Participant Status: Inside this function, find the logic that updates the record in the event_participants table. Change it so that upon a successful payment, the status for the participant is set to 'pending_approval', not 'attending'.
+
+2. Create New Endpoints for Host Management
+GET /api/events/:eventId/applications
+
+Description: Create a new GET endpoint to fetch a list of all pending RSVP applications for a specific event.
+
+Authorization: Secure this endpoint. Reuse the existing event ownership verification logic found in PUT /api/events/:id to ensure that only the event's creator can access this list.
+
+Functionality: The endpoint should query the event_participants table, filtering for records that match the :eventId and have a status of 'pending_approval'. It must also join with the users table to include necessary applicant details (like name, profileImage, etc.) in the response.
+
+PUT /api/events/:eventId/applications/:userId
+
+Description: Create a new PUT endpoint that allows the event host to approve or reject a pending application.
+
+Authorization: Secure this endpoint with the same event ownership verification logic.
+
+Request Body: The endpoint must accept a JSON body with a new status:
+
+JSON
+
+{
+  "status": "approved" // or "rejected"
+}
+Functionality: The endpoint should update the status of the specific record in the event_attendees table identified by the :eventId and :userId from the URL.
+
+3. Update API Documentation
+Open the maly-api-docs-v1.5 immersive document.
+
+Add a new section titled ## RSVP Management.
+
+Document the two new endpoints you created (GET /api/events/:eventId/applications and PUT /api/events/:eventId/applications/:userId). For each, include the description, authorization requirements, request body (for the PUT), and an example success response.
+
+Modify the documentation for the Stripe payment webhook to clarify that a successful purchase now results in a participant status of 'pending_approval'.
