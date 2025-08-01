@@ -1,240 +1,272 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, CreditCard, Shield, Minus, Plus, AlertCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, CreditCard, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  price: number | string;
+  date: string;
+  location: string;
+  creatorName?: string;
+}
 
 interface StripeCheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  event: {
-    id: number;
-    title: string;
-    price: string;
-    image?: string;
-    date: string;
-    location: string;
-  };
-  onSuccess?: () => void;
+  event: Event;
+  onSuccess: () => void;
 }
 
-export default function StripeCheckoutModal({ 
-  isOpen, 
-  onClose, 
-  event, 
-  onSuccess 
-}: StripeCheckoutModalProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface CheckoutFormProps {
+  event: Event;
+  onSuccess: () => void;
+  onClose: () => void;
+}
+
+function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
+  const stripe = useStripe();
+  const elements = useElements();
   const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  const pricePerTicket = parseFloat(event.price || '0');
-  const subtotal = pricePerTicket * quantity;
-  const platformFee = Math.round(subtotal * 0.03 * 100) / 100; // 3% fee
-  const total = subtotal;
+  const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
+  const platformFee = eventPrice * 0.03; // 3% platform fee
+  const totalAmount = eventPrice + platformFee;
 
-  const handleCheckout = async () => {
-    setProcessing(true);
-    setError(null);
+  useEffect(() => {
+    // Create payment intent when component mounts
+    const createPaymentIntent = async () => {
+      try {
+        const response = await fetch('/api/stripe/create-payment-intent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            eventId: event.id,
+            amount: Math.round(totalAmount * 100), // Convert to cents
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create payment intent');
+        }
+
+        const { clientSecret } = await response.json();
+        setClientSecret(clientSecret);
+      } catch (error) {
+        console.error('Error creating payment intent:', error);
+        setPaymentError('Failed to initialize payment. Please try again.');
+      }
+    };
+
+    if (eventPrice > 0) {
+      createPaymentIntent();
+    }
+  }, [event.id, totalAmount, eventPrice]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements || !clientSecret) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setPaymentError(null);
+
+    const cardElement = elements.getElement(CardElement);
+
+    if (!cardElement) {
+      setPaymentError('Card element not found');
+      setIsProcessing(false);
+      return;
+    }
 
     try {
-      const sessionId = localStorage.getItem('maly_session_id');
-      const response = await fetch('/api/payments/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-ID': sessionId || '',
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          eventId: event.id,
-          quantity: quantity,
-        }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-
-      // Redirect to Stripe Checkout
-      const stripe = (window as any).Stripe?.(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: data.sessionId,
+      if (error) {
+        setPaymentError(error.message || 'Payment failed');
+      } else if (paymentIntent.status === 'succeeded') {
+        toast({
+          title: "Payment Successful!",
+          description: "Your ticket has been purchased successfully.",
         });
-        
-        if (error) {
-          throw new Error(error.message);
-        }
-      } else {
-        // Fallback: direct redirect if Stripe.js not loaded
-        window.location.href = `https://checkout.stripe.com/c/pay/${data.sessionId}`;
+        onSuccess();
       }
-      
-      onSuccess?.();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      
-      toast({
-        title: "Checkout Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError('An unexpected error occurred. Please try again.');
     } finally {
-      setProcessing(false);
+      setIsProcessing(false);
     }
   };
 
-  const updateQuantity = (change: number) => {
-    const newQuantity = Math.max(1, Math.min(10, quantity + change));
-    setQuantity(newQuantity);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const cardOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#ffffff',
+        '::placeholder': {
+          color: '#9ca3af',
+        },
+        backgroundColor: 'transparent',
+      },
+      invalid: {
+        color: '#ef4444',
+      },
+    },
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Event Summary */}
+      <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
+        <CardContent className="p-4">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-white">{event.title}</h3>
+            <p className="text-sm text-white/70">
+              {new Date(event.date).toLocaleDateString()} • {event.location}
+            </p>
+            {event.creatorName && (
+              <p className="text-xs text-white/60">Hosted by {event.creatorName}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Summary */}
+      <Card className="bg-white/5 border-white/10">
+        <CardContent className="p-4 space-y-3">
+          <h4 className="font-medium text-white">Payment Summary</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-white/70">Ticket Price</span>
+              <span className="text-white">${eventPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Platform Fee (3%)</span>
+              <span className="text-white">${platformFee.toFixed(2)}</span>
+            </div>
+            <Separator className="bg-white/20" />
+            <div className="flex justify-between font-medium">
+              <span className="text-white">Total</span>
+              <span className="text-white">${totalAmount.toFixed(2)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Method */}
+      <Card className="bg-white/5 border-white/10">
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-blue-400" />
+            <h4 className="font-medium text-white">Payment Method</h4>
+          </div>
+          
+          <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+            <CardElement options={cardOptions} />
+          </div>
+
+          {paymentError && (
+            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              <p className="text-sm text-red-400">{paymentError}</p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-white/60">
+            <Shield className="h-4 w-4" />
+            <span>Your payment information is secure and encrypted</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="flex-1"
+          disabled={isProcessing}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing || !clientSecret}
+          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Pay ${totalAmount.toFixed(2)}
+            </>
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function StripeCheckoutModal({ isOpen, onClose, event, onSuccess }: StripeCheckoutModalProps) {
+  const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
+
+  if (eventPrice <= 0) {
+    return null; // Don't show modal for free events
+  }
+
+  return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md mx-auto bg-gray-900 border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-lg">Complete Your Purchase</DialogTitle>
-          <DialogDescription>
-            Review your order and proceed to secure checkout
+          <DialogTitle className="text-white">Complete Your Purchase</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Secure your spot at this event with our secure payment system.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Event Details */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex space-x-3">
-                {event.image && (
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm line-clamp-2">{event.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {formatDate(event.date)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {event.location}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quantity Selector */}
-          <div className="flex items-center justify-between">
-            <span className="font-medium">Quantity</span>
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateQuantity(-1)}
-                disabled={quantity <= 1}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <span className="font-semibold w-8 text-center">{quantity}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateQuantity(1)}
-                disabled={quantity >= 10}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Order Summary */}
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span>Subtotal ({quantity} ticket{quantity > 1 ? 's' : ''})</span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Platform fee (3%)</span>
-              <span>-${platformFee.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Host receives</span>
-              <span>${(subtotal - platformFee).toFixed(2)}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between font-semibold text-lg">
-              <span>Total</span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-          </div>
-
-          {/* Error Display */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Security Notice */}
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4" />
-            <span>Secure checkout powered by Stripe</span>
-          </div>
-
-          {/* Checkout Button */}
-          <Button
-            onClick={handleCheckout}
-            disabled={processing}
-            size="lg"
-            className="w-full"
-          >
-            {processing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Pay ${total.toFixed(2)}
-              </>
-            )}
-          </Button>
-
-          <p className="text-xs text-center text-muted-foreground">
-            You'll be redirected to Stripe's secure checkout page to complete your payment.
-          </p>
-        </div>
+        <Elements stripe={stripePromise}>
+          <CheckoutForm event={event} onSuccess={onSuccess} onClose={onClose} />
+        </Elements>
       </DialogContent>
     </Dialog>
   );
