@@ -32,6 +32,8 @@ export const users = pgTable("users", {
   preferredLanguage: text("preferred_language").default("en"), // Language preference
   referralCode: text("referral_code").unique(), // For referral system
   referredBy: integer("referred_by"), // Will set up relation later to avoid circular dep
+  stripeAccountId: text("stripe_account_id"), // To store the 'acct_...' ID
+  stripeOnboardingComplete: boolean("stripe_onboarding_complete").default(false),
 });
 
 export const events = pgTable("events", {

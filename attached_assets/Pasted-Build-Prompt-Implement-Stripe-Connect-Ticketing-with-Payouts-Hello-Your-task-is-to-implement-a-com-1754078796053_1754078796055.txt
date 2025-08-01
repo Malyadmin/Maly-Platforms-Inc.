@@ -1,0 +1,121 @@
+Build Prompt: Implement Stripe Connect Ticketing with Payouts
+Hello! Your task is to implement a complete Stripe Connect ticketing system. This will allow event hosts to connect their bank accounts, receive payments for ticket sales, and enable the Maly platform to collect a 3% application fee.
+
+This task is not complete until a new, comprehensive E2E testing suite with at least 30 distinct tests has been created and passes successfully.
+
+Please execute the following steps in order.
+
+1. Foundational Setup (Database & Dependencies)
+Install Stripe SDK: In the server/ directory, install the official Stripe Node.js SDK:
+
+Bash
+
+npm install stripe
+Update User Schema: Modify the Drizzle schema in db/schema.ts. Add the following fields to the users table to store Stripe Connect information:
+
+TypeScript
+
+// In the users table definition...
+stripeAccountId: text('stripe_account_id'), // To store the 'acct_...' ID
+stripeOnboardingComplete: boolean('stripe_onboarding_complete').default(false),
+2. Host Onboarding Flow
+Create the endpoints necessary for an event host to create and connect their Stripe account.
+
+POST /api/stripe/connect/create-account
+
+Authorization: This route must be protected and accessible only by authenticated users.
+
+Functionality:
+
+Call the Stripe API to create a new Express connected account (type: 'express').
+
+Associate the returned Stripe Account ID (acct_...) with the currently logged-in user and save it to the new stripeAccountId field in your database.
+
+Return the new account object to the client.
+
+POST /api/stripe/connect/create-account-link
+
+Authorization: Protected route.
+
+Functionality:
+
+Retrieve the user's stripeAccountId from your database.
+
+Call the Stripe API to create an account_link.
+
+The refresh_url should point to a page in your app where the user can restart the process.
+
+The return_url should point to a page in your app that confirms the onboarding is complete.
+
+Return the url from the account link object to the client. The frontend will redirect the user to this URL.
+
+3. Payment Flow Modification
+Update the existing ticket purchasing logic to route payments through Stripe Connect.
+
+Modify Checkout Session Creation:
+
+Locate the POST /api/payments/create-checkout-session endpoint.
+
+When creating the session, you must now include the payment_intent_data parameter.
+
+Application Fee: Set the application_fee_amount by calculating 3% of the total ticket price.
+
+Destination: Set the transfer_data.destination to the stripeAccountId of the event's creator (which you will need to fetch from the users table).
+
+TypeScript
+
+// Example modification for Stripe checkout session
+const session = await stripe.checkout.sessions.create({
+  // ... existing parameters
+  payment_intent_data: {
+    application_fee_amount: Math.round(totalPrice * 0.03), // 3% fee, in cents
+    transfer_data: {
+      destination: eventCreator.stripeAccountId, // The host's Stripe Connect ID
+    },
+  },
+});
+4. Webhook Handling
+Create New Connect Webhook Endpoint:
+
+Create a new endpoint at POST /api/webhooks/stripe/connect (the URL you provided to the client).
+
+Secure it using the same signature verification method as your existing webhook, but use a new, separate webhook secret for Connect events.
+
+This endpoint must handle the account.updated event. When this event is received, check if the connected account's charges_enabled and payouts_enabled properties are true. If they are, update the user's record in your database, setting stripeOnboardingComplete to true.
+
+5. Comprehensive E2E Testing (Task Completion Requirement)
+Create a new test file at server/__tests__/stripeConnect.test.ts.
+
+Using Jest and supertest, write at least 30 distinct E2E tests covering the entire workflow. The tests must be organized into the following suites:
+
+Host Onboarding Suite (at least 10 tests):
+
+Test that an unauthenticated user cannot create a Connect account.
+
+Test successful creation of a Stripe Connect account.
+
+Test that the stripeAccountId is correctly saved to the user.
+
+Test successful creation of an account link.
+
+Test that the webhook correctly handles the account.updated event and sets the user's stripeOnboardingComplete flag to true.
+
+Payment Flow Suite (at least 12 tests):
+
+Test that a user cannot buy a ticket for an event where the host has not completed onboarding.
+
+Test a successful ticket purchase, mocking the Stripe API to verify that application_fee_amount and transfer_data.destination are set correctly in the checkout session creation call.
+
+Test the payment flow with different ticket prices to ensure the 3% fee calculation is accurate.
+
+Test various error conditions (e.g., invalid event ID, host without a Stripe account).
+
+Security & Authorization Suite (at least 8 tests):
+
+Test that a user cannot generate an account link for another user.
+
+Test that the Connect webhook endpoint correctly rejects requests with an invalid signature.
+
+Test edge cases and invalid inputs for all new endpoints.
+
+The task is only considered complete when all features are implemented and the new testing suite with at least 30 tests passes successfully.

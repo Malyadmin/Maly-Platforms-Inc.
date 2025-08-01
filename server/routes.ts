@@ -22,6 +22,15 @@ import { sql } from 'drizzle-orm';
 // Import premium router and AI router
 import premiumRouter from './premium';
 import aiRouter from './ai';
+// Import Stripe Connect functions
+import { 
+  createConnectAccount, 
+  createAccountLink, 
+  getAccountStatus, 
+  handleConnectWebhook, 
+  validateEventCreatorForPayment, 
+  calculateApplicationFee 
+} from './stripeConnect';
 // Import object storage utilities
 import { uploadToObjectStorage } from './lib/objectStorage';
 // Import consolidated upload middleware
@@ -828,6 +837,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   
   // Mount AI router at /api/ai
   app.use('/api/ai', aiRouter);
+  
+  // Stripe Connect routes for event host payouts
+  app.post('/api/stripe/connect/create-account', checkAuthentication, createConnectAccount);
+  app.post('/api/stripe/connect/create-account-link', checkAuthentication, createAccountLink);
+  app.get('/api/stripe/connect/account-status', checkAuthentication, getAccountStatus);
+  app.post('/api/webhooks/stripe/connect', express.raw({ type: 'application/json' }), handleConnectWebhook);
 
   // Referral endpoints
   // Get user's referral code
@@ -2948,6 +2963,62 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     res.json({ received: true });
   });
 
+  // Stripe Connect webhook handler
+  app.post('/api/webhooks/stripe/connect', express.raw({type: 'application/json'}), async (req: Request, res: Response) => {
+    const sig = req.headers['stripe-signature'] as string;
+    const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.error('Stripe Connect webhook secret not configured.');
+      return res.sendStatus(400);
+    }
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+      console.error(`Error verifying Connect webhook signature:`);
+      if (err instanceof Error) {
+        console.error(err.message);
+        return res.status(400).send(`Connect Webhook Error: ${err.message}`);
+      }
+      return res.status(400).send(`Connect Webhook Error: Unknown error`);
+    }
+
+    // Handle the Connect event
+    switch (event.type) {
+      case 'account.updated':
+        const account = event.data.object as Stripe.Account;
+        console.log('Connect account updated:', account.id);
+        
+        try {
+          // Find user with this Stripe account ID
+          const user = await db.query.users.findFirst({
+            where: eq(users.stripeAccountId, account.id)
+          });
+          
+          if (user && account.charges_enabled && account.payouts_enabled) {
+            // Update user's onboarding status
+            await db.update(users)
+              .set({ stripeOnboardingComplete: true })
+              .where(eq(users.id, user.id));
+              
+            console.log(`Updated onboarding status for user ${user.id}`);
+          }
+        } catch (error) {
+          console.error('Error updating user onboarding status:', error);
+          return res.sendStatus(500);
+        }
+        break;
+        
+      default:
+        console.log(`Unhandled Connect event type ${event.type}`);
+    }
+
+    res.json({ received: true });
+  });
+
   // Ensure regular JSON parsing happens *after* the raw body parser for the webhook
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -3030,9 +3101,16 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       const eventId = parseInt(eventIdReq.toString(), 10);
       const quantity = parseInt(quantityReq.toString(), 10);
 
-      // Fetch event details
+      // Fetch event details with creator information
       const event = await db
-        .select()
+        .select({
+          id: events.id,
+          title: events.title,
+          description: events.description,
+          price: events.price,
+          image: events.image,
+          creatorId: events.creatorId
+        })
         .from(events)
         .where(eq(events.id, eventId))
         .limit(1);
@@ -3041,10 +3119,17 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         return res.status(404).json({ error: 'Event not found' });
       }
 
+      // Validate event creator can receive payments using Connect module
+      const eventCreator = await validateEventCreatorForPayment(event[0].creatorId!);
+
       // Convert string price to cents for Stripe
       const unitAmount = parseInt((parseFloat(event[0].price || '0') * 100).toString(), 10);
+      const totalAmount = unitAmount * quantity;
+      
+      // Calculate 3% application fee using Connect module
+      const applicationFeeAmount = calculateApplicationFee(totalAmount);
 
-      // Create Stripe checkout session
+      // Create Stripe checkout session with Connect payment
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -3065,13 +3150,21 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           },
         ],
         mode: 'payment',
+        payment_intent_data: {
+          application_fee_amount: applicationFeeAmount,
+          transfer_data: {
+            destination: eventCreator.stripeAccountId,
+          },
+        },
         // Use absolute URLs for Stripe redirects
         success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/payment-cancel?eventId=${eventId}`, // Added the missing slash
+        cancel_url: `${req.headers.origin}/payment-cancel?eventId=${eventId}`,
         metadata: {
           eventId: eventId.toString(),
           userId: userId.toString(),
           quantity: quantity.toString(),
+          creatorId: eventCreator.id.toString(),
+          applicationFeeAmount: applicationFeeAmount.toString(),
         },
       });
 
