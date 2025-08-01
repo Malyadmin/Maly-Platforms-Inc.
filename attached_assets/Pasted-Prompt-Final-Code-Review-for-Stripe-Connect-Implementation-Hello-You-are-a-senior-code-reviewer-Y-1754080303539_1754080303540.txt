@@ -1,0 +1,64 @@
+Prompt: Final Code Review for Stripe Connect Implementation
+Hello! You are a senior code reviewer. Your task is to perform a final, comprehensive review of the recently implemented Stripe Connect ticketing feature.
+
+The previous agent reported that the feature is complete and that 35/35 tests are passing. Your job is to verify this claim, scrutinize the implementation for quality, security, and correctness, and provide a final code review report.
+
+Please execute the following review steps:
+
+1. Review the Database Schema
+Examine db/schema.ts.
+
+Confirm: Were the stripeAccountId and stripeOnboardingComplete fields correctly added to the users table? Are their data types appropriate?
+
+2. Review the Host Onboarding Endpoints
+Analyze POST /api/stripe/connect/create-account and POST /api/stripe/connect/create-account-link.
+
+Verify:
+
+Are both endpoints properly protected by authentication middleware?
+
+Does the create-account endpoint correctly create a Stripe account with type: 'express'?
+
+Does the create-account-link endpoint correctly generate a link with the necessary refresh_url and return_url?
+
+3. Scrutinize the Payment Flow Logic (Most Critical)
+Thoroughly review the POST /api/payments/create-checkout-session endpoint.
+
+Verify:
+
+Does the logic correctly fetch the event creator's stripeAccountId before creating the session?
+
+Is the 3% application_fee_amount calculated correctly and converted to cents (e.g., Math.round(priceInDollars * 100 * 0.03))?
+
+Is the transfer_data.destination correctly set to the host's stripeAccountId?
+
+Crucially: Does the endpoint have a check to prevent ticket sales if the event host has not completed their Stripe onboarding (stripeOnboardingComplete is false)?
+
+4. Review the Webhook Handler
+Analyze the new webhook endpoint at POST /api/webhooks/stripe/connect.
+
+Verify:
+
+Does it use a separate signing secret (e.g., from a STRIPE_CONNECT_WEBHOOK_SECRET environment variable) for signature verification?
+
+Does it correctly parse the account.updated event and update the stripeOnboardingComplete flag in the database when a host's account is fully enabled for payments?
+
+5. Review the Test Suite Itself
+Do not just trust the "35/35 passing" report. Your task is to review the quality of the tests in server/__tests__/stripeConnect.test.ts.
+
+Assess:
+
+Are the tests comprehensive? Do they cover the key success paths, failure paths, and security edge cases?
+
+Is there a test to ensure a non-onboarded host cannot receive payments?
+
+Is there a test to ensure an unauthenticated user cannot access the onboarding endpoints?
+
+Are the mocks for the Stripe API calls realistic and correctly implemented?
+
+Final Code Review Report
+Based on your comprehensive review, generate a final report that either:
+
+Approves the implementation, confirming it is secure, correct, and well-tested.
+
+Rejects the implementation, providing a clear, actionable list of any security flaws, bugs, or missing edge cases that must be fixed.
