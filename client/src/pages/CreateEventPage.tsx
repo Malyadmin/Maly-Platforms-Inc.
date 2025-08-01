@@ -33,6 +33,7 @@ import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
 import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useTranslation } from "@/lib/translations";
+import StripeConnectBanner from "@/components/StripeConnectBanner";
 
 // Define a simple schema for our form
 // Define a schema for itinerary items
@@ -410,12 +411,16 @@ export default function CreateEventPage() {
               </div>
 
               {form.watch("price") > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Input
                     type="number"
                     {...form.register("price", { valueAsNumber: true })}
                     className="bg-white/5 border-0 h-12"
                     placeholder="0.00"
+                  />
+                  <StripeConnectBanner 
+                    eventPrice={form.watch("price")?.toString()}
+                    showForFreeEvents={false}
                   />
                 </div>
               )}
