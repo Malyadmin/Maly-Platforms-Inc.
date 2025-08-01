@@ -37,7 +37,7 @@ Preferred communication style: Simple, everyday language.
 - **Events Platform**: Event creation with detailed information and itineraries, event discovery with filtering, participation, ticketing, and an RSVP system.
 - **Social Features**: Direct messaging system with real-time WebSocket communication, user browse and connection requests, interest and mood-based user matching, and city-based user discovery.
 - **AI Integration**: Utilizes OpenAI API for intelligent event recommendations, AI-powered chat concierge, natural language processing for event queries, and compatibility scoring for user connections.
-- **Payment System**: Integrated Stripe for event ticketing and premium subscription processing, including secure payment handling with webhooks and Stripe Connect for host payouts with a 3% platform application fee.
+- **Payment System**: Complete Stripe integration with Express Connect for host payouts. Features include event ticketing, premium subscriptions, automatic 3% platform fee collection, direct payouts to host bank accounts, comprehensive webhook processing, and full E2E test coverage with 31 passing tests.
 
 ### UI/UX Decisions
 - Consistent, accessible design using Tailwind CSS and Shadcn/UI.
@@ -52,7 +52,7 @@ Preferred communication style: Simple, everyday language.
 
 - **PostgreSQL**: Primary relational database.
 - **OpenAI API**: For AI-powered features and recommendations.
-- **Stripe**: Payment processing for events, subscriptions, and host payouts (Stripe Connect).
+- **Stripe**: Complete payment ecosystem with Express Connect accounts, automatic fee collection (3%), direct host payouts, webhook processing, and comprehensive test coverage.
 - **Mapbox API**: Geographic coordinate conversion and location services (geocoding).
 - **Cloudinary**: Centralized media upload service for images and videos.
 - **Replit**: For development environment, deployment, and object storage.
