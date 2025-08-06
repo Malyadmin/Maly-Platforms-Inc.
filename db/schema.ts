@@ -86,10 +86,33 @@ export const eventParticipants = pgTable("event_participants", {
   ticketIdentifier: text("ticket_identifier").unique(), // Added for unique QR code identifier
 });
 
+// New table for conversations (supports both direct and group chats)
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  title: text("title"), // Event name for auto-generated chats, null for direct messages
+  type: text("type").notNull().default("direct"), // 'direct', 'group', 'event'
+  eventId: integer("event_id").references(() => events.id), // For event-specific chats
+  createdAt: timestamp("created_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+// Join table for conversation participants
+export const conversationParticipants = pgTable("conversation_participants", {
+  conversationId: integer("conversation_id").references(() => conversations.id),
+  userId: integer("user_id").references(() => users.id),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  lastReadAt: timestamp("last_read_at"), // For tracking read status
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.conversationId, table.userId] }),
+  };
+});
+
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
   senderId: integer("sender_id").references(() => users.id),
-  receiverId: integer("receiver_id").references(() => users.id),
+  receiverId: integer("receiver_id").references(() => users.id), // Keep for backward compatibility
+  conversationId: integer("conversation_id").references(() => conversations.id), // New field for group chat support
   content: text("content").notNull(),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -200,6 +223,8 @@ export const userRelations = relations(users, ({ many, one }) => ({
   participatingEvents: many(eventParticipants),
   sentMessages: many(messages, { relationName: "sentMessages" }),
   receivedMessages: many(messages, { relationName: "receivedMessages" }),
+  createdConversations: many(conversations),
+  conversationParticipations: many(conversationParticipants),
   followers: many(userConnections, { relationName: "followers" }),
   following: many(userConnections, { relationName: "following" }),
   sentInvitations: many(invitations, { relationName: "sentInvitations" }),
@@ -218,6 +243,7 @@ export const eventRelations = relations(events, ({ one, many }) => ({
     references: [users.id],
   }),
   participants: many(eventParticipants),
+  conversations: many(conversations), // Add relation to event conversations
 }));
 
 export const eventParticipantsRelations = relations(eventParticipants, ({ one }) => ({
@@ -242,6 +268,36 @@ export const messageRelations = relations(messages, ({ one }) => ({
   }),
   receiver: one(users, {
     fields: [messages.receiverId],
+    references: [users.id],
+  }),
+  conversation: one(conversations, {
+    fields: [messages.conversationId],
+    references: [conversations.id],
+  }),
+}));
+
+// Relations for conversations
+export const conversationRelations = relations(conversations, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [conversations.createdBy],
+    references: [users.id],
+  }),
+  event: one(events, {
+    fields: [conversations.eventId],
+    references: [events.id],
+  }),
+  participants: many(conversationParticipants),
+  messages: many(messages),
+}));
+
+// Relations for conversation participants
+export const conversationParticipantsRelations = relations(conversationParticipants, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [conversationParticipants.conversationId],
+    references: [conversations.id],
+  }),
+  user: one(users, {
+    fields: [conversationParticipants.userId],
     references: [users.id],
   }),
 }));
@@ -326,6 +382,18 @@ export const insertMessageSchema = createInsertSchema(messages);
 export const selectMessageSchema = createSelectSchema(messages);
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+
+// Schemas for conversations
+export const insertConversationSchema = createInsertSchema(conversations);
+export const selectConversationSchema = createSelectSchema(conversations);
+export type Conversation = typeof conversations.$inferSelect;
+export type NewConversation = typeof conversations.$inferInsert;
+
+// Schemas for conversation participants
+export const insertConversationParticipantSchema = createInsertSchema(conversationParticipants);
+export const selectConversationParticipantSchema = createSelectSchema(conversationParticipants);
+export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
+export type NewConversationParticipant = typeof conversationParticipants.$inferInsert;
 
 export const insertEventParticipantSchema = createInsertSchema(eventParticipants);
 export const selectEventParticipantSchema = createSelectSchema(eventParticipants);

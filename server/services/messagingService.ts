@@ -2,11 +2,18 @@ import { db } from "../../db";
 import { 
   messages, 
   users, 
-  userConnections, 
+  userConnections,
+  conversations,
+  conversationParticipants,
+  events,
   Message, 
-  NewMessage 
+  NewMessage,
+  Conversation,
+  NewConversation,
+  ConversationParticipant,
+  NewConversationParticipant
 } from "../../db/schema";
-import { eq, and, or, desc, asc } from "drizzle-orm";
+import { eq, and, or, desc, asc, ne } from "drizzle-orm";
 
 // Send a message (only between connected users)
 export async function sendMessage({ senderId, receiverId, content }: {
@@ -69,139 +76,168 @@ export async function sendMessage({ senderId, receiverId, content }: {
   return result;
 }
 
-// Get conversations for a user
+// Get conversations for a user (now supports both direct and group chats)
 export async function getConversations(userId: number) {
-  // Get all connected users
-  const connections = await db.query.userConnections.findMany({
-    where: or(
-      and(
-        eq(userConnections.followerId, userId),
-        eq(userConnections.status, "accepted")
-      ),
-      and(
-        eq(userConnections.followingId, userId),
-        eq(userConnections.status, "accepted")
+  // Get all conversations that the user is a participant in
+  const userConversations = await db.query.conversationParticipants.findMany({
+    where: eq(conversationParticipants.userId, userId),
+    with: {
+      conversation: {
+        with: {
+          event: {
+            columns: {
+              id: true,
+              title: true
+            }
+          },
+          creator: {
+            columns: {
+              id: true,
+              fullName: true,
+              username: true,
+              profileImage: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const conversationResults = [];
+
+  for (const userConv of userConversations) {
+    const conversation = userConv.conversation;
+    
+    // Skip if conversation is null
+    if (!conversation) continue;
+    
+    // Get the latest message for this conversation
+    const latestMessage = await db.query.messages.findFirst({
+      where: eq(messages.conversationId, conversation.id),
+      orderBy: [desc(messages.createdAt)],
+      with: {
+        sender: {
+          columns: {
+            id: true,
+            fullName: true,
+            username: true,
+            profileImage: true
+          }
+        }
+      }
+    });
+
+    // Skip conversations with no messages
+    if (!latestMessage) continue;
+
+    // Calculate unread count
+    const unreadMessages = await db.query.messages.findMany({
+      where: and(
+        eq(messages.conversationId, conversation.id),
+        eq(messages.receiverId, userId),
+        eq(messages.isRead, false)
       )
-    ),
-    with: {
-      follower: true,
-      following: true
-    }
-  });
+    });
 
-  // Extract all connected user IDs
-  const connectedUserIds = new Set<number>();
-  connections.forEach(conn => {
-    if (conn.followerId === userId && conn.followingId) {
-      connectedUserIds.add(conn.followingId);
-    } else if (conn.followingId === userId && conn.followerId) {
-      connectedUserIds.add(conn.followerId);
-    }
-  });
+    let conversationInfo;
 
-  // Get all messages where user is either sender or receiver
-  const userMessages = await db.query.messages.findMany({
-    where: or(
-      eq(messages.senderId, userId),
-      eq(messages.receiverId, userId)
-    ),
-    orderBy: [desc(messages.createdAt)],
-    with: {
-      sender: {
-        columns: {
-          id: true,
-          fullName: true,
-          username: true,
-          profileImage: true
-        }
-      },
-      receiver: {
-        columns: {
-          id: true,
-          fullName: true,
-          username: true,
-          profileImage: true
-        }
-      }
-    }
-  });
-
-  // Group messages by conversation partner
-  const conversationMap = new Map<number, {
-    user: {
-      id: number;
-      name: string | null;
-      username?: string;
-      image: string | null;
-    };
-    lastMessage: Message;
-    messages: Message[];
-  }>();
-
-  for (const message of userMessages) {
-    // Determine if user is sender or receiver
-    const isUserSender = message.senderId === userId;
-    const partnerId = isUserSender ? message.receiverId : message.senderId;
-
-    // Skip if any IDs are null
-    if (partnerId === null) continue;
-
-    // Only include conversations with connected users
-    if (!connectedUserIds.has(partnerId)) continue;
-
-    // Get partner info
-    const partner = isUserSender ? message.receiver : message.sender;
-
-    if (!partner) continue;
-
-    if (!conversationMap.has(partnerId)) {
-      conversationMap.set(partnerId, {
-        user: {
-          id: partnerId,
-          name: partner.fullName,
-          username: partner.username,
-          image: partner.profileImage
-        },
-        lastMessage: message,
-        messages: [message]
-      });
+    if (conversation.type === 'event') {
+      // For event conversations, use event title and show it's a group chat
+      conversationInfo = {
+        id: conversation.id,
+        type: 'event',
+        title: conversation.title || (conversation.event?.title ? `${conversation.event.title} - Event Chat` : 'Event Chat'),
+        eventId: conversation.eventId,
+        lastMessage: latestMessage,
+        unreadCount: unreadMessages.length,
+        participantCount: await getConversationParticipantCount(conversation.id)
+      };
     } else {
-      const conversation = conversationMap.get(partnerId)!;
-      conversation.messages.push(message);
+      // For direct conversations, we need to find the other participant
+      const otherParticipants = await db.query.conversationParticipants.findMany({
+        where: and(
+          eq(conversationParticipants.conversationId, conversation.id),
+          ne(conversationParticipants.userId, userId)
+        ),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              fullName: true,
+              username: true,
+              profileImage: true
+            }
+          }
+        }
+      });
 
-      // Update last message if this one is newer
-      const msgDate = message.createdAt ? new Date(message.createdAt) : new Date();
-      const lastMsgDate = conversation.lastMessage.createdAt ? new Date(conversation.lastMessage.createdAt) : new Date();
+      // For direct chats, use the other user's info
+      const otherUser = otherParticipants[0]?.user;
+      if (!otherUser) continue;
 
-      if (msgDate > lastMsgDate) {
-        conversation.lastMessage = message;
-      }
+      conversationInfo = {
+        id: conversation.id,
+        type: 'direct',
+        user: {
+          id: otherUser.id,
+          name: otherUser.fullName,
+          username: otherUser.username,
+          image: otherUser.profileImage
+        },
+        lastMessage: latestMessage,
+        unreadCount: unreadMessages.length
+      };
     }
+
+    conversationResults.push(conversationInfo);
   }
 
-  // Convert map to array and format for client
-  const conversations = Array.from(conversationMap.values()).map(conv => {
-    // Calculate unread count
-    const unreadCount = conv.messages.filter(
-      msg => msg.receiverId === userId && !msg.isRead
-    ).length;
-
-    return {
-      user: conv.user,
-      lastMessage: conv.lastMessage,
-      unreadCount
-    };
-  });
-
   // Sort by last message date (newest first)
-  return conversations.sort((a, b) => {
+  return conversationResults.sort((a, b) => {
     const dateA = a.lastMessage.createdAt ? new Date(a.lastMessage.createdAt) : new Date();
     const dateB = b.lastMessage.createdAt ? new Date(b.lastMessage.createdAt) : new Date();
     return dateB.getTime() - dateA.getTime();
   });
 }
 
-// Get messages between two users
+// Helper function to get conversation participant count
+async function getConversationParticipantCount(conversationId: number): Promise<number> {
+  const participants = await db.query.conversationParticipants.findMany({
+    where: eq(conversationParticipants.conversationId, conversationId)
+  });
+  return participants.length;
+}
+
+// Get messages for a conversation
+export async function getConversationMessages(conversationId: number, userId: number) {
+  // Verify user is a participant in the conversation
+  const participation = await db.query.conversationParticipants.findFirst({
+    where: and(
+      eq(conversationParticipants.conversationId, conversationId),
+      eq(conversationParticipants.userId, userId)
+    )
+  });
+
+  if (!participation) {
+    throw new Error("User is not a participant in this conversation");
+  }
+
+  return db.query.messages.findMany({
+    where: eq(messages.conversationId, conversationId),
+    orderBy: [asc(messages.createdAt)],
+    with: {
+      sender: {
+        columns: {
+          id: true,
+          fullName: true,
+          profileImage: true
+        }
+      }
+    }
+  });
+}
+
+// Get messages between two users (legacy function for backward compatibility)
 export async function getMessages(userId: number, otherId: number) {
   // Check if users are connected
   const connectionExists = await db.query.userConnections.findFirst({
@@ -277,4 +313,134 @@ export async function markAllMessagesAsRead(userId: number) {
     .update(messages)
     .set({ isRead: true })
     .where(eq(messages.receiverId, userId));
+}
+
+// Get or create an event group chat
+export async function getOrCreateEventGroupChat(eventId: number, hostId: number): Promise<number> {
+  // First check if a conversation already exists for this event
+  const existingConversation = await db.query.conversations.findFirst({
+    where: and(
+      eq(conversations.eventId, eventId),
+      eq(conversations.type, "event")
+    )
+  });
+
+  if (existingConversation) {
+    return existingConversation.id;
+  }
+
+  // Get event details for the conversation title
+  const event = await db.query.events.findFirst({
+    where: eq(events.id, eventId),
+    columns: {
+      title: true
+    }
+  });
+
+  if (!event) {
+    throw new Error(`Event with id ${eventId} not found`);
+  }
+
+  // Create new event conversation
+  const newConversation: NewConversation = {
+    title: `${event.title} - Event Chat`,
+    type: "event",
+    eventId: eventId,
+    createdBy: hostId,
+    createdAt: new Date()
+  };
+
+  const [createdConversation] = await db.insert(conversations)
+    .values(newConversation)
+    .returning();
+
+  // Add the host as the first participant
+  const hostParticipant: NewConversationParticipant = {
+    conversationId: createdConversation.id,
+    userId: hostId,
+    joinedAt: new Date()
+  };
+
+  await db.insert(conversationParticipants)
+    .values(hostParticipant);
+
+  return createdConversation.id;
+}
+
+// Add a user to an event group chat
+export async function addUserToEventGroupChat(conversationId: number, userId: number): Promise<void> {
+  // Check if user is already a participant
+  const existingParticipant = await db.query.conversationParticipants.findFirst({
+    where: and(
+      eq(conversationParticipants.conversationId, conversationId),
+      eq(conversationParticipants.userId, userId)
+    )
+  });
+
+  if (existingParticipant) {
+    // User is already in the chat, no need to add again
+    return;
+  }
+
+  // Add user to the conversation
+  const newParticipant: NewConversationParticipant = {
+    conversationId: conversationId,
+    userId: userId,
+    joinedAt: new Date()
+  };
+
+  await db.insert(conversationParticipants)
+    .values(newParticipant);
+}
+
+// Send a message to a conversation (replaces the old direct messaging)
+export async function sendMessageToConversation({ senderId, conversationId, content }: {
+  senderId: number;
+  conversationId: number;
+  content: string;
+}) {
+  // Verify user is a participant in the conversation
+  const participation = await db.query.conversationParticipants.findFirst({
+    where: and(
+      eq(conversationParticipants.conversationId, conversationId),
+      eq(conversationParticipants.userId, senderId)
+    )
+  });
+
+  if (!participation) {
+    throw new Error("User is not a participant in this conversation");
+  }
+
+  // Create the message
+  const newMessage: NewMessage = {
+    senderId,
+    conversationId,
+    content,
+    createdAt: new Date(),
+    isRead: false,
+    // receiverId is null for group messages, will be set for direct messages if needed
+    receiverId: null
+  };
+
+  const result = await db.insert(messages).values(newMessage).returning();
+
+  // Get sender info for notification purposes
+  const sender = await db.query.users.findFirst({
+    where: eq(users.id, senderId),
+    columns: {
+      id: true,
+      fullName: true,
+      profileImage: true
+    }
+  });
+
+  // Return the message with sender info
+  if (result.length > 0 && sender) {
+    return [{
+      ...result[0],
+      sender
+    }];
+  }
+
+  return result;
 }

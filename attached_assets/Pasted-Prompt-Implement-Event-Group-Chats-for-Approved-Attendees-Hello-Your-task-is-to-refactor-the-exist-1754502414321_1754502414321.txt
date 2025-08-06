@@ -1,0 +1,67 @@
+Prompt: Implement Event Group Chats for Approved Attendees
+Hello! Your task is to refactor the existing direct messaging system into a full-fledged conversation system that supports group chats, and then use it to automatically create group chats for approved event attendees.
+
+Please execute the following phases in order, based on the provided analysis.
+
+Phase 1: Database Schema Migration (Most Critical)
+First, you must update the database schema to support group conversations.
+
+Create New Tables:
+
+In db/schema.ts, create a new conversations table as recommended in the analysis. It must include an eventId foreign key to link chats to events.
+
+Create the conversation_participants join table to link multiple users to a single conversation.
+
+Modify the messages Table:
+
+In the messages table schema, add a new conversationId column that is a foreign key to the new conversations table.
+
+Important: For now, keep the existing senderId and receiverId columns to maintain backward compatibility for existing direct messages, but the new logic will primarily use conversationId.
+
+Generate and Apply Migration:
+
+Use Drizzle Kit to generate a new database migration file for these schema changes.
+
+Apply the migration to the database.
+
+Phase 2: Implement Core Group Chat Logic
+Next, create the business logic for managing these new event-specific group chats.
+
+Create New Service Functions:
+
+In server/services/messagingService.ts (or a new groupChatService.ts), create a new function: getOrCreateEventGroupChat(eventId, hostId).
+
+This function should first check if a conversation already exists for the given eventId.
+
+If not, it should create a new record in the conversations table (e.g., with the event's title) and add the event host (hostId) to the conversation_participants table as the first member.
+
+It should return the conversationId.
+
+Integrate into RSVP Approval Endpoint:
+
+Open server/routes.ts and locate the PUT /api/events/:eventId/applications/:userId endpoint (around line 4111).
+
+Inside the logic where an application is approved (status === 'approved'), add the following steps:
+
+Call your new getOrCreateEventGroupChat() function.
+
+Create a new record in the conversation_participants table to add the approved user (userId) to the event's group chat.
+
+Phase 3: Update Inbox and Messaging Endpoints
+The existing messaging endpoints are now outdated. Refactor them to use the new conversation-based system.
+
+Rewrite Inbox Logic:
+
+Modify the getConversations() function (in messagingService.ts).
+
+The function must now query the conversation_participants table to find all conversations (both direct and group) that the current user is a part of.
+
+It should join with the conversations table to get details like the title (for group chats) and then fetch the latest message for each conversation to display in the inbox.
+
+Update "Send Message" Endpoint:
+
+The POST /api/messages endpoint must be updated. Instead of receiverId, it should now accept a conversationId in the request body.
+
+The logic will now simply create a new record in the messages table with the senderId and the provided conversationId.
+
+This is a significant architectural change. Please proceed carefully through each phase.

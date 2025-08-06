@@ -34,8 +34,9 @@ Preferred communication style: Simple, everyday language.
 ### Key Features
 - **Authentication System**: Registration and login with username/email and password, password hashing with bcrypt, and authentication middleware for protected routes. Supports both session-based (web) and JWT token-based (mobile) authentication with 30-day expiration.
 - **User Management**: Comprehensive user profiles, profile image uploads, user connections (follow/unfollow), and premium subscription tiers.
-- **Events Platform**: Event creation with detailed information and itineraries, event discovery with filtering, participation, ticketing, and an RSVP system.
-- **Social Features**: Direct messaging system with real-time WebSocket communication, user browse and connection requests, interest and mood-based user matching, and city-based user discovery.
+- **Events Platform**: Event creation with detailed information and itineraries, event discovery with filtering, participation, ticketing, and an RSVP system with automatic group chat creation for approved attendees.
+- **Messaging System**: Advanced conversation-based messaging supporting both direct messages and group chats. Event-specific group chats are automatically created when hosts approve RSVP requests, enabling seamless communication among event attendees.
+- **Social Features**: User browse and connection requests, interest and mood-based user matching, and city-based user discovery.
 - **AI Integration**: Utilizes OpenAI API for intelligent event recommendations, AI-powered chat concierge, natural language processing for event queries, and compatibility scoring for user connections.
 - **Payment System**: Complete Stripe integration with Express Connect for host payouts. Features include event ticketing, premium subscriptions, automatic 3% platform fee collection, direct payouts to host bank accounts, comprehensive webhook processing, and full E2E test coverage with 31 passing tests.
 
@@ -47,6 +48,20 @@ Preferred communication style: Simple, everyday language.
 - Robust error handling with proper fallbacks and user feedback.
 - Comprehensive input validation using Zod schemas.
 - Performance optimization includes fixing N+1 query problems, pagination, and database indexing.
+
+## Recent Changes (January 2025)
+
+### Event Group Chat Implementation
+- **Database Schema Migration**: Implemented conversation-based messaging system with new tables:
+  - `conversations`: Supports both direct and group chats with event linking
+  - `conversation_participants`: Join table for managing chat membership
+  - Extended `messages` table with `conversationId` for group messaging support
+- **Automatic Group Chat Creation**: Event hosts' RSVP approvals now automatically create and populate event-specific group chats
+- **New API Endpoints**:
+  - `POST /api/conversations/:conversationId/messages`: Send messages to conversations
+  - `GET /api/conversations/:conversationId/messages`: Retrieve conversation messages
+- **Enhanced Inbox System**: Updated to display both direct messages and event group chats with participant counts
+- **Backward Compatibility**: Maintained legacy direct messaging endpoints for existing functionality
 
 ## External Dependencies
 
