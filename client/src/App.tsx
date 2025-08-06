@@ -25,7 +25,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
-import AiEventDemoPage from "./pages/AiEventDemoPage";
+import AiEventDemoPage from "./pages/AiEventDemoPage.jsx";
 import AuthPage from "./pages/AuthPage";
 import StripeConnectPage from "./pages/StripeConnectPage";
 import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
@@ -120,6 +120,7 @@ function AppContent() {
           <Route path="/auth" component={AuthPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
+          <Route path="/stripe/connect" component={StripeConnectPage} />
           <Route path="/stripe/connect/success" component={StripeConnectSuccessPage} />
           <Route path="/stripe/connect/reauth" component={StripeConnectReauthPage} />
           <Route path="/:rest*">

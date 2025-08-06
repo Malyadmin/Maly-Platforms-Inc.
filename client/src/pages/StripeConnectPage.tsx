@@ -16,6 +16,7 @@ interface ConnectAccountStatus {
 }
 
 export default function StripeConnectPage() {
+  console.log('StripeConnectPage component rendered');
   const { user } = useUser();
   const { toast } = useToast();
   const [status, setStatus] = useState<ConnectAccountStatus | null>(null);
@@ -23,6 +24,7 @@ export default function StripeConnectPage() {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
+    console.log('StripeConnectPage useEffect triggered');
     fetchAccountStatus();
   }, []);
 
