@@ -8,7 +8,7 @@ import { translateMessage } from './services/translationService';
 import { getEventImage } from './services/eventsService';
 import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
-import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead } from './services/messagingService';
+import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages } from './services/messagingService';
 import { db } from "../db";
 import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
@@ -1935,6 +1935,45 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // New conversation-based messaging endpoint
+  app.post('/api/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const { content } = req.body;
+      const senderId = (req.user as any).id;
+      
+      // Validate required fields
+      if (!content) {
+        return res.status(400).json({ 
+          error: 'Message content is required' 
+        });
+      }
+      
+      // Log request for debugging
+      console.log(`Sending message from user ${senderId} to conversation ${conversationId}: ${content.substring(0, 20)}...`);
+      
+      const message = await sendMessageToConversation({ 
+        senderId, 
+        conversationId: parseInt(conversationId), 
+        content 
+      });
+      
+      // Log success for debugging
+      console.log(`Successfully sent message from user ${senderId} to conversation ${conversationId}`);
+      
+      res.json(message);
+    } catch (error) {
+      console.error('Error sending conversation message:', error);
+      
+      if (error instanceof Error && error.message.includes('not a participant')) {
+        return res.status(403).json({ error: error.message });
+      }
+
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
+  // Legacy direct messaging endpoint (for backward compatibility)
   app.post('/api/messages', requireAuth, async (req: Request, res: Response) => {
     try {
       const { senderId, receiverId, content } = req.body;
@@ -1989,6 +2028,30 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       res.status(500).json({ error: 'Failed to get conversations' });
+    }
+  });
+
+  // Get messages for a specific conversation
+  app.get('/api/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = (req.user as any).id;
+      
+      console.log(`Fetching messages for conversation ${conversationId} by user ${userId}`);
+      
+      const messages = await getConversationMessages(parseInt(conversationId), userId);
+      
+      console.log(`Successfully fetched ${messages.length} messages for conversation ${conversationId}`);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('Error getting conversation messages:', error);
+      
+      if (error instanceof Error && error.message.includes('not a participant')) {
+        return res.status(403).json({ error: error.message });
+      }
+
+      res.status(500).json({ error: 'Failed to get conversation messages' });
     }
   });
 
@@ -4170,7 +4233,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         .where(eq(eventParticipants.id, application.id))
         .returning();
 
-      // If approved, update the event's attending count
+      // If approved, update the event's attending count and add to group chat
       if (status === 'approved') {
         const currentCount = existingEvent.attendingCount || 0;
         const ticketQuantity = application.ticketQuantity || 1;
@@ -4180,6 +4243,16 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
             attendingCount: currentCount + ticketQuantity 
           })
           .where(eq(events.id, eventIdNum));
+
+        // Get or create event group chat and add the approved user
+        try {
+          const conversationId = await getOrCreateEventGroupChat(eventIdNum, currentUser.id);
+          await addUserToEventGroupChat(conversationId, userIdNum);
+          console.log(`User ${userIdNum} added to event ${eventIdNum} group chat (conversation ${conversationId})`);
+        } catch (error) {
+          console.error("Error adding user to event group chat:", error);
+          // Don't fail the approval if group chat fails
+        }
       }
 
       // Get user details for response

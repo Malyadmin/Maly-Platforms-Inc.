@@ -1,11 +1,17 @@
-# API Documentation
+# Maly API Documentation
+
+Complete API reference for iOS developers building with the Maly backend platform.
+
+## Base URL
+- Production: `https://your-app.replit.app`
+- Development: `http://localhost:5000`
 
 ## Authentication
 
-Maly supports two authentication methods to serve both web and mobile applications:
+Maly supports two authentication methods:
 
 1. **Session-based authentication** - For web applications using cookies
-2. **JWT token-based authentication** - For mobile applications using Bearer tokens
+2. **JWT token-based authentication** - For mobile applications using Bearer tokens (recommended for iOS)
 
 ### Mobile Login Flow
 
@@ -315,6 +321,274 @@ Returns information about the Replit environment.
 }
 ```
 
+## Messaging & Group Chat Endpoints
+
+### GET /api/conversations
+
+Retrieves all conversations (direct messages and group chats) for the authenticated user.
+
+**Authentication:** Required
+**Success Response (200 OK):**
+```json
+[
+  {
+    "id": "conv_123",
+    "type": "direct",
+    "eventId": null,
+    "participantCount": 2,
+    "lastMessage": {
+      "content": "Hey, how are you?",
+      "senderName": "John Doe",
+      "sentAt": "2024-01-15T14:30:00Z"
+    },
+    "participants": [
+      {
+        "id": 456,
+        "username": "janedoe",
+        "fullName": "Jane Doe",
+        "profileImage": "https://example.com/jane.jpg"
+      }
+    ]
+  },
+  {
+    "id": "conv_456",
+    "type": "group",
+    "eventId": 789,
+    "participantCount": 5,
+    "eventTitle": "Tech Meetup Downtown",
+    "lastMessage": {
+      "content": "Looking forward to the event!",
+      "senderName": "Alice Smith",
+      "sentAt": "2024-01-15T13:45:00Z"
+    },
+    "participants": [
+      {
+        "id": 101,
+        "username": "alice",
+        "fullName": "Alice Smith",
+        "profileImage": "https://example.com/alice.jpg"
+      }
+    ]
+  }
+]
+```
+
+### GET /api/conversations/:conversationId/messages
+
+Retrieves messages for a specific conversation with pagination.
+
+**Authentication:** Required
+**URL Parameters:**
+- `conversationId` (string): The conversation ID
+
+**Query Parameters:**
+- `page` (number, optional): Page number for pagination (default: 1)
+- `limit` (number, optional): Messages per page (default: 50, max: 100)
+
+**Success Response (200 OK):**
+```json
+{
+  "messages": [
+    {
+      "id": "msg_123",
+      "content": "Hey everyone! Excited for tonight's meetup.",
+      "senderId": 456,
+      "senderName": "John Doe",
+      "senderProfileImage": "https://example.com/john.jpg",
+      "conversationId": "conv_456",
+      "sentAt": "2024-01-15T14:30:00Z"
+    },
+    {
+      "id": "msg_124",
+      "content": "Same here! See you at 7 PM.",
+      "senderId": 789,
+      "senderName": "Jane Smith",
+      "senderProfileImage": "https://example.com/jane.jpg",
+      "conversationId": "conv_456",
+      "sentAt": "2024-01-15T14:32:00Z"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalMessages": 142,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "Access denied: You are not a participant in this conversation"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": "Conversation not found"
+}
+```
+
+### POST /api/conversations/:conversationId/messages
+
+Sends a message to a specific conversation.
+
+**Authentication:** Required
+**URL Parameters:**
+- `conversationId` (string): The conversation ID
+
+**Request Body:**
+```json
+{
+  "content": "Hello everyone! Looking forward to meeting you all."
+}
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "id": "msg_125",
+  "content": "Hello everyone! Looking forward to meeting you all.",
+  "senderId": 123,
+  "senderName": "Current User",
+  "senderProfileImage": "https://example.com/current-user.jpg",
+  "conversationId": "conv_456",
+  "sentAt": "2024-01-15T14:35:00Z"
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "error": "Message content is required"
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "Access denied: You are not a participant in this conversation"
+}
+```
+
+### Legacy Direct Messaging Endpoints
+
+#### GET /api/messages
+
+Retrieves direct messages for the authenticated user (legacy endpoint).
+
+**Authentication:** Required
+**Success Response (200 OK):**
+```json
+[
+  {
+    "id": "msg_123",
+    "content": "Hey, how are you?",
+    "senderId": 456,
+    "senderName": "John Doe",
+    "senderProfileImage": "https://example.com/john.jpg",
+    "recipientId": 123,
+    "sentAt": "2024-01-15T14:30:00Z"
+  }
+]
+```
+
+#### POST /api/messages
+
+Sends a direct message to another user (legacy endpoint).
+
+**Authentication:** Required
+**Request Body:**
+```json
+{
+  "recipientId": 456,
+  "content": "Hello! Nice to meet you."
+}
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "id": "msg_124",
+  "content": "Hello! Nice to meet you.",
+  "senderId": 123,
+  "senderName": "Current User",
+  "recipientId": 456,
+  "sentAt": "2024-01-15T14:35:00Z"
+}
+```
+
+## RSVP & Event Group Chat Integration
+
+### POST /api/events/:eventId/rsvp
+
+Submit an RSVP request for an event. Upon approval, users are automatically added to the event's group chat.
+
+**Authentication:** Required
+**URL Parameters:**
+- `eventId` (number): The event ID
+
+**Request Body:**
+```json
+{
+  "ticketQuantity": 1,
+  "message": "Excited to attend this event!"
+}
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "id": "rsvp_123",
+  "eventId": 456,
+  "userId": 123,
+  "status": "pending_approval",
+  "ticketQuantity": 1,
+  "message": "Excited to attend this event!",
+  "submittedAt": "2024-01-15T14:30:00Z"
+}
+```
+
+### PUT /api/events/:eventId/rsvp/:rsvpId
+
+Host approves or rejects an RSVP request. Approval automatically creates/adds user to event group chat.
+
+**Authentication:** Required (Event Host Only)
+**URL Parameters:**
+- `eventId` (number): The event ID
+- `rsvpId` (number): The RSVP ID
+
+**Request Body:**
+```json
+{
+  "status": "approved"  // or "rejected"
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "id": "rsvp_123",
+  "eventId": 456,
+  "userId": 123,
+  "status": "approved",
+  "ticketQuantity": 1,
+  "approvedAt": "2024-01-15T15:00:00Z",
+  "groupChatId": "conv_789",  // Included when approved
+  "message": "Welcome to the event! You've been added to the group chat."
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "Only the event host can approve RSVPs"
+}
+```
+
 ## User Management Endpoints
 
 ### GET /api/users/browse
@@ -448,9 +722,455 @@ Update user profile information.
   "interests": ["technology", "travel", "photography"],
   "currentMoods": ["creating", "networking"],
   "profession": "Senior Developer",
-  "age": 29
+  "age": 29,
+  "gender": "male"
 }
 ```
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": 123,
+    "username": "johndoe",
+    "fullName": "John Doe Updated",
+    "bio": "Updated bio",
+    "location": "San Francisco, CA",
+    "interests": ["technology", "travel", "photography"],
+    "currentMoods": ["creating", "networking"],
+    "profession": "Senior Developer",
+    "age": 29,
+    "gender": "male"
+  }
+}
+```
+
+### POST /api/upload-profile-image
+
+Upload or update user profile image.
+
+**Authentication:** Required
+**Request Body (multipart/form-data):**
+- `profileImage` (file): Image file to upload
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Profile image uploaded successfully",
+  "profileImage": "https://storage.googleapis.com/your-bucket/profiles/user123.jpg"
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "error": "No file uploaded"
+}
+```
+
+## Events Endpoints
+
+### GET /api/events
+
+Retrieve all events with optional filtering.
+
+**Query Parameters:**
+- `city` (string): Filter by city
+- `location` (string): Filter by location
+- `category` (string): Filter by event category
+- `date` (string): Filter by date (YYYY-MM-DD format)
+- `hostId` (number): Filter by host user ID
+- `limit` (number): Number of events to return
+- `offset` (number): Pagination offset
+
+**Success Response (200 OK):**
+```json
+[
+  {
+    "id": 456,
+    "title": "Tech Meetup Downtown",
+    "description": "Join us for an evening of networking and tech talks",
+    "location": "New York, NY",
+    "address": "123 Tech Street, New York, NY",
+    "date": "2024-01-20",
+    "time": "19:00",
+    "category": "Technology",
+    "ticketPrice": 25.00,
+    "ticketType": "paid",
+    "isPrivate": false,
+    "maxAttendees": 50,
+    "currentAttendees": 23,
+    "hostId": 789,
+    "hostName": "Event Host",
+    "hostProfileImage": "https://example.com/host.jpg",
+    "eventImage": "https://example.com/event.jpg",
+    "itinerary": [
+      {
+        "time": "19:00",
+        "activity": "Welcome & Networking",
+        "description": "Mingle with fellow attendees"
+      },
+      {
+        "time": "19:30",
+        "activity": "Tech Talk: AI Trends",
+        "description": "Latest developments in artificial intelligence"
+      }
+    ],
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+]
+```
+
+### GET /api/events/:eventId
+
+Get detailed information about a specific event.
+
+**Path Parameters:**
+- `eventId` (number): The event ID
+
+**Success Response (200 OK):**
+```json
+{
+  "id": 456,
+  "title": "Tech Meetup Downtown",
+  "description": "Join us for an evening of networking and tech talks",
+  "location": "New York, NY",
+  "address": "123 Tech Street, New York, NY",
+  "date": "2024-01-20",
+  "time": "19:00",
+  "category": "Technology",
+  "ticketPrice": 25.00,
+  "ticketType": "paid",
+  "isPrivate": false,
+  "maxAttendees": 50,
+  "currentAttendees": 23,
+  "hostId": 789,
+  "hostName": "Event Host",
+  "hostProfileImage": "https://example.com/host.jpg",
+  "eventImage": "https://example.com/event.jpg",
+  "itinerary": [
+    {
+      "time": "19:00",
+      "activity": "Welcome & Networking",
+      "description": "Mingle with fellow attendees"
+    }
+  ],
+  "attendees": [
+    {
+      "id": 123,
+      "username": "johndoe",
+      "fullName": "John Doe",
+      "profileImage": "https://example.com/john.jpg"
+    }
+  ],
+  "rsvps": [
+    {
+      "id": "rsvp_123",
+      "userId": 123,
+      "status": "approved",
+      "ticketQuantity": 1,
+      "submittedAt": "2024-01-15T14:30:00Z"
+    }
+  ],
+  "createdAt": "2024-01-15T10:30:00Z"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": "Event not found"
+}
+```
+
+### POST /api/events
+
+Create a new event.
+
+**Authentication:** Required
+**Request Body:**
+```json
+{
+  "title": "New Tech Meetup",
+  "description": "Join us for networking and tech discussions",
+  "location": "San Francisco, CA",
+  "address": "456 Innovation Ave, San Francisco, CA",
+  "date": "2024-02-15",
+  "time": "18:00",
+  "category": "Technology",
+  "ticketPrice": 0,
+  "ticketType": "free",
+  "isPrivate": false,
+  "maxAttendees": 30,
+  "itinerary": [
+    {
+      "time": "18:00",
+      "activity": "Registration & Welcome",
+      "description": "Check-in and meet other attendees"
+    },
+    {
+      "time": "18:30",
+      "activity": "Main Presentation",
+      "description": "Featured speaker on emerging technologies"
+    }
+  ]
+}
+```
+
+**Success Response (201 Created):**
+```json
+{
+  "id": 789,
+  "title": "New Tech Meetup",
+  "description": "Join us for networking and tech discussions",
+  "location": "San Francisco, CA",
+  "address": "456 Innovation Ave, San Francisco, CA",
+  "date": "2024-02-15",
+  "time": "18:00",
+  "category": "Technology",
+  "ticketPrice": 0,
+  "ticketType": "free",
+  "isPrivate": false,
+  "maxAttendees": 30,
+  "currentAttendees": 0,
+  "hostId": 123,
+  "hostName": "Current User",
+  "itinerary": [
+    {
+      "time": "18:00",
+      "activity": "Registration & Welcome",
+      "description": "Check-in and meet other attendees"
+    }
+  ],
+  "createdAt": "2024-01-15T16:00:00Z"
+}
+```
+
+### GET /api/events/:eventId/rsvps
+
+Get all RSVP requests for an event (Host only).
+
+**Authentication:** Required (Event Host Only)
+**Path Parameters:**
+- `eventId` (number): The event ID
+
+**Success Response (200 OK):**
+```json
+[
+  {
+    "id": "rsvp_123",
+    "eventId": 456,
+    "userId": 123,
+    "userName": "John Doe",
+    "userProfileImage": "https://example.com/john.jpg",
+    "status": "pending_approval",
+    "ticketQuantity": 1,
+    "message": "Excited to attend!",
+    "submittedAt": "2024-01-15T14:30:00Z"
+  },
+  {
+    "id": "rsvp_124",
+    "eventId": 456,
+    "userId": 456,
+    "userName": "Jane Smith",
+    "userProfileImage": "https://example.com/jane.jpg",
+    "status": "approved",
+    "ticketQuantity": 2,
+    "approvedAt": "2024-01-15T15:00:00Z",
+    "submittedAt": "2024-01-15T14:45:00Z"
+  }
+]
+```
+
+## AI Chat Endpoints
+
+### POST /api/ai/events
+
+Query AI for event recommendations and information.
+
+**Authentication:** Required
+**Request Body:**
+```json
+{
+  "message": "What events are happening in New York this weekend?",
+  "context": {
+    "location": "New York, NY",
+    "interests": ["technology", "networking"]
+  }
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "response": "Here are some great tech events happening in New York this weekend...",
+  "events": [
+    {
+      "id": 456,
+      "title": "Tech Meetup Downtown",
+      "date": "2024-01-20",
+      "location": "New York, NY"
+    }
+  ]
+}
+```
+
+### POST /api/ai/chat
+
+General AI chat endpoint for concierge services.
+
+**Authentication:** Required
+**Request Body:**
+```json
+{
+  "message": "What are the best restaurants in my area?",
+  "context": {
+    "location": "New York, NY"
+  }
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "response": "Based on your location in New York, here are some excellent restaurant recommendations..."
+}
+```
+
+## Real-time Features
+
+### WebSocket Connection
+
+Connect to real-time messaging and notifications.
+
+**Endpoint:** `wss://your-app.replit.app/ws` or `ws://localhost:5000/ws`
+
+**Authentication:** Include JWT token in connection query:
+```
+wss://your-app.replit.app/ws?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Message Types:**
+
+#### Incoming Messages
+```json
+{
+  "type": "message",
+  "data": {
+    "id": "msg_123",
+    "content": "Hello from group chat!",
+    "senderId": 456,
+    "senderName": "John Doe",
+    "conversationId": "conv_456",
+    "sentAt": "2024-01-15T14:30:00Z"
+  }
+}
+```
+
+#### RSVP Notifications
+```json
+{
+  "type": "rsvp_update",
+  "data": {
+    "eventId": 456,
+    "eventTitle": "Tech Meetup",
+    "status": "approved",
+    "groupChatId": "conv_789"
+  }
+}
+```
+
+#### Connection Status
+```json
+{
+  "type": "connection",
+  "data": {
+    "status": "connected",
+    "userId": 123
+  }
+}
+```
+
+## Error Handling
+
+### Standard Error Responses
+
+All endpoints return consistent error formats:
+
+**400 Bad Request:**
+```json
+{
+  "error": "Descriptive error message",
+  "details": "Additional context if available"
+}
+```
+
+**401 Unauthorized:**
+```json
+{
+  "error": "Authentication required"
+}
+```
+
+**403 Forbidden:**
+```json
+{
+  "error": "Access denied"
+}
+```
+
+**404 Not Found:**
+```json
+{
+  "error": "Resource not found"
+}
+```
+
+**500 Internal Server Error:**
+```json
+{
+  "error": "Internal server error",
+  "message": "Please try again later"
+}
+```
+
+## Rate Limiting
+
+- **Authentication endpoints**: 5 requests per minute per IP
+- **Messaging endpoints**: 100 messages per minute per user
+- **General endpoints**: 1000 requests per hour per user
+- **File uploads**: 10 uploads per minute per user
+
+## iOS Integration Notes
+
+### Authentication Flow
+1. User logs in via `POST /api/login`
+2. Store the returned `token` securely in iOS Keychain
+3. Include token in all API requests: `Authorization: Bearer <token>`
+4. Handle token expiration by redirecting to login
+
+### Real-time Messaging
+1. Establish WebSocket connection with token
+2. Listen for incoming messages and RSVP updates
+3. Send messages via REST API, receive confirmations via WebSocket
+4. Handle connection drops and auto-reconnection
+
+### Group Chat Integration
+1. When RSVP is approved, user automatically joins event group chat
+2. Fetch conversations via `GET /api/conversations`
+3. Display group chats with event context (eventTitle, participant count)
+4. Send/receive group messages using conversation endpoints
+
+### File Uploads
+- Use multipart/form-data for profile images
+- Handle upload progress and errors gracefully
+- Store returned URLs for display
+
+### Error Handling
+- Implement consistent error handling for all API responses
+- Show user-friendly messages for common errors
+- Handle network connectivity issues gracefully
 
 **Success Response (200 OK):**
 ```json
