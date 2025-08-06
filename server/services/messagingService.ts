@@ -316,7 +316,7 @@ export async function markAllMessagesAsRead(userId: number) {
 }
 
 // Get or create an event group chat
-export async function getOrCreateEventGroupChat(eventId: number, hostId: number): Promise<number> {
+export async function getOrCreateEventGroupChat(eventId: number, hostId: number): Promise<Conversation> {
   // First check if a conversation already exists for this event
   const existingConversation = await db.query.conversations.findFirst({
     where: and(
@@ -326,7 +326,7 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   });
 
   if (existingConversation) {
-    return existingConversation.id;
+    return existingConversation;
   }
 
   // Get event details for the conversation title
@@ -343,7 +343,7 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
 
   // Create new event conversation
   const newConversation: NewConversation = {
-    title: `${event.title} - Event Chat`,
+    title: `${event.title} - Group Chat`,
     type: "event",
     eventId: eventId,
     createdBy: hostId,
@@ -364,7 +364,7 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   await db.insert(conversationParticipants)
     .values(hostParticipant);
 
-  return createdConversation.id;
+  return createdConversation;
 }
 
 // Add a user to an event group chat
@@ -382,6 +382,24 @@ export async function addUserToEventGroupChat(conversationId: number, userId: nu
     return;
   }
 
+  // Verify conversation exists
+  const conversation = await db.query.conversations.findFirst({
+    where: eq(conversations.id, conversationId)
+  });
+
+  if (!conversation) {
+    throw new Error(`Conversation with id ${conversationId} not found`);
+  }
+
+  // Verify user exists
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId)
+  });
+
+  if (!user) {
+    throw new Error(`User with id ${userId} not found`);
+  }
+
   // Add user to the conversation
   const newParticipant: NewConversationParticipant = {
     conversationId: conversationId,
@@ -392,6 +410,9 @@ export async function addUserToEventGroupChat(conversationId: number, userId: nu
   await db.insert(conversationParticipants)
     .values(newParticipant);
 }
+
+// Alias for compatibility with tests
+export const addUserToConversation = addUserToEventGroupChat;
 
 // Send a message to a conversation (replaces the old direct messaging)
 export async function sendMessageToConversation({ senderId, conversationId, content }: {
