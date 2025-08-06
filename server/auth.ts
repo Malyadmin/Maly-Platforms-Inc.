@@ -175,11 +175,19 @@ export function setupAuth(app: Express) {
         .from(users)
         .where(eq(users.id, id))
         .limit(1);
-      console.log("Deserialized user found:", !!user);
+      
+      if (!user) {
+        console.log("User not found during deserialization, clearing session for ID:", id);
+        // Return null user which will clear the session
+        return done(null, null);
+      }
+      
+      console.log("Deserialized user found:", user.username);
       done(null, user);
     } catch (err) {
       console.error("Deserialization error:", err);
-      done(err);
+      // Return null to clear invalid session rather than throwing error
+      done(null, null);
     }
   });
 
