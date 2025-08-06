@@ -10,6 +10,7 @@ import {
   Settings,
   UserCircle,
   Globe2,
+  DollarSign,
   LogOut
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +56,11 @@ export const menuItems = [
     icon: UserCircle, 
     label: 'profile', 
     href: "/profile-edit"
+  },
+  { 
+    icon: DollarSign, 
+    label: 'paymentSettings', 
+    href: "/payment-settings" 
   },
   { 
     icon: Globe2, 

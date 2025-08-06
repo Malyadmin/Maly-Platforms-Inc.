@@ -108,7 +108,7 @@ function AppContent() {
             <Route path="/ai-events" component={AiEventDemoPage} />
             <Route path="/admin" component={AdminDashboardPage} />
             <Route path="/admin/payments" component={AdminPaymentsPage} />
-            <Route path="/stripe/connect" component={StripeConnectPage} />
+            <Route path="/payment-settings" component={StripeConnectPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
