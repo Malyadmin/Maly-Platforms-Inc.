@@ -390,14 +390,24 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-3">
                 {/* Edit Profile button - only show if viewing own profile */}
                 {currentUser && profileData.id === currentUser.id && (
-                  <Button 
-                    variant="outline"
-                    className="gap-2 border-primary/30 hover:border-primary"
-                    onClick={() => setLocation('/profile-edit')}
-                  >
-                    <Edit3 className="h-4 w-4" />
-                    {t('editProfile')}
-                  </Button>
+                  <>
+                    <Button 
+                      variant="outline"
+                      className="gap-2 border-primary/30 hover:border-primary"
+                      onClick={() => setLocation('/profile-edit')}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      {t('editProfile')}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="gap-2 border-green-500/30 hover:border-green-500 text-green-400"
+                      onClick={() => setLocation('/stripe/connect')}
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      Payment Settings
+                    </Button>
+                  </>
                 )}
                 
                 {/* Share Profile Button - always visible */}

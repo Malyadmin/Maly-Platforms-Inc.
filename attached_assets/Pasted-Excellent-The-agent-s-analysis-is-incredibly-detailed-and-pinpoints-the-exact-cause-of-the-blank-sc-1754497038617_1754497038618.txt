@@ -1,0 +1,45 @@
+Excellent. The agent's analysis is incredibly detailed and pinpoints the exact cause of the blank screen issue. The duplicate route registration is a classic Express.js problem that would absolutely cause the behavior you're seeing.
+
+Now, let's create a precise build prompt to have the agent fix this issue.
+
+Build Prompt: Fix Stripe Connect Onboarding Flow
+Hello! Your task is to fix the critical bug in the Stripe Connect onboarding flow based on the provided analysis report. The root cause is a duplicate route registration that prevents the correct API endpoints from being called.
+
+Please execute the following steps in order:
+
+Remove Duplicate Route Registration:
+
+Open the server/routes.ts file.
+
+Go to the end of the file and locate the duplicate webhook registration (identified in the report around line 2967):
+
+JavaScript
+
+app.post('/api/webhooks/stripe/connect', ...);
+Delete this entire duplicate route handler. The correct handler is already registered earlier in the file (around lines 842-845).
+
+Fix TypeScript Error:
+
+Open the server/stripeConnect.ts file.
+
+Go to the line identified in the report (around line 190) where the property stripePayoutsEnabled is causing a type error.
+
+Remove or correct this property access to resolve the LSP diagnostic error.
+
+Add Debugging Logs for Verification:
+
+To confirm the fix, add a console.log statement at the very beginning of each of the three main Stripe Connect functions in server/stripeConnect.ts:
+
+In createConnectAccount: console.log('STRIPE CONNECT: createConnectAccount called');
+
+In createAccountLink: console.log('STRIPE CONNECT: createAccountLink called');
+
+In getAccountStatus: console.log('STRIPE CONNECT: getAccountStatus called');
+
+Validate the Fix:
+
+After implementing these changes, restart the server.
+
+Navigate to the /stripe/connect page in the web preview.
+
+Expected Result: The page should no longer be blank. You should see the "Get Started" UI, and the message "STRIPE CONNECT: getAccountStatus called" should immediately appear in the Replit console.
