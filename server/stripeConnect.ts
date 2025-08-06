@@ -57,17 +57,6 @@ export async function createConnectAccount(req: Request, res: Response) {
       type: 'express',
       country: 'US', // Can be made dynamic based on user location
       email: user.email,
-      controller: {
-        losses: {
-          payments: 'application',
-        },
-        fees: {
-          payer: 'application',
-        },
-        stripe_dashboard: {
-          type: 'express',
-        },
-      },
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },

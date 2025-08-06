@@ -147,7 +147,7 @@ export default function StripeConnectPage() {
         </p>
         
         {/* Development Mode Warning */}
-        {window.location.hostname.includes('replit') && (
+        {import.meta.env.MODE === 'development' && (
           <Alert className="mt-4 border-orange-200 bg-orange-50 dark:bg-orange-950 dark:border-orange-800">
             <AlertCircle className="h-4 w-4 text-orange-600" />
             <AlertDescription className="text-orange-800 dark:text-orange-200">
