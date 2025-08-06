@@ -145,9 +145,18 @@ export function useUser() {
               
               if (verifyResponse.ok) {
                 localStorage.setItem('maly_user_verified_at', now.toString());
-              } else {
-                // Only clear on explicit verification failure
+              } else if (verifyResponse.status === 404) {
+                // User no longer exists, clear all cached data and stop retrying
+                console.log("User no longer exists, clearing cached data and stopping verification");
+                localStorage.removeItem('maly_user_data');
+                localStorage.removeItem('maly_user_id');
+                localStorage.removeItem('maly_session_id');
+                // Set a flag to prevent further verification attempts
+                localStorage.setItem('maly_user_verified_at', (Date.now() + 86400000).toString()); // 24 hours in future
                 queryClient.invalidateQueries({ queryKey: ['user'] });
+              } else {
+                // Other verification failures - mark as verified to stop retrying  
+                localStorage.setItem('maly_user_verified_at', now.toString());
               }
             } catch (error) {
               console.error("Background verification error:", error);
