@@ -2963,61 +2963,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     res.json({ received: true });
   });
 
-  // Stripe Connect webhook handler
-  app.post('/api/webhooks/stripe/connect', express.raw({type: 'application/json'}), async (req: Request, res: Response) => {
-    const sig = req.headers['stripe-signature'] as string;
-    const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
 
-    if (!webhookSecret) {
-      console.error('Stripe Connect webhook secret not configured.');
-      return res.sendStatus(400);
-    }
-
-    let event: Stripe.Event;
-
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } catch (err) {
-      console.error(`Error verifying Connect webhook signature:`);
-      if (err instanceof Error) {
-        console.error(err.message);
-        return res.status(400).send(`Connect Webhook Error: ${err.message}`);
-      }
-      return res.status(400).send(`Connect Webhook Error: Unknown error`);
-    }
-
-    // Handle the Connect event
-    switch (event.type) {
-      case 'account.updated':
-        const account = event.data.object as Stripe.Account;
-        console.log('Connect account updated:', account.id);
-        
-        try {
-          // Find user with this Stripe account ID
-          const user = await db.query.users.findFirst({
-            where: eq(users.stripeAccountId, account.id)
-          });
-          
-          if (user && account.charges_enabled && account.payouts_enabled) {
-            // Update user's onboarding status
-            await db.update(users)
-              .set({ stripeOnboardingComplete: true })
-              .where(eq(users.id, user.id));
-              
-            console.log(`Updated onboarding status for user ${user.id}`);
-          }
-        } catch (error) {
-          console.error('Error updating user onboarding status:', error);
-          return res.sendStatus(500);
-        }
-        break;
-        
-      default:
-        console.log(`Unhandled Connect event type ${event.type}`);
-    }
-
-    res.json({ received: true });
-  });
 
   // Ensure regular JSON parsing happens *after* the raw body parser for the webhook
   app.use(express.json());

@@ -31,6 +31,7 @@ export interface ConnectAccountStatus {
  * Creates a new Stripe Express Connect account for the authenticated user
  */
 export async function createConnectAccount(req: Request, res: Response) {
+  console.log('STRIPE CONNECT: createConnectAccount called');
   try {
     const userId = (req.user as any)?.id;
     
@@ -79,6 +80,7 @@ export async function createConnectAccount(req: Request, res: Response) {
  * Creates an account link for onboarding flow
  */
 export async function createAccountLink(req: Request, res: Response) {
+  console.log('STRIPE CONNECT: createAccountLink called');
   try {
     const userId = (req.user as any)?.id;
     
@@ -112,6 +114,7 @@ export async function createAccountLink(req: Request, res: Response) {
  * Gets the current Connect account status for the authenticated user
  */
 export async function getAccountStatus(req: Request, res: Response) {
+  console.log('STRIPE CONNECT: getAccountStatus called');
   try {
     const userId = (req.user as any)?.id;
     
@@ -187,7 +190,6 @@ export async function handleConnectWebhook(req: Request, res: Response) {
             .update(users)
             .set({
               stripeOnboardingComplete: account.charges_enabled && account.payouts_enabled,
-              stripePayoutsEnabled: account.payouts_enabled,
             })
             .where(eq(users.id, user.id));
 
