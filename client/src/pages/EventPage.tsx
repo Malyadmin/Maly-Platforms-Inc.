@@ -14,6 +14,7 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { v4 as uuidv4 } from 'uuid'; // Make sure to install uuid: npm install uuid @types/uuid
 import { EventItinerary } from "@/components/EventItinerary";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
+import { StripeCheckoutModal } from "@/components/checkout/StripeCheckoutModal";
 
 // Define the Event type with all fields
 const EventSchema = z.object({
@@ -102,6 +103,7 @@ export default function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   const { data: event, isLoading, error: queryError } = useQuery<Event>({
     queryKey: [`/api/events/${id}`],
@@ -737,7 +739,7 @@ const handleUserClick = (userIdOrUsername: number | string, username?: string) =
             ) : event.price !== null && ((typeof event.price === 'string' ? parseFloat(event.price) > 0 : event.price > 0)) ? (
               <Button 
                 className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white whitespace-nowrap"
-                onClick={() => setLocation(`/event/${event.id}/tickets`)}
+                onClick={() => setShowCheckoutModal(true)}
               >
                 {t('getTickets')}
               </Button>
@@ -952,7 +954,7 @@ const handleUserClick = (userIdOrUsername: number | string, username?: string) =
             <div className="container mx-auto">
               <Button
                 className="w-full h-12 text-sm sm:text-base rounded-lg bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700"
-                onClick={() => setLocation(`/event/${id}/tickets`)}
+                onClick={() => setShowCheckoutModal(true)}
                 disabled={participateMutation.isPending}
               >
                 {`${t('illBeAttending')}${event.price && parseFloat(event.price.toString()) > 0 ? ` • $${event.price}` : ''}`}
@@ -960,6 +962,24 @@ const handleUserClick = (userIdOrUsername: number | string, username?: string) =
             </div>
           </div>
         ) : null
+      )}
+
+      {/* Stripe Checkout Modal */}
+      {showCheckoutModal && event && (
+        <StripeCheckoutModal
+          isOpen={showCheckoutModal}
+          onClose={() => setShowCheckoutModal(false)}
+          event={event}
+          onSuccess={() => {
+            setShowCheckoutModal(false);
+            toast({
+              title: "Ticket Purchased!",
+              description: "Your ticket has been purchased successfully.",
+            });
+            // Refresh the event data to update attendance counts
+            queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
+          }}
+        />
       )}
     </div>
   );

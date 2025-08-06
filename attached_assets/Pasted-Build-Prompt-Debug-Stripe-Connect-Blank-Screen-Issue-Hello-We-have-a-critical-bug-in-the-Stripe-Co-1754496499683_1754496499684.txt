@@ -1,0 +1,38 @@
+Build Prompt: Debug Stripe Connect Blank Screen Issue
+Hello! We have a critical bug in the Stripe Connect onboarding flow. When a user navigates to the page that should start the process, they see a blank screen, and no logs are appearing in the backend console.
+
+Your task is to perform a "lay of the land" analysis to trace the entire feature and identify the point of failure.
+
+Please investigate the following areas and provide a detailed report:
+
+1. Frontend Analysis (The Blank Screen):
+
+Locate the frontend component responsible for initiating the Stripe Connect onboarding (likely a page at a route like /stripe/connect or a component triggered by a button).
+
+Analyze its code. What is this component supposed to render?
+
+Does it have a useEffect hook or a button onClick handler that is supposed to make an API call to the backend?
+
+Is there any error handling (try/catch block or .catch() on a promise) around this API call? A silent failure here could explain the blank screen.
+
+2. Backend Endpoint Analysis (The Missing Logs):
+
+Trace the two key backend endpoints involved in this flow: POST /api/stripe/connect/create-account and POST /api/stripe/connect/create-account-link.
+
+Confirm that these routes are correctly defined in your Express router (server/routes.ts).
+
+Review the middleware applied to these routes. Is it possible that an authentication or other middleware is failing silently and preventing the request from ever reaching the main endpoint handler where logging would occur?
+
+Add a console.log statement at the very beginning of each of these two endpoint handlers to see if they are being reached at all.
+
+3. Client-Server Connection:
+
+Examine how the frontend component makes the API call. Is it using a global API client (like Axios)?
+
+Verify the exact URL being called. Is it correctly pointing to your live Replit deployment URL?
+
+Confirm that the HTTP method is correct (POST).
+
+Final Report:
+
+Based on your analysis, please provide a report that answers the core question: Where is the process breaking? Your report should identify the specific file and line of code that is causing the failure and recommend a clear solution to fix it.

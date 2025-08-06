@@ -25,8 +25,11 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
-import AiEventDemoPage from "./pages/AiEventDemoPage";
+import AiEventDemoPage from "./pages/AiEventDemoPage.jsx";
 import AuthPage from "./pages/AuthPage";
+import StripeConnectPage from "./pages/StripeConnectPage";
+import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
+import StripeConnectReauthPage from "./pages/StripeConnectReauthPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -61,7 +64,7 @@ function AppContent() {
     
     // Don't perform redundant auth checks - defer to the Layout component
     // Skip check if we're already on the auth page or during loading
-    if (location.startsWith('/auth') || location.startsWith('/payment-') || isLoading) {
+    if (location.startsWith('/auth') || location.startsWith('/payment-') || location.startsWith('/stripe/connect') || isLoading) {
       return;
     }
     
@@ -73,7 +76,7 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-');
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect');
 
   return (
     <>
@@ -105,6 +108,7 @@ function AppContent() {
             <Route path="/ai-events" component={AiEventDemoPage} />
             <Route path="/admin" component={AdminDashboardPage} />
             <Route path="/admin/payments" component={AdminPaymentsPage} />
+            <Route path="/stripe/connect" component={StripeConnectPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -116,6 +120,9 @@ function AppContent() {
           <Route path="/auth" component={AuthPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
+          <Route path="/stripe/connect" component={StripeConnectPage} />
+          <Route path="/stripe/connect/success" component={StripeConnectSuccessPage} />
+          <Route path="/stripe/connect/reauth" component={StripeConnectReauthPage} />
           <Route path="/:rest*">
             {() => <AuthPage />}
           </Route>

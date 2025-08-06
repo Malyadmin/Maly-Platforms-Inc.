@@ -94,6 +94,7 @@
     "recharts": "^2.13.0",
     "serpapi": "^2.1.0",
     "stream": "^0.0.3",
+    "stripe": "^18.4.0",
     "supertest": "^7.1.4",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",

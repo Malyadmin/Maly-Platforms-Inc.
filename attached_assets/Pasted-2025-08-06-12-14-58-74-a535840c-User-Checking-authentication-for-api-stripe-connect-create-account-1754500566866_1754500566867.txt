@@ -1,0 +1,104 @@
+2025-08-06 12:14:58.74
+a535840c
+User
+Checking authentication for: /api/stripe/connect/create-account
+2025-08-06 12:14:58.74
+a535840c
+User
+Auth check: User is authenticated via passport
+2025-08-06 12:14:58.74
+a535840c
+User
+STRIPE CONNECT: createConnectAccount called
+2025-08-06 12:14:58.92
+a535840c
+User
+Error creating Stripe Connect account: StripeInvalidRequestError: Please review the responsibilities of managing losses for connected accounts at https://dashboard.stripe.com/settings/connect/platform-profile.
+2025-08-06 12:14:58.92
+a535840c
+User
+at generateV1Error (file:///home/runner/workspace/node_modules/stripe/esm/Error.js:8:20)
+2025-08-06 12:14:58.92
+a535840c
+User
+at res.toJSON.then.StripeAPIError.message (file:///home/runner/workspace/node_modules/stripe/esm/RequestSender.js:105:31)
+2025-08-06 12:14:58.92
+a535840c
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+2025-08-06 12:14:58.92
+a535840c
+User
+type: 'StripeInvalidRequestError',
+2025-08-06 12:14:58.92
+a535840c
+User
+raw: {
+2025-08-06 12:14:58.92
+a535840c
+User
+message: 'Please review the responsibilities of managing losses for connected accounts at https://dashboard.stripe.com/settings/connect/platform-profile.',
+2025-08-06 12:14:58.92
+a535840c
+User
+request_log_url: 'https://dashboard.stripe.com/logs/req_zefh7zcjnrIb3f?t=1754500498',
+2025-08-06 12:14:58.92
+a535840c
+User
+type: 'invalid_request_error',
+2025-08-06 12:14:58.92
+a535840c
+User
+headers: {
+2025-08-06 12:14:58.92
+a535840c
+User
+server: 'nginx',
+2025-08-06 12:14:58.92
+a535840c
+User
+date: 'Wed, 06 Aug 2025 17:14:58 GMT',
+2025-08-06 12:14:58.92
+a535840c
+User
+'content-type': 'application/json',
+2025-08-06 12:14:58.92
+a535840c
+User
+'content-length': '311',
+2025-08-06 12:14:58.92
+a535840c
+User
+connection: 'keep-alive',
+2025-08-06 12:14:58.92
+a535840c
+User
+'access-control-allow-credentials': 'true',
+2025-08-06 12:14:58.92
+a535840c
+User
+'access-control-allow-methods': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+2025-08-06 12:14:58.92
+a535840c
+User
+'access-control-allow-origin': '*',
+2025-08-06 12:14:58.92
+a535840c
+User
+'access-control-expose-headers': 'Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required',
+2025-08-06 12:14:58.92
+a535840c
+User
+'access-control-max-age': '300',
+2025-08-06 12:14:58.92
+a535840c
+User
+'cache-control': 'no-cache, no-store',
+2025-08-06 12:14:58.92
+a535840c
+User
+'content-security-policy': "base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=lmdkU6BHqnEWg8O1d5XXSzzxuuwocOI1NBTYMyEjau9jxHsgrqB9eQo5Gsq6qKBTT7xwUtyDxEBpr2ZT",
+2025-08-06 12:14:58.92
+a535840c
+User
+'idempotency-key': 'stripe-node-retry-4e2d8d18-e22f-43a4-9a89-cdc01344cd06',
