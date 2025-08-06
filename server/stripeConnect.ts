@@ -57,10 +57,6 @@ export async function createConnectAccount(req: Request, res: Response) {
       type: 'express',
       country: 'US', // Can be made dynamic based on user location
       email: user.email,
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true },
-      },
     });
 
     // Save account ID to user record
@@ -72,6 +68,21 @@ export async function createConnectAccount(req: Request, res: Response) {
     res.json({ account });
   } catch (error) {
     console.error('Error creating Stripe Connect account:', error);
+    
+    // Handle specific Stripe errors with better messages
+    if (error instanceof Error) {
+      const stripeError = error as any;
+      
+      if (stripeError.type === 'StripeInvalidRequestError') {
+        if (stripeError.raw?.message?.includes('managing losses')) {
+          return res.status(400).json({ 
+            error: 'Platform configuration incomplete. Please contact support to complete Stripe platform setup.',
+            details: 'The Stripe Connect platform profile needs to be configured before creating Express accounts.'
+          });
+        }
+      }
+    }
+    
     res.status(500).json({ error: 'Failed to create Stripe Connect account' });
   }
 }
