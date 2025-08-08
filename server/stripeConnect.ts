@@ -187,6 +187,16 @@ export async function handleConnectWebhook(req: Request, res: Response) {
       case 'account.updated': {
         const account = event.data.object as any;
         console.log(`STRIPE_WEBHOOK: Received account.updated event for account ${account.id}.`);
+        
+        // Enhanced logging: Log the full account object to understand what Stripe is sending
+        console.log('STRIPE_WEBHOOK: Full account object:', JSON.stringify({
+          id: account.id,
+          charges_enabled: account.charges_enabled,
+          payouts_enabled: account.payouts_enabled,
+          details_submitted: account.details_submitted,
+          requirements: account.requirements,
+          capabilities: account.capabilities
+        }, null, 2));
 
         // Find user with this Stripe account ID
         const user = await db.query.users.findFirst({
@@ -194,9 +204,26 @@ export async function handleConnectWebhook(req: Request, res: Response) {
         });
 
         if (user) {
-          const completionStatus = account.charges_enabled && account.payouts_enabled;
+          // FIXED: Proper onboarding completion logic
+          // Express accounts are complete when:
+          // 1. details_submitted is true (user has submitted all info)
+          // 2. No currently_due requirements remain
+          // 3. charges_enabled is true (can accept payments)
+          const hasSubmittedDetails = account.details_submitted === true;
+          const hasNoCurrentRequirements = !account.requirements?.currently_due?.length;
+          const canAcceptCharges = account.charges_enabled === true;
           
-          // Update onboarding and payout status
+          const completionStatus = hasSubmittedDetails && hasNoCurrentRequirements && canAcceptCharges;
+          
+          console.log(`STRIPE_WEBHOOK: Onboarding completion check for user ${user.id}:`, {
+            details_submitted: account.details_submitted,
+            currently_due_requirements: account.requirements?.currently_due || [],
+            charges_enabled: account.charges_enabled,
+            payouts_enabled: account.payouts_enabled,
+            final_completion_status: completionStatus
+          });
+          
+          // Update onboarding status
           await db
             .update(users)
             .set({
@@ -205,11 +232,6 @@ export async function handleConnectWebhook(req: Request, res: Response) {
             .where(eq(users.id, user.id));
 
           console.log(`STRIPE_WEBHOOK: Successfully updated database for user ${user.id}. Set stripeOnboardingComplete to ${completionStatus}.`);
-          console.log(`Updated Connect status for user ${user.id}:`, {
-            onboarding: completionStatus,
-            charges_enabled: account.charges_enabled,
-            payouts_enabled: account.payouts_enabled,
-          });
         } else {
           console.log(`STRIPE_WEBHOOK: No user found with stripeAccountId ${account.id}`);
         }
@@ -257,10 +279,28 @@ export async function verifyAccount(req: Request, res: Response) {
     // Make live API call to get current status from Stripe
     const account = await stripe.accounts.retrieve(user.stripeAccountId);
     
-    // Use exact same logic as webhook
-    const correctStatus = account.charges_enabled && account.payouts_enabled;
+    console.log('STRIPE_VERIFY: Full account details from Stripe API:', JSON.stringify({
+      id: account.id,
+      charges_enabled: account.charges_enabled,
+      payouts_enabled: account.payouts_enabled,
+      details_submitted: account.details_submitted,
+      requirements: account.requirements,
+    }, null, 2));
     
-    console.log(`STRIPE_VERIFY: Manual verification for user ${userId}. Stripe says: charges_enabled=${account.charges_enabled}, payouts_enabled=${account.payouts_enabled}, setting to: ${correctStatus}`);
+    // Use exact same logic as webhook - FIXED completion logic
+    const hasSubmittedDetails = account.details_submitted === true;
+    const hasNoCurrentRequirements = !account.requirements?.currently_due?.length;
+    const canAcceptCharges = account.charges_enabled === true;
+    
+    const correctStatus = hasSubmittedDetails && hasNoCurrentRequirements && canAcceptCharges;
+    
+    console.log(`STRIPE_VERIFY: Manual verification for user ${userId}. Onboarding check:`, {
+      details_submitted: account.details_submitted,
+      currently_due_requirements: account.requirements?.currently_due || [],
+      charges_enabled: account.charges_enabled,
+      payouts_enabled: account.payouts_enabled,
+      final_status: correctStatus
+    });
     
     // Update user record with correct status
     await db
