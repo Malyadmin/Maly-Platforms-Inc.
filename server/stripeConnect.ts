@@ -137,6 +137,9 @@ export async function getAccountStatus(req: Request, res: Response) {
       where: eq(users.id, userId)
     });
 
+    // Add enhanced logging for database value
+    console.log(`STRIPE_STATUS_CHECK: Checking status for user ${userId}. DB value for stripeOnboardingComplete is ${user?.stripeOnboardingComplete}.`);
+
     if (!user || !user.stripeAccountId) {
       return res.json({
         hasAccount: false,
@@ -144,15 +147,10 @@ export async function getAccountStatus(req: Request, res: Response) {
       } as ConnectAccountStatus);
     }
 
-    // Fetch account details from Stripe
-    const account = await stripe.accounts.retrieve(user.stripeAccountId);
-
+    // Use database as single source of truth - no live Stripe API call
     const status: ConnectAccountStatus = {
       hasAccount: true,
       onboardingComplete: !!user.stripeOnboardingComplete,
-      chargesEnabled: account.charges_enabled,
-      payoutsEnabled: account.payouts_enabled,
-      detailsSubmitted: account.details_submitted,
     };
 
     res.json(status);
@@ -188,7 +186,7 @@ export async function handleConnectWebhook(req: Request, res: Response) {
     switch (event.type) {
       case 'account.updated': {
         const account = event.data.object as any;
-        console.log('Connect account updated:', account.id);
+        console.log(`STRIPE_WEBHOOK: Received account.updated event for account ${account.id}.`);
 
         // Find user with this Stripe account ID
         const user = await db.query.users.findFirst({
@@ -196,18 +194,24 @@ export async function handleConnectWebhook(req: Request, res: Response) {
         });
 
         if (user) {
+          const completionStatus = account.charges_enabled && account.payouts_enabled;
+          
           // Update onboarding and payout status
           await db
             .update(users)
             .set({
-              stripeOnboardingComplete: account.charges_enabled && account.payouts_enabled,
+              stripeOnboardingComplete: completionStatus,
             })
             .where(eq(users.id, user.id));
 
+          console.log(`STRIPE_WEBHOOK: Successfully updated database for user ${user.id}. Set stripeOnboardingComplete to ${completionStatus}.`);
           console.log(`Updated Connect status for user ${user.id}:`, {
-            onboarding: account.charges_enabled && account.payouts_enabled,
-            payouts: account.payouts_enabled,
+            onboarding: completionStatus,
+            charges_enabled: account.charges_enabled,
+            payouts_enabled: account.payouts_enabled,
           });
+        } else {
+          console.log(`STRIPE_WEBHOOK: No user found with stripeAccountId ${account.id}`);
         }
         break;
       }
@@ -228,6 +232,60 @@ export async function handleConnectWebhook(req: Request, res: Response) {
  */
 export function calculateApplicationFee(amountInCents: number): number {
   return Math.round(amountInCents * 0.03);
+}
+
+/**
+ * Manual verification endpoint to sync account status with Stripe
+ */
+export async function verifyAccount(req: Request, res: Response) {
+  console.log('STRIPE CONNECT: verifyAccount called');
+  try {
+    const userId = (req.user as any)?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId)
+    });
+
+    if (!user || !user.stripeAccountId) {
+      return res.status(400).json({ error: 'User does not have a Stripe Connect account' });
+    }
+
+    // Make live API call to get current status from Stripe
+    const account = await stripe.accounts.retrieve(user.stripeAccountId);
+    
+    // Use exact same logic as webhook
+    const correctStatus = account.charges_enabled && account.payouts_enabled;
+    
+    console.log(`STRIPE_VERIFY: Manual verification for user ${userId}. Stripe says: charges_enabled=${account.charges_enabled}, payouts_enabled=${account.payouts_enabled}, setting to: ${correctStatus}`);
+    
+    // Update user record with correct status
+    await db
+      .update(users)
+      .set({
+        stripeOnboardingComplete: correctStatus,
+      })
+      .where(eq(users.id, userId));
+
+    console.log(`STRIPE_VERIFY: Successfully updated database for user ${userId}. Set stripeOnboardingComplete to ${correctStatus}.`);
+
+    // Return updated status
+    const status: ConnectAccountStatus = {
+      hasAccount: true,
+      onboardingComplete: correctStatus,
+      chargesEnabled: account.charges_enabled,
+      payoutsEnabled: account.payouts_enabled,
+      detailsSubmitted: account.details_submitted,
+    };
+
+    res.json(status);
+  } catch (error) {
+    console.error('Error verifying account:', error);
+    res.status(500).json({ error: 'Failed to verify account' });
+  }
 }
 
 /**

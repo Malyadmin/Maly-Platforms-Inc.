@@ -29,7 +29,8 @@ import {
   getAccountStatus, 
   handleConnectWebhook, 
   validateEventCreatorForPayment, 
-  calculateApplicationFee 
+  calculateApplicationFee,
+  verifyAccount 
 } from './stripeConnect';
 // Import object storage utilities
 import { uploadToObjectStorage } from './lib/objectStorage';
@@ -842,6 +843,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   app.post('/api/stripe/connect/create-account', checkAuthentication, createConnectAccount);
   app.post('/api/stripe/connect/create-account-link', checkAuthentication, createAccountLink);
   app.get('/api/stripe/connect/account-status', checkAuthentication, getAccountStatus);
+  app.post('/api/stripe/connect/verify-account', checkAuthentication, verifyAccount);
   app.post('/api/webhooks/stripe/connect', express.raw({ type: 'application/json' }), handleConnectWebhook);
 
   // Referral endpoints
