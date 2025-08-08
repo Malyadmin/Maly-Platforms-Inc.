@@ -1,0 +1,32 @@
+Prompt: Analyze Stripe Onboarding Verification Issue
+Hello! We are experiencing a critical issue where users successfully complete the Stripe Connect onboarding flow but are still marked as "pending" in our system. This prevents them from creating paid events.
+
+Your task is to perform a detailed, read-only analysis of the entire Stripe Connect verification process to identify the point of failure. Do not edit any files.
+
+Please investigate the following key areas and provide a comprehensive report:
+
+1. Webhook Handler Analysis (POST /api/webhooks/stripe/connect):
+
+Thoroughly review the logic that handles the account.updated event from Stripe.
+
+Crucially, what specific properties of the Stripe account object is the code checking to determine if onboarding is complete? Is it checking for details_submitted: true, charges_enabled: true, or payouts_enabled: true?
+
+Trace the database update logic. Does the handler correctly find the user associated with the stripeAccountId and update a flag in our database (e.g., setting stripeOnboardingComplete to true)?
+
+2. Account Status Endpoint Analysis (GET /api/stripe/connect/account-status):
+
+Analyze the endpoint that the /stripe/connect page calls to get the user's current status.
+
+What specific field in our local database is this endpoint checking to determine the user's status? Is it checking the stripeOnboardingComplete flag that the webhook is supposed to set?
+
+Is it possible this endpoint is making a live API call back to Stripe to check the account status instead of relying on our database? If so, what properties is it checking on the returned Stripe account object?
+
+3. Potential Mismatch Identification:
+
+Compare your findings from the webhook and the status endpoint.
+
+Is there a mismatch? For example, does the webhook check for charges_enabled but the status endpoint checks for a different field? Or does the webhook correctly update the stripeOnboardingComplete flag in the database, but the status endpoint fails to check it?
+
+Final Report:
+
+Based on your analysis, please provide a report that clearly identifies the root cause of the verification loop. Pinpoint the specific files and logic that are causing the discrepancy and explain why the user's status is not being correctly updated or reflected in the UI.
