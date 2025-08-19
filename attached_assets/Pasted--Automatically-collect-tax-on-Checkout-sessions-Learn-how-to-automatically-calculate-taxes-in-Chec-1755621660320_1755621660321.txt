@@ -1,0 +1,2466 @@
+# Automatically collect tax on Checkout sessions
+
+Learn how to automatically calculate taxes in Checkout.
+
+Stripe Tax automatically calculates the taxes on all purchases and *subscriptions* (A Subscription represents the product details associated with the plan that your customer subscribes to. Allows you to charge the customer on a recurring basis) accumulated during a Checkout session. If you haven’t integrated with Checkout, you must complete the integration using the [Accept a Payment guide](https://docs.stripe.com/checkout/quickstart.md).
+
+## Get started with a video demo 
+
+This short video shows to how to enable automatic tax collection when using hosted integrations like Stripe Checkout.
+[Watch on YouTube](https://www.youtube.com/watch?v=fMk7y-C6JuM)
+## Create a Checkout Session
+
+You can create Checkout sessions for one time and recurring purchases.
+
+A customer’s tax rates come from their location, which Checkout assesses from the customer’s address. The address that Checkout uses to calculate taxes depends on whether the customer is new or existing, and whether you collect shipping addresses during the Checkout Session:
+
+|                                    | New Customer                                                                                         | Existing Customer                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Collect a billing address only** | Checkout calculates taxes based on the customer’s billing address entered into the Checkout Session  | If the customer has a previously saved shipping address, Checkout calculates taxes based on that address. Otherwise, you can calculate taxes based on billing address entered during Checkout (by specifying [customer_update[address]=auto](https://docs.stripe.com/api/checkout/sessions/create.md#create_checkout_session-customer_update-address)) or the billing address saved to the customer (the default behavior). |
+| **Collect a shipping address**     | Checkout calculates taxes based on the customer’s shipping address entered into the Checkout Session | Checkout calculates taxes based on the customer’s shipping address entered into the Checkout Session. *Existing addresses on the customer won’t apply in this case.*                                                                                                                                                                                                                                                        |
+
+> To ensure that Google Pay is offered as a payment method while using Stripe Tax in Checkout, you must either require collecting a shipping address, or provide an existing customer with a saved shipping address. Apple Pay with Stripe Tax displays only when the customer’s browser supports Apple Pay version 12 or greater.
+
+## Calculating tax for new customers
+
+If you don’t pass in an existing customer when creating a Checkout session, Checkout creates a new customer and automatically saves billing address and shipping information. For tax collection purposes, Checkout uses billing and shipping addresses to determine the customer’s location.
+
+Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address.
+
+#### Stripe-hosted page
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d mode=payment \
+  --data-urlencode success_url="https://example.com/success" \
+  --data-urlencode cancel_url="https://example.com/cancel"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --mode=payment \
+  --success-url="https://example.com/success" \
+  --cancel-url="https://example.com/cancel"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  mode="payment",
+  success_url="https://example.com/success",
+  cancel_url="https://example.com/cancel",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "mode": "payment",
+  "success_url": "https://example.com/success",
+  "cancel_url": "https://example.com/cancel",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'mode' => 'payment',
+  'success_url' => 'https://example.com/success',
+  'cancel_url' => 'https://example.com/cancel',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+#### Embedded form
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d mode=payment \
+  -d ui_mode=embedded \
+  --data-urlencode return_url="https://example.com/return"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --mode=payment \
+  --ui-mode=embedded \
+  --return-url="https://example.com/return"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  mode="payment",
+  ui_mode="embedded",
+  return_url="https://example.com/return",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "mode": "payment",
+  "ui_mode": "embedded",
+  "return_url": "https://example.com/return",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'mode' => 'payment',
+  'ui_mode' => 'embedded',
+  'return_url' => 'https://example.com/return',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+## Calculate tax for existing customers
+
+To calculate tax on Checkout sessions created for existing customers, you can set the `automatic_tax[enabled]` parameter to `true` when creating the session. You can either base tax calculations on the customer’s existing addresses or new addresses collected during the session:
+
+### Use the existing addresses on the customer for taxes
+
+If you’ve already collected the addresses of existing customers, you can base tax calculations on those addresses rather than the addresses collected during checkout:
+
+- **The customer address that Checkout uses for taxes**: If available, Checkout uses the customer’s saved [shipping address](https://docs.stripe.com/api/customers/object.md#customer_object-shipping-address) to calculate taxes. Otherwise, Checkout uses the customer’s saved [billing address](https://docs.stripe.com/api/customers/object.md#customer_object-address) to calculate taxes.
+
+- **Customer address requirements**: When using existing addresses for taxes, the customer must either have a valid [shipping address](https://docs.stripe.com/api/customers/object.md#customer_object-shipping-address) or [billing address](https://docs.stripe.com/api/customers/object.md#customer_object-address) saved. You can see whether or not a customer’s saved addresses are valid by checking the customer’s [customer.tax.automatic_tax](https://docs.stripe.com/api/customers/object.md#customer_object-tax-automatic_tax) property. If the property is `supported` or `not_collecting`, it means the customer’s saved addresses are valid, and you can enable Stripe Tax on Checkout sessions for that customer.
+
+#### Stripe-hosted page
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d mode=payment \
+  --data-urlencode success_url="https://example.com/success" \
+  --data-urlencode cancel_url="https://example.com/cancel"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  --mode=payment \
+  --success-url="https://example.com/success" \
+  --cancel-url="https://example.com/cancel"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  mode="payment",
+  success_url="https://example.com/success",
+  cancel_url="https://example.com/cancel",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "mode": "payment",
+  "success_url": "https://example.com/success",
+  "cancel_url": "https://example.com/cancel",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'mode' => 'payment',
+  'success_url' => 'https://example.com/success',
+  'cancel_url' => 'https://example.com/cancel',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+#### Embedded form
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d mode=payment \
+  -d ui_mode=embedded \
+  --data-urlencode return_url="https://example.com/return"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  --mode=payment \
+  --ui-mode=embedded \
+  --return-url="https://example.com/return"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  mode="payment",
+  ui_mode="embedded",
+  return_url="https://example.com/return",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "mode": "payment",
+  "ui_mode": "embedded",
+  "return_url": "https://example.com/return",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'mode' => 'payment',
+  'ui_mode' => 'embedded',
+  'return_url' => 'https://example.com/return',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+### Use the addresses collected during Checkout for taxes
+
+You can configure Checkout to save new billing or shipping addresses to a customer. In this case, Checkout calculates tax using the address entered during checkout.
+
+- **The address that Checkout uses for taxes**: If you [collect shipping addresses](https://docs.stripe.com/api/checkout/sessions/create.md#create_checkout_session-shipping_address_collection), Checkout uses the shipping address entered during the session to calculate taxes. Otherwise, Checkout uses the billing address entered during the session to calculate taxes.
+
+- **Where Checkout saves the addresses collected during checkout**: If you [collect shipping addresses](https://docs.stripe.com/api/checkout/sessions/create.md#create_checkout_session-shipping_address_collection), Checkout saves the shipping address entered during the session to the customer’s [customer.shipping.address](https://docs.stripe.com/api/customers/object.md#customer_object-shipping-address) property. Otherwise, Checkout saves the billing address entered during the session to the customer’s [customer.address](https://docs.stripe.com/api/customers/object.md#customer_object-address) property. In both cases, the address used for taxes overrides any existing addresses.
+
+If you collect shipping addresses with Checkout, set the `customer_update[shipping]` property to `auto` so that you copy the shipping information from Checkout to the customer.
+
+#### Stripe-hosted page
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[shipping]"=auto \
+  -d "shipping_address_collection[allowed_countries][0]"=US \
+  -d mode=payment \
+  --data-urlencode success_url="https://example.com/success" \
+  --data-urlencode cancel_url="https://example.com/cancel"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[shipping]"=auto \
+  -d "shipping_address_collection[allowed_countries][0]"=US \
+  --mode=payment \
+  --success-url="https://example.com/success" \
+  --cancel-url="https://example.com/cancel"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {shipping: 'auto'},
+  shipping_address_collection: {allowed_countries: ['US']},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {shipping: 'auto'},
+  shipping_address_collection: {allowed_countries: ['US']},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  customer_update={"shipping": "auto"},
+  shipping_address_collection={"allowed_countries": ["US"]},
+  mode="payment",
+  success_url="https://example.com/success",
+  cancel_url="https://example.com/cancel",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "customer_update": {"shipping": "auto"},
+  "shipping_address_collection": {"allowed_countries": ["US"]},
+  "mode": "payment",
+  "success_url": "https://example.com/success",
+  "cancel_url": "https://example.com/cancel",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'customer_update' => ['shipping' => 'auto'],
+  'shipping_address_collection' => ['allowed_countries' => ['US']],
+  'mode' => 'payment',
+  'success_url' => 'https://example.com/success',
+  'cancel_url' => 'https://example.com/cancel',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setShipping(SessionCreateParams.CustomerUpdate.Shipping.AUTO)
+        .build()
+    )
+    .setShippingAddressCollection(
+      SessionCreateParams.ShippingAddressCollection.builder()
+        .addAllowedCountry(
+          SessionCreateParams.ShippingAddressCollection.AllowedCountry.US
+        )
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setShipping(SessionCreateParams.CustomerUpdate.Shipping.AUTO)
+        .build()
+    )
+    .setShippingAddressCollection(
+      SessionCreateParams.ShippingAddressCollection.builder()
+        .addAllowedCountry(
+          SessionCreateParams.ShippingAddressCollection.AllowedCountry.US
+        )
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {
+    shipping: 'auto',
+  },
+  shipping_address_collection: {
+    allowed_countries: ['US'],
+  },
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
+    Shipping: stripe.String("auto"),
+  },
+  ShippingAddressCollection: &stripe.CheckoutSessionShippingAddressCollectionParams{
+    AllowedCountries: []*string{stripe.String("US")},
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCreateCustomerUpdateParams{
+    Shipping: stripe.String("auto"),
+  },
+  ShippingAddressCollection: &stripe.CheckoutSessionCreateShippingAddressCollectionParams{
+    AllowedCountries: []*string{stripe.String("US")},
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Shipping = "auto",
+    },
+    ShippingAddressCollection = new Stripe.Checkout.SessionShippingAddressCollectionOptions
+    {
+        AllowedCountries = new List<string> { "US" },
+    },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Shipping = "auto",
+    },
+    ShippingAddressCollection = new Stripe.Checkout.SessionShippingAddressCollectionOptions
+    {
+        AllowedCountries = new List<string> { "US" },
+    },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+#### Embedded form
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[shipping]"=auto \
+  -d "shipping_address_collection[allowed_countries][0]"=US \
+  -d mode=payment \
+  -d ui_mode=embedded \
+  --data-urlencode return_url="https://example.com/return"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[shipping]"=auto \
+  -d "shipping_address_collection[allowed_countries][0]"=US \
+  --mode=payment \
+  --ui-mode=embedded \
+  --return-url="https://example.com/return"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {shipping: 'auto'},
+  shipping_address_collection: {allowed_countries: ['US']},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {shipping: 'auto'},
+  shipping_address_collection: {allowed_countries: ['US']},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  customer_update={"shipping": "auto"},
+  shipping_address_collection={"allowed_countries": ["US"]},
+  mode="payment",
+  ui_mode="embedded",
+  return_url="https://example.com/return",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "customer_update": {"shipping": "auto"},
+  "shipping_address_collection": {"allowed_countries": ["US"]},
+  "mode": "payment",
+  "ui_mode": "embedded",
+  "return_url": "https://example.com/return",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'customer_update' => ['shipping' => 'auto'],
+  'shipping_address_collection' => ['allowed_countries' => ['US']],
+  'mode' => 'payment',
+  'ui_mode' => 'embedded',
+  'return_url' => 'https://example.com/return',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setShipping(SessionCreateParams.CustomerUpdate.Shipping.AUTO)
+        .build()
+    )
+    .setShippingAddressCollection(
+      SessionCreateParams.ShippingAddressCollection.builder()
+        .addAllowedCountry(
+          SessionCreateParams.ShippingAddressCollection.AllowedCountry.US
+        )
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setShipping(SessionCreateParams.CustomerUpdate.Shipping.AUTO)
+        .build()
+    )
+    .setShippingAddressCollection(
+      SessionCreateParams.ShippingAddressCollection.builder()
+        .addAllowedCountry(
+          SessionCreateParams.ShippingAddressCollection.AllowedCountry.US
+        )
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {
+    shipping: 'auto',
+  },
+  shipping_address_collection: {
+    allowed_countries: ['US'],
+  },
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
+    Shipping: stripe.String("auto"),
+  },
+  ShippingAddressCollection: &stripe.CheckoutSessionShippingAddressCollectionParams{
+    AllowedCountries: []*string{stripe.String("US")},
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCreateCustomerUpdateParams{
+    Shipping: stripe.String("auto"),
+  },
+  ShippingAddressCollection: &stripe.CheckoutSessionCreateShippingAddressCollectionParams{
+    AllowedCountries: []*string{stripe.String("US")},
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Shipping = "auto",
+    },
+    ShippingAddressCollection = new Stripe.Checkout.SessionShippingAddressCollectionOptions
+    {
+        AllowedCountries = new List<string> { "US" },
+    },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Shipping = "auto",
+    },
+    ShippingAddressCollection = new Stripe.Checkout.SessionShippingAddressCollectionOptions
+    {
+        AllowedCountries = new List<string> { "US" },
+    },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+If you don’t collect shipping addresses with Checkout, and you want to use billing addresses entered during checkout for taxes, you must save the billing address to the customer. Set the `customer_update[address]` property to `auto` so that you copy the newly-entered address onto the provided customer.
+
+#### Stripe-hosted page
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[address]"=auto \
+  -d mode=payment \
+  --data-urlencode success_url="https://example.com/success" \
+  --data-urlencode cancel_url="https://example.com/cancel"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[address]"=auto \
+  --mode=payment \
+  --success-url="https://example.com/success" \
+  --cancel-url="https://example.com/cancel"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {address: 'auto'},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {address: 'auto'},
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  customer_update={"address": "auto"},
+  mode="payment",
+  success_url="https://example.com/success",
+  cancel_url="https://example.com/cancel",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "customer_update": {"address": "auto"},
+  "mode": "payment",
+  "success_url": "https://example.com/success",
+  "cancel_url": "https://example.com/cancel",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'customer_update' => ['address' => 'auto'],
+  'mode' => 'payment',
+  'success_url' => 'https://example.com/success',
+  'cancel_url' => 'https://example.com/cancel',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl("https://example.com/success")
+    .setCancelUrl("https://example.com/cancel")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {
+    address: 'auto',
+  },
+  mode: 'payment',
+  success_url: 'https://example.com/success',
+  cancel_url: 'https://example.com/cancel',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
+    Address: stripe.String("auto"),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCreateCustomerUpdateParams{
+    Address: stripe.String("auto"),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  SuccessURL: stripe.String("https://example.com/success"),
+  CancelURL: stripe.String("https://example.com/cancel"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Address = "auto",
+    },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Address = "auto",
+    },
+    Mode = "payment",
+    SuccessUrl = "https://example.com/success",
+    CancelUrl = "https://example.com/cancel",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+#### Embedded form
+
+```curl
+curl https://api.stripe.com/v1/checkout/sessions \
+  -u "<<YOUR_SECRET_KEY>>:" \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  -d customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[address]"=auto \
+  -d mode=payment \
+  -d ui_mode=embedded \
+  --data-urlencode return_url="https://example.com/return"
+```
+
+```cli
+stripe checkout sessions create  \
+  -d "line_items[0][price]"="{{PRICE_ID}}" \
+  -d "line_items[0][quantity]"=2 \
+  -d "automatic_tax[enabled]"=true \
+  --customer="{{CUSTOMER_ID}}" \
+  -d "customer_update[address]"=auto \
+  --mode=payment \
+  --ui-mode=embedded \
+  --return-url="https://example.com/return"
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.api_key = '<<YOUR_SECRET_KEY>>'
+
+session = Stripe::Checkout::Session.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {address: 'auto'},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```ruby
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = Stripe::StripeClient.new("<<YOUR_SECRET_KEY>>")
+
+session = client.v1.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {enabled: true},
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {address: 'auto'},
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+})
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+import stripe
+stripe.api_key = "<<YOUR_SECRET_KEY>>"
+
+session = stripe.checkout.Session.create(
+  line_items=[{"price": "{{PRICE_ID}}", "quantity": 2}],
+  automatic_tax={"enabled": True},
+  customer="{{CUSTOMER_ID}}",
+  customer_update={"address": "auto"},
+  mode="payment",
+  ui_mode="embedded",
+  return_url="https://example.com/return",
+)
+```
+
+```python
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+client = StripeClient("<<YOUR_SECRET_KEY>>")
+
+session = client.checkout.sessions.create({
+  "line_items": [{"price": "{{PRICE_ID}}", "quantity": 2}],
+  "automatic_tax": {"enabled": True},
+  "customer": "{{CUSTOMER_ID}}",
+  "customer_update": {"address": "auto"},
+  "mode": "payment",
+  "ui_mode": "embedded",
+  "return_url": "https://example.com/return",
+})
+```
+
+```php
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+$stripe = new \Stripe\StripeClient('<<YOUR_SECRET_KEY>>');
+
+$session = $stripe->checkout->sessions->create([
+  'line_items' => [
+    [
+      'price' => '{{PRICE_ID}}',
+      'quantity' => 2,
+    ],
+  ],
+  'automatic_tax' => ['enabled' => true],
+  'customer' => '{{CUSTOMER_ID}}',
+  'customer_update' => ['address' => 'auto'],
+  'mode' => 'payment',
+  'ui_mode' => 'embedded',
+  'return_url' => 'https://example.com/return',
+]);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+Stripe.apiKey = "<<YOUR_SECRET_KEY>>";
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = Session.create(params);
+```
+
+```java
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeClient client = new StripeClient("<<YOUR_SECRET_KEY>>");
+
+SessionCreateParams params =
+  SessionCreateParams.builder()
+    .addLineItem(
+      SessionCreateParams.LineItem.builder()
+        .setPrice("{{PRICE_ID}}")
+        .setQuantity(2L)
+        .build()
+    )
+    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build())
+    .setCustomer("{{CUSTOMER_ID}}")
+    .setCustomerUpdate(
+      SessionCreateParams.CustomerUpdate.builder()
+        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)
+        .build()
+    )
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
+    .setReturnUrl("https://example.com/return")
+    .build();
+
+Session session = client.checkout().sessions().create(params);
+```
+
+```node
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+const stripe = require('stripe')('<<YOUR_SECRET_KEY>>');
+
+const session = await stripe.checkout.sessions.create({
+  line_items: [
+    {
+      price: '{{PRICE_ID}}',
+      quantity: 2,
+    },
+  ],
+  automatic_tax: {
+    enabled: true,
+  },
+  customer: '{{CUSTOMER_ID}}',
+  customer_update: {
+    address: 'auto',
+  },
+  mode: 'payment',
+  ui_mode: 'embedded',
+  return_url: 'https://example.com/return',
+});
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+stripe.Key = "<<YOUR_SECRET_KEY>>"
+
+params := &stripe.CheckoutSessionParams{
+  LineItems: []*stripe.CheckoutSessionLineItemParams{
+    &stripe.CheckoutSessionLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{Enabled: stripe.Bool(true)},
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
+    Address: stripe.String("auto"),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := session.New(params)
+```
+
+```go
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+sc := stripe.NewClient("<<YOUR_SECRET_KEY>>")
+params := &stripe.CheckoutSessionCreateParams{
+  LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
+    &stripe.CheckoutSessionCreateLineItemParams{
+      Price: stripe.String("{{PRICE_ID}}"),
+      Quantity: stripe.Int64(2),
+    },
+  },
+  AutomaticTax: &stripe.CheckoutSessionCreateAutomaticTaxParams{
+    Enabled: stripe.Bool(true),
+  },
+  Customer: stripe.String("{{CUSTOMER_ID}}"),
+  CustomerUpdate: &stripe.CheckoutSessionCreateCustomerUpdateParams{
+    Address: stripe.String("auto"),
+  },
+  Mode: stripe.String(stripe.CheckoutSessionModePayment),
+  UIMode: stripe.String(stripe.CheckoutSessionUIModeEmbedded),
+  ReturnURL: stripe.String("https://example.com/return"),
+}
+result, err := sc.V1CheckoutSessions.Create(context.TODO(), params)
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+StripeConfiguration.ApiKey = "<<YOUR_SECRET_KEY>>";
+
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Address = "auto",
+    },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var service = new Stripe.Checkout.SessionService();
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+```dotnet
+// Set your secret key. Remember to switch to your live secret key in production.
+// See your keys here: https://dashboard.stripe.com/apikeys
+var options = new Stripe.Checkout.SessionCreateOptions
+{
+    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+    {
+        new Stripe.Checkout.SessionLineItemOptions
+        {
+            Price = "{{PRICE_ID}}",
+            Quantity = 2,
+        },
+    },
+    AutomaticTax = new Stripe.Checkout.SessionAutomaticTaxOptions { Enabled = true },
+    Customer = "{{CUSTOMER_ID}}",
+    CustomerUpdate = new Stripe.Checkout.SessionCustomerUpdateOptions
+    {
+        Address = "auto",
+    },
+    Mode = "payment",
+    UiMode = "embedded",
+    ReturnUrl = "https://example.com/return",
+};
+var client = new StripeClient("<<YOUR_SECRET_KEY>>");
+var service = client.V1.Checkout.Sessions;
+Stripe.Checkout.Session session = service.Create(options);
+```
+
+## Check the response
+
+To inspect the results of the latest tax calculation, you can read the tax amount calculated by Checkout from the [total_details.amount_tax](https://docs.stripe.com/api/checkout/sessions/object.md#checkout_session_object-total_details) on the Checkout Session resource. Additionally, the tax outcome for each payment is available when [viewing a payment](https://dashboard.stripe.com/test/payments) in the Dashboard.
+
+## Optional: Update your products and prices
+
+> #### Tax Setting defaults
+> 
+> You’ve selected **General - Services** `txcd_20030000` as your [default tax code](https://docs.stripe.com/api/tax/settings/object.md#tax_settings_object-defaults-tax_code) in live mode but you haven’t selected a [default tax behavior](https://docs.stripe.com/api/tax/settings/object.md#tax_settings_object-defaults-tax_behavior) yet.
+
+Stripe Tax uses information stored on *products* (Products represent what your business sells—whether that's a good or a service) and *prices* (Prices define how much and how often to charge for products. This includes how much the product costs, what currency to use, and the interval if the price is for subscriptions) to calculate tax, such as *tax code* (A tax code is the category of your product for tax purposes) and *tax behavior* (Tax behavior determines whether you want to include taxes in the price ("inclusive") or add them on top ("exclusive")). If you don’t explicitly specify these configurations, Stripe Tax will use the default tax code selected in [Tax Settings](https://dashboard.stripe.com/settings/tax).
+
+For more information, see [Specify product tax codes and tax behavior](https://docs.stripe.com/tax/products-prices-tax-codes-tax-behavior.md).
+
+## See also
+
+- [Determining customer locations](https://docs.stripe.com/tax/customer-locations.md)
+- [Checkout and tax IDs](https://docs.stripe.com/tax/checkout/tax-ids.md)
+- [Reporting and filing](https://docs.stripe.com/tax/reports.md)
+- [Use Stripe Tax with Connect](https://docs.stripe.com/tax/connect.md)
+- [Calculate tax in your custom checkout flow](https://docs.stripe.com/tax/custom.md)

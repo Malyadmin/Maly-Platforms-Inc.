@@ -3143,6 +3143,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Create Stripe checkout session with Connect payment
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
+        automatic_tax: { enabled: true },
         line_items: [
           {
             price_data: {
@@ -3346,6 +3347,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         // Create a Stripe checkout session for subscription
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
+          automatic_tax: { enabled: true },
           line_items: [
             {
               price_data: {
