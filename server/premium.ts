@@ -107,6 +107,7 @@ router.post('/create-checkout', requireAuth, async (req: Request, res: Response)
     // Create checkout session with direct price data
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
+      automatic_tax: { enabled: true },
       line_items: [
         {
           price_data: {
