@@ -3140,6 +3140,14 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Calculate 3% application fee using Connect module
       const applicationFeeAmount = calculateApplicationFee(totalAmount);
 
+      // Construct the base URL properly for Stripe redirects
+      const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+      const host = req.headers.host || 'localhost:5000';
+      const origin = req.headers.origin || `${protocol}://${host}`;
+      
+      // Ensure the URL has a proper scheme
+      const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
+
       // Create Stripe checkout session with Connect payment
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -3168,9 +3176,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
             destination: eventCreator.stripeAccountId,
           },
         },
-        // Use absolute URLs for Stripe redirects
-        success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/payment-cancel?eventId=${eventId}`,
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/payment-cancel?eventId=${eventId}`,
         metadata: {
           eventId: eventId.toString(),
           userId: userId.toString(),
