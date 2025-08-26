@@ -351,6 +351,7 @@ export async function validateEventCreatorForPayment(creatorId: number) {
 
   // Always fetch the latest account status from Stripe to handle edge cases
   try {
+    // First check if the account exists on Stripe
     const account = await stripe.accounts.retrieve(creator.stripeAccountId);
     
     console.log(`STRIPE_VALIDATION: Checking account ${creator.stripeAccountId}`, {
@@ -402,8 +403,24 @@ export async function validateEventCreatorForPayment(creatorId: number) {
       console.log(`STRIPE_VALIDATION: Updated onboarding status for user ${creatorId} to complete.`);
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error checking Stripe account status:', error);
+    
+    // Handle specific Stripe errors
+    if (error.type === 'StripeInvalidRequestError' && error.code === 'resource_missing') {
+      // The Stripe account doesn't exist anymore - clear it from database
+      console.log(`STRIPE_VALIDATION: Account ${creator.stripeAccountId} doesn't exist on Stripe. Clearing from database.`);
+      
+      await db
+        .update(users)
+        .set({ 
+          stripeAccountId: null,
+          stripeOnboardingComplete: false 
+        })
+        .where(eq(users.id, creatorId));
+        
+      throw new Error('Event creator\'s payment account is no longer valid. They need to set up payments again.');
+    }
     
     // If we can't reach Stripe API, check if we should allow based on database status
     // In production, be more cautious

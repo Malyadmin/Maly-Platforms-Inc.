@@ -1761,36 +1761,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.get("/api/events/:eventId/participation/status", async (req, res) => {
-    try {
-      const { eventId } = req.params;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        return res.status(401).json({ error: "You must be logged in to view participation status" });
-      }
-
-      // Check if user has a participation record
-      const participation = await db.select()
-        .from(eventParticipants)
-        .where(
-          and(
-            eq(eventParticipants.eventId, parseInt(eventId)),
-            eq(eventParticipants.userId, userId)
-          )
-        )
-        .limit(1);
-
-      if (participation.length === 0) {
-        return res.status(404).json({ status: 'not_attending' });
-      }
-
-      res.json({ status: participation[0].status });
-    } catch (error) {
-      console.error("Error fetching participation status:", error);
-      res.status(500).json({ error: "Failed to fetch participation status" });
-    }
-  });
+  // Duplicate endpoint removed - using the one with proper authentication middleware below
 
   app.post("/api/events/:eventId/participate", async (req, res) => {
     try {
