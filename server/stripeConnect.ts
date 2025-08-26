@@ -345,8 +345,71 @@ export async function validateEventCreatorForPayment(creatorId: number) {
     throw new Error('Event creator not found');
   }
 
-  if (!creator.stripeAccountId || !creator.stripeOnboardingComplete) {
-    throw new Error('Event creator has not completed payment setup. Ticket purchases are currently unavailable.');
+  if (!creator.stripeAccountId) {
+    throw new Error('Event creator has not set up payment receiving. Please complete Stripe Connect setup first.');
+  }
+
+  // Always fetch the latest account status from Stripe to handle edge cases
+  try {
+    const account = await stripe.accounts.retrieve(creator.stripeAccountId);
+    
+    console.log(`STRIPE_VALIDATION: Checking account ${creator.stripeAccountId}`, {
+      details_submitted: account.details_submitted,
+      charges_enabled: account.charges_enabled,
+      payouts_enabled: account.payouts_enabled,
+      currently_due: account.requirements?.currently_due || [],
+      past_due: account.requirements?.past_due || [],
+      disabled_reason: account.requirements?.disabled_reason
+    });
+    
+    // Check if account can process payments
+    // Allow if details submitted and no past_due requirements (currently_due is ok for initial verification)
+    const canProcessPayments = 
+      account.details_submitted && 
+      (!account.requirements?.past_due || account.requirements.past_due.length === 0) &&
+      !account.requirements?.disabled_reason;
+    
+    if (!canProcessPayments) {
+      console.error(`STRIPE_VALIDATION: Account cannot process payments`, {
+        stripeAccountId: creator.stripeAccountId,
+        details_submitted: account.details_submitted,
+        past_due: account.requirements?.past_due,
+        disabled_reason: account.requirements?.disabled_reason
+      });
+      throw new Error('Event creator has not completed payment setup. Please finish Stripe Connect onboarding.');
+    }
+    
+    // Special handling for automatic tax verification scenario
+    // If details are submitted but charges not enabled yet, it might be waiting for first transaction
+    if (account.details_submitted && !account.charges_enabled) {
+      const isWaitingForTaxVerification = 
+        account.requirements?.currently_due?.some(req => 
+          req.includes('tax') || req.includes('verification')
+        ) || false;
+      
+      if (isWaitingForTaxVerification) {
+        console.log(`STRIPE_VALIDATION: Account ${creator.stripeAccountId} is pending automatic tax verification. Allowing initial transaction.`);
+        // Allow the transaction to proceed for tax verification
+      }
+    }
+    
+    // Update the database flag if the account is now fully enabled
+    if (account.charges_enabled && account.payouts_enabled && !creator.stripeOnboardingComplete) {
+      await db
+        .update(users)
+        .set({ stripeOnboardingComplete: true })
+        .where(eq(users.id, creatorId));
+      console.log(`STRIPE_VALIDATION: Updated onboarding status for user ${creatorId} to complete.`);
+    }
+    
+  } catch (error) {
+    console.error('Error checking Stripe account status:', error);
+    
+    // If we can't reach Stripe API, check if we should allow based on database status
+    // In production, be more cautious
+    if (!creator.stripeOnboardingComplete) {
+      throw new Error('Event creator payment setup could not be verified. Please try again or contact support.');
+    }
   }
 
   return creator;
