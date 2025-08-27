@@ -29,7 +29,8 @@ import {
   getAccountStatus, 
   handleConnectWebhook, 
   validateEventCreatorForPayment, 
-  calculateApplicationFee 
+  calculateApplicationFee,
+  verifyAccount 
 } from './stripeConnect';
 // Import object storage utilities
 import { uploadToObjectStorage } from './lib/objectStorage';
@@ -842,6 +843,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   app.post('/api/stripe/connect/create-account', checkAuthentication, createConnectAccount);
   app.post('/api/stripe/connect/create-account-link', checkAuthentication, createAccountLink);
   app.get('/api/stripe/connect/account-status', checkAuthentication, getAccountStatus);
+  app.post('/api/stripe/connect/verify-account', checkAuthentication, verifyAccount);
   app.post('/api/webhooks/stripe/connect', express.raw({ type: 'application/json' }), handleConnectWebhook);
 
   // Referral endpoints
@@ -1759,36 +1761,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.get("/api/events/:eventId/participation/status", async (req, res) => {
-    try {
-      const { eventId } = req.params;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        return res.status(401).json({ error: "You must be logged in to view participation status" });
-      }
-
-      // Check if user has a participation record
-      const participation = await db.select()
-        .from(eventParticipants)
-        .where(
-          and(
-            eq(eventParticipants.eventId, parseInt(eventId)),
-            eq(eventParticipants.userId, userId)
-          )
-        )
-        .limit(1);
-
-      if (participation.length === 0) {
-        return res.status(404).json({ status: 'not_attending' });
-      }
-
-      res.json({ status: participation[0].status });
-    } catch (error) {
-      console.error("Error fetching participation status:", error);
-      res.status(500).json({ error: "Failed to fetch participation status" });
-    }
-  });
+  // Duplicate endpoint removed - using the one with proper authentication middleware below
 
   app.post("/api/events/:eventId/participate", async (req, res) => {
     try {
@@ -3138,9 +3111,18 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Calculate 3% application fee using Connect module
       const applicationFeeAmount = calculateApplicationFee(totalAmount);
 
+      // Construct the base URL properly for Stripe redirects
+      const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+      const host = req.headers.host || 'localhost:5000';
+      const origin = req.headers.origin || `${protocol}://${host}`;
+      
+      // Ensure the URL has a proper scheme
+      const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
+
       // Create Stripe checkout session with Connect payment
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
+        automatic_tax: { enabled: true },
         line_items: [
           {
             price_data: {
@@ -3165,9 +3147,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
             destination: eventCreator.stripeAccountId,
           },
         },
-        // Use absolute URLs for Stripe redirects
-        success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/payment-cancel?eventId=${eventId}`,
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/payment-cancel?eventId=${eventId}`,
         metadata: {
           eventId: eventId.toString(),
           userId: userId.toString(),
@@ -3344,6 +3325,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         // Create a Stripe checkout session for subscription
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
+          automatic_tax: { enabled: true },
           line_items: [
             {
               price_data: {

@@ -1,0 +1,56 @@
+Build Prompt: Fix Stripe Onboarding Verification Logic
+Hello! We have confirmed the Stripe webhook infrastructure is correctly configured, yet users remain stuck in a "pending" state. This indicates a logic or timing issue within the code. Your task is to diagnose and fix this verification flow.
+
+1. Add Enhanced "Proof of Life" Logging
+First, we need definitive proof of what's happening and when. Add detailed logging to the key functions.
+
+In the webhook handler (handleConnectWebhook in server/stripeConnect.ts):
+
+Add a log at the very beginning to confirm the webhook was received.
+
+Add a log immediately after the database update to confirm the write operation was successful.
+
+TypeScript
+
+// At the start of the function
+console.log(`STRIPE_WEBHOOK: Received account.updated event for account ${account.id}.`);
+
+// ... after the await db.update(users)... call
+console.log(`STRIPE_WEBHOOK: Successfully updated database for user ${user.id}. Set stripeOnboardingComplete to ${account.charges_enabled && account.payouts_enabled}.`);
+In the status check endpoint (getAccountStatus in server/stripeConnect.ts):
+
+Log the value of stripeOnboardingComplete as it's read from the database.
+
+TypeScript
+
+// After fetching the user from the database
+console.log(`STRIPE_STATUS_CHECK: Checking status for user ${user.id}. DB value for stripeOnboardingComplete is ${user.stripeOnboardingComplete}.`);
+2. Harmonize the Onboarding Status Logic
+The most likely error is that the status endpoint is checking a live Stripe API call instead of relying on our database as the single source of truth. Let's fix that.
+
+Modify the getAccountStatus function.
+
+Remove any live API call to Stripe within this function. The endpoint's only job is to return the status from our database.
+
+Ensure the onboardingComplete value in the response is determined solely by the stripeOnboardingComplete boolean field from the user record in our database.
+
+3. Create a Manual Verification Endpoint (for Debugging)
+Sometimes webhooks can be missed. We need a way to manually fix a user's status.
+
+Create a new, secure endpoint: POST /api/stripe/connect/verify-account.
+
+This endpoint should be protected by authentication middleware.
+
+Functionality:
+
+Get the authenticated user's stripeAccountId from our database.
+
+Make a live API call to stripe.accounts.retrieve() to get the latest status from Stripe.
+
+Use the exact same logic as the webhook (account.charges_enabled && account.payouts_enabled) to determine the correct stripeOnboardingComplete status.
+
+Update the user's record in our database with the correct status.
+
+Return the updated user status to the client.
+
+After implementing these changes, redeploy the application. Then, go through the onboarding flow with a test user. Check the live logs to trace the webhook and status check. If the user still gets stuck, you can now use the new verify-account endpoint to manually sync their status and unblock them.
