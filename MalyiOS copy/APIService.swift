@@ -182,6 +182,377 @@ class APIService: ObservableObject {
         }
     }
     
+    // MARK: - Connect Methods
+    
+    func browseUsers(
+        location: String?,
+        gender: String?,
+        minAge: Int?,
+        maxAge: Int?,
+        moods: [String]?,
+        interests: [String]?,
+        name: String?,
+        limit: Int = 20,
+        offset: Int = 0,
+        completion: @escaping (Result<BrowseUsersResponse, APIError>) -> Void
+    ) {
+        var urlComponents = URLComponents(string: "\(baseURL)/users/browse")!
+        var queryItems: [URLQueryItem] = []
+        
+        if let location = location { queryItems.append(URLQueryItem(name: "location", value: location)) }
+        if let gender = gender { queryItems.append(URLQueryItem(name: "gender", value: gender)) }
+        if let minAge = minAge { queryItems.append(URLQueryItem(name: "minAge", value: "\(minAge)")) }
+        if let maxAge = maxAge { queryItems.append(URLQueryItem(name: "maxAge", value: "\(maxAge)")) }
+        if let name = name { queryItems.append(URLQueryItem(name: "name", value: name)) }
+        
+        if let moods = moods, !moods.isEmpty {
+            moods.forEach { queryItems.append(URLQueryItem(name: "moods", value: $0)) }
+        }
+        if let interests = interests, !interests.isEmpty {
+            interests.forEach { queryItems.append(URLQueryItem(name: "interests", value: $0)) }
+        }
+        
+        queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+        queryItems.append(URLQueryItem(name: "offset", value: "\(offset)"))
+        
+        urlComponents.queryItems = queryItems
+        
+        guard let url = urlComponents.url else {
+            completion(.failure(APIError(message: "Invalid URL")))
+            return
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let browseResponse = try JSONDecoder().decode(BrowseUsersResponse.self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(browseResponse))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Browse users failed"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func searchUsers(query: String, completion: @escaping (Result<[ConnectUser], APIError>) -> Void) {
+        guard !query.isEmpty else {
+            completion(.success([]))
+            return
+        }
+        
+        var urlComponents = URLComponents(string: "\(baseURL)/users/search")!
+        urlComponents.queryItems = [URLQueryItem(name: "q", value: query)]
+        
+        guard let url = urlComponents.url else {
+            completion(.failure(APIError(message: "Invalid URL")))
+            return
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let users = try JSONDecoder().decode([ConnectUser].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(users))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Search failed"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func sendConnectionRequest(to userId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/connections/follow")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody = ["userId": userId]
+        
+        Task {
+            do {
+                urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        DispatchQueue.main.async {
+                            completion(.success(()))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Connection request failed"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func getConnectionStatus(with userId: Int, completion: @escaping (Result<ConnectionStatus, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/connections/status/\(userId)")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let statusResponse = try JSONDecoder().decode(ConnectionStatusResponse.self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(statusResponse.status))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connection status"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    // MARK: - Messaging Methods
+    
+    func fetchConversations(completion: @escaping (Result<[Conversation], APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/conversations")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let conversations = try decoder.decode([Conversation].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(conversations))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch conversations"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func fetchMessages(for conversationId: Int, completion: @escaping (Result<[Message], APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let messages = try decoder.decode([Message].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(messages))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch messages"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func sendMessage(to conversationId: Int, content: String, completion: @escaping (Result<Message, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody = SendMessageRequest(content: content)
+        
+        Task {
+            do {
+                let encoder = JSONEncoder()
+                urlRequest.httpBody = try encoder.encode(requestBody)
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let message = try decoder.decode(Message.self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(message))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to send message"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func markMessageAsRead(messageId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/messages/\(messageId)/read")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        DispatchQueue.main.async {
+                            completion(.success(()))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to mark message as read"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func markAllMessagesAsRead(in conversationId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/read")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        DispatchQueue.main.async {
+                            completion(.success(()))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to mark messages as read"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func createGroup(name: String, description: String, memberIds: [Int], completion: @escaping (Result<Group, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/groups")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody = CreateGroupRequest(name: name, description: description, memberIds: memberIds)
+        
+        Task {
+            do {
+                let encoder = JSONEncoder()
+                urlRequest.httpBody = try encoder.encode(requestBody)
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 201 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let group = try decoder.decode(Group.self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(group))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to create group"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
     // MARK: - Events Methods
     
     func fetchEvents() async throws -> [Event] {
