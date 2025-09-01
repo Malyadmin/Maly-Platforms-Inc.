@@ -317,7 +317,7 @@ struct FeaturedUserCard: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    Text(user.location)
+                    Text(user.location ?? "Unknown location")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -384,7 +384,7 @@ struct UserCard: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    Text(user.location)
+                    Text(user.location ?? "Unknown location")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
