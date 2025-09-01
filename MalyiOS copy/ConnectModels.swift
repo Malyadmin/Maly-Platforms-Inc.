@@ -128,10 +128,7 @@ struct Pagination: Codable {
     let total: Int
     let hasMore: Bool
     
-    enum CodingKeys: String, CodingKey {
-        case limit, offset, total
-        case hasMore = "has_more"
-    }
+    // No CodingKeys needed - backend returns camelCase which matches Swift properties
 }
 
 struct ConnectionStatusResponse: Codable {
