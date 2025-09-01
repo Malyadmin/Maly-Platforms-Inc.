@@ -196,6 +196,9 @@ class APIService: ObservableObject {
         offset: Int = 0,
         completion: @escaping (Result<BrowseUsersResponse, APIError>) -> Void
     ) {
+        print("🔍 Starting browseUsers request...")
+        print("📍 Base URL: \(baseURL)")
+        
         var urlComponents = URLComponents(string: "\(baseURL)/users/browse")!
         var queryItems: [URLQueryItem] = []
         
@@ -218,31 +221,65 @@ class APIService: ObservableObject {
         urlComponents.queryItems = queryItems
         
         guard let url = urlComponents.url else {
+            print("❌ Failed to create URL")
             completion(.failure(APIError(message: "Invalid URL")))
             return
         }
         
+        print("🌐 Final URL: \(url.absoluteString)")
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        urlRequest.timeoutInterval = 30
+        
+        print("📤 Making request to: \(url.absoluteString)")
         
         Task {
             do {
+                print("⏱️ Starting network request...")
                 let (data, response) = try await session.data(for: urlRequest)
+                print("✅ Network request completed")
                 
                 if let httpResponse = response as? HTTPURLResponse {
+                    print("📊 HTTP Status Code: \(httpResponse.statusCode)")
+                    print("📋 Response Headers: \(httpResponse.allHeaderFields)")
+                    print("📄 Response Data Size: \(data.count) bytes")
+                    
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        print("📝 Response Body: \(responseString.prefix(500))...")
+                    }
+                    
                     if httpResponse.statusCode == 200 {
-                        let browseResponse = try JSONDecoder().decode(BrowseUsersResponse.self, from: data)
-                        DispatchQueue.main.async {
-                            completion(.success(browseResponse))
+                        do {
+                            let browseResponse = try JSONDecoder().decode(BrowseUsersResponse.self, from: data)
+                            print("🎉 Successfully decoded response with \(browseResponse.users.count) users")
+                            DispatchQueue.main.async {
+                                completion(.success(browseResponse))
+                            }
+                        } catch {
+                            print("❌ JSON decode error: \(error)")
+                            DispatchQueue.main.async {
+                                completion(.failure(APIError(message: "Failed to decode response: \(error.localizedDescription)")))
+                            }
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Browse users failed"
+                        print("❌ HTTP Error: \(httpResponse.statusCode) - \(errorMessage)")
                         DispatchQueue.main.async {
                             completion(.failure(APIError(message: errorMessage)))
                         }
                     }
+                } else {
+                    print("❌ No HTTP response received")
+                    DispatchQueue.main.async {
+                        completion(.failure(APIError(message: "No response received")))
+                    }
                 }
             } catch {
+                print("💥 Network error: \(error)")
+                print("🔍 Error details: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
                 }
