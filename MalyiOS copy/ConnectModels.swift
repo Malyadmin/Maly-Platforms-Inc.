@@ -4,31 +4,31 @@ import Foundation
 struct ConnectUser: Codable, Identifiable {
     let id: Int
     let username: String
-    let email: String?
-    let fullName: String
-    let location: String?
+    let fullName: String?
+    let profileType: String?
+    let gender: String?
+    let sexualOrientation: String?
+    let bio: String?
     let profileImage: String?
     let profileImages: [String]?
+    let location: String?
     let birthLocation: String?
     let nextLocation: String?
     let interests: [String]?
     let currentMoods: [String]?
     let profession: String?
     let age: Int?
-    let gender: String?
-    let sexualOrientation: String?
-    let bio: String?
-    let profileType: String
     let businessName: String?
     let businessDescription: String?
     let websiteUrl: String?
-    let createdAt: String // Use String to match API format
+    let createdAt: String?
     let lastActive: String?
-    let isPremium: Bool
-    let preferredLanguage: String
+    let isPremium: Bool?
+    let preferredLanguage: String?
     let referralCode: String?
     
-    // No need for CodingKeys since API uses camelCase which matches Swift property names
+    // Note: email is explicitly excluded by backend for security
+    // All fields match exactly what the backend /api/users/browse returns
 }
 
 // MARK: - Connection Status
