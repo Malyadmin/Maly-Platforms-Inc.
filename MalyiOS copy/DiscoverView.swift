@@ -226,21 +226,20 @@ struct EventCardView: View {
         }
     }
     
+    @ViewBuilder
     private var eventImageView: some View {
-        Group {
-            if let imageUrl = event.image, !imageUrl.isEmpty {
-                AsyncImage(url: URL(string: imageUrl)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 128, height: 128)
-                        .clipped()
-                } placeholder: {
-                    placeholderImageView
-                }
-            } else {
+        if let imageUrl = event.image, !imageUrl.isEmpty {
+            AsyncImage(url: URL(string: imageUrl)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 128, height: 128)
+                    .clipped()
+            } placeholder: {
                 placeholderImageView
             }
+        } else {
+            placeholderImageView
         }
     }
     
