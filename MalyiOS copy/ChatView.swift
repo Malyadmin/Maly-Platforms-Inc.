@@ -65,7 +65,7 @@ struct ChatView: View {
                 }
                 .padding()
             }
-            .onChange(of: messagingViewModel.currentMessages.count) { _ in
+            .onChange(of: messagingViewModel.currentMessages.count) {
                 // Scroll to bottom when new message arrives
                 if let lastMessage = messagingViewModel.currentMessages.last {
                     withAnimation(.easeOut(duration: 0.3)) {
