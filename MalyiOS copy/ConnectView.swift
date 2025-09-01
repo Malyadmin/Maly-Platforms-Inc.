@@ -64,7 +64,7 @@ struct ConnectView: View {
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .letterSpacing(2)
+                    .tracking(2)
                 
                 Spacer()
                 
@@ -95,7 +95,7 @@ struct ConnectView: View {
                 
                 TextField("Search for a specific member", text: $searchText)
                     .foregroundColor(.white)
-                    .onChange(of: searchText) { _ in
+                    .onChange(of: searchText) {
                         // TODO: Implement search functionality
                     }
             }
@@ -488,13 +488,11 @@ struct ConnectView: View {
     
     // MARK: - Helper Methods
     private func loadInitialData() {
-        Task {
-            await connectViewModel.loadNearbyUsers()
-        }
+        connectViewModel.loadNearbyUsers()
     }
     
     private func refreshUsers() async {
-        await connectViewModel.refreshUsers()
+        connectViewModel.refreshUsers()
     }
 }
 
