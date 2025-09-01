@@ -488,11 +488,11 @@ struct ConnectView: View {
     
     // MARK: - Helper Methods
     private func loadInitialData() {
-        connectViewModel.loadNearbyUsers()
+        connectViewModel.fetchNearbyUsers { _ in }
     }
     
     private func refreshUsers() async {
-        connectViewModel.refreshUsers()
+        connectViewModel.fetchNearbyUsers { _ in }
     }
 }
 
