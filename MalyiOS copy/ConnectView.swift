@@ -298,7 +298,7 @@ struct FeaturedUserCard: View {
                     Circle()
                         .fill(Color.gray.opacity(0.3))
                         .overlay(
-                            Text(String(user.fullName.prefix(1)))
+                            Text(String((user.fullName ?? user.username).prefix(1)))
                                 .font(.title2)
                                 .fontWeight(.semibold)
                         )
@@ -307,7 +307,7 @@ struct FeaturedUserCard: View {
                 .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(user.fullName)
+                    Text(user.fullName ?? user.username)
                         .font(.headline)
                         .fontWeight(.semibold)
                     
@@ -363,7 +363,7 @@ struct UserCard: View {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .overlay(
-                            Text(String(user.fullName.prefix(1)))
+                            Text(String((user.fullName ?? user.username).prefix(1)))
                                 .font(.title)
                                 .fontWeight(.semibold)
                         )
@@ -373,7 +373,7 @@ struct UserCard: View {
                 .cornerRadius(8)
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(user.fullName)
+                    Text(user.fullName ?? user.username)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .lineLimit(1)
