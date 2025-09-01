@@ -26,23 +26,26 @@ struct MainView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Main content area
-            Group {
-                switch selectedTab {
-                case 0: // Discover
-                    DiscoverView()
-                case 1: // Connect
-                    ComingSoonView(tabName: "Connect")
-                case 2: // Create (Default)
-                    createFlowView
-                case 3: // Events
-                    ComingSoonView(tabName: "Events")
-                case 4: // Profile
-                    ProfileTabView(authViewModel: authViewModel)
-                default:
-                    createFlowView
-                }
+            switch selectedTab {
+            case 0: // Discover
+                DiscoverView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case 1: // Connect
+                ComingSoonView(tabName: "Connect")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case 2: // Create (Default)
+                createFlowView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case 3: // Events
+                ComingSoonView(tabName: "Events")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case 4: // Profile
+                ProfileTabView(authViewModel: authViewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            default:
+                createFlowView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             // Bottom Navigation Bar
             NavigationBarView(selectedTab: $selectedTab)

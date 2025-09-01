@@ -25,9 +25,11 @@ struct MessagingListView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingCreateGroup) {
-                CreateGroupView()
-                    .environmentObject(messagingViewModel)
+            .alert("Create Group", isPresented: $showingCreateGroup) {
+                Button("Cancel", role: .cancel) { }
+                Button("OK") { }
+            } message: {
+                Text("Group creation will be implemented soon")
             }
             .sheet(isPresented: $showingChat) {
                 if let conversationId = selectedConversationId {
@@ -257,15 +259,15 @@ struct ConversationRow: View {
         let formatter = DateFormatter()
         let calendar = Calendar.current
         
-        if calendar.isToday(date) {
+        if calendar.isDate(date, inSameDayAs: Date()) {
             formatter.timeStyle = .short
-        } else if calendar.isYesterday(date) {
+            return formatter.string(from: date)
+        } else if calendar.isDate(date, inSameDayAs: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()) {
             return "Yesterday"
         } else {
             formatter.dateStyle = .short
+            return formatter.string(from: date)
         }
-        
-        return formatter.string(from: date)
     }
 }
 

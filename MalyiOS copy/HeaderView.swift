@@ -45,8 +45,7 @@ struct HeaderView: View {
             Spacer() // Pushes content to the sides
 
             // Right-side buttons (Next/Publish/Finish/Choose/Add Groups)
-            Group {
-                if currentScreenIndex == 8 { // Screen 9 (Target Audience) - Index 8
+            if currentScreenIndex == 8 { // Screen 9 (Target Audience) - Index 8
                     Button(action: {
                         // Action for Publish button on screen 9 - ALWAYS go to preview
                         print("🚀 Publish from Screen 9! Going to preview...")
@@ -125,16 +124,15 @@ struct HeaderView: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.8))
                     }
-                } else { // All other screens (1, 2, 3, 4) show Next button
-                    Button(action: {
-                        if currentScreenIndex < 4 { // Only go up to Screen 5 (index 4)
-                            currentScreenIndex += 1
-                        }
-                    }) {
-                        Text("Next")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.8))
+            } else { // All other screens (1, 2, 3, 4) show Next button
+                Button(action: {
+                    if currentScreenIndex < 4 { // Only go up to Screen 5 (index 4)
+                        currentScreenIndex += 1
                     }
+                }) {
+                    Text("Next")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
                 }
             }
         }
