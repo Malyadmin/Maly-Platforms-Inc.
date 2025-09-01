@@ -27,7 +27,7 @@ class APIService: ObservableObject {
     // Change this to your actual server URL when testing
     // For Replit: Use your repl's public URL (e.g., https://your-repl-name.your-username.repl.co/api)
     // For local: Use http://localhost:5000/api
-    private let baseURL = "http://localhost:5000/api"
+    private let baseURL = "https://maly-platforms-inc-hudekholdingsll.replit.app/api"
     
     private var session: URLSession
     
