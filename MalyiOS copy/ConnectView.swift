@@ -5,85 +5,29 @@ struct ConnectView: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
     @State private var showingSearch = false
     @State private var showingFilters = false
+    @State private var selectedUser: ConnectUser?
     @State private var showingUserProfile = false
-    @State private var selectedUserId: Int?
-    
-    let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
+    @State private var searchText = ""
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Header with user count and actions
-                    headerSection
-                    
-                    // Featured user section
-                    if let featuredUser = connectViewModel.featuredUser {
-                        featuredUserSection(user: featuredUser)
-                    }
-                    
-                    // Active filters display
-                    if hasActiveFilters {
-                        activeFiltersSection
-                    }
-                    
-                    // Users grid
-                    usersGridSection
-                    
-                    // Load more indicator
-                    if connectViewModel.hasMoreUsers && !connectViewModel.nearbyUsers.isEmpty {
-                        loadMoreSection
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .refreshable {
-                await refreshUsers()
-            }
-            .navigationTitle("Connect")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
-                        Button(action: { showingSearch = true }) {
-                            Image(systemName: "magnifyingglass")
-                        }
-                        
-                        Button(action: { showingFilters = true }) {
-                            Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                                .foregroundColor(hasActiveFilters ? .blue : .primary)
-                        }
-                    }
+            VStack(spacing: 0) {
+                // Custom Header
+                headerSection
+                
+                // Content based on search state
+                if showingSearch {
+                    searchView
+                } else {
+                    mainContentView
                 }
             }
-            .sheet(isPresented: $showingSearch) {
-                SearchView()
-                    .environmentObject(connectViewModel)
-            }
-            .sheet(isPresented: $showingFilters) {
-                FiltersView()
-                    .environmentObject(connectViewModel)
-            }
-            .sheet(isPresented: $showingUserProfile) {
-                if let userId = selectedUserId {
-                    UserProfileView(userId: userId)
-                }
-            }
-            .overlay {
-                if connectViewModel.isLoading && connectViewModel.nearbyUsers.isEmpty {
-                    ProgressView("Discovering people nearby...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(.systemBackground))
-                }
-            }
-            .overlay {
-                if let errorMessage = connectViewModel.errorMessage {
-                    errorView(message: errorMessage)
-                }
-            }
+            .background(Color.black)
+            .navigationBarHidden(true)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .sheet(item: $selectedUser) { user in
+            UserProfileView(user: user)
         }
         .onAppear {
             loadInitialData()
@@ -91,270 +35,298 @@ struct ConnectView: View {
     }
     
     // MARK: - Header Section
-    
     private var headerSection: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Discover People")
-                    .font(.title2)
-                    .fontWeight(.semibold)
+        VStack(spacing: 0) {
+            // Top header with MALY and search icon
+            HStack {
+                if showingSearch {
+                    Button("Back") {
+                        showingSearch = false
+                        searchText = ""
+                    }
+                    .foregroundColor(.white)
+                } else {
+                    Button("City name") {
+                        // TODO: Implement city selector
+                    }
+                    .foregroundColor(.white)
+                    .overlay(
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.white)
+                            .font(.caption)
+                            .offset(x: 45)
+                    )
+                }
                 
-                Text("\(connectViewModel.totalUserCount) people in your area")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Spacer()
+                
+                Text("MALY")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .letterSpacing(2)
+                
+                Spacer()
+                
+                Button(action: {
+                    showingSearch.toggle()
+                }) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 16)
+            
+            // Search bar (only when searching)
+            if showingSearch {
+                searchBarSection
+            }
+        }
+    }
+    
+    private var searchBarSection: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                
+                TextField("Search for a specific member", text: $searchText)
+                    .foregroundColor(.white)
+                    .onChange(of: searchText) { _ in
+                        // TODO: Implement search functionality
+                    }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.clear)
+            .overlay(
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.3)),
+                alignment: .bottom
+            )
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
+    }
+    
+    // MARK: - Main Content
+    private var mainContentView: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                // Like-vibe section header
+                likeVibeSection
+                
+                // Featured large profile
+                if let featuredUser = connectViewModel.nearbyUsers.first {
+                    featuredProfileSection(user: featuredUser)
+                }
+                
+                // People with common interests section
+                commonInterestsSection
+                
+                // Other members section  
+                otherMembersSection
+            }
+        }
+        .refreshable {
+            await refreshUsers()
+        }
+    }
+    
+    private var searchView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if searchText.isEmpty {
+                // Empty search state
+                Spacer()
+            } else {
+                // Search results
+                searchResultsSection
+            }
+        }
+    }
+    
+    private var likeVibeSection: some View {
+        HStack {
+            Text("Like-vibe people near you")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
             
             Spacer()
-        }
-    }
-    
-    // MARK: - Featured User Section
-    
-    private func featuredUserSection(user: ConnectUser) -> some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text("Featured")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                Spacer()
-            }
             
-            FeaturedUserCard(user: user) {
-                selectedUserId = user.id
+            Text("3")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+    }
+    
+    private func featuredProfileSection(user: ConnectUser) -> some View {
+        VStack(spacing: 0) {
+            // Large profile card
+            Button(action: {
+                selectedUser = user
                 showingUserProfile = true
+            }) {
+                VStack(spacing: 0) {
+                    // Profile image
+                    AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.black)
+                                    .font(.system(size: 60))
+                            )
+                    }
+                    .frame(height: 250)
+                    .clipped()
+                    
+                    // Profile info overlay
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("MEMBER NAME")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                if let moods = user.currentMoods, !moods.isEmpty {
+                                    Text(moods.prefix(3).joined(separator: " | "))
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                }
+                                
+                                if let location = user.location {
+                                    HStack {
+                                        Image(systemName: "location")
+                                            .foregroundColor(.gray)
+                                            .font(.caption2)
+                                        Text(location)
+                                            .font(.caption2)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text("MEMBER NAME")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                if let moods = user.currentMoods, !moods.isEmpty {
+                                    Text(moods.prefix(3).joined(separator: " | "))
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
+                                }
+                                
+                                HStack {
+                                    Image(systemName: "location")
+                                        .foregroundColor(.gray)
+                                        .font(.caption2)
+                                    Text("City Name")
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                    }
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.8)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                }
             }
+            .padding(.horizontal, 20)
         }
     }
     
-    // MARK: - Active Filters Section
-    
-    private var activeFiltersSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private var commonInterestsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Active Filters")
+                Text("People near you with common interests")
                     .font(.subheadline)
                     .fontWeight(.medium)
+                    .foregroundColor(.white)
                 
                 Spacer()
                 
-                Button("Clear All") {
-                    connectViewModel.clearAllFilters()
-                }
-                .font(.caption)
-                .foregroundColor(.blue)
+                Text("3")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
             }
+            .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    if let location = connectViewModel.currentLocationFilter {
-                        FilterChip(text: "📍 \(location)", onRemove: {
-                            connectViewModel.currentLocationFilter = nil
-                            connectViewModel.fetchNearbyUsers { _ in }
-                        })
-                    }
-                    
-                    if let gender = connectViewModel.currentGenderFilter {
-                        FilterChip(text: "👤 \(gender.capitalized)", onRemove: {
-                            connectViewModel.currentGenderFilter = nil
-                            connectViewModel.fetchNearbyUsers { _ in }
-                        })
-                    }
-                    
-                    if let minAge = connectViewModel.currentMinAge, let maxAge = connectViewModel.currentMaxAge {
-                        FilterChip(text: "🎂 \(minAge)-\(maxAge)", onRemove: {
-                            connectViewModel.currentMinAge = nil
-                            connectViewModel.currentMaxAge = nil
-                            connectViewModel.fetchNearbyUsers { _ in }
-                        })
-                    }
-                    
-                    ForEach(connectViewModel.currentMoodFilters, id: \.self) { mood in
-                        FilterChip(text: "😊 \(mood)", onRemove: {
-                            connectViewModel.currentMoodFilters.removeAll { $0 == mood }
-                            connectViewModel.fetchNearbyUsers { _ in }
-                        })
-                    }
-                    
-                    ForEach(connectViewModel.currentInterestFilters, id: \.self) { interest in
-                        FilterChip(text: "🎯 \(interest)", onRemove: {
-                            connectViewModel.currentInterestFilters.removeAll { $0 == interest }
-                            connectViewModel.fetchNearbyUsers { _ in }
-                        })
-                    }
-                }
-                .padding(.horizontal)
+            // List of users
+            ForEach(connectViewModel.nearbyUsers.prefix(3), id: \.id) { user in
+                userListItem(user: user)
             }
         }
+        .padding(.top, 24)
     }
     
-    // MARK: - Users Grid Section
-    
-    private var usersGridSection: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(connectViewModel.nearbyUsers) { user in
-                UserCard(user: user) {
-                    selectedUserId = user.id
-                    showingUserProfile = true
-                }
-                .onAppear {
-                    // Load more when reaching near the end
-                    if user.id == connectViewModel.nearbyUsers.suffix(5).first?.id {
-                        loadMoreUsers()
-                    }
+    private var otherMembersSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Other members near you")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text("777")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 20)
+            
+            // 3x4 Grid of users
+            let gridUsers = Array(connectViewModel.nearbyUsers.dropFirst(3))
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 8) {
+                ForEach(gridUsers.prefix(12), id: \.id) { user in
+                    gridUserItem(user: user)
                 }
             }
+            .padding(.horizontal, 20)
         }
+        .padding(.top, 24)
     }
     
-    // MARK: - Load More Section
-    
-    private var loadMoreSection: some View {
-        HStack {
-            if connectViewModel.isLoading {
-                ProgressView()
-                    .scaleEffect(0.8)
-                Text("Loading more...")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else {
-                Button("Load More") {
-                    loadMoreUsers()
-                }
-                .font(.caption)
-                .foregroundColor(.blue)
-            }
-        }
-        .padding()
-    }
-    
-    // MARK: - Error View
-    
-    private func errorView(message: String) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "wifi.slash")
-                .font(.system(size: 50))
-                .foregroundColor(.secondary)
-            
-            Text("Something went wrong")
-                .font(.headline)
-            
-            Text(message)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-            
-            Button("Try Again") {
-                connectViewModel.errorMessage = nil
-                loadInitialData()
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-    
-    // MARK: - Computed Properties
-    
-    private var hasActiveFilters: Bool {
-        connectViewModel.currentLocationFilter != nil ||
-        connectViewModel.currentGenderFilter != nil ||
-        connectViewModel.currentMinAge != nil ||
-        connectViewModel.currentMaxAge != nil ||
-        !connectViewModel.currentMoodFilters.isEmpty ||
-        !connectViewModel.currentInterestFilters.isEmpty
-    }
-    
-    // MARK: - Methods
-    
-    private func loadInitialData() {
-        connectViewModel.fetchNearbyUsers { _ in }
-    }
-    
-    private func loadMoreUsers() {
-        connectViewModel.loadMoreUsers { _ in }
-    }
-    
-    @MainActor
-    private func refreshUsers() async {
-        connectViewModel.fetchNearbyUsers { _ in }
-    }
-}
-
-// MARK: - Supporting Views
-
-struct FeaturedUserCard: View {
-    let user: ConnectUser
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
+    private func userListItem(user: ConnectUser) -> some View {
+        Button(action: {
+            selectedUser = user
+            showingUserProfile = true
+        }) {
             HStack(spacing: 12) {
-                AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            Text(String((user.fullName ?? user.username).prefix(1)))
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                        )
-                }
-                .frame(width: 60, height: 60)
-                .clipShape(Circle())
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(user.fullName ?? user.username)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    
-                    if let profession = user.profession {
-                        Text(profession)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Text(user.location ?? "Unknown location")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                VStack(spacing: 4) {
-                    Button(action: { /* Send connection request */ }) {
-                        Image(systemName: "person.badge.plus")
-                            .font(.title3)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.circle)
-                    
-                    Button(action: { /* Send message */ }) {
-                        Image(systemName: "message")
-                            .font(.title3)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.circle)
-                }
-            }
-            .padding()
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(12)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct UserCard: View {
-    let user: ConnectUser
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 8) {
+                // Profile image
                 AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
                     image
                         .resizable()
@@ -363,109 +335,172 @@ struct UserCard: View {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .overlay(
-                            Text(String((user.fullName ?? user.username).prefix(1)))
-                                .font(.title)
-                                .fontWeight(.semibold)
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.white)
+                                .font(.title2)
                         )
                 }
-                .frame(height: 120)
-                .clipped()
+                .frame(width: 60, height: 60)
+                .clipShape(Rectangle())
                 .cornerRadius(8)
                 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(user.fullName ?? user.username)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("MEMBER NAME")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
                     
-                    if let age = user.age {
-                        Text("\(age) years old")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                    if let moods = user.currentMoods, !moods.isEmpty {
+                        Text(moods.prefix(3).joined(separator: " | "))
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
                     }
                     
-                    Text(user.location ?? "Unknown location")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                    if let location = user.location {
+                        HStack {
+                            Image(systemName: "location")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(location)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Spacer()
+                
+                Text("3")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
             }
-            .padding(8)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
         }
-        .buttonStyle(.plain)
     }
-}
-
-struct FilterChip: View {
-    let text: String
-    let onRemove: () -> Void
     
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(text)
-                .font(.caption2)
+    private func gridUserItem(user: ConnectUser) -> some View {
+        Button(action: {
+            selectedUser = user
+            showingUserProfile = true
+        }) {
+            AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.title)
+                    )
+            }
+            .frame(height: 80)
+            .clipShape(Rectangle())
+            .cornerRadius(8)
+        }
+    }
+    
+    private var searchResultsSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text("Maly members")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text("3")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
             
-            Button(action: onRemove) {
-                Image(systemName: "xmark")
-                    .font(.caption2)
+            // Search results list
+            ForEach(connectViewModel.nearbyUsers.prefix(5), id: \.id) { user in
+                searchResultItem(user: user)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color.blue.opacity(0.1))
-        .foregroundColor(.blue)
-        .cornerRadius(8)
+        .padding(.top, 20)
     }
-}
-
-// MARK: - Placeholder Views
-
-struct SearchView: View {
-    @EnvironmentObject var connectViewModel: ConnectViewModel
-    @State private var searchText = ""
     
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Search functionality will be implemented here")
-                    .foregroundColor(.secondary)
+    private func searchResultItem(user: ConnectUser) -> some View {
+        Button(action: {
+            selectedUser = user
+            showingUserProfile = true
+        }) {
+            HStack(spacing: 12) {
+                AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.white)
+                                .font(.title2)
+                        )
+                }
+                .frame(width: 60, height: 60)
+                .clipShape(Rectangle())
+                .cornerRadius(8)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("MEMBER NAME")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    if let moods = user.currentMoods, !moods.isEmpty {
+                        Text(moods.prefix(3).joined(separator: " | "))
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                    }
+                    
+                    if let location = user.location {
+                        HStack {
+                            Image(systemName: "location")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(location)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                
+                Spacer()
             }
-            .navigationTitle("Search")
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
         }
     }
-}
-
-struct FiltersView: View {
-    @EnvironmentObject var connectViewModel: ConnectViewModel
     
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Filter options will be implemented here")
-                    .foregroundColor(.secondary)
-            }
-            .navigationTitle("Filters")
-            .navigationBarTitleDisplayMode(.inline)
+    // MARK: - Helper Methods
+    private func loadInitialData() {
+        Task {
+            await connectViewModel.loadNearbyUsers()
         }
     }
-}
-
-struct UserProfileView: View {
-    let userId: Int
     
-    var body: some View {
-        VStack {
-            Text("User profile for ID: \(userId)")
-                .foregroundColor(.secondary)
-        }
+    private func refreshUsers() async {
+        await connectViewModel.refreshUsers()
     }
 }
 
+// MARK: - Preview
 #Preview {
     ConnectView()
         .environmentObject(AuthenticationViewModel())
+        .preferredColorScheme(.dark)
 }
