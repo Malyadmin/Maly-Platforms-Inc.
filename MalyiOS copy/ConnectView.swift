@@ -158,7 +158,7 @@ struct ConnectView: View {
             
             Spacer()
             
-            Text("3")
+            Text("\(connectViewModel.nearbyUsers.count)")
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundColor(.white)
@@ -196,7 +196,7 @@ struct ConnectView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("MEMBER NAME")
+                                Text(user.fullName?.uppercased() ?? user.username.uppercased())
                                     .font(.caption)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
@@ -223,7 +223,7 @@ struct ConnectView: View {
                             Spacer()
                             
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text("MEMBER NAME")
+                                Text(user.fullName?.uppercased() ?? user.username.uppercased())
                                     .font(.caption)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
@@ -271,7 +271,7 @@ struct ConnectView: View {
                 
                 Spacer()
                 
-                Text("3")
+                Text("\(min(connectViewModel.nearbyUsers.count, 3))")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white)
@@ -296,7 +296,7 @@ struct ConnectView: View {
                 
                 Spacer()
                 
-                Text("777")
+                Text("\(max(connectViewModel.totalUserCount - 3, 0))")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white)
@@ -345,7 +345,7 @@ struct ConnectView: View {
                 .cornerRadius(8)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("MEMBER NAME")
+                    Text(user.fullName?.uppercased() ?? user.username.uppercased())
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -370,11 +370,6 @@ struct ConnectView: View {
                 }
                 
                 Spacer()
-                
-                Text("3")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
@@ -415,7 +410,7 @@ struct ConnectView: View {
                 
                 Spacer()
                 
-                Text("3")
+                Text("\(connectViewModel.nearbyUsers.count)")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white)
@@ -455,7 +450,7 @@ struct ConnectView: View {
                 .cornerRadius(8)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("MEMBER NAME")
+                    Text(user.fullName?.uppercased() ?? user.username.uppercased())
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)

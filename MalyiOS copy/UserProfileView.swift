@@ -5,6 +5,8 @@ struct UserProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var connectionStatus: ConnectionStatus = .notConnected
     @State private var isLoading = false
+    @State private var hasInitializedConnection = false
+    private let apiService = APIService.shared
     
     var body: some View {
         NavigationView {
@@ -140,13 +142,7 @@ struct UserProfileView: View {
     private var actionButtonsSection: some View {
         HStack(spacing: 12) {
             Button(action: {
-                // TODO: Implement connect action
-                isLoading = true
-                // Simulate connection request
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    connectionStatus = .pending
-                    isLoading = false
-                }
+                sendConnectionRequest()
             }) {
                 HStack {
                     if isLoading {
@@ -335,6 +331,37 @@ struct UserProfileView: View {
             return .blue
         case .blocked:
             return .red
+        }
+    }
+    
+    // MARK: - Connection Management
+    private func loadConnectionStatus() {
+        apiService.getConnectionStatus(with: user.id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let status):
+                    self.connectionStatus = status
+                case .failure:
+                    // Keep default status if API call fails
+                    break
+                }
+            }
+        }
+    }
+    
+    private func sendConnectionRequest() {
+        isLoading = true
+        apiService.sendConnectionRequest(to: user.id) { result in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                switch result {
+                case .success:
+                    self.connectionStatus = .pending
+                case .failure(let error):
+                    // Handle error - could show an alert
+                    print("Connection request failed: \(error.message)")
+                }
+            }
         }
     }
 }
