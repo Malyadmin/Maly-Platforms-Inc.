@@ -5,14 +5,12 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            Group {
-                if authViewModel.isAuthenticated {
-                    MainView()
-                        .environmentObject(authViewModel)
-                } else {
-                    AuthenticationView()
-                        .environmentObject(authViewModel)
-                }
+            if authViewModel.isAuthenticated {
+                MainView()
+                    .environmentObject(authViewModel)
+            } else {
+                AuthenticationView()
+                    .environmentObject(authViewModel)
             }
         }
         .onAppear {
