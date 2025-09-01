@@ -31,7 +31,7 @@ struct MainView: View {
                 DiscoverView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case 1: // Connect
-                ComingSoonView(tabName: "Connect")
+                ConnectView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case 2: // Create (Default)
                 createFlowView
