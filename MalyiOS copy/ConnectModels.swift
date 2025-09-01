@@ -4,15 +4,15 @@ import Foundation
 struct ConnectUser: Codable, Identifiable {
     let id: Int
     let username: String
-    let email: String
+    let email: String?
     let fullName: String
-    let location: String
+    let location: String?
     let profileImage: String?
-    let profileImages: [String]
+    let profileImages: [String]?
     let birthLocation: String?
     let nextLocation: String?
-    let interests: [String]
-    let currentMoods: [String]
+    let interests: [String]?
+    let currentMoods: [String]?
     let profession: String?
     let age: Int?
     let gender: String?
@@ -22,30 +22,13 @@ struct ConnectUser: Codable, Identifiable {
     let businessName: String?
     let businessDescription: String?
     let websiteUrl: String?
-    let createdAt: Date
-    let lastActive: Date?
+    let createdAt: String // Use String to match API format
+    let lastActive: String?
     let isPremium: Bool
     let preferredLanguage: String
     let referralCode: String?
     
-    enum CodingKeys: String, CodingKey {
-        case id, username, email, location, interests, profession, age, gender, bio, createdAt
-        case fullName = "full_name"
-        case profileImage = "profile_image"
-        case profileImages = "profile_images"
-        case birthLocation = "birth_location"
-        case nextLocation = "next_location"
-        case currentMoods = "current_moods"
-        case sexualOrientation = "sexual_orientation"
-        case profileType = "profile_type"
-        case businessName = "business_name"
-        case businessDescription = "business_description"
-        case websiteUrl = "website_url"
-        case lastActive = "last_active"
-        case isPremium = "is_premium"
-        case preferredLanguage = "preferred_language"
-        case referralCode = "referral_code"
-    }
+    // No need for CodingKeys since API uses camelCase which matches Swift property names
 }
 
 // MARK: - Connection Status
