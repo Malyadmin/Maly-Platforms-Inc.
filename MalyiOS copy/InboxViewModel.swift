@@ -186,7 +186,7 @@ class InboxViewModel: ObservableObject {
     func testAuthentication() {
         print("🔐 Testing authentication state:")
         print("Token Manager authenticated: \(tokenManager.isAuthenticated)")
-        print("Current token exists: \(tokenManager.currentToken != nil)")
+        print("Current token exists: \(tokenManager.getToken() != nil)")
         
         if tokenManager.isAuthenticated {
             print("✅ Authentication successful, testing API call...")
