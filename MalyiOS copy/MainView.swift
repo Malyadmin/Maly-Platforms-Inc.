@@ -38,6 +38,7 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case 3: // Inbox
                 InboxView()
+                    .environmentObject(authViewModel)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case 4: // Profile
                 ProfileTabView(authViewModel: authViewModel)

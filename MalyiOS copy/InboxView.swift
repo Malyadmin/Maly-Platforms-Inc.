@@ -3,6 +3,7 @@ import SwiftUI
 struct InboxView: View {
     @StateObject private var inboxViewModel = InboxViewModel()
     @StateObject private var messagingViewModel = MessagingViewModel()
+    @EnvironmentObject var authViewModel: AuthenticationViewModel
     @State private var selectedUser: ConnectUser?
     @State private var showingUserProfile = false
     @State private var showingConnectionsList = false
@@ -16,20 +17,24 @@ struct InboxView: View {
                 headerSection
                 
                 // Main content
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        // Connection Requests Section
-                        connectionRequestsSection
-                        
-                        // My Connections Section
-                        myConnectionsSection
-                        
-                        // Messages & Groups Section
-                        messagesSection
+                if inboxViewModel.showingAuthenticationRequired || !authViewModel.isAuthenticated {
+                    authenticationRequiredView
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            // Connection Requests Section
+                            connectionRequestsSection
+                            
+                            // My Connections Section
+                            myConnectionsSection
+                            
+                            // Messages & Groups Section
+                            messagesSection
+                        }
                     }
-                }
-                .refreshable {
-                    await refreshInboxData()
+                    .refreshable {
+                        await refreshInboxData()
+                    }
                 }
             }
             .background(Color.black)
@@ -51,8 +56,75 @@ struct InboxView: View {
             }
         }
         .onAppear {
-            loadInboxData()
+            print("📱 InboxView appeared - Auth status: \(authViewModel.isAuthenticated)")
+            print("📱 TokenManager status: \(TokenManager.shared.isAuthenticated)")
+            
+            if authViewModel.isAuthenticated {
+                loadInboxData()
+            } else {
+                inboxViewModel.testAuthentication()
+            }
         }
+        .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
+            print("📱 Auth state changed to: \(isAuthenticated)")
+            if isAuthenticated {
+                loadInboxData()
+            }
+        }
+    }
+    
+    // MARK: - Authentication Required View
+    private var authenticationRequiredView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            Image(systemName: "person.badge.key")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+            
+            Text("Authentication Required")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text("Please log in to view your inbox and manage connections")
+                .font(.body)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button(action: {
+                inboxViewModel.testAuthentication()
+            }) {
+                Text("Test Authentication")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+            }
+            .padding(.bottom, 8)
+            
+            Button(action: {
+                // Navigate back to login/authentication view
+                // This would typically be handled by the app's navigation system
+            }) {
+                Text("Go to Login")
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .background(Color.white)
+                    .cornerRadius(8)
+            }
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     // MARK: - Header Section

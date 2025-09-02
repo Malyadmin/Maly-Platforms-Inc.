@@ -10,6 +10,25 @@ class AuthenticationViewModel: ObservableObject {
     @Published var sessionId: String?
     
     private let apiService = APIService.shared
+    private let tokenManager = TokenManager.shared
+    
+    init() {
+        // Sync authentication state with TokenManager
+        isAuthenticated = tokenManager.isAuthenticated
+        
+        // Listen for TokenManager changes
+        Task {
+            for await _ in NotificationCenter.default.notifications(named: .tokenManagerStateChanged) {
+                await MainActor.run {
+                    self.isAuthenticated = self.tokenManager.isAuthenticated
+                    if !self.tokenManager.isAuthenticated {
+                        self.currentUser = nil
+                        self.sessionId = nil
+                    }
+                }
+            }
+        }
+    }
     
     func checkAuthenticationStatus() {
         Task {
@@ -44,7 +63,14 @@ class AuthenticationViewModel: ObservableObject {
                 let response = try await apiService.login(request: request)
                 isAuthenticated = response.authenticated
                 currentUser = response.user
-                sessionId = response.sessionId // Store the session ID
+                sessionId = response.sessionId
+                
+                // Store JWT token if provided in response
+                if let token = response.token, let user = response.user {
+                    tokenManager.login(token: token, userId: user.id)
+                    print("✅ JWT token stored for user: \(user.username)")
+                }
+                
             } catch let error as APIError {
                 errorMessage = error.message
             } catch {
@@ -89,6 +115,13 @@ class AuthenticationViewModel: ObservableObject {
                 let response = try await apiService.register(request: request)
                 isAuthenticated = response.authenticated
                 currentUser = response.user
+                
+                // Store JWT token if provided in response
+                if let token = response.token, let user = response.user {
+                    tokenManager.login(token: token, userId: user.id)
+                    print("✅ JWT token stored for new user: \(user.username)")
+                }
+                
             } catch let error as APIError {
                 errorMessage = error.message
             } catch {
@@ -106,11 +139,18 @@ class AuthenticationViewModel: ObservableObject {
                 try await apiService.logout()
                 isAuthenticated = false
                 currentUser = nil
+                sessionId = nil
+                
+                // Clear stored tokens
+                tokenManager.logout()
+                print("🔓 User logged out successfully")
             } catch {
                 print("Logout error: \(error)")
                 // Even if logout fails, clear local state
                 isAuthenticated = false
                 currentUser = nil
+                sessionId = nil
+                tokenManager.logout()
             }
         }
     }
@@ -118,4 +158,9 @@ class AuthenticationViewModel: ObservableObject {
     func clearError() {
         errorMessage = nil
     }
+}
+
+// MARK: - Notification Extension
+extension Notification.Name {
+    static let tokenManagerStateChanged = Notification.Name("tokenManagerStateChanged")
 }
