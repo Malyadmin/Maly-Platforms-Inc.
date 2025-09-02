@@ -44,8 +44,10 @@ struct InboxView: View {
         }
         .sheet(isPresented: $showingChat) {
             if let conversationId = selectedConversationId {
-                ChatView(conversationId: conversationId)
-                    .environmentObject(messagingViewModel)
+                NavigationView {
+                    ChatView(conversationId: conversationId)
+                        .environmentObject(messagingViewModel)
+                }
             }
         }
         .onAppear {
