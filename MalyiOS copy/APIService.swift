@@ -323,22 +323,6 @@ class APIService: ObservableObject {
                         DispatchQueue.main.async {
                             completion(.success(()))
                         }
-                    } else if httpResponse.statusCode == 400 {
-                        // Check if this is a "connection already exists" case
-                        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                           let error = json["error"] as? String,
-                           let status = json["status"] as? String,
-                           error.contains("Connection request already exists") && status == "pending" {
-                            // Treat existing pending connection as success
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        } else {
-                            let errorMessage = String(data: data, encoding: .utf8) ?? "Connection request failed"
-                            DispatchQueue.main.async {
-                                completion(.failure(APIError(message: errorMessage)))
-                            }
-                        }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Connection request failed"
                         DispatchQueue.main.async {
