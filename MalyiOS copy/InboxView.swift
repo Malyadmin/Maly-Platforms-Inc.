@@ -363,22 +363,20 @@ struct InboxView: View {
         }) {
             HStack(spacing: 12) {
                 // Conversation icon based on type
-                Group {
-                    if conversation.type == .group || conversation.type == .event {
-                        Image(systemName: "person.3.fill")
-                            .foregroundColor(.blue)
-                            .font(.title2)
-                            .frame(width: 50, height: 50)
-                            .background(Color.gray.opacity(0.3))
-                            .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.fill")
-                            .foregroundColor(.white)
-                            .font(.title2)
-                            .frame(width: 50, height: 50)
-                            .background(Color.gray.opacity(0.3))
-                            .clipShape(Circle())
-                    }
+                if conversation.type == .group || conversation.type == .event {
+                    Image(systemName: "person.3.fill")
+                        .foregroundColor(.blue)
+                        .font(.title2)
+                        .frame(width: 50, height: 50)
+                        .background(Color.gray.opacity(0.3))
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                        .frame(width: 50, height: 50)
+                        .background(Color.gray.opacity(0.3))
+                        .clipShape(Circle())
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
