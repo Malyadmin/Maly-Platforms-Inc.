@@ -306,12 +306,12 @@ class APIService: ObservableObject {
     }
     
     func sendConnectionRequest(to userId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections/follow")!
+        let url = URL(string: "\(baseURL)/connections/request")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let requestBody = ["userId": userId]
+        let requestBody = ["targetUserId": userId]
         
         Task {
             do {
@@ -319,7 +319,7 @@ class APIService: ObservableObject {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
+                    if httpResponse.statusCode == 201 {
                         DispatchQueue.main.async {
                             completion(.success(()))
                         }
@@ -349,9 +349,31 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let statusResponse = try JSONDecoder().decode(ConnectionStatusResponse.self, from: data)
-                        DispatchQueue.main.async {
-                            completion(.success(statusResponse.status))
+                        // Backend returns: { "outgoing": {...}, "incoming": {...} }
+                        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                        
+                        // Check outgoing connection status (current user -> target user)
+                        if let outgoing = json?["outgoing"] as? [String: Any],
+                           let status = outgoing["status"] as? String {
+                            let connectionStatus: ConnectionStatus
+                            switch status {
+                            case "pending":
+                                connectionStatus = .pending
+                            case "accepted":
+                                connectionStatus = .connected
+                            case "declined":
+                                connectionStatus = .blocked
+                            default:
+                                connectionStatus = .notConnected
+                            }
+                            DispatchQueue.main.async {
+                                completion(.success(connectionStatus))
+                            }
+                        } else {
+                            // No outgoing connection found
+                            DispatchQueue.main.async {
+                                completion(.success(.notConnected))
+                            }
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connection status"
