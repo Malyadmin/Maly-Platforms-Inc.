@@ -30,12 +30,68 @@ class APIService: ObservableObject {
     private let baseURL = "https://maly-platforms-inc-hudekholdingsll.replit.app/api"
     
     private var session: URLSession
+    private let tokenManager = TokenManager.shared
     
     private init() {
         let config = URLSessionConfiguration.default
         config.httpCookieStorage = HTTPCookieStorage.shared
         config.httpCookieAcceptPolicy = .always
+        config.timeoutIntervalForRequest = 30.0
+        config.timeoutIntervalForResource = 60.0
         self.session = URLSession(configuration: config)
+        
+        print("🌐 APIService initialized with baseURL: \(baseURL)")
+    }
+    
+    // MARK: - Authentication Helper Methods
+    
+    private func createAuthenticatedRequest(url: URL, method: String = "GET") -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add authentication header if token exists
+        if let token = tokenManager.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("🔐 Added Authorization header for \(method) \(url.path)")
+        } else {
+            print("⚠️ No authentication token available for \(method) \(url.path)")
+        }
+        
+        return request
+    }
+    
+    private func logRequest(_ request: URLRequest) {
+        print("📤 \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")")
+        if let headers = request.allHTTPHeaderFields {
+            for (key, value) in headers {
+                if key.lowercased() == "authorization" {
+                    print("   \(key): Bearer ***")
+                } else {
+                    print("   \(key): \(value)")
+                }
+            }
+        }
+        if let body = request.httpBody,
+           let bodyString = String(data: body, encoding: .utf8) {
+            print("   Body: \(bodyString)")
+        }
+    }
+    
+    private func logResponse(_ response: HTTPURLResponse, data: Data) {
+        print("📥 Response: \(response.statusCode) for \(response.url?.path ?? "unknown")")
+        if let responseString = String(data: data, encoding: .utf8) {
+            if responseString.count > 200 {
+                print("   Data: \(responseString.prefix(200))...")
+            } else {
+                print("   Data: \(responseString)")
+            }
+        }
+    }
+    
+    private func handleAuthenticationError() {
+        print("🚨 Authentication error - clearing stored token")
+        tokenManager.clearToken()
     }
     
     // MARK: - Authentication Methods
@@ -630,20 +686,28 @@ class APIService: ObservableObject {
     
     func getPendingConnectionRequests(completion: @escaping (Result<[ConnectionRequest], APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/connections/pending")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        let urlRequest = createAuthenticatedRequest(url: url, method: "GET")
+        
+        logRequest(urlRequest)
         
         Task {
             do {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
+                    logResponse(httpResponse, data: data)
+                    
                     if httpResponse.statusCode == 200 {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
                         let requests = try decoder.decode([ConnectionRequest].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(requests))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication required. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get pending requests"
@@ -662,20 +726,28 @@ class APIService: ObservableObject {
     
     func getConnections(completion: @escaping (Result<[UserConnection], APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/connections")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        let urlRequest = createAuthenticatedRequest(url: url, method: "GET")
+        
+        logRequest(urlRequest)
         
         Task {
             do {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
+                    logResponse(httpResponse, data: data)
+                    
                     if httpResponse.statusCode == 200 {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
                         let connections = try decoder.decode([UserConnection].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(connections))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication required. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connections"
@@ -694,21 +766,29 @@ class APIService: ObservableObject {
     
     func updateConnectionRequest(userId: Int, status: String, completion: @escaping (Result<Void, APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/connections/\(userId)")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "PUT"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var urlRequest = createAuthenticatedRequest(url: url, method: "PUT")
         
         let requestBody = ["status": status]
         
         Task {
             do {
                 urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                
+                logRequest(urlRequest)
+                
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
+                    logResponse(httpResponse, data: data)
+                    
                     if httpResponse.statusCode == 200 {
                         DispatchQueue.main.async {
                             completion(.success(()))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication required. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to update connection request"

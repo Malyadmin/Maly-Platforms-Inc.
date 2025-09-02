@@ -59,6 +59,7 @@ struct AuthResponse: Codable {
     let user: User?
     let authenticated: Bool
     let sessionId: String?
+    let token: String?
 }
 
 // MARK: - API Error Response
