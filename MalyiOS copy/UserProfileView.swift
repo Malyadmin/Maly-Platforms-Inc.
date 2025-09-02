@@ -44,6 +44,9 @@ struct UserProfileView: View {
             }
             .background(Color.black)
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                loadConnectionStatus()
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Back") {
