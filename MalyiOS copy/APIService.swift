@@ -625,4 +625,103 @@ class APIService: ObservableObject {
             throw APIError(message: "Network error: \(error.localizedDescription)")
         }
     }
+    
+    // MARK: - Connection Management Methods
+    
+    func getPendingConnectionRequests(completion: @escaping (Result<[ConnectionRequest], APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/connections/pending")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let requests = try decoder.decode([ConnectionRequest].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(requests))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get pending requests"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func getConnections(completion: @escaping (Result<[UserConnection], APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/connections")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        Task {
+            do {
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let connections = try decoder.decode([UserConnection].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(connections))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connections"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
+    func updateConnectionRequest(userId: Int, status: String, completion: @escaping (Result<Void, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/connections/\(userId)")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PUT"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody = ["status": status]
+        
+        Task {
+            do {
+                urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        DispatchQueue.main.async {
+                            completion(.success(()))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to update connection request"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
 }

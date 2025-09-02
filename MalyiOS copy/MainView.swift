@@ -36,8 +36,8 @@ struct MainView: View {
             case 2: // Create (Default)
                 createFlowView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case 3: // Events
-                ComingSoonView(tabName: "Events")
+            case 3: // Inbox
+                InboxView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case 4: // Profile
                 ProfileTabView(authViewModel: authViewModel)

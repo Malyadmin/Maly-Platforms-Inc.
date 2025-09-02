@@ -14,7 +14,7 @@ struct NavigationBarView: View {
             TabButton(imageName: "plus", title: "create", isSelected: selectedTab == 2, isCentral: true) {
                 selectedTab = 2
             }
-            TabButton(imageName: "star", title: "events", isSelected: selectedTab == 3) {
+            TabButton(imageName: "tray", title: "inbox", isSelected: selectedTab == 3) {
                 selectedTab = 3
             }
             TabButton(imageName: "person.crop.circle", title: "profile", isSelected: selectedTab == 4) {
