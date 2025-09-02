@@ -4,7 +4,7 @@ import Security
 class TokenManager: ObservableObject {
     static let shared = TokenManager()
     
-    private let service = "com.maly.app"
+    private let service = "https://maly-platforms-inc-hudekholdingsll.replit.app"
     private let tokenKey = "jwt_token"
     private let userIdKey = "user_id"
     
