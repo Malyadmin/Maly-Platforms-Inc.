@@ -16,6 +16,30 @@ struct ConnectionRequest: Codable, Identifiable {
         case profileImage = "profileImage"
         case requestDate = "requestDate"
     }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        username = try container.decode(String.self, forKey: .username)
+        fullName = try container.decodeIfPresent(String.self, forKey: .fullName)
+        profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
+        status = try container.decode(String.self, forKey: .status)
+        
+        // Handle date parsing with fallback
+        if let dateString = try container.decodeIfPresent(String.self, forKey: .requestDate) {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            requestDate = formatter.date(from: dateString)
+            
+            if requestDate == nil {
+                // Fallback to basic ISO8601 format
+                formatter.formatOptions = [.withInternetDateTime]
+                requestDate = formatter.date(from: dateString)
+            }
+        } else {
+            requestDate = nil
+        }
+    }
 }
 
 // MARK: - User Connection Model
@@ -33,6 +57,30 @@ struct UserConnection: Codable, Identifiable {
         case profileImage = "profileImage"
         case connectionDate = "connectionDate"
         case connectionType = "connectionType"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        username = try container.decode(String.self, forKey: .username)
+        fullName = try container.decodeIfPresent(String.self, forKey: .fullName)
+        profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
+        connectionType = try container.decode(String.self, forKey: .connectionType)
+        
+        // Handle date parsing with fallback
+        if let dateString = try container.decodeIfPresent(String.self, forKey: .connectionDate) {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            connectionDate = formatter.date(from: dateString)
+            
+            if connectionDate == nil {
+                // Fallback to basic ISO8601 format
+                formatter.formatOptions = [.withInternetDateTime]
+                connectionDate = formatter.date(from: dateString)
+            }
+        } else {
+            connectionDate = nil
+        }
     }
 }
 
