@@ -93,19 +93,37 @@ struct InboxView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
             
-            Button(action: {
-                inboxViewModel.testAuthentication()
-            }) {
-                Text("Test Authentication")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
+            VStack(spacing: 8) {
+                Button(action: {
+                    inboxViewModel.testAuthentication()
+                }) {
+                    Text("Test Authentication")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray, lineWidth: 1)
+                        )
+                }
+                
+                Button(action: {
+                    print("📱 UI: Manual refresh triggered")
+                    loadInboxData()
+                }) {
+                    Text("Force Refresh Data")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.blue, lineWidth: 1)
+                        )
+                }
             }
             .padding(.bottom, 8)
             
@@ -175,6 +193,10 @@ struct InboxView: View {
                     .foregroundColor(.white)
             }
             .padding(.horizontal, 20)
+            .onAppear {
+                print("📱 UI: Connection Requests header - Count: \(inboxViewModel.pendingRequests.count)")
+                print("📱 UI: Current pending requests: \(inboxViewModel.pendingRequests.map { $0.username })")
+            }
             
             if inboxViewModel.pendingRequests.isEmpty {
                 Text("No pending connection requests")
@@ -182,10 +204,16 @@ struct InboxView: View {
                     .foregroundColor(.gray)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
+                    .onAppear {
+                        print("📱 UI: Showing 'No pending requests' - Array count: \(inboxViewModel.pendingRequests.count)")
+                    }
             } else {
                 // Show up to 3 connection requests
                 ForEach(inboxViewModel.pendingRequests.prefix(3), id: \.id) { request in
                     connectionRequestItem(request: request)
+                }
+                .onAppear {
+                    print("📱 UI: Showing \(inboxViewModel.pendingRequests.count) connection requests")
                 }
                 
                 if inboxViewModel.pendingRequests.count > 3 {
@@ -496,15 +524,63 @@ struct InboxView: View {
     
     // MARK: - Helper Methods
     private func loadInboxData() {
-        inboxViewModel.fetchPendingRequests { _ in }
-        inboxViewModel.fetchRecentConnections { _ in }
+        print("📱 UI: Loading inbox data...")
+        inboxViewModel.fetchPendingRequests { result in
+            switch result {
+            case .success(let requests):
+                print("📱 UI: Loaded \(requests.count) pending requests successfully")
+            case .failure(let error):
+                print("📱 UI: Failed to load pending requests: \(error.message)")
+            }
+        }
+        inboxViewModel.fetchRecentConnections { result in
+            switch result {
+            case .success(let connections):
+                print("📱 UI: Loaded \(connections.count) connections successfully")
+            case .failure(let error):
+                print("📱 UI: Failed to load connections: \(error.message)")
+            }
+        }
         messagingViewModel.fetchConversations { _ in }
     }
     
     private func refreshInboxData() async {
-        inboxViewModel.fetchPendingRequests { _ in }
-        inboxViewModel.fetchRecentConnections { _ in }
-        messagingViewModel.fetchConversations { _ in }
+        print("📱 UI: Refreshing inbox data...")
+        await withCheckedContinuation { continuation in
+            let group = DispatchGroup()
+            
+            group.enter()
+            inboxViewModel.fetchPendingRequests { result in
+                switch result {
+                case .success(let requests):
+                    print("📱 UI: Refreshed \(requests.count) pending requests")
+                case .failure(let error):
+                    print("📱 UI: Refresh failed for pending requests: \(error.message)")
+                }
+                group.leave()
+            }
+            
+            group.enter()
+            inboxViewModel.fetchRecentConnections { result in
+                switch result {
+                case .success(let connections):
+                    print("📱 UI: Refreshed \(connections.count) connections")
+                case .failure(let error):
+                    print("📱 UI: Refresh failed for connections: \(error.message)")
+                }
+                group.leave()
+            }
+            
+            group.enter()
+            messagingViewModel.fetchConversations { _ in
+                group.leave()
+            }
+            
+            group.notify(queue: .main) {
+                print("📱 UI: Refresh complete")
+                continuation.resume()
+            }
+        }
     }
 }
 
