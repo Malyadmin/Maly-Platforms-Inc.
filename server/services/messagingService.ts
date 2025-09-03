@@ -127,8 +127,59 @@ export async function getConversations(userId: number) {
       }
     });
 
-    // Skip conversations with no messages
-    if (!latestMessage) continue;
+    let conversationInfo; // Declare conversationInfo here
+
+    // For conversations with no messages, create empty conversation info
+    // This is important for newly created direct conversations to appear in the inbox
+    if (!latestMessage) {
+      if (conversation.type === 'event') {
+        conversationInfo = {
+          id: conversation.id,
+          type: 'event',
+          title: conversation.title || (conversation.event?.title ? `${conversation.event.title} - Event Chat` : 'Event Chat'),
+          eventId: conversation.eventId,
+          lastMessage: null,
+          unreadCount: 0,
+          participantCount: await getConversationParticipantCount(conversation.id),
+          createdAt: conversation.createdAt
+        };
+      } else {
+        // For direct conversations, we need to find the other participant
+        const otherParticipants = await db.query.conversationParticipants.findMany({
+          where: and(
+            eq(conversationParticipants.conversationId, conversation.id),
+            ne(conversationParticipants.userId, userId)
+          ),
+          with: {
+            user: {
+              columns: {
+                id: true,
+                fullName: true,
+                username: true,
+                profileImage: true
+              }
+            }
+          }
+        });
+
+        const otherUser = otherParticipants[0]?.user;
+        if (!otherUser) continue;
+
+        conversationInfo = {
+          id: conversation.id,
+          type: 'direct',
+          title: otherUser.fullName || otherUser.username,
+          lastMessage: null,
+          unreadCount: 0,
+          eventId: conversation.eventId,
+          participantCount: 2,
+          createdAt: conversation.createdAt
+        };
+      }
+      
+      conversationResults.push(conversationInfo);
+      continue;
+    }
 
     // Calculate unread count
     const unreadMessages = await db.query.messages.findMany({
@@ -139,8 +190,6 @@ export async function getConversations(userId: number) {
       )
     });
 
-    let conversationInfo;
-
     if (conversation.type === 'event') {
       // For event conversations, use event title and show it's a group chat
       conversationInfo = {
@@ -150,7 +199,8 @@ export async function getConversations(userId: number) {
         eventId: conversation.eventId,
         lastMessage: latestMessage,
         unreadCount: unreadMessages.length,
-        participantCount: await getConversationParticipantCount(conversation.id)
+        participantCount: await getConversationParticipantCount(conversation.id),
+        createdAt: conversation.createdAt
       };
     } else {
       // For direct conversations, we need to find the other participant
@@ -171,31 +221,29 @@ export async function getConversations(userId: number) {
         }
       });
 
-      // For direct chats, use the other user's info
+      // For direct chats, use the other user's info as title
       const otherUser = otherParticipants[0]?.user;
       if (!otherUser) continue;
 
       conversationInfo = {
         id: conversation.id,
         type: 'direct',
-        user: {
-          id: otherUser.id,
-          name: otherUser.fullName,
-          username: otherUser.username,
-          image: otherUser.profileImage
-        },
+        title: otherUser.fullName || otherUser.username,
         lastMessage: latestMessage,
-        unreadCount: unreadMessages.length
+        unreadCount: unreadMessages.length,
+        eventId: conversation.eventId,
+        participantCount: 2,
+        createdAt: conversation.createdAt
       };
     }
 
     conversationResults.push(conversationInfo);
   }
 
-  // Sort by last message date (newest first)
+  // Sort by last message date (newest first), handle null lastMessage
   return conversationResults.sort((a, b) => {
-    const dateA = a.lastMessage.createdAt ? new Date(a.lastMessage.createdAt) : new Date();
-    const dateB = b.lastMessage.createdAt ? new Date(b.lastMessage.createdAt) : new Date();
+    const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt) : new Date(0);
+    const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt) : new Date(0);
     return dateB.getTime() - dateA.getTime();
   });
 }
@@ -326,7 +374,14 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   });
 
   if (existingConversation) {
-    return existingConversation;
+    // Return in consistent format
+    return {
+      ...existingConversation,
+      title: existingConversation.title || "Event Chat",
+      lastMessage: null,
+      unreadCount: 0,
+      participantCount: await getConversationParticipantCount(existingConversation.id)
+    } as any;
   }
 
   // Get event details for the conversation title
@@ -364,7 +419,13 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   await db.insert(conversationParticipants)
     .values(hostParticipant);
 
-  return createdConversation;
+  // Return in consistent format
+  return {
+    ...createdConversation,
+    lastMessage: null,
+    unreadCount: 0,
+    participantCount: 1 // Only host initially
+  } as any;
 }
 
 // Add a user to an event group chat
