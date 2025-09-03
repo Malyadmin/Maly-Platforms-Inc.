@@ -101,6 +101,7 @@ class InboxViewModel: ObservableObject {
                 
                 switch result {
                 case .success(let requests):
+                    print("📥 Successfully fetched \(requests.count) pending requests")
                     self?.pendingRequests = requests
                     completion(.success(requests))
                     
@@ -166,6 +167,7 @@ class InboxViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let connections):
+                    print("📥 Successfully fetched \(connections.count) connections")
                     self?.recentConnections = connections
                     self?.connectionsCount = connections.count
                     completion(.success(connections))
