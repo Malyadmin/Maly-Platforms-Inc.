@@ -8,7 +8,7 @@ import { translateMessage } from './services/translationService';
 import { getEventImage } from './services/eventsService';
 import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
-import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages } from './services/messagingService';
+import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation } from './services/messagingService';
 import { db } from "../db";
 import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
@@ -2025,6 +2025,33 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       res.status(500).json({ error: 'Failed to get conversation messages' });
+    }
+  });
+
+  // Create or find a direct conversation between two users
+  app.post('/api/conversations', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { otherUserId } = req.body;
+      const currentUserId = (req.user as any).id;
+      
+      if (!otherUserId) {
+        return res.status(400).json({ error: 'Other user ID is required' });
+      }
+      
+      if (otherUserId === currentUserId) {
+        return res.status(400).json({ error: 'Cannot create conversation with yourself' });
+      }
+      
+      console.log(`Creating/finding direct conversation between users ${currentUserId} and ${otherUserId}`);
+      
+      const conversation = await getOrCreateDirectConversation(currentUserId, otherUserId);
+      
+      console.log(`Successfully created/found conversation ${conversation.id} between users ${currentUserId} and ${otherUserId}`);
+      
+      res.json(conversation);
+    } catch (error) {
+      console.error('Error creating/finding conversation:', error);
+      res.status(500).json({ error: 'Failed to create/find conversation' });
     }
   });
 
