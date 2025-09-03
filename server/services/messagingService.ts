@@ -486,7 +486,14 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     const hasUser2 = participantIds.includes(userId2);
     
     if (hasUser1 && hasUser2 && participantIds.length === 2) {
-      return existingConversation;
+      // Format the existing conversation properly
+      return {
+        ...existingConversation,
+        title: existingConversation.title || "Direct Message",
+        lastMessage: null, // This could be enhanced to fetch the actual last message
+        unreadCount: 0, // This could be enhanced to calculate actual unread count
+        participantCount: 2
+      } as any;
     }
   }
 
@@ -507,7 +514,14 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     if (participantIds.length === 2 && 
         participantIds.includes(userId1) && 
         participantIds.includes(userId2)) {
-      return conversation;
+      // Format the found conversation properly
+      return {
+        ...conversation,
+        title: conversation.title || "Direct Message",
+        lastMessage: null, // This could be enhanced to fetch the actual last message
+        unreadCount: 0, // This could be enhanced to calculate actual unread count
+        participantCount: 2
+      } as any;
     }
   }
 
@@ -541,9 +555,12 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
   await db.insert(conversationParticipants)
     .values(participants);
 
-  // Return the conversation with participants
+  // Return the conversation in the format expected by iOS
   return {
     ...createdConversation,
-    participants: participants.map(p => ({ userId: p.userId, joinedAt: p.joinedAt }))
+    title: createdConversation.title || "Direct Message", // Provide default title for direct messages
+    lastMessage: null, // New conversations don't have messages yet
+    unreadCount: 0, // New conversations start with 0 unread
+    participantCount: 2 // Direct conversations always have 2 participants
   } as any;
 }
