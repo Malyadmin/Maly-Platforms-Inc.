@@ -4,6 +4,7 @@ struct MainView: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
     @State private var selectedTab = 2 // Default to Create tab
     @StateObject private var eventStore = EventCreationStore()
+    @StateObject private var inboxViewModel = InboxViewModel() // For preloading connections
     
     // State to control which screen is currently visible in create flow
     @State private var currentScreenIndex: Int = 0
@@ -54,6 +55,43 @@ struct MainView: View {
                 .background(Color.black)
         }
         .statusBar(hidden: false)
+        .onAppear {
+            // Preload connections when app opens for better UX
+            preloadConnections()
+        }
+        .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
+            if isAuthenticated {
+                // Preload connections when user authenticates
+                preloadConnections()
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func preloadConnections() {
+        guard authViewModel.isAuthenticated else { return }
+        
+        print("🔄 Preloading connections for better UX...")
+        
+        // Preload recent connections
+        inboxViewModel.fetchRecentConnections { result in
+            switch result {
+            case .success(let connections):
+                print("✅ Successfully preloaded \(connections.count) connections")
+            case .failure(let error):
+                print("❌ Failed to preload connections: \(error.message)")
+            }
+        }
+        
+        // Also preload connection requests
+        inboxViewModel.fetchConnectionRequests { result in
+            switch result {
+            case .success(let requests):
+                print("✅ Successfully preloaded \(requests.count) connection requests")
+            case .failure(let error):
+                print("❌ Failed to preload connection requests: \(error.message)")
+            }
+        }
     }
     
     // Create flow view that mimics CreateEventFlow structure
