@@ -449,7 +449,13 @@ class APIService: ObservableObject {
     // MARK: - Messaging Methods
     
     func fetchConversations(completion: @escaping (Result<[Conversation], APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/conversations")!
+        // Get current user ID from TokenManager
+        guard let userId = TokenManager.shared.getUserId() else {
+            completion(.failure(APIError(message: "User not authenticated")))
+            return
+        }
+        
+        let url = URL(string: "\(baseURL)/conversations/\(userId)")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
