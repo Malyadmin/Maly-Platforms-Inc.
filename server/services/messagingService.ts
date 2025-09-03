@@ -15,6 +15,24 @@ import {
 } from "../../db/schema";
 import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
 
+// Extended conversation type that includes additional fields for the API response
+interface ExtendedConversation extends Conversation {
+  lastMessage?: {
+    id: number;
+    content: string;
+    createdAt: Date;
+    senderId: number;
+    sender?: {
+      id: number;
+      username?: string;
+      fullName?: string;
+      profileImage?: string;
+    };
+  } | null;
+  unreadCount: number;
+  participantCount?: number;
+}
+
 // Send a message (only between connected users)
 export async function sendMessage({ senderId, receiverId, content }: {
   senderId: number;
@@ -528,7 +546,7 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
 }
 
 // Create or find a direct conversation between two users
-export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<Conversation> {
+export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<ExtendedConversation> {
   // First check if a direct conversation already exists between these users
   const existingConversation = await db.query.conversations.findFirst({
     where: and(
@@ -554,7 +572,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         lastMessage: null, // This could be enhanced to fetch the actual last message
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         participantCount: 2
-      } as any;
+      };
     }
   }
 
@@ -582,7 +600,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         lastMessage: null, // This could be enhanced to fetch the actual last message
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         participantCount: 2
-      } as any;
+      };
     }
   }
 
@@ -623,5 +641,5 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     lastMessage: null, // New conversations don't have messages yet
     unreadCount: 0, // New conversations start with 0 unread
     participantCount: 2 // Direct conversations always have 2 participants
-  } as any;
+  };
 }
