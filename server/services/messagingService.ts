@@ -13,7 +13,7 @@ import {
   ConversationParticipant,
   NewConversationParticipant
 } from "../../db/schema";
-import { eq, and, or, desc, asc, ne } from "drizzle-orm";
+import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
 
 // Send a message (only between connected users)
 export async function sendMessage({ senderId, receiverId, content }: {
@@ -464,4 +464,86 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
   }
 
   return result;
+}
+
+// Create or find a direct conversation between two users
+export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<Conversation> {
+  // First check if a direct conversation already exists between these users
+  const existingConversation = await db.query.conversations.findFirst({
+    where: and(
+      eq(conversations.type, "direct"),
+      isNull(conversations.eventId)
+    ),
+    with: {
+      participants: true
+    }
+  });
+
+  if (existingConversation) {
+    // Check if both users are participants in this conversation
+    const participantIds = existingConversation.participants.map(p => p.userId);
+    const hasUser1 = participantIds.includes(userId1);
+    const hasUser2 = participantIds.includes(userId2);
+    
+    if (hasUser1 && hasUser2 && participantIds.length === 2) {
+      return existingConversation;
+    }
+  }
+
+  // If no existing conversation found, search through all direct conversations 
+  // to find one with exactly these two participants
+  const allDirectConversations = await db.query.conversations.findMany({
+    where: and(
+      eq(conversations.type, "direct"),
+      isNull(conversations.eventId)
+    ),
+    with: {
+      participants: true
+    }
+  });
+
+  for (const conversation of allDirectConversations) {
+    const participantIds = conversation.participants.map(p => p.userId);
+    if (participantIds.length === 2 && 
+        participantIds.includes(userId1) && 
+        participantIds.includes(userId2)) {
+      return conversation;
+    }
+  }
+
+  // No existing conversation found, create a new one
+  const newConversation: NewConversation = {
+    title: null, // Direct conversations don't need titles
+    type: "direct",
+    eventId: null,
+    createdBy: userId1,
+    createdAt: new Date()
+  };
+
+  const [createdConversation] = await db.insert(conversations)
+    .values(newConversation)
+    .returning();
+
+  // Add both users as participants
+  const participants: NewConversationParticipant[] = [
+    {
+      conversationId: createdConversation.id,
+      userId: userId1,
+      joinedAt: new Date()
+    },
+    {
+      conversationId: createdConversation.id,
+      userId: userId2,
+      joinedAt: new Date()
+    }
+  ];
+
+  await db.insert(conversationParticipants)
+    .values(participants);
+
+  // Return the conversation with participants
+  return {
+    ...createdConversation,
+    participants: participants.map(p => ({ userId: p.userId, joinedAt: p.joinedAt }))
+  } as any;
 }

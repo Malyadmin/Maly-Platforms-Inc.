@@ -6,6 +6,9 @@ struct UserProfileView: View {
     @State private var connectionStatus: ConnectionStatus = .notConnected
     @State private var isLoading = false
     @State private var hasInitializedConnection = false
+    @State private var isLoadingMessage = false
+    @State private var showChat = false
+    @State private var selectedConversation: Conversation?
     private let apiService = APIService.shared
     
     var body: some View {
@@ -61,6 +64,11 @@ struct UserProfileView: View {
                     }
                     .foregroundColor(.white)
                 }
+            }
+        }
+        .sheet(isPresented: $showChat) {
+            if let conversation = selectedConversation {
+                ChatView(conversation: conversation)
             }
         }
     }
@@ -167,10 +175,16 @@ struct UserProfileView: View {
             .disabled(isLoading)
             
             Button(action: {
-                // TODO: Implement message action
+                startConversation()
             }) {
                 HStack {
-                    Image(systemName: "message")
+                    if isLoadingMessage {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.8)
+                    } else {
+                        Image(systemName: "message")
+                    }
                     Text("Message")
                         .fontWeight(.semibold)
                 }
@@ -180,6 +194,7 @@ struct UserProfileView: View {
                 .background(Color.blue)
                 .cornerRadius(25)
             }
+            .disabled(isLoadingMessage)
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
@@ -363,6 +378,23 @@ struct UserProfileView: View {
                 case .failure(let error):
                     // Handle error - could show an alert
                     print("Connection request failed: \(error.message)")
+                }
+            }
+        }
+    }
+    
+    private func startConversation() {
+        isLoadingMessage = true
+        apiService.createOrFindDirectConversation(with: user.id) { result in
+            DispatchQueue.main.async {
+                self.isLoadingMessage = false
+                switch result {
+                case .success(let conversation):
+                    self.selectedConversation = conversation
+                    self.showChat = true
+                case .failure(let error):
+                    print("Failed to create/find conversation: \(error.message)")
+                    // Could show an alert here in the future
                 }
             }
         }

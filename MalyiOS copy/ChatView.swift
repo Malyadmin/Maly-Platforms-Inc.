@@ -1,12 +1,36 @@
 import SwiftUI
 
 struct ChatView: View {
-    let conversationId: Int
-    @EnvironmentObject var messagingViewModel: MessagingViewModel
+    let conversationId: Int?
+    let conversation: Conversation?
+    @StateObject private var messagingViewModel = MessagingViewModel()
+    
+    // Primary initializer with conversationId (for existing functionality)
+    init(conversationId: Int) {
+        self.conversationId = conversationId
+        self.conversation = nil
+    }
+    
+    // Secondary initializer with conversation object (for new direct messaging)
+    init(conversation: Conversation) {
+        self.conversationId = conversation.id
+        self.conversation = conversation
+    }
     @State private var messageInput = ""
     @State private var showingImagePicker = false
     @State private var showingGroupInfo = false
     @Environment(\.dismiss) private var dismiss
+    
+    private var chatTitle: String {
+        if let conversation = conversation {
+            if conversation.type == .direct {
+                return conversation.title ?? "Direct Message"
+            } else {
+                return conversation.title ?? "Chat"
+            }
+        }
+        return messagingViewModel.currentConversation?.title ?? "Chat"
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -16,7 +40,7 @@ struct ChatView: View {
             // Message input
             messageInputSection
         }
-        .navigationTitle(messagingViewModel.currentConversation?.title ?? "Chat")
+        .navigationTitle(chatTitle)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -111,10 +135,19 @@ struct ChatView: View {
     // MARK: - Methods
     
     private func loadMessages() {
+        guard let conversationId = conversationId else { return }
+        
+        // Set the current conversation in the messaging view model if we have it
+        if let conversation = conversation {
+            messagingViewModel.currentConversation = conversation
+        }
+        
         messagingViewModel.fetchMessages(for: conversationId) { _ in }
     }
     
     private func sendMessage() {
+        guard let conversationId = conversationId else { return }
+        
         let content = messageInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !content.isEmpty else { return }
         

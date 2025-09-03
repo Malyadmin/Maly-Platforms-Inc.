@@ -549,6 +549,42 @@ class APIService: ObservableObject {
         }
     }
     
+    func createOrFindDirectConversation(with otherUserId: Int, completion: @escaping (Result<Conversation, APIError>) -> Void) {
+        let url = URL(string: "\(baseURL)/conversations")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody = ["otherUserId": otherUserId]
+        
+        Task {
+            do {
+                urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                let (data, response) = try await session.data(for: urlRequest)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let conversation = try decoder.decode(Conversation.self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(conversation))
+                        }
+                    } else {
+                        let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to create/find conversation"
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: errorMessage)))
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
+                }
+            }
+        }
+    }
+    
     func markMessageAsRead(messageId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/messages/\(messageId)/read")!
         var urlRequest = URLRequest(url: url)
