@@ -89,15 +89,43 @@ export async function sendMessage({ senderId, receiverId, content }: {
     }
   });
 
-  // Return the message with sender info without modifying result directly
+  // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {
-    return [{
-      ...result[0],
-      sender
-    }];
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: {
+        id: sender.id,
+        fullName: sender.fullName,
+        profileImage: sender.profileImage
+      },
+      receiver: null // Will be populated if needed for direct messages
+    };
   }
 
-  return result;
+  // Fallback if no sender found
+  if (result.length > 0) {
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: null,
+      receiver: null
+    };
+  }
+
+  throw new Error("Failed to create message");
 }
 
 // Get conversations for a user (now supports both direct and group chats)
