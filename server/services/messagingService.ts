@@ -663,7 +663,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     const hasUser2 = participantIds.includes(userId2);
     
     if (hasUser1 && hasUser2 && participantIds.length === 2) {
-      // Format the existing conversation properly for iOS (explicitly exclude createdBy)
+      // Format the existing conversation properly for iOS
       return {
         id: existingConversation.id,
         type: existingConversation.type,
@@ -694,7 +694,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     if (participantIds.length === 2 && 
         participantIds.includes(userId1) && 
         participantIds.includes(userId2)) {
-      // Format the found conversation properly for iOS (explicitly exclude createdBy)
+      // Format the found conversation properly for iOS
       return {
         id: conversation.id,
         type: conversation.type,
@@ -738,8 +738,8 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
   await db.insert(conversationParticipants)
     .values(participants);
 
-  // Return the conversation in the format expected by iOS (explicitly exclude createdBy)
-  const response = {
+  // Return the conversation in the format expected by iOS
+  return {
     id: createdConversation.id,
     type: createdConversation.type,
     title: createdConversation.title || "Direct Message", // Provide default title for direct messages
@@ -749,8 +749,4 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     participant_count: 2, // Direct conversations always have 2 participants
     createdAt: createdConversation.createdAt || new Date()
   };
-  
-  // Explicitly ensure createdBy is not included
-  const { createdBy, ...cleanResponse } = response as any;
-  return cleanResponse;
 }
