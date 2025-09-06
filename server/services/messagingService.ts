@@ -580,8 +580,8 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         event_id: existingConversation.eventId,
         participant_count: 2,
-        createdAt: existingConversation.createdAt,
-        createdBy: existingConversation.createdBy
+        createdAt: existingConversation.createdAt || new Date(),
+        createdBy: existingConversation.createdBy || undefined
       };
     }
   }
@@ -612,8 +612,8 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         event_id: conversation.eventId,
         participant_count: 2,
-        createdAt: conversation.createdAt,
-        createdBy: conversation.createdBy
+        createdAt: conversation.createdAt || new Date(),
+        createdBy: conversation.createdBy || undefined
       };
     }
   }
@@ -657,7 +657,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     unreadCount: 0, // New conversations start with 0 unread
     event_id: createdConversation.eventId,
     participant_count: 2, // Direct conversations always have 2 participants
-    createdAt: createdConversation.createdAt,
-    createdBy: createdConversation.createdBy
+    createdAt: createdConversation.createdAt || new Date(),
+    createdBy: createdConversation.createdBy || undefined
   };
 }
