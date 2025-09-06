@@ -574,6 +574,11 @@ class APIService: ObservableObject {
                         DispatchQueue.main.async {
                             completion(.success(conversation))
                         }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
+                        }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to create/find conversation"
                         DispatchQueue.main.async {
