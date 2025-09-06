@@ -580,7 +580,12 @@ class APIService: ObservableObject {
                     
                     if httpResponse.statusCode == 200 {
                         let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
+                        // Use custom date formatter to handle the server's date format
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+                        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+                        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+                        
                         let conversation = try decoder.decode(Conversation.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversation))
