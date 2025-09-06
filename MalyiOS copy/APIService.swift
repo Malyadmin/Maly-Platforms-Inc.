@@ -97,7 +97,7 @@ class APIService: ObservableObject {
     // MARK: - Authentication Methods
     
     func register(request: RegistrationRequest) async throws -> AuthResponse {
-        let url = URL(string: "\(baseURL)/register")!
+        let url = URL(string: "\(baseURL)/api/register")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -141,7 +141,7 @@ class APIService: ObservableObject {
     }
     
     func login(request: LoginRequest) async throws -> AuthResponse {
-        let url = URL(string: "\(baseURL)/login")!
+        let url = URL(string: "\(baseURL)/api/login")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -196,7 +196,7 @@ class APIService: ObservableObject {
     }
     
     func logout() async throws {
-        let url = URL(string: "\(baseURL)/logout")!
+        let url = URL(string: "\(baseURL)/api/logout")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         
@@ -212,7 +212,7 @@ class APIService: ObservableObject {
     }
     
     func checkAuthStatus() async throws -> AuthResponse? {
-        let url = URL(string: "\(baseURL)/auth/check")!
+        let url = URL(string: "\(baseURL)/api/auth/check")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
@@ -252,7 +252,7 @@ class APIService: ObservableObject {
         offset: Int = 0,
         completion: @escaping (Result<BrowseUsersResponse, APIError>) -> Void
     ) {
-        var urlComponents = URLComponents(string: "\(baseURL)/users/browse")!
+        var urlComponents = URLComponents(string: "\(baseURL)/api/users/browse")!
         var queryItems: [URLQueryItem] = []
         
         if let location = location { queryItems.append(URLQueryItem(name: "location", value: location)) }
@@ -325,7 +325,7 @@ class APIService: ObservableObject {
             return
         }
         
-        var urlComponents = URLComponents(string: "\(baseURL)/users/search")!
+        var urlComponents = URLComponents(string: "\(baseURL)/api/users/search")!
         urlComponents.queryItems = [URLQueryItem(name: "q", value: query)]
         
         guard let url = urlComponents.url else {
@@ -362,7 +362,7 @@ class APIService: ObservableObject {
     }
     
     func sendConnectionRequest(to userId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections/request")!
+        let url = URL(string: "\(baseURL)/api/connections/request")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -395,7 +395,7 @@ class APIService: ObservableObject {
     }
     
     func getConnectionStatus(with userId: Int, completion: @escaping (Result<ConnectionStatus, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections/status/\(userId)")!
+        let url = URL(string: "\(baseURL)/api/connections/status/\(userId)")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
@@ -455,7 +455,7 @@ class APIService: ObservableObject {
             return
         }
         
-        let url = URL(string: "\(baseURL)/conversations/\(userId)")!
+        let url = URL(string: "\(baseURL)/api/conversations/\(userId)")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
@@ -487,7 +487,7 @@ class APIService: ObservableObject {
     }
     
     func fetchMessages(for conversationId: Int, completion: @escaping (Result<[Message], APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
+        let url = URL(string: "\(baseURL)/api/conversations/\(conversationId)/messages")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
@@ -519,7 +519,7 @@ class APIService: ObservableObject {
     }
     
     func sendMessage(to conversationId: Int, content: String, completion: @escaping (Result<Message, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
+        let url = URL(string: "\(baseURL)/api/conversations/\(conversationId)/messages")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -556,7 +556,7 @@ class APIService: ObservableObject {
     }
     
     func createOrFindDirectConversation(with otherUserId: Int, completion: @escaping (Result<Conversation, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/conversations")!
+        let url = URL(string: "\(baseURL)/api/conversations")!
         var urlRequest = createAuthenticatedRequest(url: url, method: "POST")
         
         let requestBody = ["otherUserId": otherUserId]
@@ -590,7 +590,7 @@ class APIService: ObservableObject {
     }
     
     func markMessageAsRead(messageId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/messages/\(messageId)/read")!
+        let url = URL(string: "\(baseURL)/api/messages/\(messageId)/read")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         
@@ -619,7 +619,7 @@ class APIService: ObservableObject {
     }
     
     func markAllMessagesAsRead(in conversationId: Int, completion: @escaping (Result<Void, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/conversations/\(conversationId)/read")!
+        let url = URL(string: "\(baseURL)/api/conversations/\(conversationId)/read")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         
@@ -648,7 +648,7 @@ class APIService: ObservableObject {
     }
     
     func createGroup(name: String, description: String, memberIds: [Int], completion: @escaping (Result<Group, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/groups")!
+        let url = URL(string: "\(baseURL)/api/groups")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -687,7 +687,7 @@ class APIService: ObservableObject {
     // MARK: - Events Methods
     
     func fetchEvents() async throws -> [Event] {
-        let url = URL(string: "\(baseURL)/events")!
+        let url = URL(string: "\(baseURL)/api/events")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
         
@@ -725,7 +725,7 @@ class APIService: ObservableObject {
     // MARK: - Connection Management Methods
     
     func getPendingConnectionRequests(completion: @escaping (Result<[ConnectionRequest], APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections/pending")!
+        let url = URL(string: "\(baseURL)/api/connections/pending")!
         let urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         logRequest(urlRequest)
@@ -765,7 +765,7 @@ class APIService: ObservableObject {
     }
     
     func getConnections(completion: @escaping (Result<[UserConnection], APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections")!
+        let url = URL(string: "\(baseURL)/api/connections")!
         let urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         logRequest(urlRequest)
@@ -805,7 +805,7 @@ class APIService: ObservableObject {
     }
     
     func updateConnectionRequest(userId: Int, status: String, completion: @escaping (Result<Void, APIError>) -> Void) {
-        let url = URL(string: "\(baseURL)/connections/\(userId)")!
+        let url = URL(string: "\(baseURL)/api/connections/\(userId)")!
         var urlRequest = createAuthenticatedRequest(url: url, method: "PUT")
         
         let requestBody = ["status": status]
