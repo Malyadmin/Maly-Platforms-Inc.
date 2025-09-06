@@ -1987,10 +1987,19 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.get('/api/conversations/:userId', async (req: Request, res: Response) => {
+  app.get('/api/conversations/:userId', requireAuth, async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
+      const currentUserId = (req.user as any).id;
+      
+      // Ensure user can only access their own conversations
+      if (parseInt(userId) !== currentUserId) {
+        return res.status(403).json({ error: 'Access denied - can only view your own conversations' });
+      }
+      
+      console.log(`Fetching conversations for user ${userId}`);
       const conversations = await getConversations(parseInt(userId));
+      console.log(`Successfully fetched ${conversations.length} conversations for user ${userId}`);
       res.json(conversations);
     } catch (error) {
       console.error('Error getting conversations:', error);
