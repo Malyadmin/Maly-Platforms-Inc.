@@ -16,8 +16,11 @@ import {
 import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
 
 // Extended conversation type that includes additional fields for the API response
-interface ExtendedConversation extends Conversation {
-  lastMessage?: {
+interface ExtendedConversation {
+  id: number;
+  type: string;
+  title: string; // Always non-null for iOS compatibility
+  last_message?: {
     id: number;
     content: string;
     createdAt: Date;
@@ -30,7 +33,10 @@ interface ExtendedConversation extends Conversation {
     };
   } | null;
   unreadCount: number;
-  participantCount?: number;
+  event_id?: number | null;
+  participant_count?: number;
+  createdAt: Date;
+  createdBy?: number;
 }
 
 // Send a message (only between connected users)
@@ -567,11 +573,15 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     if (hasUser1 && hasUser2 && participantIds.length === 2) {
       // Format the existing conversation properly
       return {
-        ...existingConversation,
+        id: existingConversation.id,
+        type: existingConversation.type,
         title: existingConversation.title || "Direct Message",
-        lastMessage: null, // This could be enhanced to fetch the actual last message
+        last_message: null, // This could be enhanced to fetch the actual last message
         unreadCount: 0, // This could be enhanced to calculate actual unread count
-        participantCount: 2
+        event_id: existingConversation.eventId,
+        participant_count: 2,
+        createdAt: existingConversation.createdAt,
+        createdBy: existingConversation.createdBy
       };
     }
   }
@@ -595,11 +605,15 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         participantIds.includes(userId2)) {
       // Format the found conversation properly
       return {
-        ...conversation,
+        id: conversation.id,
+        type: conversation.type,
         title: conversation.title || "Direct Message",
-        lastMessage: null, // This could be enhanced to fetch the actual last message
+        last_message: null, // This could be enhanced to fetch the actual last message
         unreadCount: 0, // This could be enhanced to calculate actual unread count
-        participantCount: 2
+        event_id: conversation.eventId,
+        participant_count: 2,
+        createdAt: conversation.createdAt,
+        createdBy: conversation.createdBy
       };
     }
   }
@@ -636,10 +650,14 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
 
   // Return the conversation in the format expected by iOS
   return {
-    ...createdConversation,
+    id: createdConversation.id,
+    type: createdConversation.type,
     title: createdConversation.title || "Direct Message", // Provide default title for direct messages
-    lastMessage: null, // New conversations don't have messages yet
+    last_message: null, // New conversations don't have messages yet
     unreadCount: 0, // New conversations start with 0 unread
-    participantCount: 2 // Direct conversations always have 2 participants
+    event_id: createdConversation.eventId,
+    participant_count: 2, // Direct conversations always have 2 participants
+    createdAt: createdConversation.createdAt,
+    createdBy: createdConversation.createdBy
   };
 }
