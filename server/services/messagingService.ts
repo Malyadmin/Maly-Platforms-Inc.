@@ -645,40 +645,9 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
 
 // Create or find a direct conversation between two users
 export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<ExtendedConversation> {
-  // First check if a direct conversation already exists between these users
-  const existingConversation = await db.query.conversations.findFirst({
-    where: and(
-      eq(conversations.type, "direct"),
-      isNull(conversations.eventId)
-    ),
-    with: {
-      participants: true
-    }
-  });
-
-  if (existingConversation) {
-    // Check if both users are participants in this conversation
-    const participantIds = existingConversation.participants.map(p => p.userId);
-    const hasUser1 = participantIds.includes(userId1);
-    const hasUser2 = participantIds.includes(userId2);
-    
-    if (hasUser1 && hasUser2 && participantIds.length === 2) {
-      // Format the existing conversation properly for iOS
-      return {
-        id: existingConversation.id,
-        type: existingConversation.type,
-        title: existingConversation.title || "Direct Message",
-        last_message: null, // This could be enhanced to fetch the actual last message
-        unreadCount: 0, // This could be enhanced to calculate actual unread count
-        event_id: existingConversation.eventId,
-        participant_count: 2,
-        createdAt: existingConversation.createdAt || new Date()
-      };
-    }
-  }
-
-  // If no existing conversation found, search through all direct conversations 
-  // to find one with exactly these two participants
+  console.log(`[DEDUP] Looking for existing conversation between users ${userId1} and ${userId2}`);
+  
+  // Search through all direct conversations to find one with exactly these two participants
   const allDirectConversations = await db.query.conversations.findMany({
     where: and(
       eq(conversations.type, "direct"),
@@ -689,11 +658,16 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     }
   });
 
+  console.log(`[DEDUP] Found ${allDirectConversations.length} direct conversations to check`);
+
   for (const conversation of allDirectConversations) {
     const participantIds = conversation.participants.map(p => p.userId);
+    console.log(`[DEDUP] Conversation ${conversation.id} has participants: ${participantIds.join(', ')}`);
+    
     if (participantIds.length === 2 && 
         participantIds.includes(userId1) && 
         participantIds.includes(userId2)) {
+      console.log(`[DEDUP] ✅ Found existing conversation ${conversation.id} between users ${userId1} and ${userId2}`);
       // Format the found conversation properly for iOS
       return {
         id: conversation.id,
@@ -707,6 +681,8 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
       };
     }
   }
+
+  console.log(`[DEDUP] ❌ No existing conversation found between users ${userId1} and ${userId2}, creating new one`);
 
   // No existing conversation found, create a new one
   const newConversation: NewConversation = {
