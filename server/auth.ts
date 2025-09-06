@@ -13,6 +13,7 @@ import { uploadToCloudinary } from './services/cloudinaryService';
 import fs from 'fs';
 import path from 'path';
 import pgPool from './lib/pg-pool';
+import jwt from 'jsonwebtoken';
 
 // Define the User type to match our schema
 type UserType = {
@@ -287,7 +288,6 @@ export function setupAuth(app: Express) {
         console.log("User registered successfully:", username);
 
         // Generate JWT token for mobile compatibility
-        const jwt = require('jsonwebtoken');
         const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
         const token = jwt.sign(
           { 
@@ -534,10 +534,9 @@ export function setupAuth(app: Express) {
           const { password, ...userWithoutPassword } = user as any;
 
           // Generate JWT token for mobile app support
-          const jwt = await import('jsonwebtoken');
           const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
           
-          const token = jwt.default.sign(
+          const token = jwt.sign(
             { 
               id: user.id, 
               email: user.email,

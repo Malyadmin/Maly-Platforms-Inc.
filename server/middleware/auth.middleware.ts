@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { db } from "@db";
 import { users } from "@db/schema";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
 /**
  * Helper function to extract the user ID from a request object in various ways
@@ -166,7 +167,6 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     const authHeader = req.headers.authorization;
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      const jwt = require('jsonwebtoken');
       const token = authHeader.substring(7);
       const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
       
