@@ -32,6 +32,21 @@ class APIService: ObservableObject {
     private var session: URLSession
     private let tokenManager = TokenManager.shared
     
+    // Shared date formatter for all API responses
+    private let apiDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    // Shared JSON decoder with proper date strategy
+    private var apiDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(apiDateFormatter)
+        return decoder
+    }
+    
     private init() {
         let config = URLSessionConfiguration.default
         config.httpCookieStorage = HTTPCookieStorage.shared
@@ -465,9 +480,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let conversations = try decoder.decode([Conversation].self, from: data)
+                        let conversations = try apiDecoder.decode([Conversation].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversations))
                         }
@@ -497,9 +510,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let messages = try decoder.decode([Message].self, from: data)
+                        let messages = try apiDecoder.decode([Message].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(messages))
                         }
@@ -534,9 +545,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let message = try decoder.decode(Message.self, from: data)
+                        let message = try apiDecoder.decode(Message.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(message))
                         }
@@ -561,32 +570,14 @@ class APIService: ObservableObject {
         
         let requestBody = ["otherUserId": otherUserId]
         
-        // Debug logging
-        print("🚀 Creating conversation with user \(otherUserId)")
-        print("📍 URL: \(url.absoluteString)")
-        logRequest(urlRequest)
-        
         Task {
             do {
                 urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
                 let (data, response) = try await session.data(for: urlRequest)
                 
-                // Debug response
-                print("📥 Received response")
                 if let httpResponse = response as? HTTPURLResponse {
-                    print("📊 Status Code: \(httpResponse.statusCode)")
-                    print("📄 Response Data: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
-                    logResponse(httpResponse, data: data)
-                    
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        // Use custom date formatter to handle the server's date format
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-                        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-                        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-                        
-                        let conversation = try decoder.decode(Conversation.self, from: data)
+                        let conversation = try apiDecoder.decode(Conversation.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversation))
                         }
@@ -601,18 +592,8 @@ class APIService: ObservableObject {
                             completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
-                } else {
-                    print("❌ No HTTP response received")
-                    DispatchQueue.main.async {
-                        completion(.failure(APIError(message: "No HTTP response received")))
-                    }
                 }
             } catch {
-                print("💥 Exception caught: \(error)")
-                print("🔍 Error details: \(error.localizedDescription)")
-                if let decodingError = error as? DecodingError {
-                    print("🔄 JSON Decoding Error: \(decodingError)")
-                }
                 DispatchQueue.main.async {
                     completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
                 }
@@ -694,9 +675,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 201 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let group = try decoder.decode(Group.self, from: data)
+                        let group = try apiDecoder.decode(Group.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(group))
                         }
@@ -769,9 +748,7 @@ class APIService: ObservableObject {
                     logResponse(httpResponse, data: data)
                     
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let requests = try decoder.decode([ConnectionRequest].self, from: data)
+                        let requests = try apiDecoder.decode([ConnectionRequest].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(requests))
                         }
@@ -809,9 +786,7 @@ class APIService: ObservableObject {
                     logResponse(httpResponse, data: data)
                     
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let connections = try decoder.decode([UserConnection].self, from: data)
+                        let connections = try apiDecoder.decode([UserConnection].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(connections))
                         }
