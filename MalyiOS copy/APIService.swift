@@ -561,12 +561,23 @@ class APIService: ObservableObject {
         
         let requestBody = ["otherUserId": otherUserId]
         
+        // Debug logging
+        print("🚀 Creating conversation with user \(otherUserId)")
+        print("📍 URL: \(url.absoluteString)")
+        logRequest(urlRequest)
+        
         Task {
             do {
                 urlRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
                 let (data, response) = try await session.data(for: urlRequest)
                 
+                // Debug response
+                print("📥 Received response")
                 if let httpResponse = response as? HTTPURLResponse {
+                    print("📊 Status Code: \(httpResponse.statusCode)")
+                    print("📄 Response Data: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
+                    logResponse(httpResponse, data: data)
+                    
                     if httpResponse.statusCode == 200 {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
@@ -582,11 +593,21 @@ class APIService: ObservableObject {
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to create/find conversation"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
+                    }
+                } else {
+                    print("❌ No HTTP response received")
+                    DispatchQueue.main.async {
+                        completion(.failure(APIError(message: "No HTTP response received")))
                     }
                 }
             } catch {
+                print("💥 Exception caught: \(error)")
+                print("🔍 Error details: \(error.localizedDescription)")
+                if let decodingError = error as? DecodingError {
+                    print("🔄 JSON Decoding Error: \(decodingError)")
+                }
                 DispatchQueue.main.async {
                     completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
                 }
