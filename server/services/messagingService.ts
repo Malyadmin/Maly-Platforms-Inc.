@@ -322,7 +322,7 @@ export async function getConversationMessages(conversationId: number, userId: nu
     throw new Error("User is not a participant in this conversation");
   }
 
-  return db.query.messages.findMany({
+  const rawMessages = await db.query.messages.findMany({
     where: eq(messages.conversationId, conversationId),
     orderBy: [asc(messages.createdAt)],
     with: {
@@ -335,6 +335,23 @@ export async function getConversationMessages(conversationId: number, userId: nu
       }
     }
   });
+
+  // Format messages for iOS compatibility
+  return rawMessages.map(message => ({
+    id: message.id,
+    sender_id: message.senderId,
+    receiver_id: message.receiverId,
+    conversation_id: message.conversationId,
+    content: message.content,
+    createdAt: message.createdAt,
+    is_read: message.isRead,
+    sender: message.sender ? {
+      id: message.sender.id,
+      fullName: message.sender.fullName,
+      profileImage: message.sender.profileImage
+    } : null,
+    receiver: null // For group messages, receiver is null
+  }));
 }
 
 // Get messages between two users (legacy function for backward compatibility)
