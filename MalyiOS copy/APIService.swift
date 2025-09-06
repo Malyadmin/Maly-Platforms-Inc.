@@ -513,21 +513,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        // Debug: Print raw response to see what sender data we're getting
-                        print("🔍 Raw messages response: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
-                        
                         let messages = try apiDecoder.decode([Message].self, from: data)
-                        
-                        // Debug: Print decoded messages to see sender data
-                        for message in messages {
-                            print("📨 Message \(message.id): senderId=\(message.senderId)")
-                            if let sender = message.sender {
-                                print("   👤 Sender: id=\(sender.id), username=\(sender.username ?? "nil"), fullName=\(sender.fullName ?? "nil")")
-                            } else {
-                                print("   ❌ No sender data")
-                            }
-                        }
-                        
                         DispatchQueue.main.async {
                             completion(.success(messages))
                         }

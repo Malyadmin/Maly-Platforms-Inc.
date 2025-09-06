@@ -93,8 +93,8 @@ struct MessageUser: Codable {
     
     enum CodingKeys: String, CodingKey {
         case id, username
-        case fullName = "full_name"
-        case profileImage = "profile_image"
+        case fullName = "fullName"  // Server sends camelCase, not snake_case
+        case profileImage = "profileImage"  // Server sends camelCase, not snake_case
     }
 }
 
