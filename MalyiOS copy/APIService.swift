@@ -557,9 +557,7 @@ class APIService: ObservableObject {
     
     func createOrFindDirectConversation(with otherUserId: Int, completion: @escaping (Result<Conversation, APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/conversations")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var urlRequest = createAuthenticatedRequest(url: url, method: "POST")
         
         let requestBody = ["otherUserId": otherUserId]
         
