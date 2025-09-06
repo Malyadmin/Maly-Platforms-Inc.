@@ -14,6 +14,8 @@ import fs from 'fs';
 import path from 'path';
 import pgPool from './lib/pg-pool';
 import jwt from 'jsonwebtoken';
+import { requireAuth } from './middleware/auth.middleware';
+import { getOrCreateDirectConversation } from './services/messagingService';
 
 // Define the User type to match our schema
 type UserType = {
@@ -817,6 +819,31 @@ export function setupAuth(app: Express) {
       res.json({
         isReplit: false
       });
+    }
+  });
+
+  // CONVERSATION ENDPOINT - Added here because routes in auth.ts actually work
+  app.post('/api/conversations', requireAuth, async (req: Request, res: Response) => {
+    try {
+      console.log('[CONVERSATION] Creating/finding direct conversation');
+      const { otherUserId } = req.body;
+      const currentUserId = (req.user as any).id;
+      
+      if (!otherUserId) {
+        return res.status(400).json({ error: 'Other user ID is required' });
+      }
+      
+      if (otherUserId === currentUserId) {
+        return res.status(400).json({ error: 'Cannot create conversation with yourself' });
+      }
+      
+      const conversation = await getOrCreateDirectConversation(currentUserId, otherUserId);
+      console.log(`[CONVERSATION] Successfully created/found conversation ${conversation.id}`);
+      
+      res.json(conversation);
+    } catch (error) {
+      console.error('[CONVERSATION] Error creating/finding conversation:', error);
+      res.status(500).json({ error: 'Failed to create/find conversation' });
     }
   });
 }
