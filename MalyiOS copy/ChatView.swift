@@ -192,7 +192,7 @@ struct MessageBubble: View {
         VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
             // Sender name (for group chats)
             if !isFromCurrentUser, let sender = message.sender {
-                Text(sender.fullName ?? sender.username)
+                Text(sender.fullName ?? sender.username ?? "Unknown User")
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
