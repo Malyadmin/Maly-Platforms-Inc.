@@ -170,7 +170,7 @@ struct ChatView: View {
 
 struct MessageBubble: View {
     let message: Message
-    @State private var currentUserId = 1 // This should come from auth state
+    @State private var currentUserId: Int? = nil
     
     var body: some View {
         HStack {
@@ -186,12 +186,21 @@ struct MessageBubble: View {
                 Spacer(minLength: 60)
             }
         }
+        .onAppear {
+            // Get the current user ID from TokenManager
+            currentUserId = TokenManager.shared.getUserId()
+        }
     }
     
     private var messageBubbleContent: some View {
         VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
-            // Sender name (for group chats)
-            if !isFromCurrentUser, let sender = message.sender {
+            // Sender name - show "Me" for current user, sender name for others
+            if isFromCurrentUser {
+                Text("Me")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+            } else if let sender = message.sender {
                 Text(sender.fullName ?? sender.username ?? "Unknown User")
                     .font(.caption2)
                     .fontWeight(.semibold)
@@ -214,7 +223,8 @@ struct MessageBubble: View {
     }
     
     private var isFromCurrentUser: Bool {
-        message.senderId == currentUserId
+        guard let currentUserId = currentUserId else { return false }
+        return message.senderId == currentUserId
     }
     
     private func formatTimestamp(_ date: Date) -> String {
