@@ -15,7 +15,7 @@ import {
 } from "../../db/schema";
 import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
 
-// Extended conversation type that includes additional fields for the API response
+// Extended conversation type that matches iOS Conversation model exactly
 interface ExtendedConversation {
   id: number;
   type: string;
@@ -36,7 +36,7 @@ interface ExtendedConversation {
   event_id?: number | null;
   participant_count?: number;
   createdAt: Date;
-  createdBy?: number;
+  // Removed createdBy - not in iOS model
 }
 
 // Send a message (only between connected users)
@@ -571,7 +571,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     const hasUser2 = participantIds.includes(userId2);
     
     if (hasUser1 && hasUser2 && participantIds.length === 2) {
-      // Format the existing conversation properly
+      // Format the existing conversation properly for iOS (explicitly exclude createdBy)
       return {
         id: existingConversation.id,
         type: existingConversation.type,
@@ -580,8 +580,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         event_id: existingConversation.eventId,
         participant_count: 2,
-        createdAt: existingConversation.createdAt || new Date(),
-        createdBy: existingConversation.createdBy || undefined
+        createdAt: existingConversation.createdAt || new Date()
       };
     }
   }
@@ -603,7 +602,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     if (participantIds.length === 2 && 
         participantIds.includes(userId1) && 
         participantIds.includes(userId2)) {
-      // Format the found conversation properly
+      // Format the found conversation properly for iOS (explicitly exclude createdBy)
       return {
         id: conversation.id,
         type: conversation.type,
@@ -612,8 +611,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
         unreadCount: 0, // This could be enhanced to calculate actual unread count
         event_id: conversation.eventId,
         participant_count: 2,
-        createdAt: conversation.createdAt || new Date(),
-        createdBy: conversation.createdBy || undefined
+        createdAt: conversation.createdAt || new Date()
       };
     }
   }
@@ -648,8 +646,8 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
   await db.insert(conversationParticipants)
     .values(participants);
 
-  // Return the conversation in the format expected by iOS
-  return {
+  // Return the conversation in the format expected by iOS (explicitly exclude createdBy)
+  const response = {
     id: createdConversation.id,
     type: createdConversation.type,
     title: createdConversation.title || "Direct Message", // Provide default title for direct messages
@@ -657,7 +655,10 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
     unreadCount: 0, // New conversations start with 0 unread
     event_id: createdConversation.eventId,
     participant_count: 2, // Direct conversations always have 2 participants
-    createdAt: createdConversation.createdAt || new Date(),
-    createdBy: createdConversation.createdBy || undefined
+    createdAt: createdConversation.createdAt || new Date()
   };
+  
+  // Explicitly ensure createdBy is not included
+  const { createdBy, ...cleanResponse } = response as any;
+  return cleanResponse;
 }
