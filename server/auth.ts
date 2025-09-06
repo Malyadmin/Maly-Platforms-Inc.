@@ -15,7 +15,12 @@ import path from 'path';
 import pgPool from './lib/pg-pool';
 import jwt from 'jsonwebtoken';
 import { requireAuth } from './middleware/auth.middleware';
-import { getOrCreateDirectConversation } from './services/messagingService';
+import { 
+  getOrCreateDirectConversation, 
+  getConversations, 
+  getConversationMessages, 
+  sendMessageToConversation 
+} from './services/messagingService';
 
 // Define the User type to match our schema
 type UserType = {
@@ -822,7 +827,7 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // CONVERSATION ENDPOINT - Added here because routes in auth.ts actually work
+  // CONVERSATION ENDPOINTS - Added here because routes in auth.ts actually work
   app.post('/api/conversations', requireAuth, async (req: Request, res: Response) => {
     try {
       console.log('[CONVERSATION] Creating/finding direct conversation');
@@ -844,6 +849,96 @@ export function setupAuth(app: Express) {
     } catch (error) {
       console.error('[CONVERSATION] Error creating/finding conversation:', error);
       res.status(500).json({ error: 'Failed to create/find conversation' });
+    }
+  });
+
+  // GET CONVERSATIONS ENDPOINT - Moved from routes.ts to auth.ts
+  app.get('/api/conversations/:userId', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const currentUserId = (req.user as any).id;
+      
+      // Ensure user can only access their own conversations
+      if (parseInt(userId) !== currentUserId) {
+        return res.status(403).json({ error: 'Access denied - can only view your own conversations' });
+      }
+      
+      console.log(`[FETCH_CONVERSATIONS] Fetching conversations for user ${userId}`);
+      const conversations = await getConversations(parseInt(userId));
+      console.log(`[FETCH_CONVERSATIONS] Successfully fetched ${conversations.length} conversations for user ${userId}`);
+      res.json(conversations);
+    } catch (error) {
+      console.error('[FETCH_CONVERSATIONS] Error getting conversations:', error);
+
+      // Return appropriate error status for connection-related errors
+      if (error instanceof Error && error.message.includes('No user connections found')) {
+        return res.status(200).json([]); // Return empty array instead of error for no connections
+      }
+
+      res.status(500).json({ error: 'Failed to get conversations' });
+    }
+  });
+
+  // GET MESSAGES ENDPOINT - Moved from routes.ts to auth.ts
+  app.get('/api/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = (req.user as any).id;
+      
+      console.log(`[FETCH_MESSAGES] Fetching messages for conversation ${conversationId} by user ${userId}`);
+      
+      const messages = await getConversationMessages(parseInt(conversationId), userId);
+      
+      console.log(`[FETCH_MESSAGES] Successfully fetched ${messages.length} messages for conversation ${conversationId}`);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('[FETCH_MESSAGES] Error getting conversation messages:', error);
+      
+      if (error instanceof Error && error.message.includes('not a participant')) {
+        return res.status(403).json({ error: error.message });
+      }
+
+      res.status(500).json({ error: 'Failed to get conversation messages' });
+    }
+  });
+
+  // SEND MESSAGE ENDPOINT - Moved from routes.ts to auth.ts
+  app.post('/api/conversations/:conversationId/messages', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const { content } = req.body;
+      const senderId = (req.user as any).id;
+      
+      // Validate required fields
+      if (!content) {
+        return res.status(400).json({ 
+          error: 'Message content is required' 
+        });
+      }
+      
+      console.log(`[SEND_MESSAGE] Sending message to conversation ${conversationId} from user ${senderId}`);
+      
+      const message = await sendMessageToConversation({
+        senderId: senderId,
+        conversationId: parseInt(conversationId),
+        content: content.trim()
+      });
+      
+      console.log(`[SEND_MESSAGE] Successfully sent message ${message.id} to conversation ${conversationId}`);
+      
+      res.status(201).json(message);
+    } catch (error) {
+      console.error('[SEND_MESSAGE] Error sending message to conversation:', error);
+      
+      if (error instanceof Error && error.message.includes('not a participant')) {
+        return res.status(403).json({ error: error.message });
+      }
+      
+      res.status(500).json({ 
+        error: 'Failed to send message',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 }

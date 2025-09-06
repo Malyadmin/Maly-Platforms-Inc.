@@ -243,6 +243,7 @@ export async function getConversations(userId: number) {
     });
 
     // Format the latest message to match iOS Message model expectations
+    console.log(`[DEBUG_FIX] Formatting last message for conversation ${conversation.id}:`, latestMessage ? `"${latestMessage.content}"` : 'null');
     const formattedLastMessage = latestMessage ? {
       id: latestMessage.id,
       sender_id: latestMessage.senderId,
@@ -663,6 +664,7 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
 
 // Create or find a direct conversation between two users
 export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<ExtendedConversation> {
+  console.log(`[DEBUG_FIX] Checking for existing conversation between users ${userId1} and ${userId2}`);
   // Search through all direct conversations to find one with exactly these two participants
   const allDirectConversations = await db.query.conversations.findMany({
     where: and(
