@@ -8,7 +8,7 @@ import { translateMessage } from './services/translationService';
 import { getEventImage } from './services/eventsService';
 import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
-import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation } from './services/messagingService';
+import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
 import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
