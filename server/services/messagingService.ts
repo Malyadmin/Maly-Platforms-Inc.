@@ -423,13 +423,32 @@ export async function markMessageAsRead(messageId: number) {
   });
 }
 
-// Mark all messages as read for a user
+// Mark all messages as read for a user (LEGACY - being replaced with conversation-based approach)
 export async function markAllMessagesAsRead(userId: number) {
   // Only mark messages where user is the receiver
   return db
     .update(messages)
     .set({ isRead: true })
     .where(eq(messages.receiverId, userId));
+}
+
+// Mark all messages in a conversation as read for a specific user
+export async function markConversationAsRead(conversationId: number, userId: number) {
+  // Update lastReadAt timestamp for the user in this conversation
+  await db
+    .update(conversationParticipants)
+    .set({ lastReadAt: new Date() })
+    .where(and(
+      eq(conversationParticipants.conversationId, conversationId),
+      eq(conversationParticipants.userId, userId)
+    ));
+  
+  // Also mark all messages in this conversation as read for this user
+  // (This helps with backward compatibility and direct message queries)
+  return db
+    .update(messages)
+    .set({ isRead: true })
+    .where(eq(messages.conversationId, conversationId));
 }
 
 // Get or create an event group chat
