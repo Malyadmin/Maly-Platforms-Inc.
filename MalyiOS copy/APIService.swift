@@ -471,8 +471,7 @@ class APIService: ObservableObject {
         }
         
         let url = URL(string: "\(baseURL)/conversations/\(userId)")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        var urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         Task {
             do {
@@ -484,10 +483,15 @@ class APIService: ObservableObject {
                         DispatchQueue.main.async {
                             completion(.success(conversations))
                         }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
+                        }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch conversations"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -501,8 +505,7 @@ class APIService: ObservableObject {
     
     func fetchMessages(for conversationId: Int, completion: @escaping (Result<[Message], APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        var urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         Task {
             do {
@@ -514,10 +517,15 @@ class APIService: ObservableObject {
                         DispatchQueue.main.async {
                             completion(.success(messages))
                         }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
+                        }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch messages"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -531,9 +539,7 @@ class APIService: ObservableObject {
     
     func sendMessage(to conversationId: Int, content: String, completion: @escaping (Result<Message, APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var urlRequest = createAuthenticatedRequest(url: url, method: "POST")
         
         let requestBody = SendMessageRequest(content: content)
         
@@ -549,10 +555,15 @@ class APIService: ObservableObject {
                         DispatchQueue.main.async {
                             completion(.success(message))
                         }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
+                        }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to send message"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
