@@ -87,7 +87,7 @@ struct Message: Codable, Identifiable {
 
 struct MessageUser: Codable {
     let id: Int
-    let username: String
+    let username: String?
     let fullName: String?
     let profileImage: String?
     

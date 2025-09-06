@@ -543,67 +543,31 @@ class APIService: ObservableObject {
         
         let requestBody = SendMessageRequest(content: content)
         
-        // Debug logging
-        print("📤 Sending message to conversation \(conversationId)")
-        print("📍 URL: \(url.absoluteString)")
-        print("💬 Content: \"\(content)\"")
-        logRequest(urlRequest)
-        
         Task {
             do {
                 let encoder = JSONEncoder()
                 urlRequest.httpBody = try encoder.encode(requestBody)
-                print("📦 Request body: \(String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? "Unable to decode")")
-                
                 let (data, response) = try await session.data(for: urlRequest)
                 
-                // Debug response
-                print("📥 Received response for message send")
                 if let httpResponse = response as? HTTPURLResponse {
-                    print("📊 Status Code: \(httpResponse.statusCode)")
-                    print("📄 Response Data: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
-                    print("📏 Response Data Size: \(data.count) bytes")
-                    logResponse(httpResponse, data: data)
-                    
                     if httpResponse.statusCode == 200 {
-                        if data.isEmpty {
-                            print("⚠️ Warning: Received empty response data for successful request")
-                            DispatchQueue.main.async {
-                                completion(.failure(APIError(message: "Server returned empty response")))
-                            }
-                            return
-                        }
-                        
                         let message = try apiDecoder.decode(Message.self, from: data)
-                        print("✅ Successfully decoded message with ID: \(message.id)")
                         DispatchQueue.main.async {
                             completion(.success(message))
                         }
                     } else if httpResponse.statusCode == 401 {
-                        print("🔒 Authentication failed")
                         handleAuthenticationError()
                         DispatchQueue.main.async {
                             completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to send message"
-                        print("❌ HTTP Error: \(httpResponse.statusCode) - \(errorMessage)")
                         DispatchQueue.main.async {
                             completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
-                } else {
-                    print("❌ No HTTP response received")
-                    DispatchQueue.main.async {
-                        completion(.failure(APIError(message: "No HTTP response received")))
-                    }
                 }
             } catch {
-                print("💥 Exception caught in sendMessage: \(error)")
-                print("🔍 Error details: \(error.localizedDescription)")
-                if let decodingError = error as? DecodingError {
-                    print("🔄 JSON Decoding Error: \(decodingError)")
-                }
                 DispatchQueue.main.async {
                     completion(.failure(APIError(message: "Network error: \(error.localizedDescription)")))
                 }
