@@ -540,15 +540,43 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
     }
   });
 
-  // Return the message with sender info
+  // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {
-    return [{
-      ...result[0],
-      sender
-    }];
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: {
+        id: sender.id,
+        fullName: sender.fullName,
+        profileImage: sender.profileImage
+      },
+      receiver: null // For group messages, receiver is null
+    };
   }
 
-  return result;
+  // Fallback if no sender found
+  if (result.length > 0) {
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: null,
+      receiver: null
+    };
+  }
+
+  throw new Error("Failed to create message");
 }
 
 // Create or find a direct conversation between two users
