@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { db } from "@db";
 import { users } from "@db/schema";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
 /**
  * Helper function to extract the user ID from a request object in various ways
@@ -155,11 +156,49 @@ export async function checkAuthentication(req: Request, res: Response, next?: Ne
 }
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  // Check if user is authenticated through passport session
+  // First, check if user is authenticated through passport session
   if (req.isAuthenticated()) {
+    console.log("Auth successful via passport session for user:", (req.user as any)?.username);
     return next();
   }
   
+  // Second, check for JWT token in Authorization header
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
+      
+      const decoded = jwt.verify(token, SESSION_SECRET) as any;
+      
+      // Attach user payload to request object for compatibility
+      req.user = {
+        id: decoded.id,
+        email: decoded.email,
+        username: decoded.username,
+        password: '',
+        fullName: null,
+        profileImage: null,
+        location: null,
+        interests: null,
+        currentMoods: null,
+        profession: null,
+        age: null,
+        gender: null,
+        nextLocation: null,
+        createdAt: null
+      };
+      
+      console.log("Auth successful via JWT token for user:", req.user.username);
+      return next();
+    }
+  } catch (jwtError) {
+    console.error("JWT verification failed:", jwtError);
+    // Continue to authentication failure below
+  }
+  
   // Authentication failed - return 401
+  console.log("Authentication failed - no valid session or JWT token");
   return res.status(401).json({ error: 'Authentication required' });
 };

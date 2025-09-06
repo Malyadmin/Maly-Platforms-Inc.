@@ -13,7 +13,31 @@ import {
   ConversationParticipant,
   NewConversationParticipant
 } from "../../db/schema";
-import { eq, and, or, desc, asc, ne } from "drizzle-orm";
+import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
+
+// Extended conversation type that matches iOS Conversation model exactly
+interface ExtendedConversation {
+  id: number;
+  type: string;
+  title: string; // Always non-null for iOS compatibility
+  last_message?: {
+    id: number;
+    content: string;
+    createdAt: Date;
+    senderId: number;
+    sender?: {
+      id: number;
+      username?: string;
+      fullName?: string;
+      profileImage?: string;
+    };
+  } | null;
+  unreadCount: number;
+  event_id?: number | null;
+  participant_count?: number;
+  createdAt: Date;
+  // Removed createdBy - not in iOS model
+}
 
 // Send a message (only between connected users)
 export async function sendMessage({ senderId, receiverId, content }: {
@@ -65,15 +89,43 @@ export async function sendMessage({ senderId, receiverId, content }: {
     }
   });
 
-  // Return the message with sender info without modifying result directly
+  // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {
-    return [{
-      ...result[0],
-      sender
-    }];
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: {
+        id: sender.id,
+        fullName: sender.fullName,
+        profileImage: sender.profileImage
+      },
+      receiver: null // Will be populated if needed for direct messages
+    };
   }
 
-  return result;
+  // Fallback if no sender found
+  if (result.length > 0) {
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: null,
+      receiver: null
+    };
+  }
+
+  throw new Error("Failed to create message");
 }
 
 // Get conversations for a user (now supports both direct and group chats)
@@ -127,8 +179,59 @@ export async function getConversations(userId: number) {
       }
     });
 
-    // Skip conversations with no messages
-    if (!latestMessage) continue;
+    let conversationInfo; // Declare conversationInfo here
+
+    // For conversations with no messages, create empty conversation info
+    // This is important for newly created direct conversations to appear in the inbox
+    if (!latestMessage) {
+      if (conversation.type === 'event') {
+        conversationInfo = {
+          id: conversation.id,
+          type: 'event',
+          title: conversation.title || (conversation.event?.title ? `${conversation.event.title} - Event Chat` : 'Event Chat'),
+          eventId: conversation.eventId,
+          lastMessage: null,
+          unreadCount: 0,
+          participantCount: await getConversationParticipantCount(conversation.id),
+          createdAt: conversation.createdAt
+        };
+      } else {
+        // For direct conversations, we need to find the other participant
+        const otherParticipants = await db.query.conversationParticipants.findMany({
+          where: and(
+            eq(conversationParticipants.conversationId, conversation.id),
+            ne(conversationParticipants.userId, userId)
+          ),
+          with: {
+            user: {
+              columns: {
+                id: true,
+                fullName: true,
+                username: true,
+                profileImage: true
+              }
+            }
+          }
+        });
+
+        const otherUser = otherParticipants[0]?.user;
+        if (!otherUser) continue;
+
+        conversationInfo = {
+          id: conversation.id,
+          type: 'direct',
+          title: otherUser.fullName || otherUser.username,
+          lastMessage: null,
+          unreadCount: 0,
+          eventId: conversation.eventId,
+          participantCount: 2,
+          createdAt: conversation.createdAt
+        };
+      }
+      
+      conversationResults.push(conversationInfo);
+      continue;
+    }
 
     // Calculate unread count
     const unreadMessages = await db.query.messages.findMany({
@@ -139,8 +242,6 @@ export async function getConversations(userId: number) {
       )
     });
 
-    let conversationInfo;
-
     if (conversation.type === 'event') {
       // For event conversations, use event title and show it's a group chat
       conversationInfo = {
@@ -150,7 +251,8 @@ export async function getConversations(userId: number) {
         eventId: conversation.eventId,
         lastMessage: latestMessage,
         unreadCount: unreadMessages.length,
-        participantCount: await getConversationParticipantCount(conversation.id)
+        participantCount: await getConversationParticipantCount(conversation.id),
+        createdAt: conversation.createdAt
       };
     } else {
       // For direct conversations, we need to find the other participant
@@ -171,31 +273,29 @@ export async function getConversations(userId: number) {
         }
       });
 
-      // For direct chats, use the other user's info
+      // For direct chats, use the other user's info as title
       const otherUser = otherParticipants[0]?.user;
       if (!otherUser) continue;
 
       conversationInfo = {
         id: conversation.id,
         type: 'direct',
-        user: {
-          id: otherUser.id,
-          name: otherUser.fullName,
-          username: otherUser.username,
-          image: otherUser.profileImage
-        },
+        title: otherUser.fullName || otherUser.username,
         lastMessage: latestMessage,
-        unreadCount: unreadMessages.length
+        unreadCount: unreadMessages.length,
+        eventId: conversation.eventId,
+        participantCount: 2,
+        createdAt: conversation.createdAt
       };
     }
 
     conversationResults.push(conversationInfo);
   }
 
-  // Sort by last message date (newest first)
+  // Sort by last message date (newest first), handle null lastMessage
   return conversationResults.sort((a, b) => {
-    const dateA = a.lastMessage.createdAt ? new Date(a.lastMessage.createdAt) : new Date();
-    const dateB = b.lastMessage.createdAt ? new Date(b.lastMessage.createdAt) : new Date();
+    const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt) : new Date(0);
+    const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt) : new Date(0);
     return dateB.getTime() - dateA.getTime();
   });
 }
@@ -222,7 +322,7 @@ export async function getConversationMessages(conversationId: number, userId: nu
     throw new Error("User is not a participant in this conversation");
   }
 
-  return db.query.messages.findMany({
+  const rawMessages = await db.query.messages.findMany({
     where: eq(messages.conversationId, conversationId),
     orderBy: [asc(messages.createdAt)],
     with: {
@@ -235,6 +335,23 @@ export async function getConversationMessages(conversationId: number, userId: nu
       }
     }
   });
+
+  // Format messages for iOS compatibility
+  return rawMessages.map(message => ({
+    id: message.id,
+    sender_id: message.senderId,
+    receiver_id: message.receiverId,
+    conversation_id: message.conversationId,
+    content: message.content,
+    createdAt: message.createdAt,
+    is_read: message.isRead,
+    sender: message.sender ? {
+      id: message.sender.id,
+      fullName: message.sender.fullName,
+      profileImage: message.sender.profileImage
+    } : null,
+    receiver: null // For group messages, receiver is null
+  }));
 }
 
 // Get messages between two users (legacy function for backward compatibility)
@@ -306,13 +423,32 @@ export async function markMessageAsRead(messageId: number) {
   });
 }
 
-// Mark all messages as read for a user
+// Mark all messages as read for a user (LEGACY - being replaced with conversation-based approach)
 export async function markAllMessagesAsRead(userId: number) {
   // Only mark messages where user is the receiver
   return db
     .update(messages)
     .set({ isRead: true })
     .where(eq(messages.receiverId, userId));
+}
+
+// Mark all messages in a conversation as read for a specific user
+export async function markConversationAsRead(conversationId: number, userId: number) {
+  // Update lastReadAt timestamp for the user in this conversation
+  await db
+    .update(conversationParticipants)
+    .set({ lastReadAt: new Date() })
+    .where(and(
+      eq(conversationParticipants.conversationId, conversationId),
+      eq(conversationParticipants.userId, userId)
+    ));
+  
+  // Also mark all messages in this conversation as read for this user
+  // (This helps with backward compatibility and direct message queries)
+  return db
+    .update(messages)
+    .set({ isRead: true })
+    .where(eq(messages.conversationId, conversationId));
 }
 
 // Get or create an event group chat
@@ -326,7 +462,14 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   });
 
   if (existingConversation) {
-    return existingConversation;
+    // Return in consistent format
+    return {
+      ...existingConversation,
+      title: existingConversation.title || "Event Chat",
+      lastMessage: null,
+      unreadCount: 0,
+      participantCount: await getConversationParticipantCount(existingConversation.id)
+    } as any;
   }
 
   // Get event details for the conversation title
@@ -364,7 +507,13 @@ export async function getOrCreateEventGroupChat(eventId: number, hostId: number)
   await db.insert(conversationParticipants)
     .values(hostParticipant);
 
-  return createdConversation;
+  // Return in consistent format
+  return {
+    ...createdConversation,
+    lastMessage: null,
+    unreadCount: 0,
+    participantCount: 1 // Only host initially
+  } as any;
 }
 
 // Add a user to an event group chat
@@ -455,13 +604,149 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
     }
   });
 
-  // Return the message with sender info
+  // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {
-    return [{
-      ...result[0],
-      sender
-    }];
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: {
+        id: sender.id,
+        fullName: sender.fullName,
+        profileImage: sender.profileImage
+      },
+      receiver: null // For group messages, receiver is null
+    };
   }
 
-  return result;
+  // Fallback if no sender found
+  if (result.length > 0) {
+    const message = result[0];
+    return {
+      id: message.id,
+      sender_id: message.senderId,
+      receiver_id: message.receiverId,
+      conversation_id: message.conversationId,
+      content: message.content,
+      createdAt: message.createdAt,
+      is_read: message.isRead,
+      sender: null,
+      receiver: null
+    };
+  }
+
+  throw new Error("Failed to create message");
+}
+
+// Create or find a direct conversation between two users
+export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<ExtendedConversation> {
+  // First check if a direct conversation already exists between these users
+  const existingConversation = await db.query.conversations.findFirst({
+    where: and(
+      eq(conversations.type, "direct"),
+      isNull(conversations.eventId)
+    ),
+    with: {
+      participants: true
+    }
+  });
+
+  if (existingConversation) {
+    // Check if both users are participants in this conversation
+    const participantIds = existingConversation.participants.map(p => p.userId);
+    const hasUser1 = participantIds.includes(userId1);
+    const hasUser2 = participantIds.includes(userId2);
+    
+    if (hasUser1 && hasUser2 && participantIds.length === 2) {
+      // Format the existing conversation properly for iOS
+      return {
+        id: existingConversation.id,
+        type: existingConversation.type,
+        title: existingConversation.title || "Direct Message",
+        last_message: null, // This could be enhanced to fetch the actual last message
+        unreadCount: 0, // This could be enhanced to calculate actual unread count
+        event_id: existingConversation.eventId,
+        participant_count: 2,
+        createdAt: existingConversation.createdAt || new Date()
+      };
+    }
+  }
+
+  // If no existing conversation found, search through all direct conversations 
+  // to find one with exactly these two participants
+  const allDirectConversations = await db.query.conversations.findMany({
+    where: and(
+      eq(conversations.type, "direct"),
+      isNull(conversations.eventId)
+    ),
+    with: {
+      participants: true
+    }
+  });
+
+  for (const conversation of allDirectConversations) {
+    const participantIds = conversation.participants.map(p => p.userId);
+    if (participantIds.length === 2 && 
+        participantIds.includes(userId1) && 
+        participantIds.includes(userId2)) {
+      // Format the found conversation properly for iOS
+      return {
+        id: conversation.id,
+        type: conversation.type,
+        title: conversation.title || "Direct Message",
+        last_message: null, // This could be enhanced to fetch the actual last message
+        unreadCount: 0, // This could be enhanced to calculate actual unread count
+        event_id: conversation.eventId,
+        participant_count: 2,
+        createdAt: conversation.createdAt || new Date()
+      };
+    }
+  }
+
+  // No existing conversation found, create a new one
+  const newConversation: NewConversation = {
+    title: null, // Direct conversations don't need titles
+    type: "direct",
+    eventId: null,
+    createdBy: userId1,
+    createdAt: new Date()
+  };
+
+  const [createdConversation] = await db.insert(conversations)
+    .values(newConversation)
+    .returning();
+
+  // Add both users as participants
+  const participants: NewConversationParticipant[] = [
+    {
+      conversationId: createdConversation.id,
+      userId: userId1,
+      joinedAt: new Date()
+    },
+    {
+      conversationId: createdConversation.id,
+      userId: userId2,
+      joinedAt: new Date()
+    }
+  ];
+
+  await db.insert(conversationParticipants)
+    .values(participants);
+
+  // Return the conversation in the format expected by iOS
+  return {
+    id: createdConversation.id,
+    type: createdConversation.type,
+    title: createdConversation.title || "Direct Message", // Provide default title for direct messages
+    last_message: null, // New conversations don't have messages yet
+    unreadCount: 0, // New conversations start with 0 unread
+    event_id: createdConversation.eventId,
+    participant_count: 2, // Direct conversations always have 2 participants
+    createdAt: createdConversation.createdAt || new Date()
+  };
 }

@@ -1,0 +1,12 @@
+Auth check response status: 200
+🔍 Starting browseUsers request...
+📍 Base URL: https://maly-platforms-inc-hudekholdingsll.replit.app/api
+🌐 Final URL: https://maly-platforms-inc-hudekholdingsll.replit.app/api/users/browse?limit=20&offset=0
+📤 Making request to: https://maly-platforms-inc-hudekholdingsll.replit.app/api/users/browse?limit=20&offset=0
+⏱️ Starting network request...
+✅ Network request completed
+📊 HTTP Status Code: 200
+📋 Response Headers: [AnyHashable("Alt-Svc"): h3=":443"; ma=2592000,h3-29=":443"; ma=2592000, AnyHashable("Access-Control-Allow-Origin"): *, AnyHashable("Set-Cookie"): maly_session=s%3AsOvBEVdrYGVpReB1yJdkC1P8_99M0SCI.mu5WuJFLu1nW7lY0ZbCmUJHEoWPN8ZatYSt1%2FKpgDh4; Path=/; Expires=Mon, 08 Sep 2025 16:01:38 GMT; HttpOnly; Secure; SameSite=None, AnyHashable("Expires"): Mon, 01 Sep 2025 15:42:05 GMT, AnyHashable("x-powered-by"): Express, AnyHashable("access-control-allow-methods"): GET,PUT,POST,DELETE,OPTIONS, AnyHashable("Server"): Google Frontend, AnyHashable("Etag"): W/"cb4-T2AA4AY3dcpr2qEhsF8TVX8znHk", AnyHashable("Date"): Mon, 01 Sep 2025 16:01:39 GMT, AnyHashable("Cache-Control"): private, AnyHashable("Strict-Transport-Security"): max-age=63072000; includeSubDomains, AnyHashable("Via"): 1.1 google, AnyHashable("Content-Length"): 3252, AnyHashable("x-cloud-trace-context"): a55ca4376c5778938ed475b94cf3b56f;o=1, AnyHashable("access-control-allow-headers"): Content-Type, Authorization, AnyHashable("Content-Type"): application/json; charset=utf-8]
+📄 Response Data Size: 3252 bytes
+📝 Response Body: {"users":[{"id":199,"username":"john","fullName":"John","profileType":"member","gender":null,"sexualOrientation":null,"bio":null,"profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169832/images/uploads/1756169831752_IMG_5009.jpeg.jpg","profileImages":[],"location":"Austin","birthLocation":null,"nextLocation":null,"interests":["Party & Nightlife","Networking & Business"],"currentMoods":null,"profession":null,"age":20,"businessName":null,"businessDescription":null,"websiteUrl":...
+❌ JSON decode error: keyNotFound(CodingKeys(stringValue: "has_more", intValue: nil), Swift.DecodingError.Context(codingPath: [CodingKeys(stringValue: "pagination", intValue: nil)], debugDescription: "No value associated with key CodingKeys(stringValue: \"has_more\", intValue: nil) (\"has_more\").", underlyingError: nil))

@@ -13,6 +13,7 @@ import { uploadToCloudinary } from './services/cloudinaryService';
 import fs from 'fs';
 import path from 'path';
 import pgPool from './lib/pg-pool';
+import jwt from 'jsonwebtoken';
 
 // Define the User type to match our schema
 type UserType = {
@@ -286,6 +287,18 @@ export function setupAuth(app: Express) {
 
         console.log("User registered successfully:", username);
 
+        // Generate JWT token for mobile compatibility
+        const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
+        const token = jwt.sign(
+          { 
+            id: newUser.id,
+            email: newUser.email,
+            username: newUser.username
+          },
+          SESSION_SECRET,
+          { expiresIn: '30d' }
+        );
+
         req.login(newUser, (err) => {
           if (err) {
             console.error("Login after registration failed:", err);
@@ -296,9 +309,11 @@ export function setupAuth(app: Express) {
               console.error("Session save error:", err);
               return next(err);
             }
+            console.log("Registration successful - created both session and JWT for user:", username);
             return res.json({ 
               user: newUser,
-              authenticated: true 
+              authenticated: true,
+              token: token // Include JWT token for iOS compatibility
             });
           });
         });
@@ -519,10 +534,9 @@ export function setupAuth(app: Express) {
           const { password, ...userWithoutPassword } = user as any;
 
           // Generate JWT token for mobile app support
-          const jwt = await import('jsonwebtoken');
           const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
           
-          const token = jwt.default.sign(
+          const token = jwt.sign(
             { 
               id: user.id, 
               email: user.email,

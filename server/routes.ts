@@ -8,7 +8,7 @@ import { translateMessage } from './services/translationService';
 import { getEventImage } from './services/eventsService';
 import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
-import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages } from './services/messagingService';
+import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation } from './services/messagingService';
 import { db } from "../db";
 import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
@@ -1946,7 +1946,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  // Legacy direct messaging endpoint (for backward compatibility)
+  // Legacy direct messaging endpoint - MIGRATED to conversation-based system
   app.post('/api/messages', requireAuth, async (req: Request, res: Response) => {
     try {
       const { senderId, receiverId, content } = req.body;
@@ -1966,31 +1966,42 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         });
       }
       
-      // Log request for debugging
-      console.log(`Sending message from user ${senderId} to user ${receiverId}: ${content.substring(0, 20)}...`);
+      // MIGRATION: Use conversation-based system instead of direct messages
+      console.log(`LEGACY ENDPOINT: Converting direct message to conversation-based system`);
+      console.log(`Creating/finding conversation between users ${senderId} and ${receiverId}`);
       
-      const message = await sendMessage({ senderId, receiverId, content });
+      // Step 1: Create or find conversation between the users
+      const conversation = await getOrCreateDirectConversation(senderId, receiverId);
       
-      // Log success for debugging
-      console.log(`Successfully sent message from user ${senderId} to user ${receiverId}`);
+      // Step 2: Send message to the conversation
+      const message = await sendMessageToConversation({
+        senderId,
+        conversationId: conversation.id,
+        content
+      });
+      
+      console.log(`Successfully migrated legacy message to conversation ${conversation.id}`);
       
       res.json(message);
     } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Return appropriate error status for connection-related errors
-      if (error instanceof Error && error.message.includes('Users must be connected')) {
-        return res.status(403).json({ error: error.message });
-      }
-
+      console.error('Error sending message via legacy endpoint:', error);
       res.status(500).json({ error: 'Failed to send message' });
     }
   });
 
-  app.get('/api/conversations/:userId', async (req: Request, res: Response) => {
+  app.get('/api/conversations/:userId', requireAuth, async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
+      const currentUserId = (req.user as any).id;
+      
+      // Ensure user can only access their own conversations
+      if (parseInt(userId) !== currentUserId) {
+        return res.status(403).json({ error: 'Access denied - can only view your own conversations' });
+      }
+      
+      console.log(`Fetching conversations for user ${userId}`);
       const conversations = await getConversations(parseInt(userId));
+      console.log(`Successfully fetched ${conversations.length} conversations for user ${userId}`);
       res.json(conversations);
     } catch (error) {
       console.error('Error getting conversations:', error);
@@ -2028,39 +2039,69 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.get('/api/messages/:userId/:otherId', async (req: Request, res: Response) => {
+  // Create or find a direct conversation between two users
+  app.post('/api/conversations', requireAuth, async (req: Request, res: Response) => {
     try {
-      const { userId, otherId } = req.params;
-      // Log request params for debugging
-      console.log(`Fetching messages between user ${userId} and user ${otherId}`);
+      const { otherUserId } = req.body;
+      const currentUserId = (req.user as any).id;
       
-      const messages = await getMessages(parseInt(userId), parseInt(otherId));
-      
-      // Log success for debugging
-      console.log(`Successfully fetched ${messages.length} messages between users ${userId} and ${otherId}`);
-      
-      res.json(messages);
-    } catch (error) {
-      console.error('Error getting messages:', error);
-
-      // Simply return empty array instead of error for now
-      console.log(`Returning empty array for messages between ${req.params.userId} and ${req.params.otherId} due to error`);
-      return res.json([]);
-
-      /* Commented out error handling for now
-      // Return appropriate error status for connection-related errors
-      if (error instanceof Error && error.message.includes('Users must be connected')) {
-        return res.status(403).json({ error: error.message });
+      if (!otherUserId) {
+        return res.status(400).json({ error: 'Other user ID is required' });
       }
-
-      res.status(500).json({ error: 'Failed to get messages' });
-      */
+      
+      if (otherUserId === currentUserId) {
+        return res.status(400).json({ error: 'Cannot create conversation with yourself' });
+      }
+      
+      console.log(`Creating/finding direct conversation between users ${currentUserId} and ${otherUserId}`);
+      
+      const conversation = await getOrCreateDirectConversation(currentUserId, otherUserId);
+      
+      console.log(`Successfully created/found conversation ${conversation.id} between users ${currentUserId} and ${otherUserId}`);
+      
+      res.json(conversation);
+    } catch (error) {
+      console.error('Error creating/finding conversation:', error);
+      res.status(500).json({ error: 'Failed to create/find conversation' });
     }
   });
 
-  app.post('/api/messages/:messageId/read', async (req: Request, res: Response) => {
+  app.get('/api/messages/:userId/:otherId', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { userId, otherId } = req.params;
+      const authenticatedUserId = (req.user as any).id;
+      
+      // Security check: ensure user can only access their own messages
+      if (parseInt(userId) !== authenticatedUserId) {
+        return res.status(403).json({ error: 'Access denied - can only view your own messages' });
+      }
+      
+      // MIGRATION: Use conversation-based system instead of direct message queries
+      console.log(`LEGACY ENDPOINT: Converting message query to conversation-based system`);
+      console.log(`Finding conversation between users ${userId} and ${otherId}`);
+      
+      // Step 1: Find or create conversation between the users
+      const conversation = await getOrCreateDirectConversation(parseInt(userId), parseInt(otherId));
+      
+      // Step 2: Get messages from the conversation
+      const messages = await getConversationMessages(conversation.id, parseInt(userId));
+      
+      console.log(`Successfully migrated legacy message query - found ${messages.length} messages in conversation ${conversation.id}`);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('Error getting messages via legacy endpoint:', error);
+      res.json([]);
+    }
+  });
+
+  app.post('/api/messages/:messageId/read', requireAuth, async (req: Request, res: Response) => {
     try {
       const { messageId } = req.params;
+      
+      // LEGACY ENDPOINT: Still functional for individual message marking
+      console.log(`LEGACY ENDPOINT: Marking individual message ${messageId} as read`);
+      
       const message = await markMessageAsRead(parseInt(messageId));
       res.json(message);
     } catch (error) {
@@ -2069,14 +2110,49 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.post('/api/messages/read-all/:userId', async (req: Request, res: Response) => {
+  app.post('/api/messages/read-all/:userId', requireAuth, async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
+      const authenticatedUserId = (req.user as any).id;
+      
+      // Security check: ensure user can only mark their own messages as read
+      if (parseInt(userId) !== authenticatedUserId) {
+        return res.status(403).json({ error: 'Access denied - can only mark your own messages as read' });
+      }
+      
+      // LEGACY ENDPOINT: Still using old approach for backward compatibility
+      console.log(`LEGACY ENDPOINT: Marking all messages as read for user ${userId}`);
+      console.log(`RECOMMENDATION: Use conversation-based read endpoints instead`);
+      
       const messages = await markAllMessagesAsRead(parseInt(userId));
       res.json(messages);
     } catch (error) {
       console.error('Error marking all messages as read:', error);
       res.status(500).json({ error: 'Failed to mark all messages as read' });
+    }
+  });
+
+  // NEW: Conversation-based read endpoint
+  app.post('/api/conversations/:conversationId/read', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = (req.user as any).id;
+      
+      console.log(`Marking conversation ${conversationId} as read for user ${userId}`);
+      
+      const result = await markConversationAsRead(parseInt(conversationId), userId);
+      
+      console.log(`Successfully marked conversation ${conversationId} as read for user ${userId}`);
+      
+      res.json({ success: true, conversationId: parseInt(conversationId), userId });
+    } catch (error) {
+      console.error('Error marking conversation as read:', error);
+      
+      if (error instanceof Error && error.message.includes('not a participant')) {
+        return res.status(403).json({ error: error.message });
+      }
+      
+      res.status(500).json({ error: 'Failed to mark conversation as read' });
     }
   });
 
