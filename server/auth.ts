@@ -286,6 +286,19 @@ export function setupAuth(app: Express) {
 
         console.log("User registered successfully:", username);
 
+        // Generate JWT token for mobile compatibility
+        const jwt = require('jsonwebtoken');
+        const SESSION_SECRET = process.env.SESSION_SECRET || 'default-session-secret';
+        const token = jwt.sign(
+          { 
+            id: newUser.id,
+            email: newUser.email,
+            username: newUser.username
+          },
+          SESSION_SECRET,
+          { expiresIn: '30d' }
+        );
+
         req.login(newUser, (err) => {
           if (err) {
             console.error("Login after registration failed:", err);
@@ -296,9 +309,11 @@ export function setupAuth(app: Express) {
               console.error("Session save error:", err);
               return next(err);
             }
+            console.log("Registration successful - created both session and JWT for user:", username);
             return res.json({ 
               user: newUser,
-              authenticated: true 
+              authenticated: true,
+              token: token // Include JWT token for iOS compatibility
             });
           });
         });
