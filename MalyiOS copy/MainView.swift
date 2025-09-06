@@ -59,7 +59,7 @@ struct MainView: View {
             // Preload connections when app opens for better UX
             preloadConnections()
         }
-        .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
+        .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
             if isAuthenticated {
                 // Preload connections when user authenticates
                 preloadConnections()
@@ -84,7 +84,7 @@ struct MainView: View {
         }
         
         // Also preload connection requests
-        inboxViewModel.fetchConnectionRequests { result in
+        inboxViewModel.fetchPendingRequests { result in
             switch result {
             case .success(let requests):
                 print("✅ Successfully preloaded \(requests.count) connection requests")
