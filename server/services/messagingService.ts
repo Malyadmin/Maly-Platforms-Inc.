@@ -242,6 +242,24 @@ export async function getConversations(userId: number) {
       )
     });
 
+    // Format the latest message to match iOS Message model expectations
+    const formattedLastMessage = latestMessage ? {
+      id: latestMessage.id,
+      sender_id: latestMessage.senderId,
+      receiver_id: latestMessage.receiverId,
+      conversation_id: latestMessage.conversationId,
+      content: latestMessage.content,
+      createdAt: latestMessage.createdAt,
+      is_read: latestMessage.isRead,
+      sender: latestMessage.sender ? {
+        id: latestMessage.sender.id,
+        username: latestMessage.sender.username,
+        fullName: latestMessage.sender.fullName,
+        profileImage: latestMessage.sender.profileImage
+      } : null,
+      receiver: null // Usually null for conversation messages
+    } : null;
+
     if (conversation.type === 'event') {
       // For event conversations, use event title and show it's a group chat
       conversationInfo = {
@@ -249,7 +267,7 @@ export async function getConversations(userId: number) {
         type: 'event',
         title: conversation.title || (conversation.event?.title ? `${conversation.event.title} - Event Chat` : 'Event Chat'),
         eventId: conversation.eventId,
-        lastMessage: latestMessage,
+        lastMessage: formattedLastMessage,
         unreadCount: unreadMessages.length,
         participantCount: await getConversationParticipantCount(conversation.id),
         createdAt: conversation.createdAt
@@ -281,7 +299,7 @@ export async function getConversations(userId: number) {
         id: conversation.id,
         type: 'direct',
         title: otherUser.fullName || otherUser.username,
-        lastMessage: latestMessage,
+        lastMessage: formattedLastMessage,
         unreadCount: unreadMessages.length,
         eventId: conversation.eventId,
         participantCount: 2,
