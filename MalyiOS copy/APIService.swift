@@ -35,15 +35,44 @@ class APIService: ObservableObject {
     // Shared date formatter for all API responses
     private let apiDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"  // Fixed: removed quotes around Z
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         return formatter
     }()
     
-    // Shared JSON decoder with proper date strategy
+    // Fallback date formatter for shorter date format
+    private let fallbackDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"  // Without milliseconds
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    // Shared JSON decoder with custom date strategy
     private var apiDecoder: JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(apiDateFormatter)
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            // Try primary format first
+            if let date = self.apiDateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try fallback format
+            if let date = self.fallbackDateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try ISO8601 formatter as last resort
+            if let date = ISO8601DateFormatter().date(from: dateString) {
+                return date
+            }
+            
+            print("🚨 [JSON] Failed to parse date: '\(dateString)'")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format: \(dateString)")
+        }
         return decoder
     }
     
@@ -479,9 +508,25 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let conversations = try apiDecoder.decode([Conversation].self, from: data)
-                        DispatchQueue.main.async {
-                            completion(.success(conversations))
+                        // Log raw JSON for debugging
+                        if let jsonString = String(data: data, encoding: .utf8) {
+                            print("🔍 [JSON] Raw conversations response: \(jsonString)")
+                        }
+                        
+                        do {
+                            let conversations = try apiDecoder.decode([Conversation].self, from: data)
+                            print("✅ [JSON] Successfully decoded \(conversations.count) conversations")
+                            DispatchQueue.main.async {
+                                completion(.success(conversations))
+                            }
+                        } catch {
+                            print("🚨 [JSON] Decoding error: \(error)")
+                            if let decodingError = error as? DecodingError {
+                                print("🚨 [JSON] Detailed error: \(decodingError.localizedDescription)")
+                            }
+                            DispatchQueue.main.async {
+                                completion(.failure(APIError(message: "Failed to decode conversations: \(error.localizedDescription)")))
+                            }
                         }
                     } else if httpResponse.statusCode == 401 {
                         handleAuthenticationError()
