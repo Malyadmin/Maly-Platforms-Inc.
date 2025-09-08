@@ -31,12 +31,23 @@ class MessagingViewModel: ObservableObject {
                 
                 switch result {
                 case .success(let conversations):
+                    print("📨 [DEBUG] Fetched \(conversations.count) conversations")
+                    for (index, conversation) in conversations.enumerated() {
+                        print("📨 [DEBUG] Conversation \(index): ID=\(conversation.id), title='\(conversation.title)', hasLastMessage=\(conversation.lastMessage != nil)")
+                        if let lastMessage = conversation.lastMessage {
+                            print("📨 [DEBUG] LastMessage content: '\(lastMessage.content)'")
+                        }
+                    }
+                    
                     self?.allConversations = conversations
                     self?.conversations = conversations
                     self?.filteredConversations = conversations
+                    
+                    print("📨 [DEBUG] Updated conversation arrays. conversations.count = \(self?.conversations.count ?? 0)")
                     completion(.success(conversations))
                     
                 case .failure(let error):
+                    print("📨 [DEBUG] Failed to fetch conversations: \(error.message)")
                     self?.errorMessage = error.message
                     completion(.failure(error))
                 }

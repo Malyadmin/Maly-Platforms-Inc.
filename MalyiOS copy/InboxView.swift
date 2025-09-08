@@ -306,6 +306,12 @@ struct InboxView: View {
                 // Show up to 5 recent conversations
                 ForEach(messagingViewModel.conversations.prefix(5), id: \.id) { conversation in
                     conversationItem(conversation: conversation)
+                        .onAppear {
+                            print("📱 UI: Displaying conversation \(conversation.id) - '\(conversation.title)' - hasLastMessage: \(conversation.lastMessage != nil)")
+                            if let lastMessage = conversation.lastMessage {
+                                print("📱 UI: LastMessage content: '\(lastMessage.content)'")
+                            }
+                        }
                 }
                 
                 if messagingViewModel.conversations.count > 5 {
@@ -541,7 +547,14 @@ struct InboxView: View {
                 print("📱 UI: Failed to load connections: \(error.message)")
             }
         }
-        messagingViewModel.fetchConversations { _ in }
+        messagingViewModel.fetchConversations { result in
+            switch result {
+            case .success(let conversations):
+                print("📱 UI: Loaded \(conversations.count) conversations successfully")
+            case .failure(let error):
+                print("📱 UI: Failed to load conversations: \(error.message)")
+            }
+        }
     }
     
     private func refreshInboxData() async {
@@ -572,7 +585,13 @@ struct InboxView: View {
             }
             
             group.enter()
-            messagingViewModel.fetchConversations { _ in
+            messagingViewModel.fetchConversations { result in
+                switch result {
+                case .success(let conversations):
+                    print("📱 UI: Refreshed \(conversations.count) conversations")
+                case .failure(let error):
+                    print("📱 UI: Refresh failed for conversations: \(error.message)")
+                }
                 group.leave()
             }
             
