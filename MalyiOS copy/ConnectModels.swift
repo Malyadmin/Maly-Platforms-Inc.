@@ -58,9 +58,8 @@ struct Conversation: Codable, Identifiable {
     
     enum CodingKeys: String, CodingKey {
         case id, type, title, unreadCount, createdAt
-        case lastMessage = "last_message"
-        case eventId = "event_id"
-        case participantCount = "participant_count"
+        // Remove mappings since API sends camelCase matching property names
+        case lastMessage, eventId, participantCount
     }
 }
 

@@ -508,25 +508,9 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        // Log raw JSON for debugging
-                        if let jsonString = String(data: data, encoding: .utf8) {
-                            print("🔍 [JSON] Raw conversations response: \(jsonString)")
-                        }
-                        
-                        do {
-                            let conversations = try apiDecoder.decode([Conversation].self, from: data)
-                            print("✅ [JSON] Successfully decoded \(conversations.count) conversations")
-                            DispatchQueue.main.async {
-                                completion(.success(conversations))
-                            }
-                        } catch {
-                            print("🚨 [JSON] Decoding error: \(error)")
-                            if let decodingError = error as? DecodingError {
-                                print("🚨 [JSON] Detailed error: \(decodingError.localizedDescription)")
-                            }
-                            DispatchQueue.main.async {
-                                completion(.failure(APIError(message: "Failed to decode conversations: \(error.localizedDescription)")))
-                            }
+                        let conversations = try apiDecoder.decode([Conversation].self, from: data)
+                        DispatchQueue.main.async {
+                            completion(.success(conversations))
                         }
                     } else if httpResponse.statusCode == 401 {
                         handleAuthenticationError()
