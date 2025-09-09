@@ -324,6 +324,11 @@ struct InboxView: View {
                             print("📱 UI: Displaying conversation \(conversation.id) - '\(conversation.title)' - hasLastMessage: \(conversation.lastMessage != nil)")
                             if let lastMessage = conversation.lastMessage {
                                 print("📱 UI: LastMessage content: '\(lastMessage.content)'")
+                                if let sender = lastMessage.sender {
+                                    print("📱 UI: Sender: \(sender.username ?? "nil") - profileImage: '\(sender.profileImage ?? "nil")'")
+                                } else {
+                                    print("📱 UI: No sender data in lastMessage")
+                                }
                             }
                         }
                 }
