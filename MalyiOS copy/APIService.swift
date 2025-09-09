@@ -452,28 +452,43 @@ class APIService: ObservableObject {
                         // Backend returns: { "outgoing": {...}, "incoming": {...} }
                         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
                         
+                        var finalConnectionStatus: ConnectionStatus = .notConnected
+                        
                         // Check outgoing connection status (current user -> target user)
                         if let outgoing = json?["outgoing"] as? [String: Any],
-                           let status = outgoing["status"] as? String {
-                            let connectionStatus: ConnectionStatus
-                            switch status {
+                           let outgoingStatus = outgoing["status"] as? String {
+                            switch outgoingStatus {
                             case "pending":
-                                connectionStatus = .pending
+                                finalConnectionStatus = .pending
                             case "accepted":
-                                connectionStatus = .connected
+                                finalConnectionStatus = .connected
                             case "declined":
-                                connectionStatus = .blocked
+                                finalConnectionStatus = .blocked
                             default:
-                                connectionStatus = .notConnected
+                                finalConnectionStatus = .notConnected
                             }
-                            DispatchQueue.main.async {
-                                completion(.success(connectionStatus))
+                        }
+                        
+                        // Check incoming connection status (target user -> current user)
+                        // If there's an accepted incoming connection, we're connected
+                        if let incoming = json?["incoming"] as? [String: Any],
+                           let incomingStatus = incoming["status"] as? String {
+                            switch incomingStatus {
+                            case "accepted":
+                                // If incoming is accepted, we're definitely connected
+                                finalConnectionStatus = .connected
+                            case "pending":
+                                // If outgoing is not already connected/pending, show incoming pending
+                                if finalConnectionStatus == .notConnected {
+                                    finalConnectionStatus = .pending
+                                }
+                            default:
+                                break // Keep the outgoing status
                             }
-                        } else {
-                            // No outgoing connection found
-                            DispatchQueue.main.async {
-                                completion(.success(.notConnected))
-                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            completion(.success(finalConnectionStatus))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connection status"
