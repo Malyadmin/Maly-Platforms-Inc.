@@ -482,21 +482,41 @@ struct InboxView: View {
             showingChat = true
         }) {
             HStack(spacing: 12) {
-                // Conversation icon based on type
-                if conversation.type == .group || conversation.type == .event {
-                    Image(systemName: "person.3.fill")
-                        .foregroundColor(.blue)
-                        .font(.title2)
-                        .frame(width: 50, height: 50)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
+                // Use profile image from last message sender if available
+                if let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+                   !profileImageUrl.isEmpty {
+                    AsyncImage(url: URL(string: profileImageUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.title2)
+                            )
+                    }
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 } else {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.white)
-                        .font(.title2)
-                        .frame(width: 50, height: 50)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
+                    // Fallback to conversation icon based on type
+                    if conversation.type == .group || conversation.type == .event {
+                        Image(systemName: "person.3.fill")
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
