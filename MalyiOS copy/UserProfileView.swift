@@ -369,7 +369,17 @@ struct UserProfileView: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let status):
+                    let oldStatus = self.connectionStatus
                     self.connectionStatus = status
+                    
+                    // If status changed, notify other views
+                    if oldStatus != status {
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("ConnectionStatusChanged"),
+                            object: nil,
+                            userInfo: ["userId": self.user.id, "status": status.rawValue]
+                        )
+                    }
                 case .failure:
                     // Keep default status if API call fails
                     break
@@ -386,6 +396,12 @@ struct UserProfileView: View {
                 switch result {
                 case .success:
                     self.connectionStatus = .pending
+                    // Notify other views that connection status changed
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("ConnectionStatusChanged"),
+                        object: nil,
+                        userInfo: ["userId": self.user.id, "status": "pending"]
+                    )
                 case .failure(let error):
                     // Handle error - could show an alert
                     print("Connection request failed: \(error.message)")
