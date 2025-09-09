@@ -9,6 +9,8 @@ struct InboxView: View {
     @State private var showingConnectionsList = false
     @State private var selectedConversationId: Int?
     @State private var showingChat = false
+    @State private var refreshTimer: Timer?
+    @State private var isViewActive = false
     
     var body: some View {
         NavigationView {
@@ -59,16 +61,28 @@ struct InboxView: View {
             print("📱 InboxView appeared - Auth status: \(authViewModel.isAuthenticated)")
             print("📱 TokenManager status: \(TokenManager.shared.isAuthenticated)")
             
+            isViewActive = true
             if authViewModel.isAuthenticated {
                 loadInboxData()
+                startAutoRefresh()
             } else {
                 inboxViewModel.testAuthentication()
             }
+        }
+        .onDisappear {
+            print("📱 InboxView disappeared - stopping auto-refresh")
+            isViewActive = false
+            stopAutoRefresh()
         }
         .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
             print("📱 Auth state changed to: \(isAuthenticated)")
             if isAuthenticated {
                 loadInboxData()
+                if isViewActive {
+                    startAutoRefresh()
+                }
+            } else {
+                stopAutoRefresh()
             }
         }
     }
@@ -600,6 +614,24 @@ struct InboxView: View {
                 continuation.resume()
             }
         }
+    }
+    
+    // MARK: - Auto-Refresh Methods
+    private func startAutoRefresh() {
+        stopAutoRefresh() // Ensure no duplicate timers
+        
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { _ in
+            if isViewActive && authViewModel.isAuthenticated {
+                loadInboxData()
+            }
+        }
+        print("📱 UI: Auto-refresh started (every 4 seconds)")
+    }
+    
+    private func stopAutoRefresh() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
+        print("📱 UI: Auto-refresh stopped")
     }
 }
 
