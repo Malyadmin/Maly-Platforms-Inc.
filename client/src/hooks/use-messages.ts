@@ -223,7 +223,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       // Update the messages and conversations state with the new message
       const { messages, conversations } = get();
       set({
-        messages: [...messages, ...newMessage],
+        messages: [...messages, newMessage],
         loading: false
       });
 
@@ -236,7 +236,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         const updatedConversations = [...conversations];
         updatedConversations[existingConvIndex] = {
           ...updatedConversations[existingConvIndex],
-          lastMessage: newMessage[0]
+          lastMessage: newMessage
         };
         set({ conversations: updatedConversations });
       }
