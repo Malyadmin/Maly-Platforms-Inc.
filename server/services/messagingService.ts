@@ -304,8 +304,21 @@ export async function getConversations(userId: number) {
         unreadCount: unreadMessages.length,
         eventId: conversation.eventId,
         participantCount: 2,
-        createdAt: conversation.createdAt
+        createdAt: conversation.createdAt,
+        // Include other participant's profile data for direct conversations
+        otherParticipant: {
+          id: otherUser.id,
+          username: otherUser.username,
+          fullName: otherUser.fullName,
+          profileImage: otherUser.profileImage
+        }
       };
+      
+      console.log(`[DEBUG_FIX] Added otherParticipant for conversation ${conversation.id}:`, {
+        otherUserId: otherUser.id,
+        otherUserName: otherUser.fullName || otherUser.username,
+        profileImage: otherUser.profileImage
+      });
     }
 
     conversationResults.push(conversationInfo);

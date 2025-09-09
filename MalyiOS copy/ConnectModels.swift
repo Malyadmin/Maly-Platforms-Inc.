@@ -54,12 +54,13 @@ struct Conversation: Codable, Identifiable {
     let unreadCount: Int
     let eventId: Int?
     let participantCount: Int?
+    let otherParticipant: MessageUser?  // For direct conversations - the other participant's profile info
     let createdAt: Date
     
     enum CodingKeys: String, CodingKey {
         case id, type, title, unreadCount, createdAt
         // Remove mappings since API sends camelCase matching property names
-        case lastMessage, eventId, participantCount
+        case lastMessage, eventId, participantCount, otherParticipant
     }
 }
 

@@ -487,9 +487,32 @@ struct InboxView: View {
             showingChat = true
         }) {
             HStack(spacing: 12) {
-                // Use profile image from last message sender if available
-                if let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+                // For direct conversations, show other participant's profile image
+                // For group/event conversations, show last message sender's profile image
+                if conversation.type == .direct,
+                   let otherParticipant = conversation.otherParticipant,
+                   let profileImageUrl = otherParticipant.profileImage,
                    !profileImageUrl.isEmpty {
+                    // Show other participant's profile image for direct conversations
+                    AsyncImage(url: URL(string: profileImageUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.title2)
+                            )
+                    }
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                } else if conversation.type != .direct,
+                          let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+                          !profileImageUrl.isEmpty {
+                    // Show last message sender's profile image for group/event conversations
                     AsyncImage(url: URL(string: profileImageUrl)) { image in
                         image
                             .resizable()
