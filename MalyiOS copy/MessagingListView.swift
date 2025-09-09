@@ -234,9 +234,14 @@ struct ConversationRow: View {
     
     @ViewBuilder
     private var conversationAvatar: some View {
+        // Debug logging
+        let profileImageUrl = conversation.lastMessage?.sender?.profileImage
+        let _ = print("🖼️ [DEBUG] Conversation \(conversation.id) - lastMessage: \(conversation.lastMessage != nil), sender: \(conversation.lastMessage?.sender != nil), profileImage: '\(profileImageUrl ?? "nil")'")
+        
         // Use profile image from last message sender if available
-        if let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+        if let profileImageUrl = profileImageUrl,
            !profileImageUrl.isEmpty {
+            let _ = print("🖼️ [DEBUG] Using profile image for conversation \(conversation.id): \(profileImageUrl)")
             AsyncImage(url: URL(string: profileImageUrl)) { image in
                 image
                     .resizable()
@@ -253,6 +258,7 @@ struct ConversationRow: View {
             .frame(width: 50, height: 50)
             .clipShape(Circle())
         } else {
+            let _ = print("🖼️ [DEBUG] Using fallback icon for conversation \(conversation.id)")
             // Fallback to colored circle with icon for conversations without messages or profile images
             ZStack {
                 Circle()
