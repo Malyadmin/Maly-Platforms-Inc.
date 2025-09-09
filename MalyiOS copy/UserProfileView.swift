@@ -2,6 +2,7 @@ import SwiftUI
 
 struct UserProfileView: View {
     let user: ConnectUser
+    let initialConnectionStatus: ConnectionStatus?
     @Environment(\.dismiss) private var dismiss
     @State private var connectionStatus: ConnectionStatus = .notConnected
     @State private var isLoading = false
@@ -10,6 +11,11 @@ struct UserProfileView: View {
     @State private var showChat = false
     @State private var selectedConversation: Conversation?
     private let apiService = APIService.shared
+    
+    init(user: ConnectUser, initialConnectionStatus: ConnectionStatus? = nil) {
+        self.user = user
+        self.initialConnectionStatus = initialConnectionStatus
+    }
     
     var body: some View {
         NavigationView {
@@ -48,7 +54,12 @@ struct UserProfileView: View {
             .background(Color.black)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                loadConnectionStatus()
+                // If we have an initial connection status, use it; otherwise load from API
+                if let initialStatus = initialConnectionStatus {
+                    connectionStatus = initialStatus
+                } else {
+                    loadConnectionStatus()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
