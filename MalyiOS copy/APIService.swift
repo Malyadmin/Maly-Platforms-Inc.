@@ -594,7 +594,7 @@ class APIService: ObservableObject {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
+                    if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
                         let message = try apiDecoder.decode(Message.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(message))
@@ -631,7 +631,7 @@ class APIService: ObservableObject {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
+                    if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
                         let conversation = try apiDecoder.decode(Conversation.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversation))
