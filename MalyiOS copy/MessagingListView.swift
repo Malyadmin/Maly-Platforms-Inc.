@@ -233,14 +233,35 @@ struct ConversationRow: View {
     }
     
     private var conversationAvatar: some View {
-        ZStack {
-            Circle()
-                .fill(conversation.type == .direct ? Color.blue : Color.green)
-                .frame(width: 50, height: 50)
-            
-            Image(systemName: avatarIcon)
-                .font(.title2)
-                .foregroundColor(.white)
+        // Use profile image from last message sender if available
+        if let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+           !profileImageUrl.isEmpty {
+            AsyncImage(url: URL(string: profileImageUrl)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                    )
+            }
+            .frame(width: 50, height: 50)
+            .clipShape(Circle())
+        } else {
+            // Fallback to colored circle with icon for conversations without messages or profile images
+            ZStack {
+                Circle()
+                    .fill(conversation.type == .direct ? Color.blue : Color.green)
+                    .frame(width: 50, height: 50)
+                
+                Image(systemName: avatarIcon)
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
         }
     }
     
