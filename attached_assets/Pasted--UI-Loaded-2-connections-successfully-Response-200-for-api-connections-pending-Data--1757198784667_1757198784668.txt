@@ -1,0 +1,25 @@
+📱 UI: Loaded 2 connections successfully
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+🔐 Added Authorization header for GET /api/conversations/14/messages
+🔍 Raw messages response: [{"id":13,"sender_id":198,"receiver_id":null,"conversation_id":14,"content":"Sup john","createdAt":"2025-09-06T21:17:29.360Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null},{"id":14,"sender_id":198,"receiver_id":null,"conversation_id":14,"content":"Yo","createdAt":"2025-09-06T21:18:01.293Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null},{"id":15,"sender_id":198,"receiver_id":null,"conversation_id":14,"content":"Yo john","createdAt":"2025-09-06T21:22:07.156Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null},{"id":17,"sender_id":198,"receiver_id":null,"conversation_id":14,"content":"Hey","createdAt":"2025-09-06T22:37:13.746Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null}]
+📨 Message 13: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+📨 Message 14: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+📨 Message 15: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+📨 Message 17: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+🔐 Added Authorization header for GET /api/conversations/29/messages
+🔍 Raw messages response: [{"id":1,"sender_id":198,"receiver_id":200,"conversation_id":29,"content":"yo","createdAt":"2025-09-06T19:15:41.453Z","is_read":true,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null},{"id":2,"sender_id":200,"receiver_id":198,"conversation_id":29,"content":"hi dude","createdAt":"2025-09-06T19:16:26.409Z","is_read":false,"sender":{"id":200,"fullName":"Connect","profileImage":null},"receiver":null},{"id":16,"sender_id":198,"receiver_id":null,"conversation_id":29,"content":"Yo","createdAt":"2025-09-06T21:25:37.262Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null},{"id":18,"sender_id":198,"receiver_id":null,"conversation_id":29,"content":"Hey","createdAt":"2025-09-06T22:41:40.615Z","is_read":false,"sender":{"id":198,"fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg"},"receiver":null}]
+📨 Message 1: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+📨 Message 2: senderId=200
+   👤 Sender: id=200, username=nil, fullName=nil
+📨 Message 16: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil
+📨 Message 18: senderId=198
+   👤 Sender: id=198, username=nil, fullName=nil

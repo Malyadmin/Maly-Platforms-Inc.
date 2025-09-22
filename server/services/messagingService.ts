@@ -242,6 +242,25 @@ export async function getConversations(userId: number) {
       )
     });
 
+    // Format the latest message to match iOS Message model expectations
+    console.log(`[DEBUG_FIX] Formatting last message for conversation ${conversation.id}:`, latestMessage ? `"${latestMessage.content}"` : 'null');
+    const formattedLastMessage = latestMessage ? {
+      id: latestMessage.id,
+      sender_id: latestMessage.senderId,
+      receiver_id: latestMessage.receiverId,
+      conversation_id: latestMessage.conversationId,
+      content: latestMessage.content,
+      createdAt: latestMessage.createdAt,
+      is_read: latestMessage.isRead,
+      sender: latestMessage.sender ? {
+        id: latestMessage.sender.id,
+        username: latestMessage.sender.username,
+        fullName: latestMessage.sender.fullName,
+        profileImage: latestMessage.sender.profileImage
+      } : null,
+      receiver: null // Usually null for conversation messages
+    } : null;
+
     if (conversation.type === 'event') {
       // For event conversations, use event title and show it's a group chat
       conversationInfo = {
@@ -249,7 +268,7 @@ export async function getConversations(userId: number) {
         type: 'event',
         title: conversation.title || (conversation.event?.title ? `${conversation.event.title} - Event Chat` : 'Event Chat'),
         eventId: conversation.eventId,
-        lastMessage: latestMessage,
+        lastMessage: formattedLastMessage,
         unreadCount: unreadMessages.length,
         participantCount: await getConversationParticipantCount(conversation.id),
         createdAt: conversation.createdAt
@@ -281,12 +300,25 @@ export async function getConversations(userId: number) {
         id: conversation.id,
         type: 'direct',
         title: otherUser.fullName || otherUser.username,
-        lastMessage: latestMessage,
+        lastMessage: formattedLastMessage,
         unreadCount: unreadMessages.length,
         eventId: conversation.eventId,
         participantCount: 2,
-        createdAt: conversation.createdAt
+        createdAt: conversation.createdAt,
+        // Include other participant's profile data for direct conversations
+        otherParticipant: {
+          id: otherUser.id,
+          username: otherUser.username,
+          fullName: otherUser.fullName,
+          profileImage: otherUser.profileImage
+        }
       };
+      
+      console.log(`[DEBUG_FIX] Added otherParticipant for conversation ${conversation.id}:`, {
+        otherUserId: otherUser.id,
+        otherUserName: otherUser.fullName || otherUser.username,
+        profileImage: otherUser.profileImage
+      });
     }
 
     conversationResults.push(conversationInfo);
@@ -645,40 +677,8 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
 
 // Create or find a direct conversation between two users
 export async function getOrCreateDirectConversation(userId1: number, userId2: number): Promise<ExtendedConversation> {
-  // First check if a direct conversation already exists between these users
-  const existingConversation = await db.query.conversations.findFirst({
-    where: and(
-      eq(conversations.type, "direct"),
-      isNull(conversations.eventId)
-    ),
-    with: {
-      participants: true
-    }
-  });
-
-  if (existingConversation) {
-    // Check if both users are participants in this conversation
-    const participantIds = existingConversation.participants.map(p => p.userId);
-    const hasUser1 = participantIds.includes(userId1);
-    const hasUser2 = participantIds.includes(userId2);
-    
-    if (hasUser1 && hasUser2 && participantIds.length === 2) {
-      // Format the existing conversation properly for iOS
-      return {
-        id: existingConversation.id,
-        type: existingConversation.type,
-        title: existingConversation.title || "Direct Message",
-        last_message: null, // This could be enhanced to fetch the actual last message
-        unreadCount: 0, // This could be enhanced to calculate actual unread count
-        event_id: existingConversation.eventId,
-        participant_count: 2,
-        createdAt: existingConversation.createdAt || new Date()
-      };
-    }
-  }
-
-  // If no existing conversation found, search through all direct conversations 
-  // to find one with exactly these two participants
+  console.log(`[DEBUG_FIX] Checking for existing conversation between users ${userId1} and ${userId2}`);
+  // Search through all direct conversations to find one with exactly these two participants
   const allDirectConversations = await db.query.conversations.findMany({
     where: and(
       eq(conversations.type, "direct"),
@@ -691,6 +691,7 @@ export async function getOrCreateDirectConversation(userId1: number, userId2: nu
 
   for (const conversation of allDirectConversations) {
     const participantIds = conversation.participants.map(p => p.userId);
+    
     if (participantIds.length === 2 && 
         participantIds.includes(userId1) && 
         participantIds.includes(userId2)) {

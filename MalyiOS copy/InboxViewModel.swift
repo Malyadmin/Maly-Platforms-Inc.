@@ -89,6 +89,37 @@ class InboxViewModel: ObservableObject {
     @Published var pendingRequests: [ConnectionRequest] = []
     @Published var recentConnections: [UserConnection] = []
     @Published var connectionsCount = 0
+    
+    init() {
+        setupNotificationListeners()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationListeners() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("ConnectionStatusChanged"),
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.handleConnectionStatusChange(notification)
+        }
+    }
+    
+    private func handleConnectionStatusChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let userId = userInfo["userId"] as? Int,
+              let status = userInfo["status"] as? String else {
+            return
+        }
+        
+        // If a connection was accepted, refresh the connections list
+        if status == "connected" {
+            fetchRecentConnections { _ in }
+        }
+    }
     @Published var errorMessage: String?
     @Published var showingAuthenticationRequired = false
     

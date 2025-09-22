@@ -9,6 +9,8 @@ struct InboxView: View {
     @State private var showingConnectionsList = false
     @State private var selectedConversationId: Int?
     @State private var showingChat = false
+    @State private var refreshTimer: Timer?
+    @State private var isViewActive = false
     
     var body: some View {
         NavigationView {
@@ -59,16 +61,28 @@ struct InboxView: View {
             print("📱 InboxView appeared - Auth status: \(authViewModel.isAuthenticated)")
             print("📱 TokenManager status: \(TokenManager.shared.isAuthenticated)")
             
+            isViewActive = true
             if authViewModel.isAuthenticated {
                 loadInboxData()
+                startAutoRefresh()
             } else {
                 inboxViewModel.testAuthentication()
             }
+        }
+        .onDisappear {
+            print("📱 InboxView disappeared - stopping auto-refresh")
+            isViewActive = false
+            stopAutoRefresh()
         }
         .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
             print("📱 Auth state changed to: \(isAuthenticated)")
             if isAuthenticated {
                 loadInboxData()
+                if isViewActive {
+                    startAutoRefresh()
+                }
+            } else {
+                stopAutoRefresh()
             }
         }
     }
@@ -306,6 +320,17 @@ struct InboxView: View {
                 // Show up to 5 recent conversations
                 ForEach(messagingViewModel.conversations.prefix(5), id: \.id) { conversation in
                     conversationItem(conversation: conversation)
+                        .onAppear {
+                            print("📱 UI: Displaying conversation \(conversation.id) - '\(conversation.title)' - hasLastMessage: \(conversation.lastMessage != nil)")
+                            if let lastMessage = conversation.lastMessage {
+                                print("📱 UI: LastMessage content: '\(lastMessage.content)'")
+                                if let sender = lastMessage.sender {
+                                    print("📱 UI: Sender: \(sender.username ?? "nil") - profileImage: '\(sender.profileImage ?? "nil")'")
+                                } else {
+                                    print("📱 UI: No sender data in lastMessage")
+                                }
+                            }
+                        }
                 }
                 
                 if messagingViewModel.conversations.count > 5 {
@@ -462,21 +487,64 @@ struct InboxView: View {
             showingChat = true
         }) {
             HStack(spacing: 12) {
-                // Conversation icon based on type
-                if conversation.type == .group || conversation.type == .event {
-                    Image(systemName: "person.3.fill")
-                        .foregroundColor(.blue)
-                        .font(.title2)
-                        .frame(width: 50, height: 50)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
+                // For direct conversations, show other participant's profile image
+                // For group/event conversations, show last message sender's profile image
+                if conversation.type == .direct,
+                   let otherParticipant = conversation.otherParticipant,
+                   let profileImageUrl = otherParticipant.profileImage,
+                   !profileImageUrl.isEmpty {
+                    // Show other participant's profile image for direct conversations
+                    AsyncImage(url: URL(string: profileImageUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.title2)
+                            )
+                    }
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                } else if conversation.type != .direct,
+                          let profileImageUrl = conversation.lastMessage?.sender?.profileImage,
+                          !profileImageUrl.isEmpty {
+                    // Show last message sender's profile image for group/event conversations
+                    AsyncImage(url: URL(string: profileImageUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.title2)
+                            )
+                    }
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 } else {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.white)
-                        .font(.title2)
-                        .frame(width: 50, height: 50)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
+                    // Fallback to conversation icon based on type
+                    if conversation.type == .group || conversation.type == .event {
+                        Image(systemName: "person.3.fill")
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -541,7 +609,14 @@ struct InboxView: View {
                 print("📱 UI: Failed to load connections: \(error.message)")
             }
         }
-        messagingViewModel.fetchConversations { _ in }
+        messagingViewModel.fetchConversations { result in
+            switch result {
+            case .success(let conversations):
+                print("📱 UI: Loaded \(conversations.count) conversations successfully")
+            case .failure(let error):
+                print("📱 UI: Failed to load conversations: \(error.message)")
+            }
+        }
     }
     
     private func refreshInboxData() async {
@@ -572,7 +647,13 @@ struct InboxView: View {
             }
             
             group.enter()
-            messagingViewModel.fetchConversations { _ in
+            messagingViewModel.fetchConversations { result in
+                switch result {
+                case .success(let conversations):
+                    print("📱 UI: Refreshed \(conversations.count) conversations")
+                case .failure(let error):
+                    print("📱 UI: Refresh failed for conversations: \(error.message)")
+                }
                 group.leave()
             }
             
@@ -581,6 +662,24 @@ struct InboxView: View {
                 continuation.resume()
             }
         }
+    }
+    
+    // MARK: - Auto-Refresh Methods
+    private func startAutoRefresh() {
+        stopAutoRefresh() // Ensure no duplicate timers
+        
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { _ in
+            if isViewActive && authViewModel.isAuthenticated {
+                loadInboxData()
+            }
+        }
+        print("📱 UI: Auto-refresh started (every 4 seconds)")
+    }
+    
+    private func stopAutoRefresh() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
+        print("📱 UI: Auto-refresh stopped")
     }
 }
 

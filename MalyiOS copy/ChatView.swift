@@ -66,13 +66,59 @@ struct ChatView: View {
         }
         .overlay {
             if messagingViewModel.isLoading && messagingViewModel.currentMessages.isEmpty {
-                ProgressView("Loading messages...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                VStack(spacing: 16) {
+                    ProgressView("Loading messages...")
+                    
+                    // Add a retry button for blank screen scenarios
+                    Button("Retry") {
+                        loadMessages()
+                    }
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
+            } else if !messagingViewModel.isLoading && messagingViewModel.currentMessages.isEmpty && messagingViewModel.errorMessage != nil {
+                // Show error state with retry option
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundColor(.orange)
+                    
+                    Text("Failed to load messages")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    if let errorMessage = messagingViewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    Button("Try Again") {
+                        loadMessages()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
             }
         }
         .onAppear {
             loadMessages()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            // Reload messages when app becomes active (helps with network recovery)
+            if messagingViewModel.currentMessages.isEmpty && !messagingViewModel.isLoading {
+                print("📱 App became active, reloading messages if empty")
+                loadMessages()
+            }
         }
     }
     
@@ -135,14 +181,30 @@ struct ChatView: View {
     // MARK: - Methods
     
     private func loadMessages() {
-        guard let conversationId = conversationId else { return }
+        guard let conversationId = conversationId else {
+            print("❌ ChatView: No conversationId available for loading messages")
+            return
+        }
+        
+        print("🔄 ChatView: Loading messages for conversation \(conversationId)")
         
         // Set the current conversation in the messaging view model if we have it
         if let conversation = conversation {
             messagingViewModel.currentConversation = conversation
+            print("💬 ChatView: Set current conversation: \(conversation.title)")
         }
         
-        messagingViewModel.fetchMessages(for: conversationId) { _ in }
+        // Force the loading state to be true immediately
+        messagingViewModel.isLoading = true
+        
+        messagingViewModel.fetchMessages(for: conversationId) { result in
+            switch result {
+            case .success(let messages):
+                print("✅ ChatView: Successfully loaded \(messages.count) messages")
+            case .failure(let error):
+                print("❌ ChatView: Failed to load messages: \(error.message)")
+            }
+        }
     }
     
     private func sendMessage() {
@@ -170,7 +232,7 @@ struct ChatView: View {
 
 struct MessageBubble: View {
     let message: Message
-    @State private var currentUserId = 1 // This should come from auth state
+    @State private var currentUserId: Int? = nil
     
     var body: some View {
         HStack {
@@ -186,13 +248,22 @@ struct MessageBubble: View {
                 Spacer(minLength: 60)
             }
         }
+        .onAppear {
+            // Get the current user ID from TokenManager
+            currentUserId = TokenManager.shared.getUserId()
+        }
     }
     
     private var messageBubbleContent: some View {
         VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
-            // Sender name (for group chats)
-            if !isFromCurrentUser, let sender = message.sender {
-                Text(sender.fullName ?? sender.username)
+            // Sender name - show "Me" for current user, sender name for others
+            if isFromCurrentUser {
+                Text("Me")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+            } else if let sender = message.sender {
+                Text(sender.fullName ?? sender.username ?? "Unknown User")
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundColor(.secondary)
@@ -214,7 +285,8 @@ struct MessageBubble: View {
     }
     
     private var isFromCurrentUser: Bool {
-        message.senderId == currentUserId
+        guard let currentUserId = currentUserId else { return false }
+        return message.senderId == currentUserId
     }
     
     private func formatTimestamp(_ date: Date) -> String {

@@ -54,13 +54,13 @@ struct Conversation: Codable, Identifiable {
     let unreadCount: Int
     let eventId: Int?
     let participantCount: Int?
+    let otherParticipant: MessageUser?  // For direct conversations - the other participant's profile info
     let createdAt: Date
     
     enum CodingKeys: String, CodingKey {
         case id, type, title, unreadCount, createdAt
-        case lastMessage = "last_message"
-        case eventId = "event_id"
-        case participantCount = "participant_count"
+        // Remove mappings since API sends camelCase matching property names
+        case lastMessage, eventId, participantCount, otherParticipant
     }
 }
 
@@ -87,14 +87,14 @@ struct Message: Codable, Identifiable {
 
 struct MessageUser: Codable {
     let id: Int
-    let username: String
+    let username: String?
     let fullName: String?
     let profileImage: String?
     
     enum CodingKeys: String, CodingKey {
         case id, username
-        case fullName = "full_name"
-        case profileImage = "profile_image"
+        case fullName = "fullName"  // Server sends camelCase, not snake_case
+        case profileImage = "profileImage"  // Server sends camelCase, not snake_case
     }
 }
 

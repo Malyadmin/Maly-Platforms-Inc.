@@ -223,22 +223,24 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       // Update the messages and conversations state with the new message
       const { messages, conversations } = get();
       set({
-        messages: [...messages, ...newMessage],
+        messages: [...messages, newMessage],
         loading: false
       });
 
-      // Update conversations if applicable
-      const existingConvIndex = conversations.findIndex(
-        c => c.user.id === receiverId
-      );
+      // Update conversations if applicable (only for direct messages where receiverId exists)
+      if (receiverId) {
+        const existingConvIndex = conversations.findIndex(
+          c => c.user && c.user.id === receiverId
+        );
 
-      if (existingConvIndex !== -1) {
-        const updatedConversations = [...conversations];
-        updatedConversations[existingConvIndex] = {
-          ...updatedConversations[existingConvIndex],
-          lastMessage: newMessage[0]
-        };
-        set({ conversations: updatedConversations });
+        if (existingConvIndex !== -1) {
+          const updatedConversations = [...conversations];
+          updatedConversations[existingConvIndex] = {
+            ...updatedConversations[existingConvIndex],
+            lastMessage: newMessage
+          };
+          set({ conversations: updatedConversations });
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);

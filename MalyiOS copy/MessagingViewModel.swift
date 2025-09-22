@@ -37,6 +37,7 @@ class MessagingViewModel: ObservableObject {
                     completion(.success(conversations))
                     
                 case .failure(let error):
+                    print("📨 [DEBUG] Failed to fetch conversations: \(error.message)")
                     self?.errorMessage = error.message
                     completion(.failure(error))
                 }

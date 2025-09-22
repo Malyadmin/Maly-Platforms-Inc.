@@ -32,6 +32,50 @@ class APIService: ObservableObject {
     private var session: URLSession
     private let tokenManager = TokenManager.shared
     
+    // Shared date formatter for all API responses
+    private let apiDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"  // Fixed: removed quotes around Z
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    // Fallback date formatter for shorter date format
+    private let fallbackDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"  // Without milliseconds
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    // Shared JSON decoder with custom date strategy
+    private var apiDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            // Try primary format first
+            if let date = self.apiDateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try fallback format
+            if let date = self.fallbackDateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try ISO8601 formatter as last resort
+            if let date = ISO8601DateFormatter().date(from: dateString) {
+                return date
+            }
+            
+            print("🚨 [JSON] Failed to parse date: '\(dateString)'")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format: \(dateString)")
+        }
+        return decoder
+    }
+    
     private init() {
         let config = URLSessionConfiguration.default
         config.httpCookieStorage = HTTPCookieStorage.shared
@@ -408,28 +452,43 @@ class APIService: ObservableObject {
                         // Backend returns: { "outgoing": {...}, "incoming": {...} }
                         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
                         
+                        var finalConnectionStatus: ConnectionStatus = .notConnected
+                        
                         // Check outgoing connection status (current user -> target user)
                         if let outgoing = json?["outgoing"] as? [String: Any],
-                           let status = outgoing["status"] as? String {
-                            let connectionStatus: ConnectionStatus
-                            switch status {
+                           let outgoingStatus = outgoing["status"] as? String {
+                            switch outgoingStatus {
                             case "pending":
-                                connectionStatus = .pending
+                                finalConnectionStatus = .pending
                             case "accepted":
-                                connectionStatus = .connected
+                                finalConnectionStatus = .connected
                             case "declined":
-                                connectionStatus = .blocked
+                                finalConnectionStatus = .blocked
                             default:
-                                connectionStatus = .notConnected
+                                finalConnectionStatus = .notConnected
                             }
-                            DispatchQueue.main.async {
-                                completion(.success(connectionStatus))
+                        }
+                        
+                        // Check incoming connection status (target user -> current user)
+                        // If there's an accepted incoming connection, we're connected
+                        if let incoming = json?["incoming"] as? [String: Any],
+                           let incomingStatus = incoming["status"] as? String {
+                            switch incomingStatus {
+                            case "accepted":
+                                // If incoming is accepted, we're definitely connected
+                                finalConnectionStatus = .connected
+                            case "pending":
+                                // If outgoing is not already connected/pending, show incoming pending
+                                if finalConnectionStatus == .notConnected {
+                                    finalConnectionStatus = .pending
+                                }
+                            default:
+                                break // Keep the outgoing status
                             }
-                        } else {
-                            // No outgoing connection found
-                            DispatchQueue.main.async {
-                                completion(.success(.notConnected))
-                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            completion(.success(finalConnectionStatus))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to get connection status"
@@ -456,8 +515,7 @@ class APIService: ObservableObject {
         }
         
         let url = URL(string: "\(baseURL)/conversations/\(userId)")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        var urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         Task {
             do {
@@ -465,16 +523,19 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let conversations = try decoder.decode([Conversation].self, from: data)
+                        let conversations = try apiDecoder.decode([Conversation].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversations))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch conversations"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -488,8 +549,7 @@ class APIService: ObservableObject {
     
     func fetchMessages(for conversationId: Int, completion: @escaping (Result<[Message], APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
+        var urlRequest = createAuthenticatedRequest(url: url, method: "GET")
         
         Task {
             do {
@@ -497,16 +557,19 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let messages = try decoder.decode([Message].self, from: data)
+                        let messages = try apiDecoder.decode([Message].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(messages))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to fetch messages"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -520,9 +583,7 @@ class APIService: ObservableObject {
     
     func sendMessage(to conversationId: Int, content: String, completion: @escaping (Result<Message, APIError>) -> Void) {
         let url = URL(string: "\(baseURL)/conversations/\(conversationId)/messages")!
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var urlRequest = createAuthenticatedRequest(url: url, method: "POST")
         
         let requestBody = SendMessageRequest(content: content)
         
@@ -533,17 +594,20 @@ class APIService: ObservableObject {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let message = try decoder.decode(Message.self, from: data)
+                    if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
+                        let message = try apiDecoder.decode(Message.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(message))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to send message"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -567,17 +631,20 @@ class APIService: ObservableObject {
                 let (data, response) = try await session.data(for: urlRequest)
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let conversation = try decoder.decode(Conversation.self, from: data)
+                    if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
+                        let conversation = try apiDecoder.decode(Conversation.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(conversation))
+                        }
+                    } else if httpResponse.statusCode == 401 {
+                        handleAuthenticationError()
+                        DispatchQueue.main.async {
+                            completion(.failure(APIError(message: "Authentication failed. Please log in again.")))
                         }
                     } else {
                         let errorMessage = String(data: data, encoding: .utf8) ?? "Failed to create/find conversation"
                         DispatchQueue.main.async {
-                            completion(.failure(APIError(message: errorMessage)))
+                            completion(.failure(APIError(message: "HTTP \(httpResponse.statusCode): \(errorMessage)")))
                         }
                     }
                 }
@@ -663,9 +730,7 @@ class APIService: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 201 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let group = try decoder.decode(Group.self, from: data)
+                        let group = try apiDecoder.decode(Group.self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(group))
                         }
@@ -738,9 +803,7 @@ class APIService: ObservableObject {
                     logResponse(httpResponse, data: data)
                     
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let requests = try decoder.decode([ConnectionRequest].self, from: data)
+                        let requests = try apiDecoder.decode([ConnectionRequest].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(requests))
                         }
@@ -778,9 +841,7 @@ class APIService: ObservableObject {
                     logResponse(httpResponse, data: data)
                     
                     if httpResponse.statusCode == 200 {
-                        let decoder = JSONDecoder()
-                        decoder.dateDecodingStrategy = .iso8601
-                        let connections = try decoder.decode([UserConnection].self, from: data)
+                        let connections = try apiDecoder.decode([UserConnection].self, from: data)
                         DispatchQueue.main.async {
                             completion(.success(connections))
                         }

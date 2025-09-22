@@ -40,7 +40,7 @@ struct ConnectionsListView: View {
             }
         }
         .sheet(item: $selectedUser) { user in
-            UserProfileView(user: user)
+            UserProfileView(user: user, initialConnectionStatus: .connected)
         }
         .onAppear {
             loadConnections()

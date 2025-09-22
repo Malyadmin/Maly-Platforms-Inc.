@@ -1,0 +1,255 @@
+🔐 Login attempt starting...
+🌐 URL: https://maly-platforms-inc-hudekholdingsll.replit.app/api/api/login
+📤 Request body: {"password":"password","username":"tony@gmail.com"}
+📊 Login response status: 200
+📥 Login response data: <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style data-vite-theme="" data-inject-first="">:root {
+    --background: 0 0% 100%;
+--foreground: 20 14.3% 4.1%;
+--muted: 60 4.8% 95.9%;
+--muted-foreground: 25 5.3% 44.7%;
+--popover: 0 0% 100%;
+--popover-foreground: 20 14.3% 4.1%;
+--card: 0 0% 100%;
+--card-foreground: 20 14.3% 4.1%;
+--border: 20 5.9% 90%;
+--input: 20 5.9% 90%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 60 4.8% 95.9%;
+--secondary-foreground: 24 9.8% 10%;
+--accent: 60 4.8% 95.9%;
+--accent-foreground: 24 9.8% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 20 14.3% 4.1%;
+--radius: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+      --background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 240 3.7% 15.9%;
+--secondary-foreground: 0 0% 98%;
+--accent: 240 3.7% 15.9%;
+--accent-foreground: 0 0% 98%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 240 4.9% 83.9%;
+--radius: 0.75rem;
+  }
+}
+.light {
+    --background: 0 0% 100%;
+--foreground: 20 14.3% 4.1%;
+--muted: 60 4.8% 95.9%;
+--muted-foreground: 25 5.3% 44.7%;
+--popover: 0 0% 100%;
+--popover-foreground: 20 14.3% 4.1%;
+--card: 0 0% 100%;
+--card-foreground: 20 14.3% 4.1%;
+--border: 20 5.9% 90%;
+--input: 20 5.9% 90%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 60 4.8% 95.9%;
+--secondary-foreground: 24 9.8% 10%;
+--accent: 60 4.8% 95.9%;
+--accent-foreground: 24 9.8% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 20 14.3% 4.1%;
+--radius: 0.75rem;
+}
+.dark {
+    --background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 240 3.7% 15.9%;
+--secondary-foreground: 0 0% 98%;
+--accent: 240 3.7% 15.9%;
+--accent-foreground: 0 0% 98%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 240 4.9% 83.9%;
+--radius: 0.75rem;
+}</style>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maly App</title>
+    <meta name="description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://workspace.tonyu21.replit.app" />
+    <meta property="og:title" content="Maly App" />
+    <meta property="og:description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    <meta property="og:image" content="https://workspace.tonyu21.replit.app/assets/maly-logo-text.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Maly" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://workspace.tonyu21.replit.app" />
+    <meta property="twitter:title" content="Maly App" />
+    <meta property="twitter:description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    <meta property="twitter:image" content="https://workspace.tonyu21.replit.app/assets/maly-logo-text.svg" />
+    
+    <script type="module" crossorigin src="/assets/index-Eh7BHSpc.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CemU6zcP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+🍪 Response headers: [AnyHashable("Server"): Google Frontend, AnyHashable("Content-Length"): 4004, AnyHashable("Date"): Sat, 06 Sep 2025 20:39:52 GMT, AnyHashable("Etag"): W/"fa4-19920bebc38", AnyHashable("Last-Modified"): Sat, 06 Sep 2025 20:36:35 GMT, AnyHashable("access-control-allow-methods"): GET,PUT,POST,DELETE,OPTIONS, AnyHashable("access-control-allow-headers"): Content-Type, Authorization, AnyHashable("Accept-Ranges"): bytes, AnyHashable("Cache-Control"): private, max-age=0, AnyHashable("Alt-Svc"): h3=":443"; ma=2592000,h3-29=":443"; ma=2592000, AnyHashable("Strict-Transport-Security"): max-age=63072000; includeSubDomains, AnyHashable("Content-Type"): text/html; charset=UTF-8, AnyHashable("Set-Cookie"): maly_session=s%3ArbNbyx2h1pX3XjH1w12_Cg7nWDiFk7iP.IZ8edFHjTdskBFPMt5iqUMN6EnxGY%2Fxy1laeHH1rDtM; Path=/; Expires=Sat, 13 Sep 2025 20:39:52 GMT; HttpOnly; Secure; SameSite=None, AnyHashable("x-cloud-trace-context"): 4f90bc3e87f7095f2b2ae32d42542cb5;o=1, AnyHashable("Expires"): Sat, 06 Sep 2025 20:39:52 GMT, AnyHashable("Via"): 1.1 google, AnyHashable("x-powered-by"): Express, AnyHashable("Access-Control-Allow-Origin"): *]
+❌ JSON decode error: dataCorrupted(Swift.DecodingError.Context(codingPath: [], debugDescription: "The given data was not valid JSON.", underlyingError: Optional(Error Domain=NSCocoaErrorDomain Code=3840 "Unexpected character '<' around line 1, column 1." UserInfo={NSJSONSerializationErrorIndex=0, NSDebugDescription=Unexpected character '<' around line 1, column 1.})))
+Raw response: <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style data-vite-theme="" data-inject-first="">:root {
+    --background: 0 0% 100%;
+--foreground: 20 14.3% 4.1%;
+--muted: 60 4.8% 95.9%;
+--muted-foreground: 25 5.3% 44.7%;
+--popover: 0 0% 100%;
+--popover-foreground: 20 14.3% 4.1%;
+--card: 0 0% 100%;
+--card-foreground: 20 14.3% 4.1%;
+--border: 20 5.9% 90%;
+--input: 20 5.9% 90%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 60 4.8% 95.9%;
+--secondary-foreground: 24 9.8% 10%;
+--accent: 60 4.8% 95.9%;
+--accent-foreground: 24 9.8% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 20 14.3% 4.1%;
+--radius: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+      --background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 240 3.7% 15.9%;
+--secondary-foreground: 0 0% 98%;
+--accent: 240 3.7% 15.9%;
+--accent-foreground: 0 0% 98%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 240 4.9% 83.9%;
+--radius: 0.75rem;
+  }
+}
+.light {
+    --background: 0 0% 100%;
+--foreground: 20 14.3% 4.1%;
+--muted: 60 4.8% 95.9%;
+--muted-foreground: 25 5.3% 44.7%;
+--popover: 0 0% 100%;
+--popover-foreground: 20 14.3% 4.1%;
+--card: 0 0% 100%;
+--card-foreground: 20 14.3% 4.1%;
+--border: 20 5.9% 90%;
+--input: 20 5.9% 90%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 60 4.8% 95.9%;
+--secondary-foreground: 24 9.8% 10%;
+--accent: 60 4.8% 95.9%;
+--accent-foreground: 24 9.8% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 20 14.3% 4.1%;
+--radius: 0.75rem;
+}
+.dark {
+    --background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--primary: 258 90% 66%;
+--primary-foreground: 248 100% 99%;
+--secondary: 240 3.7% 15.9%;
+--secondary-foreground: 0 0% 98%;
+--accent: 240 3.7% 15.9%;
+--accent-foreground: 0 0% 98%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 240 4.9% 83.9%;
+--radius: 0.75rem;
+}</style>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maly App</title>
+    <meta name="description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://workspace.tonyu21.replit.app" />
+    <meta property="og:title" content="Maly App" />
+    <meta property="og:description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    <meta property="og:image" content="https://workspace.tonyu21.replit.app/assets/maly-logo-text.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Maly" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://workspace.tonyu21.replit.app" />
+    <meta property="twitter:title" content="Maly App" />
+    <meta property="twitter:description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    <meta property="twitter:image" content="https://workspace.tonyu21.replit.app/assets/maly-logo-text.svg" />
+    
+    <script type="module" crossorigin src="/assets/index-Eh7BHSpc.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CemU6zcP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+🚨 API Error: Invalid response format

@@ -1,0 +1,222 @@
+load_eligibility_plist: Failed to open /Users/tonyudotong/Library/Developer/CoreSimulator/Devices/FDBA3949-953B-41F7-9E03-837F18B1E8A9/data/Containers/Data/Application/7AF76F9C-5912-4BB8-AE40-16936BD877B1/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+✅ Authentication restored from stored token
+🌐 APIService initialized with baseURL: https://maly-platforms-inc-hudekholdingsll.replit.app/api
+Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+nw_connection_copy_connected_local_endpoint_block_invoke [C2] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+nw_connection_copy_connected_remote_endpoint_block_invoke [C2] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+nw_connection_copy_protocol_metadata_internal_block_invoke [C2] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+Auth check response status: 200
+🔄 Preloading connections for better UX...
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Authorization: Bearer ***
+   Content-Type: application/json
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+✅ Successfully preloaded 1 connections
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+✅ Successfully preloaded 0 connection requests
+📱 InboxView appeared - Auth status: true
+📱 TokenManager status: true
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/conversations/200
+📱 UI: Auto-refresh stopped
+📱 UI: Auto-refresh started (every 4 seconds)
+📱 UI: Showing 'No pending requests' - Array count: 0
+📱 UI: Connection Requests header - Count: 0
+📱 UI: Current pending requests: []
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📱 UI: Loaded 2 conversations successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📱 UI: Displaying conversation 15 - 'tony' - hasLastMessage: false
+📱 UI: Displaying conversation 29 - 'tony' - hasLastMessage: true
+📱 UI: LastMessage content: 'Easy money'
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully
+📱 InboxView disappeared - stopping auto-refresh
+📱 UI: Auto-refresh stopped
+📱 InboxView appeared - Auth status: true
+📱 TokenManager status: true
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/conversations/200
+📱 UI: Auto-refresh stopped
+📱 UI: Auto-refresh started (every 4 seconds)
+📱 UI: Showing 'No pending requests' - Array count: 0
+📱 UI: Connection Requests header - Count: 0
+📱 UI: Current pending requests: []
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully
+📱 UI: Displaying conversation 15 - 'tony' - hasLastMessage: false
+📱 UI: Displaying conversation 29 - 'tony' - hasLastMessage: true
+📱 UI: LastMessage content: 'Easy money'
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+🔄 ChatView: Loading messages for conversation 29
+🔐 Added Authorization header for GET /api/conversations/29/messages
+📱 UI: Loaded 2 conversations successfully
+✅ ChatView: Successfully loaded 9 messages
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📱 UI: Loaded 2 conversations successfully
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Authorization: Bearer ***
+   Content-Type: application/json
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully
+📱 UI: Loading inbox data...
+🔐 Added Authorization header for GET /api/connections/pending
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections/pending
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/connections
+📤 GET https://maly-platforms-inc-hudekholdingsll.replit.app/api/connections
+   Content-Type: application/json
+   Authorization: Bearer ***
+🔐 Added Authorization header for GET /api/conversations/200
+📥 Response: 200 for /api/connections/pending
+   Data: []
+📥 Successfully fetched 0 pending requests
+📱 UI: Loaded 0 pending requests successfully
+📥 Response: 200 for /api/connections
+   Data: [{"id":198,"username":"tony","fullName":"tony","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1756169578/images/uploads/1756169578322_IMG_4973.jpeg.jpg","connectionDate":"2025-09-0...
+📥 Successfully fetched 1 connections
+📱 UI: Loaded 1 connections successfully
+📱 UI: Loaded 2 conversations successfully

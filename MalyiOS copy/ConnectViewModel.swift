@@ -26,6 +26,35 @@ class ConnectViewModel: ObservableObject {
     
     init(apiService: APIService = APIService.shared) {
         self.apiService = apiService
+        setupNotificationListeners()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationListeners() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("ConnectionStatusChanged"),
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.handleConnectionStatusChange(notification)
+        }
+    }
+    
+    private func handleConnectionStatusChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let userId = userInfo["userId"] as? Int,
+              let status = userInfo["status"] as? String else {
+            return
+        }
+        
+        // Update the user in nearbyUsers if they exist there
+        if let index = nearbyUsers.firstIndex(where: { $0.id == userId }) {
+            // You could update local user data here if needed
+            // For now, the UserProfileView will handle its own state
+        }
     }
     
     // MARK: - User Discovery
