@@ -5,6 +5,7 @@ import { Redirect } from "@/components/ui/redirect";
 import EventPage from "./pages/EventPage";
 import ProfilePage from "./pages/ProfilePage";
 import CreateEventPage from "./pages/CreateEventPage";
+import CreateEventFlowPage from "./pages/CreateEventFlowPage";
 import EditEventPage from "./pages/EditEventPage";
 import TestCreateEventPage from "./pages/TestCreateEventPage";
 import ChatbotPage from "./pages/ChatbotPage";
@@ -97,6 +98,7 @@ function AppContent() {
             <Route path="/profile" component={ProfilePage} />
             <Route path="/profile/:username" component={ProfilePage} />
             <Route path="/create" component={CreateEventPage} />
+            <Route path="/create-flow" component={CreateEventFlowPage} />
             <Route path="/test-create" component={TestCreateEventPage} />
             <Route path="/companion" component={ChatbotPage} />
             <Route path="/connect" component={ConnectPage} />
