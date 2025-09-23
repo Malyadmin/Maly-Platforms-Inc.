@@ -30,6 +30,8 @@ import AuthPage from "./pages/AuthPage";
 import StripeConnectPage from "./pages/StripeConnectPage";
 import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
 import StripeConnectReauthPage from "./pages/StripeConnectReauthPage";
+import ShareEventMembersPage from "./pages/ShareEventMembersPage";
+import SelectPeopleToInvitePage from "./pages/SelectPeopleToInvitePage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -76,7 +78,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect');
+  // Exclude DiscoverPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover');
 
   return (
     <>
@@ -87,8 +90,10 @@ function AppContent() {
             <Route path="/discover" component={DiscoverPage} />
             <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
             <Route path="/event/:id/tickets" component={EventTicketsPage} />
+            <Route path="/event/:id/invite" component={SelectPeopleToInvitePage} />
             <Route path="/event/:id" component={EventPage} />
             <Route path="/edit-event/:id" component={EditEventPage} />
+            <Route path="/share-event-members" component={ShareEventMembersPage} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/profile/:username" component={ProfilePage} />
             <Route path="/create" component={CreateEventPage} />
@@ -117,6 +122,7 @@ function AppContent() {
       ) : (
         <Switch>
           <Route path="/" component={() => <Redirect to="/discover" />} />
+          <Route path="/discover" component={DiscoverPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />

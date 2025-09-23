@@ -1,0 +1,62 @@
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v6.3.2 building for production...
+✓ 31 modules transformed.
+✗ Build failed in 383ms
+error during build:
+[vite:esbuild] Transform failed with 5 errors:
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:476:10: ERROR: Unexpected closing "DialogContent" tag does not match opening "div" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:477:8: ERROR: Unexpected closing "Dialog" tag does not match opening "DialogContent" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:765:4: ERROR: Unexpected closing "div" tag does not match opening "Dialog" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:767:0: ERROR: The character "}" is not valid inside a JSX element
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:767:1: ERROR: Unexpected end of file before a closing "div" tag
+file: /home/runner/workspace/client/src/pages/DiscoverPage.tsx:476:10
+
+Unexpected closing "DialogContent" tag does not match opening "div" tag
+474|                </div>
+475|            </div>
+476|          </DialogContent>
+   |            ^
+477|        </Dialog>
+478|        {/* iOS-style Header */}
+
+Unexpected closing "Dialog" tag does not match opening "DialogContent" tag
+475|            </div>
+476|          </DialogContent>
+477|        </Dialog>
+   |          ^
+478|        {/* iOS-style Header */}
+479|        <div className="bg-black text-white sticky top-0 z-50">
+
+Unexpected closing "div" tag does not match opening "Dialog" tag
+763|        </div>
+764|      </div>
+765|    </div>
+   |      ^
+766|    );
+767|  }
+
+The character "}" is not valid inside a JSX element
+765|    </div>
+766|    );
+767|  }
+   |  ^
+
+Unexpected end of file before a closing "div" tag
+765|    </div>
+766|    );
+767|  }
+   |   ^
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/esbuild/lib/main.js:1477:15)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:756:50
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/esbuild/lib/main.js:623:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/esbuild/lib/main.js:678:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/esbuild/lib/main.js:601:7)
+    at Socket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)

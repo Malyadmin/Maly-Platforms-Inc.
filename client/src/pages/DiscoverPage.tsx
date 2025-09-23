@@ -15,7 +15,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "@/lib/translations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FirstEventModal } from "@/components/FirstEventModal";
-import { GradientHeader } from "@/components/ui/GradientHeader";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { IOSEventCard } from "@/components/ui/ios-event-card";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,6 +71,8 @@ export default function DiscoverPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   // Removed dateFilter state, as we'll always show all events organized by date
   const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity);
   const [, setLocation] = useLocation();
@@ -276,129 +280,277 @@ export default function DiscoverPage() {
         open={showFirstEventModal} 
         onClose={handleModalClose} 
       />
-      <GradientHeader 
-        title={t('discover')}
-        showBackButton={false}
-      >
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger className="w-[130px] sm:w-[140px] md:w-[180px] bg-transparent border-border text-xs sm:text-sm">
-              <SelectValue placeholder={t('selectCity')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('allLocations')}</SelectItem>
-              {DIGITAL_NOMAD_CITIES.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation("/connect")}
-            className="hidden md:inline-flex items-center"
-          >
-            <Users className="h-5 w-5 mr-2" />
-            {t('connect')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation("/connections")}
-            className="hidden md:inline-flex items-center"
-          >
-            <UserCircle className="h-5 w-5 mr-2" />
-            {t('yourNetwork')}
-          </Button>
-          <Button
-            className="bg-primary/10 hover:bg-primary/20 whitespace-nowrap px-2 py-1 sm:py-2 md:px-4 text-xs sm:text-sm flex-shrink-0"
-            onClick={() => setLocation("/create")}
-          >
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 md:mr-2" />
-            <span className="hidden md:inline">{t('publishEvent')}</span>
-            <span className="inline md:hidden">{t('create')}</span>
-          </Button>
-        </div>
-      </GradientHeader>
-
-      <ScrollArea className="h-[calc(100vh-8rem)]">
-        <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-          <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
-            {/* Search and Filter Section */}
-            <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <Input
-                  placeholder={t('searchEvents')}
-                  className="pl-8 sm:pl-10 bg-background/5 border-border text-foreground h-9 text-xs sm:text-sm"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              {/* Unified Filter Dropdown for both Mobile and Desktop */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full md:w-[180px] justify-between h-9 text-xs sm:text-sm px-2 sm:px-4"
-                  >
-                    <span className="truncate">{t('allCategories')}</span>
-                    {selectedEventTypes.length > 0 && (
-                      <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs px-1.5">
-                        {selectedEventTypes.length}
-                      </Badge>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[240px] sm:w-[280px]">
-                  <DropdownMenuLabel className="text-xs sm:text-sm">{t('searchByVibe')}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-                    {EVENT_TYPES.map((type) => (
-                      <DropdownMenuCheckboxItem
-                        key={type}
-                        checked={selectedEventTypes.includes(type)}
-                        onCheckedChange={(checked) => {
-                          setSelectedEventTypes(prev =>
-                            checked
-                              ? [...prev, type]
-                              : prev.filter(t => t !== type)
-                          );
-                        }}
-                        className="text-xs sm:text-sm"
-                      >
-                        {t(type)}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </div>
-                  {selectedEventTypes.length > 0 && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="justify-center text-muted-foreground text-xs sm:text-sm"
-                        onClick={() => setSelectedEventTypes([])}
-                      >
-                        Clear all filters
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+      
+      {/* iOS-style Filter Modal */}
+      <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
+        <DialogContent className="bg-black text-white border-gray-800 max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowFilterModal(false)}
+                className="text-white p-0 h-auto font-normal"
+              >
+                Cancel
+              </Button>
+              <DialogTitle className="text-white text-lg font-semibold">Filter Events</DialogTitle>
+              <Button 
+                variant="ghost" 
+                onClick={() => setSelectedEventTypes([])}
+                className="text-white p-0 h-auto font-normal"
+              >
+                Clear All
+              </Button>
             </div>
+            <p className="text-gray-400 text-sm mt-2">Customize your event discovery</p>
+          </DialogHeader>
+          
+          <div className="space-y-6 mt-6">
+            {/* When Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                <h3 className="text-white font-medium">When</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
+                  <Button
+                    key={time}
+                    variant={time === 'Anytime' ? 'default' : 'outline'}
+                    size="sm"
+                    className={`rounded-full ${
+                      time === 'Anytime' 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'border-gray-600 text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    {time}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Distance Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                <h3 className="text-white font-medium">Distance</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {['Any Distance', 'Within 1 mile', 'Within 5 miles'].map((distance) => (
+                  <Button
+                    key={distance}
+                    variant={distance === 'Any Distance' ? 'default' : 'outline'}
+                    size="sm"
+                    className={`rounded-full ${
+                      distance === 'Any Distance' 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'border-gray-600 text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    {distance}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Vibes Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                <h3 className="text-white font-medium">Vibes</h3>
+              </div>
+              
+              {/* Wellness & Movement */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Wellness & Movement</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Wellness', 'Movement', 'Fitness', 'Yoga', 'Meditation', 'Mindfulness'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Social & Entertainment */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Social & Entertainment</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Nightlife', 'Social', 'Networking', 'Dating', 'Party', 'Music'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Learning & Culture */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Learning & Culture</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Learning', 'Cultural', 'Educational', 'Art', 'Creative', 'Tech'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Adventure & Travel */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Adventure & Travel</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Adventure', 'Travel', 'Outdoor', 'Day Trip', 'Excursions', 'Active'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* iOS-style Header */}
+      <div className="bg-black text-white sticky top-0 z-50">
+        <div className="flex items-center justify-between px-4 pt-3 pb-4">
+          {/* Left side - City and Add filter */}
+          <div className="flex flex-col items-start space-y-2">
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="bg-transparent border-none text-white text-lg font-normal p-0 h-auto flex items-center gap-2">
+                <SelectValue placeholder="City name" />
+                <MapPin className="h-4 w-4 text-white" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allLocations')}</SelectItem>
+                {DIGITAL_NOMAD_CITIES.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Button
+              variant="ghost"
+              className="text-white text-sm font-normal p-0 h-auto flex items-center gap-2 hover:bg-transparent"
+              onClick={() => setShowFilterModal(true)}
+            >
+              Add filter
+              <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
+                <Plus className="h-3 w-3" />
+              </div>
+            </Button>
+          </div>
 
-            {/* Selected Filters Display */}
-            {selectedEventTypes.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 py-3 sm:py-4">
+          {/* Center - MÁLY logo */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+          </div>
+
+          {/* Right side - Search */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white p-2 hover:bg-white/10"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            <Search className="h-6 w-6" />
+          </Button>
+        </div>
+        
+        {/* Search Bar (conditionally shown) */}
+        {showSearch && (
+          <div className="px-4 pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder={t('searchEvents')}
+                className="pl-10 bg-gray-800 border-gray-700 text-white"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-auto">
+        <main className="bg-black text-white pb-24">
+          {/* Selected Filters Display */}
+          {selectedEventTypes.length > 0 && (
+            <div className="px-4 py-3 border-b border-gray-800">
+              <div className="flex flex-wrap gap-2">
                 {selectedEventTypes.map((type) => (
                   <Badge
                     key={type}
                     variant="secondary"
-                    className="px-2 sm:px-3 py-0.5 sm:py-1 flex items-center gap-0.5 sm:gap-1 text-xs"
+                    className="px-3 py-1 flex items-center gap-2 text-xs bg-gray-800 text-white"
                   >
                     {type}
                     <button
@@ -406,9 +558,9 @@ export default function DiscoverPage() {
                         e.preventDefault();
                         setSelectedEventTypes(prev => prev.filter(t => t !== type));
                       }}
-                      className="ml-0.5 sm:ml-1 hover:text-destructive focus:outline-none"
+                      className="hover:text-red-400 focus:outline-none"
                     >
-                      <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 ))}
@@ -416,34 +568,39 @@ export default function DiscoverPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedEventTypes([])}
-                  className="text-muted-foreground hover:text-foreground text-xs sm:text-sm h-6 sm:h-8 px-2 sm:px-3"
+                  className="text-gray-400 hover:text-white text-xs h-8 px-3"
                 >
                   Clear all
                 </Button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Date filters removed - vertical section headers will be used instead */}
-
-          {/* Event Grid with Date Categories */}
-          <div className="space-y-6 sm:space-y-8">
-            <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">
-              {filteredEvents.length} {t('eventsFound')}
-            </h2>
+          <div className="px-4 py-6">
+            {/* Event Grid with Date Categories */}
+            <div className="space-y-6 sm:space-y-8">
+              <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">
+                {filteredEvents.length} {t('eventsFound')}
+              </h2>
 
             {isLoading ? (
-              // Loading skeleton grid
-              <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+              // Loading skeleton list
+              <div className="space-y-6">
                 {Array.from({ length: 6 }).map((_, index) => (
-                  <Card key={index} className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm h-auto max-h-[calc(100vh-8rem)]">
-                    <Skeleton className="aspect-[1/2] sm:aspect-[1/2] w-full" />
-                    <div className="p-3 sm:p-4 space-y-2">
-                      <Skeleton className="h-3 sm:h-4 w-3/4" />
-                      <Skeleton className="h-3 sm:h-4 w-1/2" />
-                      <Skeleton className="h-3 sm:h-4 w-5/6" />
+                  <div key={index} className="flex gap-4 p-2">
+                    <Skeleton className="w-32 h-32 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-4 w-1/3" />
+                      <div className="flex gap-2 mt-2">
+                        {[1, 2, 3, 4].map((_, i) => (
+                          <Skeleton key={i} className="w-8 h-8" />
+                        ))}
+                      </div>
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             ) : filteredEvents.length === 0 ? (
@@ -461,69 +618,13 @@ export default function DiscoverPage() {
               <div className="space-y-10">
                 {/* Today's Events Section */}
                 {groupedEvents.todayOnly.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">TODAY</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.todayOnly.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <CardContent className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center justify-between flex-wrap gap-y-1 sm:gap-y-2">
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <MapPin className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.location}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <Calendar className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.category}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1 sm:mt-2 md:mt-3">
-                              {event.tags?.slice(0, 2).map((tag: string, index: number) => (
-                                <Badge key={index} variant="outline" className="text-[9px] sm:text-xs px-1 sm:px-1.5 py-0 sm:py-0.5 h-4 sm:h-5">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
@@ -531,43 +632,13 @@ export default function DiscoverPage() {
                 
                 {/* This Week Section */}
                 {groupedEvents.thisWeek.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">THIS WEEK</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.thisWeek.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <Badge variant="outline" className="bg-black/30 text-[8px] sm:text-xs text-white px-1.5 py-0 sm:px-2 sm:py-0.5 border-white/10">
-                                  {format(new Date(event.date), 'EEE, MMM d')}
-                                </Badge>
-                                {event.price && event.price !== "0" ? (
-                                  <p className="font-medium text-white text-xs sm:text-sm">${event.price}</p>
-                                ) : (
-                                  <Badge variant="outline" className="bg-primary/20 text-[8px] sm:text-xs px-1.5 py-0 sm:px-2 sm:py-0.5 border-primary/10">
-                                    {t('free')}
-                                  </Badge>
-                                )}
-                              </div>
-                              <h3 className="font-semibold text-white text-xs sm:text-sm md:text-base mt-1 sm:mt-2 line-clamp-2">
-                                {event.title}
-                              </h3>
-                            </div>
-                          </div>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
@@ -575,113 +646,27 @@ export default function DiscoverPage() {
                 
                 {/* This Weekend Section */}
                 {groupedEvents.thisWeekend.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">THIS WEEKEND</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.thisWeekend.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <Badge variant="outline" className="bg-black/30 text-[8px] sm:text-xs text-white px-1.5 py-0 sm:px-2 sm:py-0.5 border-white/10">
-                                  {format(new Date(event.date), 'EEE, MMM d')}
-                                </Badge>
-                                {event.price && event.price !== "0" ? (
-                                  <p className="font-medium text-white text-xs sm:text-sm">${event.price}</p>
-                                ) : (
-                                  <Badge variant="outline" className="bg-primary/20 text-[8px] sm:text-xs px-1.5 py-0 sm:px-2 sm:py-0.5 border-primary/10">
-                                    {t('free')}
-                                  </Badge>
-                                )}
-                              </div>
-                              <h3 className="font-semibold text-white text-xs sm:text-sm md:text-base mt-1 sm:mt-2 line-clamp-2">
-                                {event.title}
-                              </h3>
-                            </div>
-                          </div>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
                 )}
                 
-                {/* Events This Week Section */}
+                {/* Next Week Section */}
                 {groupedEvents.nextWeek.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">NEXT WEEK</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.nextWeek.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <CardContent className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center justify-between flex-wrap gap-y-1 sm:gap-y-2">
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <MapPin className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.location}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <Calendar className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.category}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1 sm:mt-2 md:mt-3">
-                              {event.tags?.slice(0, 2).map((tag: string, index: number) => (
-                                <Badge key={index} variant="outline" className="text-[9px] sm:text-xs px-1 sm:px-1.5 py-0 sm:py-0.5 h-4 sm:h-5">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
@@ -690,127 +675,27 @@ export default function DiscoverPage() {
                 
                 {/* Next Weekend Section */}
                 {groupedEvents.nextWeekend.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">NEXT WEEKEND</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.nextWeekend.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <CardContent className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center justify-between flex-wrap gap-y-1 sm:gap-y-2">
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <MapPin className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.location}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-1 min-w-0 max-w-[50%]">
-                                <Calendar className="h-2.5 w-2.5 sm:h-3 md:h-4 sm:w-3 md:w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
-                                  {event.category}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1 sm:mt-2 md:mt-3">
-                              {event.tags?.slice(0, 2).map((tag: string, index: number) => (
-                                <Badge key={index} variant="secondary" className="rounded px-1 py-0 text-[8px] sm:text-[10px] md:text-xs">{tag}</Badge>
-                              ))}
-                            </div>
-                            <h3 className="text-xs sm:text-sm md:text-base font-semibold mt-1 sm:mt-2 md:mt-3 line-clamp-2">{event.title}</h3>
-                          </CardContent>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
                 )}
 
-{/* Events This Month Section */}
+                {/* This Month Section */}
                 {groupedEvents.month.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">THIS MONTH</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.month.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <CardContent className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center text-[10px] sm:text-xs mt-1 gap-2">
-                              <Badge variant="outline" className="text-[8px] sm:text-[10px] md:text-xs px-1.5 py-0.5 whitespace-nowrap">
-                                {event.category || "Event"}
-                              </Badge>
-                              {event.tags && event.tags[0] && (
-                                <Badge variant="outline" className="text-[8px] sm:text-[10px] md:text-xs px-1.5 py-0.5 whitespace-nowrap">
-                                  {event.tags[0]}
-                                </Badge>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
@@ -818,58 +703,13 @@ export default function DiscoverPage() {
 
                 {/* Upcoming Events Section */}
                 {groupedEvents.upcoming.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="py-2">
-                      <h2 className="text-base md:text-lg font-semibold text-gray-300">UPCOMING</h2>
+                      <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
                     </div>
-                    <div className="grid gap-4 gap-y-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                    <div className="space-y-6">
                       {groupedEvents.upcoming.map((event: any) => (
-                        <Card 
-                          key={event.id} 
-                          className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg h-auto max-h-[calc(100vh-4rem)]"
-                          onClick={() => setLocation(`/event/${event.id}`)}
-                        >
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <CardContent className="p-2 sm:p-3 md:p-4">
-                            <div className="flex items-center text-[10px] sm:text-xs mt-1 gap-2">
-                              <Badge variant="outline" className="text-[8px] sm:text-[10px] md:text-xs px-1.5 py-0.5 whitespace-nowrap">
-                                {event.category || "Event"}
-                              </Badge>
-                              {event.tags && event.tags[0] && (
-                                <Badge variant="outline" className="text-[8px] sm:text-[10px] md:text-xs px-1.5 py-0.5 whitespace-nowrap">
-                                  {event.tags[0]}
-                                </Badge>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <IOSEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
@@ -915,8 +755,14 @@ export default function DiscoverPage() {
               </div>
             )}
           </div>
-        </main>
-      </ScrollArea>
+        </div>
+      </main>
+      
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <BottomNav />
+      </div>
+    </div>
     </div>
   );
 }

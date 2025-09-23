@@ -1,0 +1,65 @@
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v6.3.2 building for production...
+transforming (27) ../node_modules/react/cBrowserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 53 modules transformed.
+✗ Build failed in 1.22s
+error during build:
+[vite:esbuild] Transform failed with 5 errors:
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:668:10: ERROR: Unexpected closing "main" tag does not match opening "div" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:669:8: ERROR: Unexpected closing "ScrollArea" tag does not match opening "main" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:670:6: ERROR: Unexpected closing "div" tag does not match opening "ScrollArea" tag
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:672:0: ERROR: The character "}" is not valid inside a JSX element
+/home/runner/workspace/client/src/pages/DiscoverPage.tsx:672:1: ERROR: Unexpected end of file before a closing "div" tag
+file: /home/runner/workspace/client/src/pages/DiscoverPage.tsx:668:10
+
+Unexpected closing "main" tag does not match opening "div" tag
+666|              )}
+667|            </div>
+668|          </main>
+   |            ^
+669|        </ScrollArea>
+670|      </div>
+
+Unexpected closing "ScrollArea" tag does not match opening "main" tag
+667|            </div>
+668|          </main>
+669|        </ScrollArea>
+   |          ^
+670|      </div>
+671|    );
+
+Unexpected closing "div" tag does not match opening "ScrollArea" tag
+668|          </main>
+669|        </ScrollArea>
+670|      </div>
+   |        ^
+671|    );
+672|  }
+
+The character "}" is not valid inside a JSX element
+670|      </div>
+671|    );
+672|  }
+   |  ^
+
+Unexpected end of file before a closing "div" tag
+670|      </div>
+671|    );
+672|  }
+   |   ^
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/esbuild/lib/main.js:1477:15)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:756:50
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/esbuild/lib/main.js:623:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/esbuild/lib/main.js:678:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/esbuild/lib/main.js:601:7)
+    at Socket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
