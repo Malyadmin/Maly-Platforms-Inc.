@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -1022,11 +1022,28 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       ageExclusiveMax: data.ageExclusiveMax,
       moodSpecific: data.moodSpecific,
       interestsSpecific: data.interestsSpecific,
+      vibes: data.vibes || [],
     },
   });
 
+  const [selectedVibes, setSelectedVibes] = useState<string[]>(data.vibes || []);
+
   const onSubmit = (formData: any) => {
-    onNext(formData);
+    const submissionData = {
+      ...formData,
+      vibes: selectedVibes,
+    };
+    onNext(submissionData);
+  };
+
+  const toggleVibe = (vibeValue: string) => {
+    setSelectedVibes(prev => {
+      if (prev.includes(vibeValue)) {
+        return prev.filter(v => v !== vibeValue);
+      } else {
+        return [...prev, vibeValue];
+      }
+    });
   };
 
   return (
@@ -1181,17 +1198,31 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             />
           </div>
 
-          {/* Interest Targeting */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Interest Keywords</label>
-            <Textarea
-              {...form.register("interestsSpecific")}
-              placeholder="Add interest keywords separated by commas (e.g., tech, startup, music, art)"
-              rows={3}
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
-              data-testid="textarea-interests"
-            />
-            <p className="text-xs text-gray-400">Target users based on their stated interests</p>
+          {/* Vibe Selection */}
+          <div className="space-y-4">
+            <label className="text-white font-medium">Event Vibes</label>
+            <p className="text-xs text-gray-400">Select the vibes that best match your event (multiple selection allowed)</p>
+            <div className="grid grid-cols-2 gap-3">
+              {VIBE_OPTIONS.map((vibe) => (
+                <div
+                  key={vibe.value}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    selectedVibes.includes(vibe.value)
+                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                      : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                  }`}
+                  onClick={() => toggleVibe(vibe.value)}
+                  data-testid={`vibe-option-${vibe.value}`}
+                >
+                  <div className="text-sm font-medium">{vibe.label}</div>
+                </div>
+              ))}
+            </div>
+            {selectedVibes.length > 0 && (
+              <div className="text-xs text-gray-400">
+                Selected: {selectedVibes.length} vibe{selectedVibes.length !== 1 ? 's' : ''}
+              </div>
+            )}
           </div>
           </form>
         </Form>
@@ -1257,6 +1288,7 @@ export default function CreateEventFlowPage() {
     genderExclusive: "",
     moodSpecific: "",
     interestsSpecific: [],
+    vibes: [],
     category: "Other",
   });
 

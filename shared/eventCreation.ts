@@ -54,6 +54,7 @@ export const eventCreationSchema = z.object({
   ageExclusiveMax: z.coerce.number().optional(),
   moodSpecific: z.string().optional(),
   interestsSpecific: z.array(z.string()).default([]),
+  vibes: z.array(z.string()).default([]),
   
   // Additional fields for compatibility
   category: z.string().default("Other"),
@@ -116,6 +117,7 @@ export const step6Schema = eventCreationSchema.pick({
   ageExclusiveMax: true,
   moodSpecific: true,
   interestsSpecific: true,
+  vibes: true,
 });
 
 // Type definitions for each step
@@ -154,4 +156,23 @@ export const EVENT_VISIBILITY_OPTIONS = [
   { value: "public", label: "Anyone can find this event" },
   { value: "link", label: "Only people with the link" },
   { value: "invited", label: "Only invited people" },
+];
+
+export const VIBE_OPTIONS = [
+  { value: "music-nightlife", label: "Music & Nightlife" },
+  { value: "fashion-style", label: "Fashion & Style" },
+  { value: "networking-business", label: "Networking & Business" },
+  { value: "dining-drinks", label: "Dining & Drinks" },
+  { value: "outdoor-nature", label: "Outdoor & Nature" },
+  { value: "sport-recreation", label: "Sport & Recreation" },
+  { value: "wellness-movement", label: "Wellness & Movement" },
+  { value: "creative-artsy", label: "Creative & Artsy" },
+  { value: "single-social", label: "Single & Social" },
+  { value: "chill-recharge", label: "Chill & Recharge" },
+  { value: "adventure-exploring", label: "Adventure & Exploring" },
+  { value: "spiritual-intentional", label: "Spiritual & Intentional" },
+  { value: "culture-travel", label: "Culture & Travel" },
+  { value: "luxury-lifestyle", label: "Luxury & Lifestyle" },
+  { value: "learning-growth", label: "Learning & Growth" },
+  { value: "philanthropy-impact", label: "Philanthropy & Impact" },
 ];
