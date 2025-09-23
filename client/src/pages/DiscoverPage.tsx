@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FirstEventModal } from "@/components/FirstEventModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { IOSEventCard } from "@/components/ui/ios-event-card";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -420,7 +421,7 @@ export default function DiscoverPage() {
 
           {/* Center - MÁLY logo */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
-            <h1 className="text-white text-lg font-bold tracking-widest">MÁLY</h1>
+            <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
           </div>
 
           {/* Right side - Search */}
@@ -450,8 +451,8 @@ export default function DiscoverPage() {
         )}
       </div>
 
-      <ScrollArea className="h-[calc(100vh-20rem)]">
-        <main className="bg-black text-white min-h-screen">
+      <div className="flex-1 overflow-auto">
+        <main className="bg-black text-white pb-24">
           {/* Selected Filters Display */}
           {selectedEventTypes.length > 0 && (
             <div className="px-4 py-3 border-b border-gray-800">
@@ -667,7 +668,12 @@ export default function DiscoverPage() {
           </div>
         </div>
       </main>
-    </ScrollArea>
+      
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <BottomNav />
+      </div>
+    </div>
   </div>
   );
 }
