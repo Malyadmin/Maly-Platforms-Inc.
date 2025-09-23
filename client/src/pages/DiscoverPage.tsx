@@ -472,6 +472,7 @@ export default function DiscoverPage() {
                   ))}
                 </div>
               </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -762,6 +763,5 @@ export default function DiscoverPage() {
         <BottomNav />
       </div>
     </div>
-  </div>
   );
 }
