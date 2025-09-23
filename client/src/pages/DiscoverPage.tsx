@@ -763,5 +763,6 @@ export default function DiscoverPage() {
         <BottomNav />
       </div>
     </div>
+    </div>
   );
 }
