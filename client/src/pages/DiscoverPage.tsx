@@ -665,8 +665,9 @@ export default function DiscoverPage() {
               </div>
             )}
           </div>
-        </main>
-      </ScrollArea>
-    </div>
+        </div>
+      </main>
+    </ScrollArea>
+  </div>
   );
 }
