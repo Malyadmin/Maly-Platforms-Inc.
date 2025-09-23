@@ -95,8 +95,8 @@ export default function EventPage() {
       return;
     }
 
-    // Only initialize if we have coordinates
-    if (event.latitude && event.longitude) {
+    // Only initialize if we have coordinates (allow zero values)
+    if (event.latitude != null && event.longitude != null) {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/dark-v11',
@@ -200,7 +200,7 @@ export default function EventPage() {
         </div>
 
         {/* Mapbox Map */}
-        {event.latitude && event.longitude ? (
+        {event.latitude != null && event.longitude != null ? (
           <div 
             ref={mapContainer} 
             className="h-48 w-full rounded-lg"
