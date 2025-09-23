@@ -132,9 +132,8 @@ export enum EventCreationStep {
   Gallery = 2,
   EventDetails = 3,
   EventSpecifics = 4,
-  EventLineup = 5,
-  PricingAudience = 6,
-  AudienceTargeting = 7,
+  PricingAudience = 5,
+  AudienceTargeting = 6,
 }
 
 // Constants for UI

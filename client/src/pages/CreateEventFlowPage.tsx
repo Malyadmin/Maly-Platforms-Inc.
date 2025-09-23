@@ -481,11 +481,12 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           <p className="text-gray-400 text-sm">Set your event location and schedule</p>
         </div>
 
-        <form 
-          id="step3-form" 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <Form {...form}>
+          <form 
+            id="step3-form" 
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
           {/* Online Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -663,7 +664,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
               </button>
             </div>
           )}
-        </form>
+          </form>
+        </Form>
 
         {/* Bottom spacing */}
         <div className="h-20"></div>
@@ -753,11 +755,12 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           <p className="text-gray-400 text-sm">Add lineup and dress code details</p>
         </div>
 
-        <form 
-          id="step4-form" 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <Form {...form}>
+          <form 
+            id="step4-form" 
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
           {/* Event Lineup Toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -813,7 +816,8 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
               />
             </div>
           )}
-        </form>
+          </form>
+        </Form>
 
         {/* Bottom spacing */}
         <div className="h-20"></div>
@@ -900,11 +904,12 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           <p className="text-gray-400 text-sm">Set pricing and define your target audience</p>
         </div>
 
-        <form 
-          id="step5-form" 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <Form {...form}>
+          <form 
+            id="step5-form" 
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
           {/* Paid Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -969,7 +974,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
               data-testid="textarea-who-should-attend"
             />
           </div>
-        </form>
+          </form>
+        </Form>
 
         {/* Bottom spacing */}
         <div className="h-20"></div>
@@ -1055,11 +1061,12 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           <p className="text-gray-400 text-sm">Fine-tune who can discover and attend your event</p>
         </div>
 
-        <form 
-          id="step6-form" 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <Form {...form}>
+          <form 
+            id="step6-form" 
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
           {/* Available Spots */}
           <div className="space-y-2">
             <label className="text-white font-medium">Available Spots</label>
@@ -1186,7 +1193,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             />
             <p className="text-xs text-gray-400">Target users based on their stated interests</p>
           </div>
-        </form>
+          </form>
+        </Form>
 
         {/* Bottom spacing */}
         <div className="h-20"></div>
@@ -1322,13 +1330,6 @@ export default function CreateEventFlowPage() {
             onBack={handleBack}
           />
         );
-      
-      case EventCreationStep.EventLineup:
-        // Skip this step as it's combined with EventSpecifics
-        if (currentStep < EventCreationStep.AudienceTargeting) {
-          setCurrentStep((prev: EventCreationStep) => prev + 1);
-        }
-        return null;
       
       case EventCreationStep.PricingAudience:
         return (
