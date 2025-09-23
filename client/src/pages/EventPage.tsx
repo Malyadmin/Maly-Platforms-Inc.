@@ -128,6 +128,21 @@ export default function EventPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* iOS-style Header with Close and Share */}
+      <div className="absolute top-0 left-0 right-0 z-50 p-4 pt-12">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => setLocation('/discover')}
+            className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm"
+          >
+            Close
+          </button>
+          <button className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+            Share
+          </button>
+        </div>
+      </div>
+
       {/* Large Event Image */}
       {event.image && (
         <div className="relative h-96 overflow-hidden">
