@@ -39,6 +39,7 @@ export const users = pgTable("users", {
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
+  tagline: text("tagline"), // Optional event tagline/subtitle
   description: text("description").notNull(),
   city: text("city").notNull(), // For city filtering
   location: text("location").notNull(), // Specific venue location
@@ -48,19 +49,45 @@ export const events = pgTable("events", {
   date: timestamp("date").notNull(),
   endDate: timestamp("end_date"), // Added for multi-day events
 
-  image: text("image"), // Consolidated single image field for cover image
+  // Media fields
+  image: text("image"), // Main cover image
+  imageUrls: jsonb("image_urls").$type<string[]>().default([]), // Multiple event images
   videoUrls: jsonb("video_urls").$type<string[]>().default([]), // Array of video URLs
 
+  // Event details
+  isOnlineEvent: boolean("is_online_event").default(false), // Whether event is online
+  eventVisibility: text("event_visibility").default("public"), // public, private, friends
+  additionalInfo: text("additional_info"), // Extra location/event information
+  
   category: text("category").notNull(),
   creatorId: integer("creator_id").references(() => users.id),
   capacity: integer("capacity"),
   price: varchar("price"), 
   ticketType: text("ticket_type").notNull(), // free, paid, donation
   availableTickets: integer("available_tickets"),
+  rsvpDeadline: timestamp("rsvp_deadline"), // RSVP deadline
+  
   createdAt: timestamp("created_at").defaultNow(),
   isPrivate: boolean("is_private").default(false),
   isBusinessEvent: boolean("is_business_event").default(false),
   tags: jsonb("tags").$type<string[]>().default([]),
+  
+  // Event lineup and specifics
+  eventLineup: jsonb("event_lineup").$type<number[]>().default([]), // Array of user IDs for event hosts/lineup
+  dressCode: boolean("dress_code").default(false), // Whether event has dress code
+  dressCodeDetails: text("dress_code_details"), // Dress code description
+  
+  // Audience targeting
+  promotionOnly: boolean("promotion_only").default(false), // Promotion only event
+  contactsOnly: boolean("contacts_only").default(false), // Contacts only
+  invitationOnly: boolean("invitation_only").default(false), // Invitation only
+  requireApproval: boolean("require_approval").default(false), // Requires host approval
+  genderExclusive: text("gender_exclusive"), // Gender restriction
+  ageExclusiveMin: integer("age_exclusive_min"), // Minimum age
+  ageExclusiveMax: integer("age_exclusive_max"), // Maximum age  
+  moodSpecific: text("mood_specific"), // Specific mood targeting
+  interestsSpecific: jsonb("interests_specific").$type<string[]>().default([]), // Specific interests targeting
+  
   attendingCount: integer("attending_count").default(0),
   interestedCount: integer("interested_count").default(0),
   timeFrame: text("time_frame"), // Today, This Week, This Weekend, This Month, Next Month
