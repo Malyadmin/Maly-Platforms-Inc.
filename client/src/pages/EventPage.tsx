@@ -7,7 +7,8 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/lib/translations";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import mapboxgl from "mapbox-gl";
 
 // Define the Event type with all fields
 const EventSchema = z.object({
@@ -42,6 +43,8 @@ export default function EventPage() {
   const { t, language, translateEvent } = useTranslation();
   const queryClient = useQueryClient();
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
 
   const { data: event, isLoading, error: queryError } = useQuery<Event>({
     queryKey: [`/api/events/${id}`],
@@ -79,6 +82,39 @@ export default function EventPage() {
     
     translateEventData();
   }, [event, language, translateEvent]);
+
+  // Initialize Mapbox map when event data is available
+  useEffect(() => {
+    if (!event || !mapContainer.current) return;
+
+    // Set Mapbox access token
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+
+    if (!mapboxgl.accessToken) {
+      console.warn('VITE_MAPBOX_ACCESS_TOKEN not found, map will not be displayed');
+      return;
+    }
+
+    // Only initialize if we have coordinates
+    if (event.latitude && event.longitude) {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [event.longitude, event.latitude],
+        zoom: 14
+      });
+
+      // Add marker at event location
+      new mapboxgl.Marker({ color: '#8B5CF6' })
+        .setLngLat([event.longitude, event.latitude])
+        .addTo(map.current);
+
+      // Clean up on unmount
+      return () => {
+        map.current?.remove();
+      };
+    }
+  }, [event]);
 
   if (isLoading || !event) {
     return (
@@ -163,10 +199,18 @@ export default function EventPage() {
           </div>
         </div>
 
-        {/* Map placeholder */}
-        <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-          <p className="text-white/60">Event Location</p>
-        </div>
+        {/* Mapbox Map */}
+        {event.latitude && event.longitude ? (
+          <div 
+            ref={mapContainer} 
+            className="h-48 w-full rounded-lg"
+            style={{ minHeight: '300px' }}
+          />
+        ) : (
+          <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
+            <p className="text-white/60">Location coordinates not available</p>
+          </div>
+        )}
 
         {/* About This Event Section */}
         <div className="space-y-2">
