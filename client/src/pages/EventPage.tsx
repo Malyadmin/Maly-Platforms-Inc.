@@ -16,6 +16,8 @@ const EventSchema = z.object({
   description: z.string(),
   location: z.string(),
   address: z.string().optional(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
   date: z.string().or(z.date()),
   category: z.string(),
   price: z.number().nullable(),
