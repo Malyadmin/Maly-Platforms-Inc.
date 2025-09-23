@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, type EventCreationData } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS } from "../../../shared/eventCreation";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -375,6 +377,802 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
   );
 }
 
+// Step 3: Event Details Component
+interface Step3Props {
+  data: EventCreationData;
+  onNext: (data: Partial<EventCreationData>) => void;
+  onBack: () => void;
+}
+
+function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
+  const form = useForm({
+    resolver: zodResolver(step3Schema.extend({
+      city: z.string().min(1, "City is required"),
+      startDate: z.coerce.date().refine((date) => date > new Date(), "Start date must be in the future"),
+      endDate: z.coerce.date(),
+    }).refine((data) => data.endDate >= data.startDate, {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    })),
+    defaultValues: {
+      isOnlineEvent: data.isOnlineEvent,
+      eventVisibility: data.eventVisibility,
+      city: data.city,
+      addressLine1: data.addressLine1,
+      additionalInfo: data.additionalInfo,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      addActivitySchedule: data.addActivitySchedule,
+      agendaItems: data.agendaItems,
+    },
+  });
+
+  const [agendaItems, setAgendaItems] = useState(data.agendaItems || []);
+  const [isOnlineEvent, setIsOnlineEvent] = useState(data.isOnlineEvent);
+  const [addActivitySchedule, setAddActivitySchedule] = useState(data.addActivitySchedule);
+
+  const addAgendaItem = () => {
+    const newItem = { time: "", description: "" };
+    setAgendaItems([...agendaItems, newItem]);
+  };
+
+  const removeAgendaItem = (index: number) => {
+    setAgendaItems(agendaItems.filter((_, i) => i !== index));
+  };
+
+  const updateAgendaItem = (index: number, field: string, value: string) => {
+    const updated = agendaItems.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    );
+    setAgendaItems(updated);
+  };
+
+  const onSubmit = (formData: any) => {
+    const submissionData = {
+      ...formData,
+      isOnlineEvent,
+      addActivitySchedule,
+      agendaItems: addActivitySchedule ? agendaItems : [],
+    };
+    onNext(submissionData);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <button
+          onClick={onBack}
+          className="flex items-center text-white"
+          data-testid="button-back"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </button>
+        <div className="text-center">
+          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+        </div>
+        <button
+          type="submit"
+          form="step3-form"
+          className="text-white font-medium"
+          data-testid="button-next"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-light mb-2">Event details</h2>
+          <p className="text-gray-400 text-sm">Set your event location and schedule</p>
+        </div>
+
+        <form 
+          id="step3-form" 
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          {/* Online Event Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-white font-medium">Online Event</label>
+              <p className="text-gray-400 text-sm">Event will be hosted virtually</p>
+            </div>
+            <Switch
+              checked={isOnlineEvent}
+              onCheckedChange={setIsOnlineEvent}
+              data-testid="switch-online-event"
+            />
+          </div>
+
+          {/* Event Visibility */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Event Visibility</label>
+            <Select {...form.register("eventVisibility")} defaultValue={data.eventVisibility}>
+              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-visibility">
+                <SelectValue placeholder="Select visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                {EVENT_VISIBILITY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Location Fields */}
+          {!isOnlineEvent && (
+            <>
+              <div className="space-y-2">
+                <label className="text-white font-medium flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  City
+                </label>
+                <Input
+                  {...form.register("city")}
+                  placeholder="Enter city name"
+                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  data-testid="input-city"
+                />
+                {form.formState.errors.city && (
+                  <p className="text-red-500 text-sm">{form.formState.errors.city.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-white font-medium">Address / Venue</label>
+                <Input
+                  {...form.register("addressLine1")}
+                  placeholder="Enter venue or address"
+                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  data-testid="input-address"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-white font-medium">Additional Location Info</label>
+                <Textarea
+                  {...form.register("additionalInfo")}
+                  placeholder="Floor, room number, landmark, etc."
+                  rows={3}
+                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                  data-testid="textarea-additional-info"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Date and Time */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-white font-medium flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                Start Date & Time
+              </label>
+              <Input
+                {...form.register("startDate")}
+                type="datetime-local"
+                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                data-testid="input-start-date"
+              />
+              {form.formState.errors.startDate && (
+                <p className="text-red-500 text-sm">{form.formState.errors.startDate.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-white font-medium flex items-center">
+                <Clock className="w-4 h-4 mr-2" />
+                End Date & Time
+              </label>
+              <Input
+                {...form.register("endDate")}
+                type="datetime-local"
+                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                data-testid="input-end-date"
+              />
+              {form.formState.errors.endDate && (
+                <p className="text-red-500 text-sm">{form.formState.errors.endDate.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Activity Schedule Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-white font-medium">Add Activity Schedule</label>
+              <p className="text-gray-400 text-sm">Create a detailed agenda for your event</p>
+            </div>
+            <Switch
+              checked={addActivitySchedule}
+              onCheckedChange={setAddActivitySchedule}
+              data-testid="switch-activity-schedule"
+            />
+          </div>
+
+          {/* Agenda Items */}
+          {addActivitySchedule && (
+            <div className="space-y-4">
+              <label className="text-white font-medium">Event Agenda</label>
+              
+              {agendaItems.map((item, index) => (
+                <div key={index} className="p-4 border border-gray-700 rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">Activity {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAgendaItem(index)}
+                      className="text-red-500 hover:text-red-400"
+                      data-testid={`button-remove-agenda-${index}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Time (e.g., 7:00 PM)"
+                      value={item.time}
+                      onChange={(e) => updateAgendaItem(index, "time", e.target.value)}
+                      className="bg-black border-gray-600 text-white placeholder-gray-500"
+                      data-testid={`input-agenda-time-${index}`}
+                    />
+                    <Input
+                      placeholder="Activity description"
+                      value={item.description}
+                      onChange={(e) => updateAgendaItem(index, "description", e.target.value)}
+                      className="bg-black border-gray-600 text-white placeholder-gray-500"
+                      data-testid={`input-agenda-description-${index}`}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addAgendaItem}
+                className="w-full border-2 border-dashed border-gray-600 rounded-lg p-4 text-center text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                data-testid="button-add-agenda"
+              >
+                <Plus className="w-5 h-5 mx-auto mb-2" />
+                Add Activity
+              </button>
+            </div>
+          )}
+        </form>
+
+        {/* Bottom spacing */}
+        <div className="h-20"></div>
+      </div>
+
+      {/* Fixed Bottom Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
+        <Button
+          type="submit"
+          form="step3-form"
+          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
+          data-testid="button-next-bottom"
+        >
+          next
+        </Button>
+        <div className="text-center mt-4">
+          <button className="text-gray-400 text-sm">
+            Save as draft
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Step 4: Event Specifics Component
+interface Step4Props {
+  data: EventCreationData;
+  onNext: (data: Partial<EventCreationData>) => void;
+  onBack: () => void;
+}
+
+function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
+  const form = useForm({
+    resolver: zodResolver(step4Schema),
+    defaultValues: {
+      addEventLineup: data.addEventLineup,
+      eventLineup: data.eventLineup,
+      dressCode: data.dressCode,
+      dressCodeDetails: data.dressCodeDetails,
+    },
+  });
+
+  const [addEventLineup, setAddEventLineup] = useState(data.addEventLineup);
+  const [dressCode, setDressCode] = useState(data.dressCode);
+
+  const onSubmit = (formData: any) => {
+    const submissionData = {
+      ...formData,
+      addEventLineup,
+      dressCode,
+      eventLineup: addEventLineup ? formData.eventLineup : [],
+      dressCodeDetails: dressCode ? formData.dressCodeDetails : "",
+    };
+    onNext(submissionData);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <button
+          onClick={onBack}
+          className="flex items-center text-white"
+          data-testid="button-back"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </button>
+        <div className="text-center">
+          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+        </div>
+        <button
+          type="submit"
+          form="step4-form"
+          className="text-white font-medium"
+          data-testid="button-next"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-light mb-2">Event specifics</h2>
+          <p className="text-gray-400 text-sm">Add lineup and dress code details</p>
+        </div>
+
+        <form 
+          id="step4-form" 
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          {/* Event Lineup Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-white font-medium">Add Event Lineup</label>
+              <p className="text-gray-400 text-sm">Feature hosts, performers, or speakers</p>
+            </div>
+            <Switch
+              checked={addEventLineup}
+              onCheckedChange={setAddEventLineup}
+              data-testid="switch-event-lineup"
+            />
+          </div>
+
+          {/* Event Lineup Details */}
+          {addEventLineup && (
+            <div className="space-y-4">
+              <label className="text-white font-medium">Event Lineup</label>
+              <div className="p-4 border border-gray-700 rounded-lg">
+                <p className="text-gray-400 text-sm mb-4">
+                  Event lineup feature will allow you to showcase featured guests, performers, or speakers at your event.
+                </p>
+                <div className="text-center py-8 border-2 border-dashed border-gray-600 rounded-lg">
+                  <p className="text-gray-500">Lineup management coming soon</p>
+                  <p className="text-xs text-gray-600 mt-2">You'll be able to add and feature event hosts here</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Dress Code Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-white font-medium">Dress Code</label>
+              <p className="text-gray-400 text-sm">Set specific attire requirements</p>
+            </div>
+            <Switch
+              checked={dressCode}
+              onCheckedChange={setDressCode}
+              data-testid="switch-dress-code"
+            />
+          </div>
+
+          {/* Dress Code Details */}
+          {dressCode && (
+            <div className="space-y-2">
+              <label className="text-white font-medium">Dress Code Details</label>
+              <Textarea
+                {...form.register("dressCodeDetails")}
+                placeholder="Describe the dress code (e.g., Cocktail attire, Business casual, Themed costume, etc.)"
+                rows={3}
+                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                data-testid="textarea-dress-code"
+              />
+            </div>
+          )}
+        </form>
+
+        {/* Bottom spacing */}
+        <div className="h-20"></div>
+      </div>
+
+      {/* Fixed Bottom Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
+        <Button
+          type="submit"
+          form="step4-form"
+          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
+          data-testid="button-next-bottom"
+        >
+          next
+        </Button>
+        <div className="text-center mt-4">
+          <button className="text-gray-400 text-sm">
+            Save as draft
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Step 5: Pricing & Audience Component
+interface Step5Props {
+  data: EventCreationData;
+  onNext: (data: Partial<EventCreationData>) => void;
+  onBack: () => void;
+}
+
+function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
+  const form = useForm({
+    resolver: zodResolver(step5Schema),
+    defaultValues: {
+      isPaidEvent: data.isPaidEvent,
+      price: data.price,
+      eventPrivacy: data.eventPrivacy,
+      whoShouldAttend: data.whoShouldAttend,
+    },
+  });
+
+  const [isPaidEvent, setIsPaidEvent] = useState(data.isPaidEvent);
+
+  const onSubmit = (formData: any) => {
+    const submissionData = {
+      ...formData,
+      isPaidEvent,
+      price: isPaidEvent ? formData.price : "",
+    };
+    onNext(submissionData);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <button
+          onClick={onBack}
+          className="flex items-center text-white"
+          data-testid="button-back"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </button>
+        <div className="text-center">
+          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+        </div>
+        <button
+          type="submit"
+          form="step5-form"
+          className="text-white font-medium"
+          data-testid="button-next"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-light mb-2">Pricing & audience</h2>
+          <p className="text-gray-400 text-sm">Set pricing and define your target audience</p>
+        </div>
+
+        <form 
+          id="step5-form" 
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          {/* Paid Event Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-white font-medium">Paid Event</label>
+              <p className="text-gray-400 text-sm">Charge admission for your event</p>
+            </div>
+            <Switch
+              checked={isPaidEvent}
+              onCheckedChange={setIsPaidEvent}
+              data-testid="switch-paid-event"
+            />
+          </div>
+
+          {/* Price Field */}
+          {isPaidEvent && (
+            <div className="space-y-2">
+              <label className="text-white font-medium">Event Price</label>
+              <Input
+                {...form.register("price")}
+                placeholder="Enter price (e.g., 50)"
+                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                data-testid="input-price"
+              />
+              <p className="text-xs text-gray-400">Enter amount without currency symbol</p>
+            </div>
+          )}
+
+          {/* Event Privacy */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Event Privacy</label>
+            <Select {...form.register("eventPrivacy")} defaultValue={data.eventPrivacy}>
+              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-privacy">
+                <SelectValue placeholder="Select privacy level" />
+              </SelectTrigger>
+              <SelectContent>
+                {EVENT_PRIVACY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Who Should Attend */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Who Should Attend?</label>
+            <Textarea
+              {...form.register("whoShouldAttend")}
+              placeholder="Describe your ideal attendees (e.g., Digital nomads, entrepreneurs, creative professionals, etc.)"
+              rows={4}
+              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+              data-testid="textarea-who-should-attend"
+            />
+          </div>
+        </form>
+
+        {/* Bottom spacing */}
+        <div className="h-20"></div>
+      </div>
+
+      {/* Fixed Bottom Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
+        <Button
+          type="submit"
+          form="step5-form"
+          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
+          data-testid="button-next-bottom"
+        >
+          next
+        </Button>
+        <div className="text-center mt-4">
+          <button className="text-gray-400 text-sm">
+            Save as draft
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Step 6: Advanced Audience Targeting Component
+interface Step6Props {
+  data: EventCreationData;
+  onNext: (data: Partial<EventCreationData>) => void;
+  onBack: () => void;
+}
+
+function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
+  const form = useForm({
+    resolver: zodResolver(step6Schema),
+    defaultValues: {
+      spotsAvailable: data.spotsAvailable,
+      promotionOnly: data.promotionOnly,
+      contactsOnly: data.contactsOnly,
+      invitationOnly: data.invitationOnly,
+      requireApproval: data.requireApproval,
+      genderExclusive: data.genderExclusive,
+      ageExclusiveMin: data.ageExclusiveMin,
+      ageExclusiveMax: data.ageExclusiveMax,
+      moodSpecific: data.moodSpecific,
+      interestsSpecific: data.interestsSpecific,
+    },
+  });
+
+  const onSubmit = (formData: any) => {
+    onNext(formData);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <button
+          onClick={onBack}
+          className="flex items-center text-white"
+          data-testid="button-back"
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" />
+          Back
+        </button>
+        <div className="text-center">
+          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+        </div>
+        <button
+          type="submit"
+          form="step6-form"
+          className="text-white font-medium"
+          data-testid="button-create"
+        >
+          Create
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-light mb-2">Audience targeting</h2>
+          <p className="text-gray-400 text-sm">Fine-tune who can discover and attend your event</p>
+        </div>
+
+        <form 
+          id="step6-form" 
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          {/* Available Spots */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Available Spots</label>
+            <Input
+              {...form.register("spotsAvailable")}
+              placeholder="e.g., 50 or unlimited"
+              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              data-testid="input-spots-available"
+            />
+          </div>
+
+          {/* Access Restrictions */}
+          <div className="space-y-4">
+            <label className="text-white font-medium">Access Restrictions</label>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-white">Promotion Only</span>
+                <Switch
+                  {...form.register("promotionOnly")}
+                  data-testid="switch-promotion-only"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-white">Contacts Only</span>
+                <Switch
+                  {...form.register("contactsOnly")}
+                  data-testid="switch-contacts-only"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-white">Invitation Only</span>
+                <Switch
+                  {...form.register("invitationOnly")}
+                  data-testid="switch-invitation-only"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-white">Require Approval</span>
+                <Switch
+                  {...form.register("requireApproval")}
+                  data-testid="switch-require-approval"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Gender Restrictions */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Gender Restriction</label>
+            <Select {...form.register("genderExclusive")}>
+              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-gender">
+                <SelectValue placeholder="Select gender preference" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENDER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Age Restrictions */}
+          <div className="space-y-4">
+            <label className="text-white font-medium">Age Restrictions</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm text-gray-400">Minimum Age</label>
+                <Input
+                  {...form.register("ageExclusiveMin", { valueAsNumber: true })}
+                  type="number"
+                  placeholder="18"
+                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  data-testid="input-min-age"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-gray-400">Maximum Age</label>
+                <Input
+                  {...form.register("ageExclusiveMax", { valueAsNumber: true })}
+                  type="number"
+                  placeholder="35"
+                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  data-testid="input-max-age"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Mood Specific */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Mood Specific</label>
+            <Input
+              {...form.register("moodSpecific")}
+              placeholder="e.g., Adventurous, Social, Creative"
+              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              data-testid="input-mood-specific"
+            />
+          </div>
+
+          {/* Interest Targeting */}
+          <div className="space-y-2">
+            <label className="text-white font-medium">Interest Keywords</label>
+            <Textarea
+              {...form.register("interestsSpecific")}
+              placeholder="Add interest keywords separated by commas (e.g., tech, startup, music, art)"
+              rows={3}
+              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+              data-testid="textarea-interests"
+            />
+            <p className="text-xs text-gray-400">Target users based on their stated interests</p>
+          </div>
+        </form>
+
+        {/* Bottom spacing */}
+        <div className="h-20"></div>
+      </div>
+
+      {/* Fixed Bottom Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
+        <Button
+          type="submit"
+          form="step6-form"
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 rounded-full py-4 text-lg font-medium"
+          data-testid="button-create-event"
+        >
+          Create Event
+        </Button>
+        <div className="text-center mt-4">
+          <button className="text-gray-400 text-sm">
+            Save as draft
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main Event Creation Flow Component
 export default function CreateEventFlowPage() {
   const [, setLocation] = useLocation();
@@ -468,7 +1266,49 @@ export default function CreateEventFlowPage() {
           />
         );
       
-      // TODO: Implement other steps
+      case EventCreationStep.EventDetails:
+        return (
+          <Step3EventDetails
+            data={eventData}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
+      
+      case EventCreationStep.EventSpecifics:
+        return (
+          <Step4EventSpecifics
+            data={eventData}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
+      
+      case EventCreationStep.EventLineup:
+        // Skip this step as it's combined with EventSpecifics
+        if (currentStep < EventCreationStep.AudienceTargeting) {
+          setCurrentStep((prev: EventCreationStep) => prev + 1);
+        }
+        return null;
+      
+      case EventCreationStep.PricingAudience:
+        return (
+          <Step5PricingAudience
+            data={eventData}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
+      
+      case EventCreationStep.AudienceTargeting:
+        return (
+          <Step6AudienceTargeting
+            data={eventData}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
+      
       default:
         return (
           <div className="min-h-screen bg-black text-white flex items-center justify-center">
