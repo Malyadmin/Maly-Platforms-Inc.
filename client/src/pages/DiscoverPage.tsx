@@ -360,29 +360,119 @@ export default function DiscoverPage() {
                 <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
                 <h3 className="text-white font-medium">Vibes</h3>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {EVENT_TYPES.slice(0, 12).map((vibe) => (
-                  <Button
-                    key={vibe}
-                    variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedEventTypes(prev => 
-                        prev.includes(vibe) 
-                          ? prev.filter(t => t !== vibe)
-                          : [...prev, vibe]
-                      );
-                    }}
-                    className={`rounded-full ${
-                      selectedEventTypes.includes(vibe) 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {vibe}
-                  </Button>
-                ))}
+              
+              {/* Wellness & Movement */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Wellness & Movement</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Wellness', 'Movement', 'Fitness', 'Yoga', 'Meditation', 'Mindfulness'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
               </div>
+              
+              {/* Social & Entertainment */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Social & Entertainment</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Nightlife', 'Social', 'Networking', 'Dating', 'Party', 'Music'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Learning & Culture */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Learning & Culture</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Learning', 'Cultural', 'Educational', 'Art', 'Creative', 'Tech'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Adventure & Travel */}
+              <div className="mb-4">
+                <h4 className="text-white/70 text-sm mb-2">Adventure & Travel</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Adventure', 'Travel', 'Outdoor', 'Day Trip', 'Excursions', 'Active'].map((vibe) => (
+                    <Button
+                      key={vibe}
+                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className={`rounded-full text-xs px-3 py-1 h-8 ${
+                        selectedEventTypes.includes(vibe) 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'border-gray-600 text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      {vibe}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
             </div>
           </div>
         </DialogContent>
