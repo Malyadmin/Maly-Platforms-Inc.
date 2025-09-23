@@ -67,7 +67,7 @@ export function EventCard({
             {(interestedUsers.length > 0 ? interestedUsers : attendees).slice(0, 4).map((attendee, i) => (
               <Avatar key={i} className="border-2 border-background w-8 h-8">
                 <AvatarImage 
-                  src={attendee.image || attendee.avatar} 
+                  src={'image' in attendee ? attendee.image : attendee.avatar} 
                   alt={attendee.name} 
                   className="object-cover object-center"
                 />
