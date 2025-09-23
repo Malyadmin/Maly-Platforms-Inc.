@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS } from "../../../shared/eventCreation";
@@ -387,12 +388,21 @@ interface Step3Props {
 function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
   const form = useForm({
     resolver: zodResolver(step3Schema.extend({
-      city: z.string().min(1, "City is required"),
+      city: z.string().optional(),
       startDate: z.coerce.date().refine((date) => date > new Date(), "Start date must be in the future"),
       endDate: z.coerce.date(),
     }).refine((data) => data.endDate >= data.startDate, {
       message: "End date must be after start date",
       path: ["endDate"],
+    }).refine((data) => {
+      // Only require city if it's not an online event
+      if (!data.isOnlineEvent && !data.city) {
+        return false;
+      }
+      return true;
+    }, {
+      message: "City is required for physical events",
+      path: ["city"],
     })),
     defaultValues: {
       isOnlineEvent: data.isOnlineEvent,
@@ -433,6 +443,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       isOnlineEvent,
       addActivitySchedule,
       agendaItems: addActivitySchedule ? agendaItems : [],
+      // Ensure city is included for online events
+      city: isOnlineEvent ? "Online" : formData.city,
     };
     onNext(submissionData);
   };
@@ -488,21 +500,30 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           </div>
 
           {/* Event Visibility */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Event Visibility</label>
-            <Select {...form.register("eventVisibility")} defaultValue={data.eventVisibility}>
-              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-visibility">
-                <SelectValue placeholder="Select visibility" />
-              </SelectTrigger>
-              <SelectContent>
-                {EVENT_VISIBILITY_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <FormField
+            control={form.control}
+            name="eventVisibility"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white font-medium">Event Visibility</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-visibility">
+                      <SelectValue placeholder="Select visibility" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {EVENT_VISIBILITY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Location Fields */}
           {!isOnlineEvent && (
@@ -912,21 +933,30 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           )}
 
           {/* Event Privacy */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Event Privacy</label>
-            <Select {...form.register("eventPrivacy")} defaultValue={data.eventPrivacy}>
-              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-privacy">
-                <SelectValue placeholder="Select privacy level" />
-              </SelectTrigger>
-              <SelectContent>
-                {EVENT_PRIVACY_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <FormField
+            control={form.control}
+            name="eventPrivacy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white font-medium">Event Privacy</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-privacy">
+                      <SelectValue placeholder="Select privacy level" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {EVENT_PRIVACY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Who Should Attend */}
           <div className="space-y-2">
@@ -1081,21 +1111,30 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           </div>
 
           {/* Gender Restrictions */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Gender Restriction</label>
-            <Select {...form.register("genderExclusive")}>
-              <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-gender">
-                <SelectValue placeholder="Select gender preference" />
-              </SelectTrigger>
-              <SelectContent>
-                {GENDER_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <FormField
+            control={form.control}
+            name="genderExclusive"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white font-medium">Gender Restriction</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-gender">
+                      <SelectValue placeholder="Select gender preference" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {GENDER_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Age Restrictions */}
           <div className="space-y-4">

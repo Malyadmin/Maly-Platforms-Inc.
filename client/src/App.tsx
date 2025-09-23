@@ -97,7 +97,7 @@ function AppContent() {
             <Route path="/share-event-members" component={ShareEventMembersPage} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/profile/:username" component={ProfilePage} />
-            <Route path="/create" component={CreateEventPage} />
+            <Route path="/create" component={CreateEventFlowPage} />
             <Route path="/create-flow" component={CreateEventFlowPage} />
             <Route path="/test-create" component={TestCreateEventPage} />
             <Route path="/companion" component={ChatbotPage} />
