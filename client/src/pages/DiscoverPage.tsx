@@ -472,8 +472,6 @@ export default function DiscoverPage() {
                   ))}
                 </div>
               </div>
-            </div>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
