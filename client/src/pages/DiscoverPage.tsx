@@ -596,33 +596,6 @@ export default function DiscoverPage() {
                     </div>
                   </div>
                 )}
-                          <div className="relative aspect-[1/2] sm:aspect-[1/2] overflow-hidden">
-                            <img
-                              src={event.image || "/placeholder-event.jpg"}
-                              alt={event.title}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <div className="flex items-center justify-between">
-                                <div className="max-w-[70%]">
-                                  <p className="text-[9px] sm:text-xs md:text-sm font-medium text-white/60">
-                                    {format(new Date(event.date), "MMM d, h:mm a")}
-                                  </p>
-                                  <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-white mt-0.5 truncate">{event.title}</h3>
-                                </div>
-                                <div className="text-right text-white z-10">
-                                  {event.price === "0" ? (
-                                    <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">Free</p>
-                                  ) : (
-                                    <>
-                                      <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${event.price}</p>
-                                      <p className="text-[8px] sm:text-xs md:text-sm text-white/60">per person</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
 
                 {/* This Month Section */}
                 {groupedEvents.month.length > 0 && (
