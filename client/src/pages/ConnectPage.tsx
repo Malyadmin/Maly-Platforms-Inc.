@@ -81,31 +81,34 @@ export function ConnectPage() {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
       {/* Header Section */}
-      <header className="px-5 pt-3 pb-4 bg-black">
-        <div className="flex items-center justify-between">
-          {/* Left: City name with dropdown */}
-          <button 
-            className="flex items-center gap-1 text-white"
-            onClick={() => {/* TODO: Implement city selector */}}
-            data-testid="city-selector"
-          >
-            <span className="text-base font-medium">City name</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
+      <header className="bg-black">
+        {/* MALY logo centered at top */}
+        <div className="flex justify-center pt-3 pb-4">
+          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+        </div>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-4">
+          <div className="flex items-center justify-between">
+            {/* Left: City name with dropdown */}
+            <button 
+              className="flex items-center gap-1 text-white"
+              onClick={() => {/* TODO: Implement city selector */}}
+              data-testid="city-selector"
+            >
+              <span className="text-base font-medium">City name</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
 
-          {/* Center: MALY title */}
-          <h1 className="text-lg font-bold tracking-wider text-white">
-            MALY
-          </h1>
-
-          {/* Right: Search icon */}
-          <button 
-            className="p-1"
-            onClick={() => setShowSearch(!showSearch)}
-            data-testid="search-button"
-          >
-            <Search className="h-6 w-6 text-white" />
-          </button>
+            {/* Right: Search icon */}
+            <button 
+              className="p-1"
+              onClick={() => setShowSearch(!showSearch)}
+              data-testid="search-button"
+            >
+              <Search className="h-6 w-6 text-white" />
+            </button>
+          </div>
         </div>
       </header>
 
