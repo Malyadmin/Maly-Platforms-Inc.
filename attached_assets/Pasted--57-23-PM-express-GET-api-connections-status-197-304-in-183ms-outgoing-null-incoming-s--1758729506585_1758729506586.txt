@@ -1,0 +1,101 @@
+:57:23 PM [express] GET /api/connections/status/197 304 in 183ms :: {"outgoing":null,"incoming":{"s…
+Deserializing user: 233
+Deserialized user found: begin
+Auth successful via passport session for user: begin
+[CONVERSATION] Creating/finding direct conversation
+[DEBUG_FIX] Checking for existing conversation between users 233 and 197
+[CONVERSATION] Successfully created/found conversation 49
+3:57:24 PM [express] POST /api/conversations 200 in 134ms :: {"id":49,"type":"direct","title":"Direc…
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+3:57:24 PM [express] GET /api/users/profile/197 304 in 133ms :: {"id":197,"username":"111@111.com","…
+Deserializing user: 233
+Deserialized user found: begin
+3:57:25 PM [express] GET /api/connections/status/197 304 in 195ms :: {"outgoing":null,"incoming":{"s…
+Deserializing user: 233
+Deserialized user found: begin
+Auth successful via passport session for user: begin
+LEGACY ENDPOINT: Converting message query to conversation-based system
+Finding conversation between users 233 and 197
+[DEBUG_FIX] Checking for existing conversation between users 233 and 197
+Successfully migrated legacy message query - found 3 messages in conversation 49
+3:57:25 PM [express] GET /api/messages/233/197 304 in 231ms :: [{"id":48,"sender_id":233,"receiver_i…
+WebSocket message #1 received from user 233: {"senderId":233,"receiverId":197,"content":"hi"}
+Legacy WebSocket message format detected, converting receiverId 197 to conversation
+[DEBUG_FIX] Checking for existing conversation between users 233 and 197
+Created/found conversation 49 for users 233 and 197
+Message stored in database: {"id":51,"sender_id":233,"receiver_id":null,"conversation_id":49,"content":"hi","createdAt":"2025-09-24T15:57:27.362Z","is_read":false,"sender":{"id":233,"fullName":"begin","profileImage":"https://res.cloudinary.com/dwmolc54p/image/upload/v1758688065/images/uploads/1758688065407_F3FE4D53-1B8A-4CA9-9347-DDB39D61AB33.png.png"},"receiver":null}
+Message saved to conversation undefined, participants will see it through polling
+Sending confirmation to sender 233
+WebSocket connection closed for user 233
+WebSocket connection received, waiting for user identification
+Deserializing user: 233
+Deserializing user: 233
+Deserializing user: 233
+Deserializing user: 233
+Deserializing user: 233
+WebSocket connection established for user 233
+Deserialized user found: begin
+Deserialized user found: begin
+3:57:28 PM [express] GET /api/connections 304 in 134ms :: [{"id":232,"username":"end","fullName":"en…
+3:57:28 PM [express] GET /api/connections/pending 304 in 144ms :: [{"id":234,"username":"win","fullN…
+Deserialized user found: begin
+Deserialized user found: begin
+Auth successful via passport session for user: begin
+[FETCH_CONVERSATIONS] Fetching conversations for user 233
+Deserialized user found: begin
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}
+3:57:28 PM [express] GET /api/events/applications 500 in 292ms :: {"error":"invalid input syntax for…
+[DEBUG_FIX] Formatting last message for conversation 47: "yo kevin"
+[DEBUG_FIX] Added otherParticipant for conversation 47: {
+  otherUserId: 229,
+  otherUserName: 'kevin',
+  profileImage: 'https://res.cloudinary.com/dwmolc54p/image/upload/v1757514965/images/uploads/1757514965275_Untitled%20design.png.png'
+}
+[DEBUG_FIX] Formatting last message for conversation 48: "yo"
+[DEBUG_FIX] Added otherParticipant for conversation 48: {
+  otherUserId: 232,
+  otherUserName: 'end',
+  profileImage: 'https://res.cloudinary.com/dwmolc54p/image/upload/v1758663509/images/uploads/1758663508419_Zeno.png.png'
+}
+[DEBUG_FIX] Formatting last message for conversation 49: "hi"
+[DEBUG_FIX] Added otherParticipant for conversation 49: { otherUserId: 197, otherUserName: '111111', profileImage: null }
+[FETCH_CONVERSATIONS] Successfully fetched 3 conversations for user 233
+3:57:29 PM [express] GET /api/conversations/233 200 in 687ms :: [{"id":49,"type":"direct","title":"1…
+Deserializing user: 233
+Deserialized user found: begin
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}

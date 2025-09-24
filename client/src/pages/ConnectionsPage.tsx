@@ -193,7 +193,30 @@ export default function ConnectionsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setLocation(`/chat/${connection.id}`)}
+                            onClick={async () => {
+                              try {
+                                // Create or find conversation between current user and connection
+                                const response = await fetch('/api/conversations', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ otherUserId: connection.id }),
+                                  credentials: 'include'
+                                });
+                                
+                                if (response.ok) {
+                                  const conversation = await response.json();
+                                  setLocation(`/chat/conversation/${conversation.id}`);
+                                } else {
+                                  console.error('Failed to create conversation');
+                                  // Fallback to legacy route if conversation creation fails
+                                  setLocation(`/chat/${connection.id}`);
+                                }
+                              } catch (error) {
+                                console.error('Error creating conversation:', error);
+                                // Fallback to legacy route if there's an error
+                                setLocation(`/chat/${connection.id}`);
+                              }
+                            }}
                           >
                             Message
                           </Button>
