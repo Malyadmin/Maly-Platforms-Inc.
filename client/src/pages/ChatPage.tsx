@@ -326,7 +326,7 @@ export default function ChatPage() {
                 ) : (
                   <>
                     {messages.map((message, index) => {
-                      const isCurrentUser = Number(message.senderId) === user.id;
+                      const isCurrentUser = message.senderId === user.id;
                       const dateHeader = formatMessageDate(message, index);
                       
                       return (
