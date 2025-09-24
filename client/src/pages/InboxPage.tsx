@@ -66,6 +66,11 @@ export default function InboxPage() {
   // Fetch RSVP requests (for events the user created)
   const { data: rsvpRequests = [], isLoading: rsvpRequestsLoading } = useQuery<RSVPRequest[]>({
     queryKey: ['/api/events/applications'],
+    queryFn: async () => {
+      const response = await fetch('/api/events/applications');
+      if (!response.ok) throw new Error('Failed to fetch RSVP requests');
+      return response.json();
+    },
     enabled: !!user?.id,
   });
 
