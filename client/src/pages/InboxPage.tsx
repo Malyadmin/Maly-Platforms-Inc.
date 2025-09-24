@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/lib/translations';
-import { InboxSection } from '@/components/inbox/InboxSection';
 
 interface ConnectionRequest {
   id: number;
