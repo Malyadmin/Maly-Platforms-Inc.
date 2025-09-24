@@ -1,0 +1,86 @@
+
+> rest-express@1.0.0 start
+Anthropic SDK not available, using fallback compatibility scoring
+Anthropic SDK not available, using fallback translation methods
+12:01:06 AM [express] Checking for processes on port 5000...
+12:01:06 AM [express] Successfully cleaned up port 5000
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+12:01:07 AM [express] NODE_ENV: production, isProduction: true
+12:01:07 AM [express] Using static file serving for production
+12:01:07 AM [express] Attempting to start server (attempt 1/3)
+12:01:07 AM [express] Server started successfully on port 5000
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Deserialized user found: end
+Deserializing user: 232
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
+No location filter applied, showing all events
+Found 46 events in database before filtering
+Found 46 events to display
+Returning 46 events from database
+12:05:50 AM [express] GET /api/events 304 in 156ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+User verified exists: end
+12:05:50 AM [express] POST /api/verify-user 200 in 212ms :: {"valid":true}
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Full request query object: { currentUserId: '232' }
+User browse: Authenticated via passport: 232
+User browse request received with city=undefined
+Mood filters: none
+Deserialized user found: end
+Query returned 20 users (limit: 20, offset: 0)
+Found 20 users, total: 40
+12:05:53 AM [express] GET /api/users/browse 304 in 176ms :: {"users":[{"id":231,"username":"IosTestAc…
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
+No location filter applied, showing all events
+Deserialized user found: end
+Found 46 events in database before filtering
+Found 46 events to display
+Returning 46 events from database
+12:05:53 AM [express] GET /api/events 304 in 134ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
+No location filter applied, showing all events
+12:07:06 AM [express] GET /api/replit-info 304 in 228ms :: {"isReplit":true,"replId":"23b5f111-77a4-4…
+Found 46 events in database before filtering
+Found 46 events to display
+Returning 46 events from database
+12:07:06 AM [express] GET /api/events 304 in 282ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Deserialized user found: end
+Fetching user with username: end
+Deserialized user found: end
+Found user by username: end
+12:07:10 AM [express] GET /api/users/username/end 304 in 148ms :: {"id":232,"username":"end","email":…
+12:07:10 AM [express] GET /api/connections/status/232 304 in 187ms :: {"outgoing":null,"incoming":nul…
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Fetching user with username: end
+Deserialized user found: end
+Found user by username: end
+12:07:17 AM [express] GET /api/users/username/end 304 in 131ms :: {"id":232,"username":"end","email":…

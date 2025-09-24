@@ -1597,7 +1597,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // Create a new event
-  app.post("/api/events", requireAuth, uploadImageAndVideo.fields([
+  app.post("/api/events", isAuthenticated, uploadImageAndVideo.fields([
     { name: 'image', maxCount: 1 },
     { name: 'videos', maxCount: 5 }
   ]), async (req, res) => {
