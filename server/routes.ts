@@ -975,6 +975,59 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // Multiple profile images upload endpoint
+  app.post("/api/upload-profile-images", requireAuth, uploadImage.array('images', 6), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+
+      // Type assertion to access user property safely
+      const user = req.user as { id: number; username?: string };
+      const userId = user.id;
+      const uploadedUrls: string[] = [];
+
+      try {
+        const username = user.username || 'user';
+        
+        // Upload each image to Cloudinary
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          const result = await uploadToCloudinary(
+            file.buffer, 
+            file.originalname, 
+            'image',
+            `profiles/${username}/gallery`
+          );
+          uploadedUrls.push(result.secure_url);
+          console.log(`Uploaded profile image ${i + 1} to Cloudinary: ${result.secure_url}`);
+        }
+      } catch (cloudinaryError) {
+        console.error("Error uploading to Cloudinary:", cloudinaryError);
+        return res.status(500).json({ error: "Failed to upload images to Cloudinary" });
+      }
+
+      // Get current user data without updating
+      const currentUser = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+
+      return res.json({ 
+        success: true, 
+        message: `${uploadedUrls.length} profile images uploaded and staged (not saved to profile yet)`,
+        profileImages: uploadedUrls,
+        user: currentUser
+      });
+    } 
+    catch (error) {
+      console.error("Profile images upload error:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload profile images" 
+      });
+    }
+  });
+
   // API endpoint for city suggestions
   app.post("/api/suggest-city", async (req: Request, res: Response) => {
     try {
