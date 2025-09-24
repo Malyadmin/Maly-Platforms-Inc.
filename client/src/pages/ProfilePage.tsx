@@ -197,7 +197,9 @@ export default function ProfilePage() {
     },
     onSuccess: (data) => {
       // Navigate to the chat page with the other user's ID
-      setLocation(`/chat/${profileData.id}`);
+      if (profileData?.id) {
+        setLocation(`/chat/${profileData.id}`);
+      }
     },
     onError: (error: Error) => {
       toast({
