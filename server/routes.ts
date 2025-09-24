@@ -1366,6 +1366,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
+                // Transform snake_case to camelCase for frontend compatibility
+                isPrivate: event.isPrivate,
+                requireApproval: event.requireApproval,
                 creatorName: creator.fullName || creator.username,
                 creatorImage: creator.profileImage,
                 creatorUsername: creator.username,
@@ -1385,6 +1388,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Add participants to the event object even if we don't have creator details
         const eventWithParticipants = {
           ...event,
+          // Transform snake_case to camelCase for frontend compatibility
+          isPrivate: event.isPrivate,
+          requireApproval: event.requireApproval,
           attendingUsers,
           interestedUsers
         };
