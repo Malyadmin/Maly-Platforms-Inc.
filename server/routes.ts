@@ -1423,9 +1423,17 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
                 requireApproval: event.requireApproval,
+                // Keep flat properties for backward compatibility
                 creatorName: creator.fullName || creator.username,
                 creatorImage: creator.profileImage,
                 creatorUsername: creator.username,
+                // Add nested creator object for consistency with events list API
+                creator: {
+                  id: creator.id,
+                  username: creator.username,
+                  fullName: creator.fullName,
+                  profileImage: creator.profileImage
+                },
                 attendingUsers,
                 interestedUsers
               };
