@@ -1317,27 +1317,8 @@ export default function CreateEventFlowPage() {
   const handleSubmitEvent = async () => {
     console.log("🚀 Starting event submission...");
     try {
-      
-      // Get authentication data
-      const sessionId = localStorage.getItem('maly_session_id');
-      const userId = localStorage.getItem('maly_user_id');
-      
-      console.log("🔐 Auth check:", { 
-        hasSessionId: !!sessionId, 
-        hasUserId: !!userId,
-        sessionIdPrefix: sessionId ? sessionId.substring(0, 8) + '...' : 'none'
-      });
-      
-      if (!sessionId || !userId) {
-        console.log("❌ No auth data found, redirecting to login");
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please log in to create an event"
-        });
-        setLocation('/auth');
-        return;
-      }
+      // No need to check localStorage - we rely on session-based authentication
+      // The session cookie will be automatically sent with credentials: 'include'
 
       // Prepare form data for multipart upload (handles images)
       const formData = new FormData();
@@ -1388,12 +1369,9 @@ export default function CreateEventFlowPage() {
       console.log("🌐 Making API call to /api/events...");
       const response = await fetch('/api/events', {
         method: 'POST',
-        headers: {
-          ...(sessionId ? { 'X-Session-ID': sessionId } : {}),
-          ...(userId ? { 'X-User-ID': userId } : {}),
-        },
+        // No custom headers needed - session authentication is handled via cookies
         body: formData,
-        credentials: 'include',
+        credentials: 'include', // This ensures session cookies are sent
       });
 
       console.log("📡 Response status:", response.status, response.statusText);
