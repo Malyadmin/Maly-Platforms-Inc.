@@ -1254,13 +1254,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         createdAt: events.createdAt,
         attendingCount: events.attendingCount,
         interestedCount: events.interestedCount,
-        // Include creator information
-        creator: {
-          id: users.id,
-          username: users.username,
-          fullName: users.fullName,
-          profileImage: users.profileImage
-        }
+        // Include creator information with explicit aliases
+        creatorUserId: users.id,
+        creatorUsername: users.username,
+        creatorFullName: users.fullName,
+        creatorProfileImage: users.profileImage
       })
       .from(events)
       .leftJoin(users, eq(events.creatorId, users.id));
@@ -1277,24 +1275,39 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       let dbEvents = await query;
       console.log(`Found ${dbEvents.length} events in database before filtering`);
 
-      console.log(`Found ${dbEvents.length} events to display`);
+      // Map events to include properly structured creator objects
+      const eventsWithCreators = dbEvents.map(event => {
+        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, ...eventData } = event;
+        
+        return {
+          ...eventData,
+          creator: creatorUserId ? {
+            id: creatorUserId,
+            username: creatorUsername,
+            fullName: creatorFullName,
+            profileImage: creatorProfileImage
+          } : null
+        };
+      });
+
+      console.log(`Found ${eventsWithCreators.length} events to display`);
 
       // Sort events by date (most recent first)
-      dbEvents.sort((a, b) => {
+      eventsWithCreators.sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
         return dateB - dateA; // Descending order (most recent first)
       });
 
       // Check if we found any events
-      if (dbEvents.length === 0) {
+      if (eventsWithCreators.length === 0) {
         console.log("No events found in database, using mock data temporarily");
         // Return empty array instead of falling back to mock data
         return res.json([]);
       }
 
-      console.log(`Returning ${dbEvents.length} events from database`);
-      return res.json(dbEvents);
+      console.log(`Returning ${eventsWithCreators.length} events from database`);
+      return res.json(eventsWithCreators);
     } catch (error) {
       console.error("Error fetching events:", error);
       let message = "Failed to fetch events";
