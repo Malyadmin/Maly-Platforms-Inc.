@@ -1,0 +1,51 @@
+erializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+Deserialized user found: begin
+Auth successful via passport session for user: begin
+[FETCH_CONVERSATIONS] Fetching conversations for user 233
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}
+6:16:07 AM [express] GET /api/events/applications 500 in 294ms :: {"error":"invalid input syntax for…
+[DEBUG_FIX] Formatting last message for conversation 48: "yo"
+[DEBUG_FIX] Added otherParticipant for conversation 48: {
+  otherUserId: 232,
+  otherUserName: 'end',
+  profileImage: 'https://res.cloudinary.com/dwmolc54p/image/upload/v1758663509/images/uploads/1758663508419_Zeno.png.png'
+}
+[FETCH_CONVERSATIONS] Successfully fetched 2 conversations for user 233
+6:16:08 AM [express] GET /api/conversations/233 200 in 532ms :: [{"id":48,"type":"direct","title":"e…
+Deserializing user: 233
+Deserialized user found: begin
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}
