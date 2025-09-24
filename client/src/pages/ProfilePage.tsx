@@ -600,11 +600,11 @@ export default function ProfilePage() {
           </div>
           
           {/* Mood & Vibe Section */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Smile className="h-4 w-4 text-primary" />
-                <h2 className="text-base font-semibold">{t('moodAndVibe')}</h2>
+                <Smile className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-medium text-white">{t('moodAndVibe')}</h3>
               </div>
               
               {/* Only show change mood button if viewing own profile */}
@@ -612,7 +612,7 @@ export default function ProfilePage() {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="gap-1 text-xs text-primary h-7 px-2"
+                  className="gap-1 text-xs text-white bg-white/10 rounded-full h-8 px-3"
                   onClick={() => setIsUpdatingMood(!isUpdatingMood)}
                   disabled={updateMoodMutation.isPending}
                 >
@@ -628,7 +628,7 @@ export default function ProfilePage() {
             
             {/* Mood & Vibe Display */}
             {!isUpdatingMood ? (
-              <div className="bg-black/20 rounded-xl p-4 border border-border/20">
+              <div>
                 {((profileData.currentMoods && profileData.currentMoods.length > 0) || (profileData.interests && profileData.interests.length > 0)) ? (
                   <div className="flex flex-wrap gap-2">
                     {/* First display currentMoods if available */}
@@ -636,7 +636,7 @@ export default function ProfilePage() {
                       profileData.currentMoods.map((mood, index) => (
                         <Badge 
                           key={`mood-${index}`}
-                          className={`py-1.5 px-3 text-sm font-medium ${moodStyles[mood as keyof typeof moodStyles] || ''} rounded-full`}
+                          className={`py-2 px-3 text-sm font-medium border-0 ${moodStyles[mood as keyof typeof moodStyles] || 'bg-white/20 text-white'} rounded-full`}
                         >
                           {t(mood)}
                         </Badge>
@@ -646,7 +646,7 @@ export default function ProfilePage() {
                       profileData.interests && profileData.interests.map((interest, index) => (
                         <Badge 
                           key={`interest-${index}`}
-                          className={`py-1.5 px-3 text-sm font-medium ${moodStyles[interest as keyof typeof moodStyles] || ''} rounded-full`}
+                          className={`py-2 px-3 text-sm font-medium border-0 ${moodStyles[interest as keyof typeof moodStyles] || 'bg-white/20 text-white'} rounded-full`}
                         >
                           {t(interest)}
                         </Badge>
@@ -654,7 +654,7 @@ export default function ProfilePage() {
                     }
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">
+                  <p className="text-white/60 text-sm italic">
                     {currentUser && profileData.id === currentUser.id 
                       ? "You haven't shared your mood & vibe preferences yet."
                       : "This user hasn't shared their mood & vibe preferences yet."}
@@ -662,8 +662,8 @@ export default function ProfilePage() {
                 )}
               </div>
             ) : (
-              <div className="bg-black/20 rounded-xl p-4 border border-border/20 space-y-3">
-                <p className="text-xs text-muted-foreground">Select your mood & vibe preferences:</p>
+              <div className="bg-black/40 rounded-xl p-4 space-y-3">
+                <p className="text-sm text-white/60">Select your mood & vibe preferences:</p>
                 <div className="flex flex-wrap gap-2">
                   {moods.map((mood) => (
                     <Button
@@ -671,7 +671,7 @@ export default function ProfilePage() {
                       variant="outline"
                       size="sm"
                       className={`
-                        border rounded-full px-3 py-1 h-auto text-xs
+                        border-0 rounded-full px-3 py-1 h-auto text-xs text-white bg-white/20 hover:bg-white/30
                         ${moodStyles[mood as keyof typeof moodStyles] || ''}
                       `}
                       onClick={() => updateMoodMutation.mutate(mood)}
@@ -683,10 +683,27 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
-          
-          {/* We removed the duplicate Mood & Vibe section (previously called "Interests") */}
+
+          {/* Interests Section - Only show if they have interests separate from moods */}
+          {profileData.interests && profileData.interests.length > 0 && (
+            <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Heart className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-medium text-white">{t('interests')}</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {profileData.interests.map((interest, index) => (
+                  <Badge key={index} className="bg-white/20 text-white py-2 px-3 text-sm border-0 rounded-full">
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
-  );
+  )}
+</div>
+);
 }
