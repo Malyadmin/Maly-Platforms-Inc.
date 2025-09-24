@@ -1224,8 +1224,46 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log("Fetching events with params:", { location, currentUserId });
 
-      // Query events from the database
-      let query = db.select().from(events);
+      // Query events from the database with creator information
+      let query = db.select({
+        id: events.id,
+        title: events.title,
+        description: events.description,
+        city: events.city,
+        location: events.location,
+        address: events.address,
+        latitude: events.latitude,
+        longitude: events.longitude,
+        date: events.date,
+        endDate: events.endDate,
+        image: events.image,
+        videoUrls: events.videoUrls,
+        category: events.category,
+        creatorId: events.creatorId,
+        capacity: events.capacity,
+        price: events.price,
+        ticketType: events.ticketType,
+        availableTickets: events.availableTickets,
+        tags: events.tags,
+        isPrivate: events.isPrivate,
+        isBusinessEvent: events.isBusinessEvent,
+        timeFrame: events.timeFrame,
+        stripeProductId: events.stripeProductId,
+        stripePriceId: events.stripePriceId,
+        itinerary: events.itinerary,
+        createdAt: events.createdAt,
+        attendingCount: events.attendingCount,
+        interestedCount: events.interestedCount,
+        // Include creator information
+        creator: {
+          id: users.id,
+          username: users.username,
+          fullName: users.fullName,
+          profileImage: users.profileImage
+        }
+      })
+      .from(events)
+      .leftJoin(users, eq(events.creatorId, users.id));
 
       // Apply location filter if provided and not 'all'
       if (location && location !== 'all' && location !== '') {

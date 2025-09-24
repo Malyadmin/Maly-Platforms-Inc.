@@ -21,16 +21,19 @@ const EventSchema = z.object({
   longitude: z.number().nullable(),
   date: z.string().or(z.date()),
   category: z.string(),
-  price: z.number().nullable(),
+  price: z.string().nullable(),
   image: z.string().nullable(),
   image_url: z.string().nullable(),
   attendingCount: z.number().nullable().default(0),
   interestedCount: z.number().nullable().default(0),
   creatorId: z.number().nullable(),
-  creatorName: z.string().nullable(),
-  creatorImage: z.string().nullable(),
-  creatorUsername: z.string().nullable(),
   tags: z.array(z.string()).nullable(),
+  creator: z.object({
+    id: z.number(),
+    username: z.string(),
+    fullName: z.string(),
+    profileImage: z.string().nullable(),
+  }).nullable(),
 });
 
 type Event = z.infer<typeof EventSchema>;
@@ -170,7 +173,22 @@ export default function EventPage() {
               ✓ Free Event
             </div>
             <div className="flex items-center gap-2 text-blue-400">
-              👤 UserB
+              <button
+                onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
+                className="flex items-center gap-2 hover:underline cursor-pointer"
+                data-testid="event-creator-link"
+              >
+                {event?.creator?.profileImage ? (
+                  <img
+                    src={event.creator.profileImage}
+                    alt={event.creator.fullName}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
+                <span>{event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
+              </button>
             </div>
           </div>
         </div>
