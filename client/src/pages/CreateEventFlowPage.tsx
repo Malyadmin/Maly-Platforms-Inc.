@@ -1333,6 +1333,7 @@ export default function CreateEventFlowPage() {
         time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
         price: eventData.isPaidEvent && eventData.price ? parseFloat(eventData.price) : 0,
         capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
+        eventPrivacy: eventData.eventPrivacy || "public", // Add the missing eventPrivacy field
         itinerary: eventData.agendaItems?.map(item => ({
           time: item.time,
           activity: item.description,
