@@ -59,6 +59,7 @@ export const events = pgTable("events", {
   availableTickets: integer("available_tickets"),
   createdAt: timestamp("created_at").defaultNow(),
   isPrivate: boolean("is_private").default(false),
+  requireApproval: boolean("require_approval").default(false), // For private events requiring access approval
   isBusinessEvent: boolean("is_business_event").default(false),
   tags: jsonb("tags").$type<string[]>().default([]),
   attendingCount: integer("attending_count").default(0),
