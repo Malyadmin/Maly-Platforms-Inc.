@@ -1,0 +1,42 @@
+Analyze Inbox Page for UI Overhaul
+Hello! Your task is to perform a "lay of the land" analysis of the /inbox page to prepare for a complete UI and functional overhaul. The goal is to understand the current frontend implementation and how it uses the backend API.
+
+Do not edit any files. Please investigate the following key areas and provide a comprehensive report:
+
+1. Frontend Implementation (/inbox page):
+
+Locate and analyze the main React component for the inbox, which should be at client/src/pages/InboxPage.tsx.
+
+Data Fetching: How does this page currently fetch data? Identify the useQuery hook and the exact API endpoint path it calls.
+
+Rendering Logic: How does the component currently render the list of conversations? Describe the existing JSX structure. Does it use a reusable component for each conversation row, or is the logic inline?
+
+2. Backend API Endpoint (GET /api/conversations):
+
+Locate the backend handler function for the API endpoint that the inbox page calls.
+
+Crucially, analyze and report the exact JSON structure of a single conversation object that this endpoint returns. This is the "data contract." Your report should list all the key fields, for example:
+
+conversationId
+
+participants (and the structure of a participant object)
+
+lastMessage (and its structure, e.g., text, sender, timestamp)
+
+unreadCount
+
+isGroupChat (or similar boolean)
+
+3. Swift Code Reference (for Logic):
+
+Briefly examine the Swift code for its inbox implementation.
+
+Identify how it maps the JSON data from the API to its UI. Specifically, note any client-side logic it performs, such as:
+
+How does it format the timestamp for display?
+
+How does it determine the display name and avatar (e.g., for a group chat vs. a direct message)?
+
+Final Report:
+
+Based on your analysis, provide a report that summarizes the current state of the React inbox page and details the precise data structure it receives from the backend. Conclude by identifying the key gaps between the current frontend implementation and what will be required to build the new Figma design.

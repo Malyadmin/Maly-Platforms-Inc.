@@ -1,0 +1,63 @@
+Build Prompt: Overhaul Inbox Page with Sectioned UI and Group Chat Support
+Hello! Your task is to execute a complete overhaul of the /inbox page based on the provided analysis. The goal is to create a pixel-perfect replica of the Figma design by refactoring the frontend to correctly handle the backend's data structure and support group conversations.
+
+Please execute the following phases in order:
+
+Phase 1: Fix the Data Foundation
+First, you must resolve the critical data structure mismatch between the frontend and backend.
+
+Update Frontend Types:
+
+Go to the file where frontend types are defined (e.g., a new file at client/src/types/inbox.ts).
+
+Create a new TypeScript interface named Conversation that exactly matches the JSON structure returned by the GET /api/conversations/:userId endpoint, as detailed in the analysis report.
+
+Refactor the Data Fetching Hook:
+
+Open the useMessages() hook file at @/hooks/use-messages.ts.
+
+Update the state and functions within this Zustand store to use the new, correct Conversation interface.
+
+Ensure the fetchConversations function correctly processes the API response without trying to flatten it into the old, incorrect structure.
+
+Phase 2: Build Reusable UI Components
+Next, create the modular components needed for the new, sophisticated UI.
+
+Create ConversationListItem.tsx:
+
+Create a new, reusable component at client/src/components/inbox/ConversationListItem.tsx.
+
+This component must accept a single conversation object (using the new, correct type) as a prop.
+
+Implement Display Logic: Inside this component, add logic to correctly display the conversation's name (e.g., use conversation.title if it's a group/event chat, otherwise use conversation.otherParticipant.fullName).
+
+Style Pixel-Perfect: Use Tailwind CSS to style this component to be a pixel-perfect match of a single conversation row in the Figma design, including the avatar, name, last message, timestamp, and unread indicator.
+
+Create InboxSection.tsx:
+
+Create another reusable component at client/src/components/inbox/InboxSection.tsx.
+
+This component should accept a title (string) and an array of conversations as props.
+
+It will render the section title and then map over the conversations to render a list of ConversationListItem components.
+
+Phase 3: Reconstruct the Inbox Page
+Finally, assemble the page using your new data layer and UI components.
+
+Overhaul InboxPage.tsx:
+
+Open client/src/pages/InboxPage.tsx and remove the old, inline rendering logic.
+
+Continue to use the useMessages() hook to fetch the conversation list.
+
+Implement Sectioned Layout:
+
+Using the fetched conversation data, filter the list into separate arrays based on the Figma design's sections (e.g., "Connection Requests," "Messages & Groups").
+
+Render each section using your new InboxSection component.
+
+Fix Conversation Routing:
+
+This is critical. Inside your ConversationListItem component, ensure that the <Link> wrapping each item navigates to the conversation-centric URL. The href must be structured like this: /chat/conversation/${conversation.id}.
+
+After completing these phases, the /inbox page should be a functional and visually flawless replica of the Figma design, capable of displaying both direct messages and group chats correctly.

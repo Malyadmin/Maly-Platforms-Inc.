@@ -1,27 +1,93 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
-import { useMessages, Conversation, useMessageNotifications } from '@/hooks/use-messages';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMessages, useMessageNotifications } from '@/hooks/use-messages';
+import { Conversation } from '@/types/inbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { format } from 'date-fns';
-import { MessageSquare, Search, XCircle } from 'lucide-react';
+import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GradientHeader } from '@/components/ui/GradientHeader';
 import { useTranslation } from '@/lib/translations';
+
+interface ConnectionRequest {
+  id: number;
+  fullName?: string;
+  username?: string;
+  profileImage?: string;
+  status: 'pending';
+  createdAt: string;
+}
+
+
+interface RSVPRequest {
+  id: number;
+  eventId: number;
+  eventTitle: string;
+  userName: string;
+  userImage?: string;
+  status: 'pending';
+  createdAt: string;
+}
+
+interface ConnectionUser {
+  id: number;
+  username: string;
+  fullName: string | null;
+  profileImage: string | null;
+  requestDate?: string;
+  connectionDate?: string;
+  connectionType?: string;
+  status?: string;
+}
 
 export default function InboxPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
   const { user } = useUser();
-  const { conversations, loading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
+  const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
   const [, setLocation] = useLocation();
+
+  // Fetch connection requests
+  const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
+    queryKey: ['/api/connections/pending'],
+    queryFn: async () => {
+      const response = await fetch('/api/connections/pending');
+      if (!response.ok) throw new Error('Failed to fetch pending connection requests');
+      return response.json();
+    },
+    enabled: !!user?.id,
+  });
+
+
+  // Fetch RSVP requests (for events the user created)
+  const { data: rsvpRequests = [], isLoading: rsvpRequestsLoading } = useQuery<RSVPRequest[]>({
+    queryKey: ['/api/events/applications'],
+    queryFn: async () => {
+      const response = await fetch('/api/events/applications');
+      if (!response.ok) throw new Error('Failed to fetch RSVP requests');
+      return response.json();
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch connections (users who are connected with the current user)
+  const {
+    data: connections = [],
+    isLoading: connectionsLoading,
+    error: connectionsError
+  } = useQuery<ConnectionUser[]>({
+    queryKey: ["connections"],
+    queryFn: async () => {
+      const response = await fetch("/api/connections");
+      if (!response.ok) throw new Error("Failed to fetch connections");
+      return response.json();
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (user?.id) {
@@ -53,10 +119,16 @@ export default function InboxPage() {
   useEffect(() => {
     setFilteredConversations(
       conversations.filter(
-        (conv) =>
-          conv.user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          conv.user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          conv.lastMessage.content.toLowerCase().includes(searchTerm.toLowerCase())
+        (conv) => {
+          const displayName = conv.type === 'direct' && conv.otherParticipant 
+            ? (conv.otherParticipant.fullName || conv.otherParticipant.username || '')
+            : conv.title;
+          
+          const lastMessageContent = conv.lastMessage?.content || '';
+          
+          return displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lastMessageContent.toLowerCase().includes(searchTerm.toLowerCase());
+        }
       )
     );
   }, [conversations, searchTerm]);
@@ -71,43 +143,22 @@ export default function InboxPage() {
     }
   };
 
-  const formatMessageDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return format(date, 'h:mm a'); // Today: show time only
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return format(date, 'EEEE'); // Show day of week
-    } else {
-      return format(date, 'MMM d'); // Show month and day
-    }
-  };
+  const loading = conversationsLoading || connectionRequestsLoading || rsvpRequestsLoading || connectionsLoading;
 
   if (!user) {
     return (
-      <div className="container max-w-4xl py-8 mx-auto px-4 sm:px-6 lg:px-8">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Messages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-12">
-              <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium">You need to sign in</h3>
-              <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
-              <Button
-                className="mt-4"
-                onClick={() => setLocation('/login')}
-              >
-                Sign In
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-black text-white px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-12">
+          <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-white">You need to sign in</h3>
+          <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
+          <Button
+            className="mt-4"
+            onClick={() => setLocation('/auth')}
+          >
+            Sign In
+          </Button>
+        </div>
       </div>
     );
   }
@@ -117,138 +168,190 @@ export default function InboxPage() {
     0
   );
 
+  // Filter conversations for proper section display
+  // Messages & Groups: Only conversations with message history
+  const conversationsWithMessages = conversations.filter(conv => conv.lastMessage !== null);
+
+  // Helper function to render individual inbox items
+  const renderInboxItem = ({ 
+    title, 
+    subtitle, 
+    avatar, 
+    onPress, 
+    showChevron = true,
+    testId
+  }: {
+    title: string;
+    subtitle: string;
+    avatar?: string;
+    onPress: () => void;
+    showChevron?: boolean;
+    testId?: string;
+  }) => (
+    <button
+      onClick={onPress}
+      className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+      data-testid={testId}
+    >
+      <Avatar className="h-10 w-10 mr-3">
+        <AvatarImage src={avatar} alt={title} />
+        <AvatarFallback className="bg-gray-700 text-gray-300">
+          <UserPlus className="h-5 w-5" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1 text-left">
+        <h4 className="text-white font-medium text-sm">{title}</h4>
+        <p className="text-gray-400 text-xs">{subtitle}</p>
+      </div>
+      {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
+    </button>
+  );
+
+  // Helper function to render section headers
+  const renderSectionHeader = (title: string, count: number) => (
+    <div className="flex items-center justify-between px-4 py-2">
+      <h3 className="text-white font-medium text-base">{title}</h3>
+      <span className="text-white font-medium text-base">{count}</span>
+    </div>
+  );
+
+  // Helper function to render empty state
+  const renderEmptyState = (message: string) => (
+    <div className="px-4 py-2">
+      <p className="text-gray-400 text-sm">{message}</p>
+    </div>
+  );
+
   return (
-    <div className="container max-w-4xl py-8 mx-auto px-4 sm:px-6 lg:px-8">
-      <GradientHeader
-        title={t('inbox')}
-        backButtonFallbackPath="/discover"
-        className="mb-4"
-      />
-      <Card className="w-full">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex flex-col space-y-1.5">
-            <CardTitle className="flex items-center">
-              {t('inbox')}
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-primary">{unreadCount}</Badge>
-              )}
-            </CardTitle>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-center py-4 border-b border-gray-800">
+        <h1 className="text-white font-semibold text-lg" data-testid="inbox-title">Inbox</h1>
+        <div className="absolute right-4">
+          <h2 className="text-white font-bold text-xl tracking-wider">MALY</h2>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4 p-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center space-x-3">
+              <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-[150px] bg-gray-700" />
+                <Skeleton className="h-3 w-[100px] bg-gray-700" />
+              </div>
+              <Skeleton className="h-4 w-4 bg-gray-700" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-8 pb-20" data-testid="inbox-content">
+          {/* Connection Requests Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('Connection Requests', connectionRequests.length)}
+            {connectionRequests.length === 0 ? (
+              renderEmptyState('No pending connection requests')
+            ) : (
+              <div>
+                {connectionRequests.map((request) => 
+                  renderInboxItem({
+                    title: request.fullName || request.username || 'Unknown User',
+                    subtitle: 'Wants to connect',
+                    avatar: request.profileImage,
+                    onPress: () => setLocation(`/profile/${request.username || request.id}`),
+                    testId: `connection-request-${request.id}`
+                  })
+                )}
+              </div>
+            )}
           </div>
-          {unreadCount > 0 && (
-            <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
-              Mark all as read
-            </Button>
-          )}
-        </CardHeader>
-        <div className="px-6 pb-3">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('searchMessages')}
-              className="pl-8 pr-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <XCircle className="h-4 w-4" />
-              </button>
+
+          {/* RSVP Requests Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('RSVP Requests', rsvpRequests.length)}
+            {rsvpRequests.length === 0 ? (
+              renderEmptyState('No pending RSVP requests')
+            ) : (
+              <div>
+                {rsvpRequests.map((request) => 
+                  renderInboxItem({
+                    title: request.userName,
+                    subtitle: `Wants to join ${request.eventTitle}`,
+                    avatar: request.userImage,
+                    onPress: () => setLocation(`/event/${request.eventId}`),
+                    testId: `rsvp-request-${request.id}`
+                  })
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* My Connections Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('My Connections', connections.length)}
+            {connections.length === 0 ? (
+              renderEmptyState('No connections yet')
+            ) : (
+              <div>
+                {connections.slice(0, 5).map((connection) => {
+                  return renderInboxItem({
+                    title: connection.fullName || connection.username,
+                    subtitle: 'Connected',
+                    avatar: connection.profileImage || undefined,
+                    onPress: () => setLocation(`/profile/${connection.username}`),
+                    testId: `connection-${connection.id}`
+                  });
+                })}
+                {connections.length > 5 && (
+                  <button
+                    onClick={() => setLocation('/connections')}
+                    className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+                    data-testid="view-all-connections"
+                  >
+                    <div className="flex-1 text-left">
+                      <h4 className="text-blue-400 font-medium text-sm">View All Connections</h4>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-blue-400" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Messages & Groups Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('Messages & Groups', conversationsWithMessages.length)}
+            {conversationsWithMessages.length === 0 ? (
+              renderEmptyState('No messages yet')
+            ) : (
+              <div>
+                {conversationsWithMessages.map((conversation) => {
+                  const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                    ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
+                    : conversation.title;
+                  
+                  const displaySubtitle = conversation.lastMessage?.content 
+                    ? conversation.lastMessage.content 
+                    : 'No messages yet';
+
+                  const avatarUrl = conversation.type === 'direct' && conversation.otherParticipant
+                    ? conversation.otherParticipant.profileImage
+                    : undefined;
+                  
+                  return renderInboxItem({
+                    title: displayName,
+                    subtitle: displaySubtitle,
+                    avatar: avatarUrl,
+                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                    testId: `conversation-${conversation.id}`
+                  });
+                })}
+              </div>
             )}
           </div>
         </div>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-start space-x-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-500">
-              <p>Error loading conversations: {error}</p>
-            </div>
-          ) : filteredConversations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              {searchTerm ? (
-                <>
-                  <XCircle className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium">No results found</h3>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {t('noConversationsMatch')}
-                  </p>
-                  <Button variant="outline" className="mt-4" onClick={clearSearch}>
-                    Clear search
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium">{t('noConversationsYet')}</h3>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {t('connectWithOthers')}
-                  </p>
-                  <Button
-                    className="mt-4"
-                    onClick={() => setLocation('/connect')}
-                  >
-                    {t('findConnections')}
-                  </Button>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {filteredConversations.map((conversation, index) => (
-                <React.Fragment key={conversation.user.id}>
-                  <Link href={`/chat/${conversation.user.id}`}>
-                    <div className="flex items-start p-3 hover:bg-muted rounded-md cursor-pointer">
-                      <Avatar className="h-12 w-12 mr-4 flex-shrink-0">
-                        <AvatarImage src={conversation.user.image || undefined} alt={conversation.user.name || 'User'} />
-                        <AvatarFallback>
-                          {conversation.user.name?.[0] || conversation.user.username?.[0] || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium truncate">
-                            {conversation.user.name || conversation.user.username || 'User'}
-                          </h4>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                            {formatMessageDate(conversation.lastMessage.createdAt)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-sm text-muted-foreground truncate max-w-[220px] sm:max-w-[300px] md:max-w-[400px]">
-                            {user.id === conversation.lastMessage.senderId && (
-                              <span className="text-xs text-muted-foreground mr-1">You:</span>
-                            )}
-                            {conversation.lastMessage.content}
-                          </p>
-                          {(conversation.unreadCount || 0) > 0 && (
-                            <Badge className="ml-2 bg-primary" variant="default">
-                              {conversation.unreadCount}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                  {index < filteredConversations.length - 1 && <Separator />}
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      )}
     </div>
   );
 }

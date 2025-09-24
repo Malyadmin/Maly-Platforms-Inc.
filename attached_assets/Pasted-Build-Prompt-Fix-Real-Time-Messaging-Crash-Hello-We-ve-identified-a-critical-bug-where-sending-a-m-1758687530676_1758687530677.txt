@@ -1,0 +1,40 @@
+Build Prompt: Fix Real-Time Messaging Crash
+Hello! We've identified a critical bug where sending a message crashes the frontend. The logs indicate the root cause is in the WebSocket communication: the backend successfully receives a message but returns undefined to the frontend, which then crashes while trying to render it.
+
+Your task is to fix both the backend logic and harden the frontend to prevent this crash.
+
+1. Fix the Backend Message Handling (The Root Cause)
+File to Edit: Locate the WebSocket message handling logic on the server (likely in server/services/messagingService.ts or a related file).
+
+Action: Find the code that processes an incoming message from a user.
+
+Modify the Database Call: The current database insertion for a new message is returning undefined. Modify this Drizzle ORM call to ensure it returns the newly created message object after a successful insertion.
+
+Modify the Confirmation: Ensure that the confirmation message sent back to the sender over the WebSocket contains the full, newly created message object, not undefined.
+
+2. Harden the Frontend WebSocket Listener
+File to Edit: Locate the frontend WebSocket logic, which is likely in the useMessages() hook (@/hooks/use-messages.ts).
+
+Action: Find the onmessage event listener that handles incoming messages from the server.
+
+Add a Validation Check: Before adding a new message to the component's state, add a check to verify that the message object received is not null or undefined. If it is, log an error to the console but do not attempt to add it to the message list. This will prevent the frontend from crashing even if the backend sends an unexpected response.
+
+TypeScript
+
+// Inside your WebSocket onmessage handler...
+
+socket.onmessage = (event) => {
+  const newMessage = JSON.parse(event.data);
+
+  // ADD THIS CHECK:
+  if (!newMessage || !newMessage.id) {
+    console.error("Received an invalid message object from the server:", newMessage);
+    return; // Do not process further
+  }
+
+  // Continue with existing logic to add the valid message to state...
+};
+3. Validate the Fix
+After implementing these changes, go to a user's profile and send them a message.
+
+Expected Result: The message should appear correctly in the chat window, and there should be no TypeError in the browser console and no "Message stored in database: undefined" log on the server.

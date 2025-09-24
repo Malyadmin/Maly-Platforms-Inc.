@@ -1,0 +1,40 @@
+Analyze Connection Data Mapping in Inbox
+Hello! We have a critical data mapping issue on the /inbox page. The "My Connections" and "Pending Requests" sections are displaying incorrect information, even though the same backend API provides the correct data to the working iOS (Xcode) build.
+
+Your task is to perform a read-only analysis of the web frontend code to find the root cause of this discrepancy. Do not edit any files.
+
+Please investigate the following areas:
+
+1. Data Fetching Analysis (InboxPage.tsx):
+
+Open the client/src/pages/InboxPage.tsx file.
+
+Identify the exact API endpoints and parameters being called to fetch data for "My Connections" and "Pending Requests". This is likely one or more calls to endpoints like GET /api/connections.
+
+Verify the parameters being sent. For example, is the frontend correctly sending ?status=accepted for connections and ?status=pending for requests?
+
+2. Frontend Filtering and Rendering Logic:
+
+Examine how the component processes the data returned from the API.
+
+After the data is fetched, is there any client-side filtering logic being applied?
+
+How is the data for each section being passed to its respective UI component?
+
+3. Crucial Comparison with Swift Implementation:
+
+Reference the Swift code for the iOS inbox.
+
+Compare the API calls: Does the React frontend call the exact same endpoints with the exact same parameters as the working Swift implementation?
+
+Compare the client-side logic: How does the Swift code filter or process the returned data to separate "pending" from "accepted" connections? Is the React component missing a similar crucial filtering step?
+
+Final Report:
+
+Based on your comparative analysis, provide a report that pinpoints the specific discrepancy between the React and Swift implementations. Your report should clearly state whether the issue is:
+
+A) An incorrect API call (e.g., the React app is calling the wrong endpoint or using the wrong parameters).
+
+B) Flawed client-side logic (e.g., the React app is not correctly filtering or mapping the data after it's been fetched).
+
+Pinpoint the exact files and lines of code that need to be fixed.

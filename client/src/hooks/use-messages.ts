@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
+import { Conversation, ConversationMessage } from '@/types/inbox';
 
+// Keep the old Message interface for backward compatibility with direct messages
 export interface Message {
   id: number;
   senderId: number;
@@ -21,17 +23,8 @@ export interface Message {
   };
 }
 
-export interface Conversation {
-  user: {
-    id: number;
-    name: string | null;
-    image: string | null;
-    username?: string;
-    status?: string;
-  };
-  lastMessage: Message;
-  unreadCount?: number;
-}
+// Export the new Conversation type from inbox types
+export { Conversation, ConversationMessage } from '@/types/inbox';
 
 interface MessagesState {
   messages: Message[];
@@ -71,8 +64,19 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       if (!response.ok) {
         throw new Error(`Error fetching conversations: ${response.statusText}`);
       }
-      const data = await response.json();
-      set({ conversations: data, loading: false });
+      const data: Conversation[] = await response.json();
+      
+      // Process conversations to ensure dates are properly handled
+      const processedConversations = data.map(conv => ({
+        ...conv,
+        createdAt: typeof conv.createdAt === 'string' ? new Date(conv.createdAt) : conv.createdAt,
+        lastMessage: conv.lastMessage ? {
+          ...conv.lastMessage,
+          createdAt: typeof conv.lastMessage.createdAt === 'string' ? new Date(conv.lastMessage.createdAt) : conv.lastMessage.createdAt
+        } : null
+      }));
+      
+      set({ conversations: processedConversations, loading: false });
     } catch (error) {
       console.error('Error fetching conversations:', error);
       set({ 
@@ -230,14 +234,14 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       // Update conversations if applicable (only for direct messages where receiverId exists)
       if (receiverId) {
         const existingConvIndex = conversations.findIndex(
-          c => c.user && c.user.id === receiverId
+          c => c.type === 'direct' && c.otherParticipant && c.otherParticipant.id === receiverId
         );
 
         if (existingConvIndex !== -1) {
           const updatedConversations = [...conversations];
           updatedConversations[existingConvIndex] = {
             ...updatedConversations[existingConvIndex],
-            lastMessage: newMessage
+            lastMessage: newMessage as any // Type conversion for compatibility
           };
           set({ conversations: updatedConversations });
         }
@@ -423,20 +427,27 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         // Handle confirmation messages
         if (data.type === 'confirmation') {
           console.log('Message confirmation received:', data.message);
+          
+          // ADD VALIDATION CHECK: Verify the message object is valid
+          if (!data.message || !data.message.id) {
+            console.error("Received an invalid confirmation message object from the server:", data.message);
+            return; // Do not process further
+          }
+          
           // Add the sent message to the state
           const { messages, conversations } = get();
           set({ messages: [...messages, data.message] });
 
           // Update conversations if needed
           const existingConvIndex = conversations.findIndex(
-            c => c.user.id === data.message.receiverId
+            c => c.type === 'direct' && c.otherParticipant && c.otherParticipant.id === data.message.receiverId
           );
 
           if (existingConvIndex !== -1) {
             const updatedConversations = [...conversations];
             updatedConversations[existingConvIndex] = {
               ...updatedConversations[existingConvIndex],
-              lastMessage: data.message
+              lastMessage: data.message as any // Type conversion for compatibility
             };
             set({ conversations: updatedConversations });
           }
@@ -453,6 +464,13 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
         // Handle new message (message without a type is a direct message)
         console.log('New direct message received:', data);
+        
+        // ADD VALIDATION CHECK: Verify the message object is valid
+        if (!data || !data.id) {
+          console.error("Received an invalid message object from the server:", data);
+          return; // Do not process further
+        }
+        
         const { messages, conversations, fetchConversations } = get();
 
         // Add the new message to the state
