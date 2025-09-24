@@ -35,6 +35,15 @@ args = "npm run dev"
 waitForPort = 5000
 
 [[workflows.workflow]]
+name = "Run"
+author = 808063
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
 name = "Npm install/run/start"
 mode = "sequential"
 author = 36637475
@@ -59,5 +68,13 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 41401
+localPort = 37619
+externalPort = 3001
+
+[[ports]]
+localPort = 42447
+externalPort = 3003
+
+[[ports]]
+localPort = 45353
 externalPort = 3000

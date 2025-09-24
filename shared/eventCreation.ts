@@ -40,7 +40,7 @@ export const eventCreationSchema = z.object({
   isPaidEvent: z.boolean().default(false),
   price: z.string().optional(),
   deadline: z.coerce.date().optional(),
-  eventPrivacy: z.enum(["public", "private", "friends"]).default("public"),
+  eventPrivacy: z.enum(["public", "private", "friends", "rsvp"]).default("public"),
   whoShouldAttend: z.string().optional(),
   
   // Step 6: Advanced Audience Targeting
@@ -150,6 +150,7 @@ export const EVENT_PRIVACY_OPTIONS = [
   { value: "public", label: "Public" },
   { value: "private", label: "Private" },
   { value: "friends", label: "Friends only" },
+  { value: "rsvp", label: "RSVP Required" },
 ];
 
 export const EVENT_VISIBILITY_OPTIONS = [

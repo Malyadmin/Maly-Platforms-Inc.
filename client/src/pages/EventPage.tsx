@@ -2,7 +2,9 @@ import { useParams, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard } from "lucide-react";
+
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock } from "lucide-react";
+
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/lib/translations";
@@ -28,6 +30,8 @@ const EventSchema = z.object({
   interestedCount: z.number().nullable().default(0),
   creatorId: z.number().nullable(),
   tags: z.array(z.string()).nullable(),
+  isPrivate: z.boolean().optional(),
+  requireApproval: z.boolean().optional(),
   creator: z.object({
     id: z.number(),
     username: z.string(),
@@ -100,6 +104,77 @@ export default function EventPage() {
       }
 
       return response.json();
+    },
+  });
+
+  // Get current participation status
+  const { data: participationStatus } = useQuery({
+    queryKey: [`/api/events/${id}/participation/status`],
+    enabled: !!user && !!event && !event.isPrivate, // Only check for public events
+    queryFn: async () => {
+      const response = await fetch(`/api/events/${id}/participation/status`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch participation status');
+      return response.json();
+    },
+  });
+
+  // Mutation for regular event participation
+  const participateMutation = useMutation({
+    mutationFn: async (status: string) => {
+      const response = await fetch(`/api/events/${id}/participate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to update participation");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${id}/participation/status`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
+      toast({
+        title: "Success",
+        description: "Successfully updated participation status",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update participation status",
+      });
+    },
+  });
+
+  // Mutation for private event access requests
+  const accessRequestMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/events/${id}/request-access`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to send access request");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Access Request Sent",
+        description: "Your request has been sent to the event host for approval",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to send access request",
+      });
     },
   });
 
@@ -303,31 +378,101 @@ export default function EventPage() {
           </div>
         </div>
 
-        {/* Purchase Ticket Button - Only show for paid events */}
-        {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 && user && (
-          <div className="pt-6 border-t border-white/10">
-            <Button
-              onClick={() => purchaseTicketMutation.mutate({ eventId: event.id })}
-              disabled={purchaseTicketMutation.isPending}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 text-lg"
-              data-testid="purchase-ticket-button"
-            >
-              {purchaseTicketMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="mr-2 h-5 w-5" />
-                  Purchase Ticket - ${event.price}
-                </>
-              )}
-            </Button>
-            {!user && (
-              <p className="text-white/60 text-sm text-center mt-2">
-                Please log in to purchase tickets
-              </p>
+        {/* Participation Section */}
+        {user && event.creatorId !== user.id && (
+          <div className="pt-4 space-y-4">
+            {event.requireApproval ? (
+              /* RSVP/Private Event - Show Request Access Button */
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-yellow-400 bg-yellow-400/10 px-4 py-2 rounded-lg">
+                  <Lock className="w-4 h-4" />
+                  <span className="text-sm">This event requires host approval to attend</span>
+                </div>
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  onClick={() => accessRequestMutation.mutate()}
+                  disabled={accessRequestMutation.isPending}
+                  data-testid="button-request-access"
+                >
+                  {accessRequestMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending Request...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Request Access
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              /* Public Event - Show Regular Participation Buttons */
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 text-white/60 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    <span>{event.attendingCount || 0} attending</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4" />
+                    <span>{event.interestedCount || 0} interested</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    className={`w-full ${
+                      participationStatus?.status === 'attending' 
+                        ? 'bg-green-600 hover:bg-green-700' 
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                    } text-white`}
+                    onClick={() => participateMutation.mutate(
+                      participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
+                    )}
+                    disabled={participateMutation.isPending}
+                    data-testid="button-attending"
+                  >
+                    {participateMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : participationStatus?.status === 'attending' ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Cancel Attendance
+                      </>
+                    ) : (
+                      "I'll be attending"
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className={`w-full ${
+                      participationStatus?.status === 'interested'
+                        ? 'bg-yellow-600/20 border-yellow-600 text-yellow-400 hover:bg-yellow-600/30'
+                        : 'border-gray-600 text-white hover:bg-gray-800'
+                    }`}
+                    onClick={() => participateMutation.mutate(
+                      participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
+                    )}
+                    disabled={participateMutation.isPending}
+                    data-testid="button-interested"
+                  >
+                    {participateMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : participationStatus?.status === 'interested' ? (
+                      <>
+                        <Star className="w-4 h-4 mr-2" />
+                        No longer interested
+                      </>
+                    ) : (
+                      "I'm interested"
+                    )}
+                  </Button>
+                </div>
+              </div>
+
             )}
           </div>
         )}

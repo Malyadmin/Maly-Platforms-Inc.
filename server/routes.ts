@@ -1347,19 +1347,21 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         
         // Create separate lists for attending and interested users
         const attendingUserIds = eventParticipantsList
-          .filter(p => p.status === 'attending')
-          .map(p => p.userId);
+          .filter(p => p.status === 'attending' && p.userId !== null)
+          .map(p => p.userId!)
+          .filter((id): id is number => id !== null);
         
         const interestedUserIds = eventParticipantsList
-          .filter(p => p.status === 'interested')
-          .map(p => p.userId);
+          .filter(p => p.status === 'interested' && p.userId !== null)
+          .map(p => p.userId!)
+          .filter((id): id is number => id !== null);
           
         // Fetch user details for all participants in a single batch query
         let attendingUsers: { id: number; name: string; username: string; image: string }[] = [];
         let interestedUsers: { id: number; name: string; username: string; image: string }[] = [];
         
-        // Combine all user IDs for batch fetching
-        const allUserIds = [...attendingUserIds, ...interestedUserIds];
+        // Combine all user IDs for batch fetching (filter out any remaining nulls)
+        const allUserIds = [...attendingUserIds, ...interestedUserIds].filter((id): id is number => id !== null);
         
         if (allUserIds.length > 0) {
           // Single batch query to fetch all user data
@@ -1417,6 +1419,15 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
+
+                // Transform snake_case to camelCase for frontend compatibility
+                isPrivate: event.isPrivate,
+                requireApproval: event.requireApproval,
+                // Keep flat properties for backward compatibility
+                creatorName: creator.fullName || creator.username,
+                creatorImage: creator.profileImage,
+                creatorUsername: creator.username,
+                // Add nested creator object for consistency with events list API
                 creator: {
                   id: creator.id,
                   username: creator.username,
@@ -1439,6 +1450,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Add participants to the event object even if we don't have creator details
         const eventWithParticipants = {
           ...event,
+          // Transform snake_case to camelCase for frontend compatibility
+          isPrivate: event.isPrivate,
+          requireApproval: event.requireApproval,
           attendingUsers,
           interestedUsers
         };
@@ -1788,7 +1802,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         videoUrls: videoUrls, // Add video URLs array
 
         creatorId: currentUser.id,
-        isPrivate: req.body.isPrivate === 'true',
+        isPrivate: req.body.eventPrivacy === 'private',
+        requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
@@ -1814,9 +1829,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
     } catch (error) {
       console.error("Error creating event:", error);
+      const message = error instanceof Error ? error.message : "Unknown database error";
       res.status(500).json({ 
         error: "Failed to create event", 
-        details: error.message || "Unknown database error" 
+        details: message 
       });
     }
   });
@@ -1890,22 +1906,22 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           // Decrement the old status count if it was 'attending' or 'interested'
           if (oldStatus === 'attending') {
             await db.update(events)
-              .set({ attendingCount: event[0].attendingCount - 1 })
+              .set({ attendingCount: Math.max(0, (event[0].attendingCount || 0) - 1) })
               .where(eq(events.id, parseInt(eventId)));
           } else if (oldStatus === 'interested') {
             await db.update(events)
-              .set({ interestedCount: event[0].interestedCount - 1 })
+              .set({ interestedCount: Math.max(0, (event[0].interestedCount || 0) - 1) })
               .where(eq(events.id, parseInt(eventId)));
           }
 
           // Increment the new status count if it's 'attending' or 'interested'
           if (status === 'attending') {
             await db.update(events)
-              .set({ attendingCount: event[0].attendingCount + 1 })
+              .set({ attendingCount: (event[0].attendingCount || 0) + 1 })
               .where(eq(events.id, parseInt(eventId)));
           } else if (status === 'interested') {
             await db.update(events)
-              .set({ interestedCount: event[0].interestedCount + 1 })
+              .set({ interestedCount: (event[0].interestedCount || 0) + 1 })
               .where(eq(events.id, parseInt(eventId)));
           }
         }
@@ -1923,11 +1939,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Increment the appropriate count
         if (status === 'attending') {
           await db.update(events)
-            .set({ attendingCount: event[0].attendingCount + 1 })
+            .set({ attendingCount: (event[0].attendingCount || 0) + 1 })
             .where(eq(events.id, parseInt(eventId)));
         } else if (status === 'interested') {
           await db.update(events)
-            .set({ interestedCount: event[0].interestedCount + 1 })
+            .set({ interestedCount: (event[0].interestedCount || 0) + 1 })
             .where(eq(events.id, parseInt(eventId)));
         }
       } else {
@@ -2845,6 +2861,185 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       res.status(500).json({ error: 'Failed to check connection status' });
     }
   });
+
+// Private Event Access Request endpoints
+  
+  // Send access request for private event
+  app.post('/api/events/:eventId/request-access', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId } = req.params;
+
+      // Find the event and verify it exists and is private
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (!event.isPrivate) {
+        return res.status(400).json({ error: 'This event is not private and does not require access requests' });
+      }
+
+      // Check if user is the event creator
+      if (event.creatorId === currentUser.id) {
+        return res.status(400).json({ error: 'You cannot request access to your own event' });
+      }
+
+      // Check if request already exists
+      const existingRequest = await db.query.eventParticipants.findFirst({
+        where: and(
+          eq(eventParticipants.userId, currentUser.id),
+          eq(eventParticipants.eventId, parseInt(eventId))
+        )
+      });
+
+      if (existingRequest) {
+        return res.status(400).json({ 
+          error: 'Access request already exists', 
+          status: existingRequest.status 
+        });
+      }
+
+      // Create new access request
+      const newRequest = await db.insert(eventParticipants).values({
+        userId: currentUser.id,
+        eventId: parseInt(eventId),
+        status: 'pending_access',
+        createdAt: new Date()
+      }).returning();
+
+      res.status(201).json({
+        message: 'Access request sent successfully',
+        request: newRequest[0]
+      });
+    } catch (error) {
+      console.error('Error sending access request:', error);
+      res.status(500).json({ error: 'Failed to send access request' });
+    }
+  });
+
+  // Get pending access requests for an event (for hosts)
+  app.get('/api/events/:eventId/access-requests', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId } = req.params;
+
+      // Verify the event exists and user is the creator
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view access requests' });
+      }
+
+      // Get all pending access requests for this event
+      const pendingRequests = await db.query.eventParticipants.findMany({
+        where: and(
+          eq(eventParticipants.eventId, parseInt(eventId)),
+          eq(eventParticipants.status, 'pending_access')
+        ),
+        with: {
+          user: true
+        }
+      });
+
+      // Format the response similar to connections
+      const formattedRequests = pendingRequests.map(request => {
+        if (!request.user) {
+          console.error('Missing user data in access request:', request);
+          return null;
+        }
+
+        return {
+          id: request.user.id,
+          username: request.user.username,
+          fullName: request.user.fullName,
+          profileImage: request.user.profileImage,
+          requestDate: request.createdAt,
+          status: request.status
+        };
+      }).filter(Boolean);
+
+      res.json(formattedRequests);
+    } catch (error) {
+      console.error('Error fetching access requests:', error);
+      res.status(500).json({ error: 'Failed to fetch access requests' });
+    }
+  });
+
+  // Accept or decline access request for private event
+  app.put('/api/events/:eventId/access-requests/:userId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId, userId } = req.params;
+      const { action } = req.body;
+
+      if (!action || !['accept', 'decline'].includes(action)) {
+        return res.status(400).json({ error: 'Action must be "accept" or "decline"' });
+      }
+
+      // Verify the event exists and user is the creator
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can manage access requests' });
+      }
+
+      // Find the access request
+      const accessRequest = await db.query.eventParticipants.findFirst({
+        where: and(
+          eq(eventParticipants.eventId, parseInt(eventId)),
+          eq(eventParticipants.userId, parseInt(userId)),
+          eq(eventParticipants.status, 'pending_access')
+        )
+      });
+
+      if (!accessRequest) {
+        return res.status(404).json({ error: 'Access request not found' });
+      }
+
+      // Update the request status
+      if (action === 'accept') {
+        await db.update(eventParticipants)
+          .set({ 
+            status: 'interested',
+            updatedAt: new Date()
+          })
+          .where(eq(eventParticipants.id, accessRequest.id));
+
+        // Increment interested count
+        await db.update(events)
+          .set({ interestedCount: (event.interestedCount || 0) + 1 })
+          .where(eq(events.id, parseInt(eventId)));
+
+        res.json({ message: 'Access request accepted successfully' });
+      } else {
+        // Decline - remove the request
+        await db.delete(eventParticipants)
+          .where(eq(eventParticipants.id, accessRequest.id));
+
+        res.json({ message: 'Access request declined successfully' });
+      }
+    } catch (error) {
+      console.error('Error updating access request:', error);
+      res.status(500).json({ error: 'Failed to update access request' });
+    }
+  });
+
 // Event participation API endpoints
 
 // Get a user's participation status for an event
@@ -4212,6 +4407,57 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   // RSVP Management Endpoints
   
   // GET /api/events/:eventId/applications - Fetch pending RSVP applications for an event
+  // GET /api/events/applications - Fetch all pending applications across all events for current user
+  app.get('/api/events/applications', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Fetch all pending applications for events created by the current user
+      const applications = await db.select({
+        id: eventParticipants.id,
+        eventId: eventParticipants.eventId,
+        userId: eventParticipants.userId,
+        status: eventParticipants.status,
+        ticketQuantity: eventParticipants.ticketQuantity,
+        purchaseDate: eventParticipants.purchaseDate,
+        createdAt: eventParticipants.createdAt,
+        // User details
+        username: users.username,
+        fullName: users.fullName,
+        profileImage: users.profileImage,
+        email: users.email,
+        bio: users.bio,
+        location: users.location,
+        // Event details
+        eventTitle: events.title,
+        eventImage: events.image
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .innerJoin(events, eq(eventParticipants.eventId, events.id))
+      .where(
+        and(
+          eq(events.creatorId, currentUser.id), // Only events created by current user
+          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+        )
+      )
+      .orderBy(desc(eventParticipants.createdAt));
+
+      return res.json({
+        applications,
+        totalPending: applications.length
+      });
+    } catch (error) {
+      console.error("Error fetching all applications:", error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  // GET /api/events/:eventId/applications - Fetch all pending applications for a specific event
   app.get('/api/events/:eventId/applications', requireAuth, async (req, res) => {
     try {
       const { eventId } = req.params;
@@ -4257,7 +4503,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       .where(
         and(
           eq(eventParticipants.eventId, eventIdNum),
-          eq(eventParticipants.status, 'pending_approval')
+          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
         )
       )
       .orderBy(desc(eventParticipants.createdAt));
@@ -4308,14 +4554,14 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         return res.status(403).json({ error: "You can only manage applications for your own events" });
       }
 
-      // Find the pending application
+      // Find the pending application (either RSVP or access request)
       const [application] = await db.select()
         .from(eventParticipants)
         .where(
           and(
             eq(eventParticipants.eventId, eventIdNum),
             eq(eventParticipants.userId, userIdNum),
-            eq(eventParticipants.status, 'pending_approval')
+            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
           )
         )
         .limit(1);
@@ -4326,8 +4572,15 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         });
       }
 
-      // Update the application status
-      const finalStatus = status === 'approved' ? 'attending' : 'rejected';
+      // Update the application status based on original request type
+      let finalStatus = 'rejected';
+      if (status === 'approved') {
+        if (application.status === 'pending_approval') {
+          finalStatus = 'attending'; // RSVP approval → attending
+        } else if (application.status === 'pending_access') {
+          finalStatus = 'interested'; // Access approval → interested (can upgrade to attending later)
+        }
+      }
       
       const [updatedApplication] = await db.update(eventParticipants)
         .set({
@@ -4337,16 +4590,27 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         .where(eq(eventParticipants.id, application.id))
         .returning();
 
-      // If approved, update the event's attending count and add to group chat
+      // If approved, update the appropriate event count and add to group chat
       if (status === 'approved') {
-        const currentCount = existingEvent.attendingCount || 0;
         const ticketQuantity = application.ticketQuantity || 1;
         
-        await db.update(events)
-          .set({ 
-            attendingCount: currentCount + ticketQuantity 
-          })
-          .where(eq(events.id, eventIdNum));
+        if (finalStatus === 'attending') {
+          // RSVP approval → increment attending count
+          const currentCount = existingEvent.attendingCount || 0;
+          await db.update(events)
+            .set({ 
+              attendingCount: currentCount + ticketQuantity 
+            })
+            .where(eq(events.id, eventIdNum));
+        } else if (finalStatus === 'interested') {
+          // Access approval → increment interested count
+          const currentCount = existingEvent.interestedCount || 0;
+          await db.update(events)
+            .set({ 
+              interestedCount: currentCount + 1 // Access requests always count as 1
+            })
+            .where(eq(events.id, eventIdNum));
+        }
 
         // Get or create event group chat and add the approved user
         try {
