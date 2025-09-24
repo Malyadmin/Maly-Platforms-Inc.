@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, MessageSquare } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
@@ -322,196 +322,231 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header with back and send buttons */}
-      <div className="flex justify-between items-center p-4">
-        <Button
-          variant="ghost"
-          className="text-white hover:bg-white/10"
-          onClick={handleBack}
-          data-testid="button-back"
-        >
-          Back
-        </Button>
-        <Button
-          variant="ghost"
-          className="text-white hover:bg-white/10"
-          data-testid="button-send"
-        >
-          Send
-        </Button>
-      </div>
+<div className="min-h-screen bg-black">
+  {/* Header with back button */}
+  <div className="sticky top-0 z-10 bg-black/70 backdrop-blur-sm border-b border-border">
+    <div className="container mx-auto px-4 py-4">
+      <Button
+        variant="ghost"
+        className="text-white"
+        onClick={handleBack}
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+    </div>
+  </div>
 
-      {/* Large circular profile photo */}
-      <div className="flex flex-col items-center mt-8 mb-8">
-        <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
-          {profileData.profileImage ? (
-            <img 
-              src={profileData.profileImage} 
-              alt={profileData.fullName || profileData.username}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-              <UserCircle className="w-16 h-16 text-white" />
-            </div>
-          )}
-        </div>
-        
-        <h2 className="text-white font-bold text-lg tracking-wider">
-          SHARE PROFILE
-        </h2>
-      </div>
 
-      {/* User info section */}
-      <div className="px-6 mb-6">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 rounded-lg overflow-hidden mr-4">
-            {profileData.profileImage ? (
-              <img 
-                src={profileData.profileImage} 
-                alt={profileData.fullName || profileData.username}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                <UserCircle className="w-6 h-6 text-white" />
-              </div>
-            )}
-          </div>
-          <div>
-            <h3 className="text-white font-semibold text-lg" data-testid="text-username">
-              {profileData.fullName || profileData.username}
-            </h3>
-            {profileData.location && (
-              <div className="flex items-center text-gray-400 text-sm">
-                <MapPin className="w-3 h-3 mr-1" />
-                <span data-testid="text-location">{profileData.location}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-3 mb-6">
-          {/* Edit Profile button - only show if viewing own profile */}
-          {currentUser && profileData.id === currentUser.id ? (
-            <>
-              <Button 
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-full py-3"
-                onClick={() => setLocation('/profile-edit')}
-                data-testid="button-edit-profile"
-              >
-                <Edit3 className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
-              <Button 
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-3"
-                data-testid="button-message"
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Message
-              </Button>
-            </>
-          ) : (
-            /* Connection and Message buttons for other users */
-            <>
-              {connectionLoading ? (
-                <Button disabled className="flex-1 rounded-full py-3" data-testid="button-loading">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Loading
-                </Button>
-              ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
-                <Button className="flex-1 bg-blue-600 text-white rounded-full py-3" disabled data-testid="button-connected">
-                  <Check className="w-4 h-4 mr-2" />
-                  Connected
-                </Button>
-              ) : connectionStatus?.outgoing?.status === 'pending' ? (
-                <Button className="flex-1 bg-orange-600 text-white rounded-full py-3" disabled data-testid="button-pending">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Pending
-                </Button>
-              ) : connectionStatus?.incoming?.status === 'pending' ? (
-                <>
-                  <Button 
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full py-3"
-                    onClick={() => respondToConnectionMutation.mutate({ 
-                      userId: profileData.id, 
-                      status: 'accepted' 
-                    })}
-                    disabled={respondToConnectionMutation.isPending}
-                    data-testid="button-accept"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Accept
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-full py-3"
-                    onClick={() => respondToConnectionMutation.mutate({ 
-                      userId: profileData.id, 
-                      status: 'declined' 
-                    })}
-                    disabled={respondToConnectionMutation.isPending}
-                    data-testid="button-decline"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Decline
-                  </Button>
-                </>
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="max-w-2xl mx-auto">
+          {/* Profile Card with Image */}
+          <Card className="overflow-hidden border-border/30 bg-black/30 mb-6">
+            <div className="min-h-[300px] max-h-[500px] relative">
+              {profileData.profileImage ? (
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden py-4">
+                  <img 
+                    src={profileData.profileImage} 
+                    alt={profileData.fullName || profileData.username}
+                    className="max-h-[450px] max-w-full object-contain"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/80"></div>
+                </div>
               ) : (
-                <Button 
-                  onClick={() => createConnectionMutation.mutate(profileData.id)}
-                  disabled={createConnectionMutation.isPending}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full py-3"
-                  data-testid="button-connect"
-                >
-                  {createConnectionMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <UserPlus className="w-4 h-4 mr-2" />
-                  )}
-                  Connect
-                </Button>
+                <div className="min-h-[300px] w-full bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+                  <div className="text-6xl font-bold text-white/20">
+                    {profileData.username[0].toUpperCase()}
+                  </div>
+                </div>
               )}
-              <Button 
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-3"
-                data-testid="button-message"
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Message
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+              
+              {/* Profile info overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
+                  {profileData.fullName || profileData.username}
+                  {/* Age is now hidden in profile display as requested */}
+                </h1>
+                
+                <div className="flex flex-wrap gap-2">
+                  {profileData.location && (
+                    <Badge className="bg-white/10 hover:bg-white/20 text-white py-1 px-2 text-xs backdrop-blur-sm">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {t(profileData.location)}
+                    </Badge>
+                  )}
+                  
+                  {profileData.profession && (
+                    <Badge className="bg-white/10 hover:bg-white/20 text-white py-1 px-2 text-xs backdrop-blur-sm">
+                      <Briefcase className="h-3 w-3 mr-1" />
+                      {t(profileData.profession)}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="p-4 border-t border-border/20">
+              <div className="flex flex-wrap gap-3">
+                {/* Edit Profile button - only show if viewing own profile */}
+                {currentUser && profileData.id === currentUser.id && (
+                  <>
+                    <Button 
+                      variant="outline"
+                      className="gap-2 border-primary/30 hover:border-primary"
+                      onClick={() => setLocation('/profile-edit')}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      {t('editProfile')}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="gap-2 border-green-500/30 hover:border-green-500 text-green-400"
+                      onClick={() => setLocation('/stripe/connect')}
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      Payment Settings
+                    </Button>
+                  </>
+                )}
+                
+                {/* Share Profile Button - always visible */}
+                <ReferralShareButton
+                  contentType="profile"
+                  contentId={profileData.username || profileData.id}
+                  title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
+                  text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  {t('shareProfile')}
+                </ReferralShareButton>
+                
+                {/* Connection Button - only show if viewing profile of other user and user is logged in */}
+                {currentUser && profileData.id !== currentUser.id && (
+                  <div className="w-full sm:w-auto">
+                    {connectionLoading ? (
+                      <Button disabled className="w-full sm:w-auto">
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Loading
+                      </Button>
+                    ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
+                      <Button variant="outline" className="gap-2 border-green-500/30 text-green-500 w-full sm:w-auto" disabled>
+                        <UserCheck className="h-4 w-4" />
+                        Connected
+                      </Button>
+                    ) : connectionStatus?.outgoing?.status === 'pending' ? (
+                      <Button variant="outline" className="gap-2 border-yellow-500/30 text-yellow-500 w-full sm:w-auto" disabled>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Request Pending
+                      </Button>
+                    ) : connectionStatus?.incoming?.status === 'pending' ? (
+                      <div className="flex gap-2 w-full">
+                        <Button 
+                          variant="default" 
+                          className="gap-1 bg-green-600 hover:bg-green-700 flex-1 sm:flex-auto"
+                          onClick={() => respondToConnectionMutation.mutate({ 
+                            userId: profileData.id, 
+                            status: 'accepted' 
+                          })}
+                          disabled={respondToConnectionMutation.isPending}
+                        >
+                          <Check className="h-4 w-4" />
+                          Accept
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10 flex-1 sm:flex-auto"
+                          onClick={() => respondToConnectionMutation.mutate({ 
+                            userId: profileData.id, 
+                            status: 'declined' 
+                          })}
+                          disabled={respondToConnectionMutation.isPending}
+                        >
+                          <X className="h-4 w-4" />
+                          Decline
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        onClick={() => createConnectionMutation.mutate(profileData.id)}
+                        disabled={createConnectionMutation.isPending}
+                        className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-full sm:w-auto rounded-full"
+                      >
+                        {createConnectionMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <UserPlus className="h-4 w-4" />
+                        )}
+                        {t('connectProfile')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
           
-      {/* Interests section */}
-      {profileData.interests && profileData.interests.length > 0 && (
-        <div className="px-6 mb-6">
-          <h3 className="text-white font-semibold text-lg mb-3">Interests</h3>
-          <div className="flex flex-wrap gap-2">
-            {profileData.interests.slice(0, 6).map((interest, index) => (
-              <span
-                key={index}
-                className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm"
-                data-testid={`interest-${index}`}
-              >
-                {interest}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Age section */}
-      {profileData.age && (
-        <div className="px-6 mb-6">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400 text-sm">Age</span>
-            <span className="text-white font-medium" data-testid="text-age">{profileData.age} years old</span>
-          </div>
-        </div>
-      )}
+          {/* Personal Info Section */}
+          <Card className="mb-6 bg-black/30 border-border/30 overflow-hidden rounded-xl">
+            <CardContent className="p-4">
+              {/* Bio */}
+              {profileData.bio && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">About</h3>
+                  <p className="text-base text-foreground/90">{profileData.bio}</p>
+                </div>
+              )}
+              
+              {/* Personal Details */}
+              <div className="space-y-4">
+                {/* Gender & Sexual Orientation */}
+                {(profileData.gender || profileData.sexualOrientation) && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Personal</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profileData.gender && (
+                        <Badge variant="outline" className="py-1 px-2 text-xs">
+                          Gender: {profileData.gender}
+                        </Badge>
+                      )}
+                      {profileData.sexualOrientation && (
+                        <Badge variant="outline" className="py-1 px-2 text-xs">
+                          Orientation: {profileData.sexualOrientation}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Locations */}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">{t('viewLocations')}</h3>
+                  <div className="space-y-2">
+                    {profileData.location && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                        <span>{language === 'es' ? 'Actualmente en' : 'Currently in'} <span className="font-medium">{t(profileData.location)}</span></span>
+                      </div>
+                    )}
+                    {profileData.birthLocation && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-3.5 w-3.5 text-blue-400" />
+                        <span>{language === 'es' ? 'Nacido en' : 'Born in'} <span className="font-medium">{t(profileData.birthLocation)}</span></span>
+                      </div>
+                    )}
+                    {profileData.nextLocation && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-3.5 w-3.5 text-green-400" />
+                        <span>{language === 'es' ? 'Próximo destino' : 'Going to'} <span className="font-medium">{t(profileData.nextLocation)}</span></span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
           {/* Mood & Vibe Section */}
           <div className="mb-6">
@@ -598,6 +633,9 @@ export default function ProfilePage() {
             )}
           </div>
           
+          {/* We removed the duplicate Mood & Vibe section (previously called "Interests") */}
+        </div>
+      </div>
     </div>
   );
 }
