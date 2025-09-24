@@ -178,6 +178,37 @@ export default function ProfilePage() {
       });
     },
   });
+
+  // Create or find a conversation with another user
+  const createConversationMutation = useMutation({
+    mutationFn: async (otherUserId: number) => {
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otherUserId }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create conversation');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Navigate to the chat page with the other user's ID
+      if (profileData?.id) {
+        setLocation(`/chat/${profileData.id}`);
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error starting conversation',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
   
   // Update mood mutation
   const updateMoodMutation = useMutation({
@@ -432,10 +463,25 @@ export default function ProfilePage() {
                         Loading
                       </Button>
                     ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
-                      <Button variant="outline" className="gap-2 border-green-500/30 text-green-500 w-full sm:w-auto" disabled>
-                        <UserCheck className="h-4 w-4" />
-                        Connected
-                      </Button>
+                      <div className="flex gap-2 w-full">
+                        <Button variant="outline" className="gap-2 border-green-500/30 text-green-500 flex-1 sm:flex-auto" disabled>
+                          <UserCheck className="h-4 w-4" />
+                          Connected
+                        </Button>
+                        <Button 
+                          onClick={() => createConversationMutation.mutate(profileData.id)}
+                          disabled={createConversationMutation.isPending}
+                          className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 flex-1 sm:flex-auto rounded-full"
+                          data-testid="button-message"
+                        >
+                          {createConversationMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Mail className="h-4 w-4" />
+                          )}
+                          Message
+                        </Button>
+                      </div>
                     ) : connectionStatus?.outgoing?.status === 'pending' ? (
                       <Button variant="outline" className="gap-2 border-yellow-500/30 text-yellow-500 w-full sm:w-auto" disabled>
                         <Loader2 className="h-4 w-4 animate-spin" />

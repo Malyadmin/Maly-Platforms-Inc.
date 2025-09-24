@@ -1040,16 +1040,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const normalizedMoods = Array.isArray(moods) ? moods : (moods ? [moods] : undefined);
       const normalizedInterests = Array.isArray(interests) ? interests : (interests ? [interests] : undefined);
       
-      // Enhanced logic to get the current user ID from multiple sources
+      // Get current user ID for filtering (public endpoint, optional authentication)
       let currentUserId: number | undefined = undefined;
       
-      // 1. First try passport authentication 
-      if (req.isAuthenticated() && req.user) {
-        currentUserId = (req.user as any).id;
-        console.log("User browse: Authenticated via passport:", currentUserId);
-      } 
-      // 2. Try to get from query parameter
-      else if (req.query.currentUserId) {
+      // Try to get from query parameter if provided
+      if (req.query.currentUserId) {
         try {
           currentUserId = parseInt(req.query.currentUserId as string, 10);
           console.log("User browse: Using currentUserId from query:", currentUserId);
@@ -1057,12 +1052,42 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           console.warn("Invalid currentUserId in query:", req.query.currentUserId);
         }
       }
-      // 3. No manual session lookup - rely on passport authentication only
-      // (Manual session queries removed to prevent database schema conflicts)
       
       // More detailed logging for debugging
       console.log(`User browse request received with city=${city}`);
       console.log(`Mood filters: ${moods ? (Array.isArray(moods) ? moods.join(', ') : moods) : 'none'}`);
+      
+      // Build where conditions array
+      const whereConditions = [];
+      
+      // Always exclude the current user from results if available
+      if (currentUserId && !isNaN(currentUserId)) {
+        whereConditions.push(ne(users.id, currentUserId));
+      }
+
+      // Apply filters to query
+      if (city && city !== 'all') {
+        whereConditions.push(eq(users.location, city as string));
+      }
+
+      if (gender && gender !== 'all') {
+        whereConditions.push(eq(users.gender, gender));
+      }
+
+      if (minAge !== undefined) {
+        whereConditions.push(gte(users.age, minAge));
+      }
+
+      if (maxAge !== undefined) {
+        whereConditions.push(lte(users.age, maxAge));
+      }
+      
+      // Apply mood filters using PostgreSQL's array overlap operator
+      if (normalizedMoods && normalizedMoods.length > 0) {
+        console.log(`Applying mood filters at database level: ${normalizedMoods.join(', ')}`);
+        const jsonMoodArray = JSON.stringify(normalizedMoods);
+        whereConditions.push(sql`${users.currentMoods}::jsonb && ${jsonMoodArray}::jsonb`);
+      }
       
       // Database query to get real users (exclude sensitive fields)
       let query = db.select({
@@ -1092,34 +1117,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         referralCode: users.referralCode
         // Explicitly exclude: password, email, isAdmin, referredBy
       }).from(users);
-
-      // Always exclude the current user from results if available
-      if (currentUserId && !isNaN(currentUserId)) {
-        query = query.where(ne(users.id, currentUserId)); // Use the parsed ID
-      }
-
-      // Apply filters to query
-      if (city && city !== 'all') {
-        query = query.where(eq(users.location, city as string));
-      }
-
-      if (gender && gender !== 'all') {
-        query = query.where(eq(users.gender, gender));
-      }
-
-      if (minAge !== undefined) {
-        query = query.where(gte(users.age, minAge));
-      }
-
-      if (maxAge !== undefined) {
-        query = query.where(lte(users.age, maxAge));
-      }
       
-      // Apply mood filters using PostgreSQL's array overlap operator
-      if (normalizedMoods && normalizedMoods.length > 0) {
-        console.log(`Applying mood filters at database level: ${normalizedMoods.join(', ')}`);
-        const jsonMoodArray = JSON.stringify(normalizedMoods);
-        query = query.where(sql`${users.currentMoods}::jsonb && ${jsonMoodArray}::jsonb`);
+      // Apply all where conditions at once
+      if (whereConditions.length > 0) {
+        query = query.where(and(...whereConditions));
       }
       
       // Add ordering and pagination to the query

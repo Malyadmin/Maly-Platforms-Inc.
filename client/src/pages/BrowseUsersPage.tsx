@@ -122,31 +122,39 @@ export default function BrowseUsersPage() {
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   const [nameSearch, setNameSearch] = useState(""); 
 
-  const { data: apiUsers, isLoading } = useQuery<User[]>({
+  const { data: browseResponse, isLoading } = useQuery<{ users: User[], pagination: { limit: number, offset: number, total: number, hasMore: boolean } }>({
     queryKey: ['/api/users/browse', selectedCity, selectedGender, selectedInterests, selectedMoods, ageRange, nameSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (selectedCity !== 'all') params.append('city', selectedCity);
+      if (selectedCity !== 'all') params.append('location', selectedCity);
       if (selectedGender !== 'all') params.append('gender', selectedGender);
       if (ageRange.min) params.append('minAge', ageRange.min);
       if (ageRange.max) params.append('maxAge', ageRange.max);
       if (selectedInterests.length > 0) {
         selectedInterests.forEach(interest => 
-          params.append('interests[]', interest)
+          params.append('interests', interest)
         );
       }
       if (selectedMoods.length > 0) {
         selectedMoods.forEach(mood => 
-          params.append('moods[]', mood)
+          params.append('moods', mood)
         );
       }
-      if (nameSearch) params.append('name', nameSearch); 
+      if (nameSearch) params.append('name', nameSearch);
+      
+      // Add limit and offset as in iOS app
+      params.append('limit', '20');
+      params.append('offset', '0'); 
 
       const response = await fetch(`/api/users/browse?${params}`);
       if (!response.ok) throw new Error("Failed to fetch users");
-      return response.json();
+      const data = await response.json();
+      console.log('Received data from /api/users/browse:', data);
+      return data;
     },
   });
+
+  const apiUsers = browseResponse?.users || [];
 
   const users = (() => {
     const allUsers = [...(apiUsers || [])];
