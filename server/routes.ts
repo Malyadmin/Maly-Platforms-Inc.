@@ -1742,8 +1742,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         videoUrls: videoUrls, // Add video URLs array
 
         creatorId: currentUser.id,
-        isPrivate: req.body.isPrivate === 'true',
-        requireApproval: req.body.isPrivate === 'true', // Set requireApproval to true when event is private
+        isPrivate: req.body.eventPrivacy === 'private',
+        requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
