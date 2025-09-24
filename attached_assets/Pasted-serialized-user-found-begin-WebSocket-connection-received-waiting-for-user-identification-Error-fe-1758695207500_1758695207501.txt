@@ -1,0 +1,53 @@
+serialized user found: begin
+WebSocket connection received, waiting for user identification
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}
+WebSocket connection established for user 233
+6:26:35 AM [express] GET /api/events/applications 500 in 133ms :: {"error":"invalid input syntax for…
+6:26:35 AM [express] GET /api/connections 304 in 135ms :: [{"id":232,"username":"end","fullName":"en…
+Deserialized user found: begin
+Deserialized user found: begin
+[DEBUG_FIX] Formatting last message for conversation 48: "yo"
+6:26:35 AM [express] GET /api/connections/pending 304 in 310ms :: [{"id":234,"username":"win","fullN…
+[DEBUG_FIX] Added otherParticipant for conversation 48: {
+  otherUserId: 232,
+  otherUserName: 'end',
+  profileImage: 'https://res.cloudinary.com/dwmolc54p/image/upload/v1758663509/images/uploads/1758663508419_Zeno.png.png'
+}
+[FETCH_CONVERSATIONS] Successfully fetched 2 conversations for user 233
+6:26:35 AM [express] GET /api/conversations/233 304 in 346ms :: [{"id":48,"type":"direct","title":"e…
+Deserializing user: 233
+Deserialized user found: begin
+Error fetching event: PostgresError: invalid input syntax for type integer: "NaN"
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '22P02',
+  where: "unnamed portal parameter $1 = '...'",
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe'
+}
+6:26:36 AM [express] GET /api/events/applications 500 in 137ms :: {"error":"invalid input syntax for…
