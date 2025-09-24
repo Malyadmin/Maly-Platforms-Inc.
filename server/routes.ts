@@ -4331,6 +4331,57 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   // RSVP Management Endpoints
   
   // GET /api/events/:eventId/applications - Fetch pending RSVP applications for an event
+  // GET /api/events/applications - Fetch all pending applications across all events for current user
+  app.get('/api/events/applications', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Fetch all pending applications for events created by the current user
+      const applications = await db.select({
+        id: eventParticipants.id,
+        eventId: eventParticipants.eventId,
+        userId: eventParticipants.userId,
+        status: eventParticipants.status,
+        ticketQuantity: eventParticipants.ticketQuantity,
+        purchaseDate: eventParticipants.purchaseDate,
+        createdAt: eventParticipants.createdAt,
+        // User details
+        username: users.username,
+        fullName: users.fullName,
+        profileImage: users.profileImage,
+        email: users.email,
+        bio: users.bio,
+        location: users.location,
+        // Event details
+        eventTitle: events.title,
+        eventImage: events.image
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .innerJoin(events, eq(eventParticipants.eventId, events.id))
+      .where(
+        and(
+          eq(events.creatorId, currentUser.id), // Only events created by current user
+          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+        )
+      )
+      .orderBy(desc(eventParticipants.createdAt));
+
+      return res.json({
+        applications,
+        totalPending: applications.length
+      });
+    } catch (error) {
+      console.error("Error fetching all applications:", error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  // GET /api/events/:eventId/applications - Fetch all pending applications for a specific event
   app.get('/api/events/:eventId/applications', requireAuth, async (req, res) => {
     try {
       const { eventId } = req.params;
