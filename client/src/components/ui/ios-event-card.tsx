@@ -69,18 +69,36 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
           </p>
         </div>
         
-        {/* User Avatars - iOS style placeholder rectangles */}
-        <div className="flex gap-2 mt-2">
-          {[1, 2, 3, 4].map((_, index) => (
-            <div 
-              key={index} 
-              className="w-8 h-8 bg-gray-600 flex items-center justify-center"
-              data-testid={`avatar-placeholder-${index}`}
-            >
-              <div className="w-4 h-4 bg-gray-800 rounded-full"></div>
+        {/* Event Creator/Host Information */}
+        {event.creator && (
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden flex-shrink-0">
+              {event.creator.profileImage ? (
+                <img
+                  src={event.creator.profileImage}
+                  alt={event.creator.fullName || event.creator.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-600 flex items-center justify-center">
+                  <span className="text-gray-300 text-xs font-medium">
+                    {(event.creator.fullName || event.creator.username)?.charAt(0)?.toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+            <span 
+              className="text-sm text-white hover:text-gray-300 cursor-pointer transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLocation(`/profile/${event.creator?.username}`);
+              }}
+              data-testid={`creator-link-${event.id}`}
+            >
+              {event.creator.fullName || event.creator.username}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
