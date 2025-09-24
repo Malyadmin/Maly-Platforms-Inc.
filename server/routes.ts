@@ -1416,9 +1416,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
-                creatorName: creator.fullName || creator.username,
-                creatorImage: creator.profileImage,
-                creatorUsername: creator.username,
+                creator: {
+                  id: creator.id,
+                  username: creator.username,
+                  fullName: creator.fullName,
+                  profileImage: creator.profileImage
+                },
                 attendingUsers,
                 interestedUsers
               };
