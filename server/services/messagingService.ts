@@ -225,14 +225,7 @@ export async function getConversations(userId: number) {
           unreadCount: 0,
           eventId: conversation.eventId,
           participantCount: 2,
-          createdAt: conversation.createdAt,
-          // Include other participant's profile data for connections without messages
-          otherParticipant: {
-            id: otherUser.id,
-            username: otherUser.username,
-            fullName: otherUser.fullName,
-            profileImage: otherUser.profileImage
-          }
+          createdAt: conversation.createdAt
         };
       }
       
