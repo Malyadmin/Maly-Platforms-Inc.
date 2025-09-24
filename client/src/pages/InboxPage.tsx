@@ -93,15 +93,6 @@ export default function InboxPage() {
     };
   }, [showNotification, fetchConversations, user]);
 
-  // Filter connections that don't have conversations (for "My Connections" section)
-  const connectionsWithoutMessages = userConnections.filter(connection => {
-    // Check if this connection has any conversations
-    return !conversations.some(conversation => 
-      conversation.type === 'direct' && 
-      conversation.otherParticipant?.id === connection.id
-    );
-  });
-
   useEffect(() => {
     setFilteredConversations(
       conversations.filter(
@@ -271,12 +262,12 @@ export default function InboxPage() {
 
           {/* My Connections Section */}
           <div className="space-y-2">
-            {renderSectionHeader('My Connections', connectionsWithoutMessages.length)}
-            {connectionsWithoutMessages.length === 0 ? (
+            {renderSectionHeader('My Connections', userConnections.length)}
+            {userConnections.length === 0 ? (
               renderEmptyState('No connections yet')
             ) : (
               <div>
-                {connectionsWithoutMessages.slice(0, 5).map((connection) => 
+                {userConnections.slice(0, 5).map((connection) => 
                   renderInboxItem({
                     title: connection.fullName || connection.username || 'Unknown User',
                     subtitle: 'Connected',
@@ -285,7 +276,7 @@ export default function InboxPage() {
                     testId: `connection-${connection.id}`
                   })
                 )}
-                {connectionsWithoutMessages.length > 5 && (
+                {userConnections.length > 5 && (
                   <button
                     onClick={() => setLocation('/connections')}
                     className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
