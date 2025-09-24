@@ -1040,16 +1040,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const normalizedMoods = Array.isArray(moods) ? moods : (moods ? [moods] : undefined);
       const normalizedInterests = Array.isArray(interests) ? interests : (interests ? [interests] : undefined);
       
-      // Enhanced logic to get the current user ID from multiple sources
+      // Get current user ID for filtering (public endpoint, optional authentication)
       let currentUserId: number | undefined = undefined;
       
-      // 1. First try passport authentication 
-      if (req.isAuthenticated() && req.user) {
-        currentUserId = (req.user as any).id;
-        console.log("User browse: Authenticated via passport:", currentUserId);
-      } 
-      // 2. Try to get from query parameter
-      else if (req.query.currentUserId) {
+      // Try to get from query parameter if provided
+      if (req.query.currentUserId) {
         try {
           currentUserId = parseInt(req.query.currentUserId as string, 10);
           console.log("User browse: Using currentUserId from query:", currentUserId);
@@ -1057,8 +1052,6 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           console.warn("Invalid currentUserId in query:", req.query.currentUserId);
         }
       }
-      // 3. No manual session lookup - rely on passport authentication only
-      // (Manual session queries removed to prevent database schema conflicts)
       
       // More detailed logging for debugging
       console.log(`User browse request received with city=${city}`);

@@ -139,7 +139,7 @@ export function ConnectPage() {
       const params = new URLSearchParams();
       
       if (selectedCity !== 'all') {
-        params.append('city', selectedCity);
+        params.append('location', selectedCity);
       }
 
       if (currentUser?.id) {
@@ -158,10 +158,11 @@ export function ConnectPage() {
       }
       
       const results = await response.json();
-      console.log(`Received ${results.length} users from server`);
+      const usersList = results.users || results; // Handle both array and object responses
+      console.log(`Received ${usersList.length} users from server`);
       
       // Process users to ensure they have tags for compatibility with event filtering
-      const processedUsers = results.map((user: User) => {
+      const processedUsers = usersList.map((user: User) => {
         // Create tags array from BOTH interests and currentMoods for compatibility with event filtering
         let moodArray: string[] = [];
         
