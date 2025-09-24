@@ -1296,19 +1296,21 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         
         // Create separate lists for attending and interested users
         const attendingUserIds = eventParticipantsList
-          .filter(p => p.status === 'attending')
-          .map(p => p.userId);
+          .filter(p => p.status === 'attending' && p.userId !== null)
+          .map(p => p.userId!)
+          .filter((id): id is number => id !== null);
         
         const interestedUserIds = eventParticipantsList
-          .filter(p => p.status === 'interested')
-          .map(p => p.userId);
+          .filter(p => p.status === 'interested' && p.userId !== null)
+          .map(p => p.userId!)
+          .filter((id): id is number => id !== null);
           
         // Fetch user details for all participants in a single batch query
         let attendingUsers: { id: number; name: string; username: string; image: string }[] = [];
         let interestedUsers: { id: number; name: string; username: string; image: string }[] = [];
         
-        // Combine all user IDs for batch fetching
-        const allUserIds = [...attendingUserIds, ...interestedUserIds];
+        // Combine all user IDs for batch fetching (filter out any remaining nulls)
+        const allUserIds = [...attendingUserIds, ...interestedUserIds].filter((id): id is number => id !== null);
         
         if (allUserIds.length > 0) {
           // Single batch query to fetch all user data
@@ -1767,9 +1769,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
     } catch (error) {
       console.error("Error creating event:", error);
+      const message = error instanceof Error ? error.message : "Unknown database error";
       res.status(500).json({ 
         error: "Failed to create event", 
-        details: error.message || "Unknown database error" 
+        details: message 
       });
     }
   });
@@ -1843,22 +1846,22 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           // Decrement the old status count if it was 'attending' or 'interested'
           if (oldStatus === 'attending') {
             await db.update(events)
-              .set({ attendingCount: event[0].attendingCount - 1 })
+              .set({ attendingCount: Math.max(0, (event[0].attendingCount || 0) - 1) })
               .where(eq(events.id, parseInt(eventId)));
           } else if (oldStatus === 'interested') {
             await db.update(events)
-              .set({ interestedCount: event[0].interestedCount - 1 })
+              .set({ interestedCount: Math.max(0, (event[0].interestedCount || 0) - 1) })
               .where(eq(events.id, parseInt(eventId)));
           }
 
           // Increment the new status count if it's 'attending' or 'interested'
           if (status === 'attending') {
             await db.update(events)
-              .set({ attendingCount: event[0].attendingCount + 1 })
+              .set({ attendingCount: (event[0].attendingCount || 0) + 1 })
               .where(eq(events.id, parseInt(eventId)));
           } else if (status === 'interested') {
             await db.update(events)
-              .set({ interestedCount: event[0].interestedCount + 1 })
+              .set({ interestedCount: (event[0].interestedCount || 0) + 1 })
               .where(eq(events.id, parseInt(eventId)));
           }
         }
@@ -1876,11 +1879,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Increment the appropriate count
         if (status === 'attending') {
           await db.update(events)
-            .set({ attendingCount: event[0].attendingCount + 1 })
+            .set({ attendingCount: (event[0].attendingCount || 0) + 1 })
             .where(eq(events.id, parseInt(eventId)));
         } else if (status === 'interested') {
           await db.update(events)
-            .set({ interestedCount: event[0].interestedCount + 1 })
+            .set({ interestedCount: (event[0].interestedCount || 0) + 1 })
             .where(eq(events.id, parseInt(eventId)));
         }
       } else {
