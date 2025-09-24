@@ -2302,13 +2302,18 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
             content: data.content
           });
           
-          console.log(`Message stored in database:`, JSON.stringify(newMessage[0]));
+          // Validate that we got a proper message object back
+          if (!newMessage || !newMessage.id) {
+            throw new Error("Failed to create message - database returned invalid data");
+          }
+          
+          console.log(`Message stored in database:`, JSON.stringify(newMessage));
           
           // Send the message to the recipient if they're connected
           const recipientWs = activeConnections.get(data.receiverId);
           if (recipientWs && recipientWs.ws.readyState === WebSocket.OPEN) {
             console.log(`Sending message to recipient ${data.receiverId}`);
-            recipientWs.ws.send(JSON.stringify(newMessage[0]));
+            recipientWs.ws.send(JSON.stringify(newMessage));
           } else {
             console.log(`Recipient ${data.receiverId} not connected or socket not open`);
           }
@@ -2317,7 +2322,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           console.log(`Sending confirmation to sender ${data.senderId}`);
           ws.send(JSON.stringify({
             type: 'confirmation',
-            message: newMessage[0]
+            message: newMessage
           }));
         } catch (error) {
           // If error is "Users must be connected", send a better error message

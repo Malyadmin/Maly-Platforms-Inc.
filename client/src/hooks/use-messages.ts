@@ -427,6 +427,13 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         // Handle confirmation messages
         if (data.type === 'confirmation') {
           console.log('Message confirmation received:', data.message);
+          
+          // ADD VALIDATION CHECK: Verify the message object is valid
+          if (!data.message || !data.message.id) {
+            console.error("Received an invalid confirmation message object from the server:", data.message);
+            return; // Do not process further
+          }
+          
           // Add the sent message to the state
           const { messages, conversations } = get();
           set({ messages: [...messages, data.message] });
@@ -457,6 +464,13 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
         // Handle new message (message without a type is a direct message)
         console.log('New direct message received:', data);
+        
+        // ADD VALIDATION CHECK: Verify the message object is valid
+        if (!data || !data.id) {
+          console.error("Received an invalid message object from the server:", data);
+          return; // Do not process further
+        }
+        
         const { messages, conversations, fetchConversations } = get();
 
         // Add the new message to the state
