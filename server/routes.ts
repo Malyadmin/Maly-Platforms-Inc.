@@ -2285,20 +2285,20 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }
         
         // Validate message structure for chat messages
-        if (!data.senderId || !data.receiverId || !data.content) {
+        if (!data.senderId || !data.conversationId || !data.content) {
           console.error('Invalid message format:', data);
           ws.send(JSON.stringify({
             type: 'error',
-            message: 'Invalid message format. Required fields: senderId, receiverId, content'
+            message: 'Invalid message format. Required fields: senderId, conversationId, content'
           }));
           return;
         }
         
         try {
-          // Store the message in the database (this already checks for connection status)
-          const newMessage = await sendMessage({
+          // Store the message in the database using conversation-based system
+          const newMessage = await sendMessageToConversation({
             senderId: data.senderId,
-            receiverId: data.receiverId,
+            conversationId: data.conversationId,
             content: data.content
           });
           
@@ -2309,14 +2309,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           
           console.log(`Message stored in database:`, JSON.stringify(newMessage));
           
-          // Send the message to the recipient if they're connected
-          const recipientWs = activeConnections.get(data.receiverId);
-          if (recipientWs && recipientWs.ws.readyState === WebSocket.OPEN) {
-            console.log(`Sending message to recipient ${data.receiverId}`);
-            recipientWs.ws.send(JSON.stringify(newMessage));
-          } else {
-            console.log(`Recipient ${data.receiverId} not connected or socket not open`);
-          }
+          // TODO: Broadcast to conversation participants (for now, frontend polling handles real-time updates)
+          console.log(`Message saved to conversation ${data.conversationId}, participants will see it through polling`);
           
           // Send confirmation back to sender
           console.log(`Sending confirmation to sender ${data.senderId}`);
