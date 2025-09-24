@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users } from 'lucide-react';
 import { ConversationMessage } from '@/types/inbox';
-import { apiRequest } from '@/lib/queryClient';
 
 interface ConversationInfo {
   id: number;
@@ -59,13 +58,23 @@ export default function ChatConversationPage() {
     mutationFn: async (content: string) => {
       if (!conversationId || !user?.id) throw new Error('Missing required data');
       
-      return apiRequest(`/api/conversations/${conversationId}/messages`, {
+      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
         body: JSON.stringify({
           senderId: user.id,
           content: content.trim()
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`Failed to send message: ${response.status}`);
+      }
+
+      return response.json();
     },
     onSuccess: () => {
       // Invalidate and refetch messages
