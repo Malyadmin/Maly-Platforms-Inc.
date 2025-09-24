@@ -2,14 +2,13 @@ import { useParams, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/lib/translations";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
-
 // Define the Event type with all fields
 const EventSchema = z.object({
   id: z.number(),
@@ -22,6 +21,7 @@ const EventSchema = z.object({
   date: z.string().or(z.date()),
   category: z.string(),
   price: z.string().nullable(),
+  ticketType: z.string().nullable(),
   image: z.string().nullable(),
   image_url: z.string().nullable(),
   attendingCount: z.number().nullable().default(0),
@@ -48,6 +48,45 @@ export default function EventPage() {
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+
+  // Purchase ticket mutation
+  const purchaseTicketMutation = useMutation({
+    mutationFn: async ({ eventId, quantity = 1 }: { eventId: number; quantity?: number }) => {
+      const response = await fetch("/api/payments/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          eventId,
+          quantity,
+          userId: user?.id
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      }
+    },
+    onError: (error: any) => {
+      console.error("Purchase ticket error:", error);
+      toast({
+        title: "Purchase Failed",
+        description: error.message || "Failed to initiate ticket purchase. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
 
   const { data: event, isLoading, error: queryError } = useQuery<Event>({
     queryKey: [`/api/events/${id}`],
@@ -169,9 +208,15 @@ export default function EventPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
           <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-              ✓ Free Event
-            </div>
+            {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 ? (
+              <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                💳 ${event.price}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                ✓ Free Event
+              </div>
+            )}
             <div className="flex items-center gap-2 text-blue-400">
               <button
                 onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
@@ -257,6 +302,35 @@ export default function EventPage() {
             )}
           </div>
         </div>
+
+        {/* Purchase Ticket Button - Only show for paid events */}
+        {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 && user && (
+          <div className="pt-6 border-t border-white/10">
+            <Button
+              onClick={() => purchaseTicketMutation.mutate({ eventId: event.id })}
+              disabled={purchaseTicketMutation.isPending}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 text-lg"
+              data-testid="purchase-ticket-button"
+            >
+              {purchaseTicketMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 h-5 w-5" />
+                  Purchase Ticket - ${event.price}
+                </>
+              )}
+            </Button>
+            {!user && (
+              <p className="text-white/60 text-sm text-center mt-2">
+                Please log in to purchase tickets
+              </p>
+            )}
+          </div>
+        )}
 
       </div>
     </div>
