@@ -2785,6 +2785,185 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       res.status(500).json({ error: 'Failed to check connection status' });
     }
   });
+
+// Private Event Access Request endpoints
+  
+  // Send access request for private event
+  app.post('/api/events/:eventId/request-access', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId } = req.params;
+
+      // Find the event and verify it exists and is private
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (!event.isPrivate) {
+        return res.status(400).json({ error: 'This event is not private and does not require access requests' });
+      }
+
+      // Check if user is the event creator
+      if (event.creatorId === currentUser.id) {
+        return res.status(400).json({ error: 'You cannot request access to your own event' });
+      }
+
+      // Check if request already exists
+      const existingRequest = await db.query.eventParticipants.findFirst({
+        where: and(
+          eq(eventParticipants.userId, currentUser.id),
+          eq(eventParticipants.eventId, parseInt(eventId))
+        )
+      });
+
+      if (existingRequest) {
+        return res.status(400).json({ 
+          error: 'Access request already exists', 
+          status: existingRequest.status 
+        });
+      }
+
+      // Create new access request
+      const newRequest = await db.insert(eventParticipants).values({
+        userId: currentUser.id,
+        eventId: parseInt(eventId),
+        status: 'pending_access',
+        createdAt: new Date()
+      }).returning();
+
+      res.status(201).json({
+        message: 'Access request sent successfully',
+        request: newRequest[0]
+      });
+    } catch (error) {
+      console.error('Error sending access request:', error);
+      res.status(500).json({ error: 'Failed to send access request' });
+    }
+  });
+
+  // Get pending access requests for an event (for hosts)
+  app.get('/api/events/:eventId/access-requests', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId } = req.params;
+
+      // Verify the event exists and user is the creator
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view access requests' });
+      }
+
+      // Get all pending access requests for this event
+      const pendingRequests = await db.query.eventParticipants.findMany({
+        where: and(
+          eq(eventParticipants.eventId, parseInt(eventId)),
+          eq(eventParticipants.status, 'pending_access')
+        ),
+        with: {
+          user: true
+        }
+      });
+
+      // Format the response similar to connections
+      const formattedRequests = pendingRequests.map(request => {
+        if (!request.user) {
+          console.error('Missing user data in access request:', request);
+          return null;
+        }
+
+        return {
+          id: request.user.id,
+          username: request.user.username,
+          fullName: request.user.fullName,
+          profileImage: request.user.profileImage,
+          requestDate: request.createdAt,
+          status: request.status
+        };
+      }).filter(Boolean);
+
+      res.json(formattedRequests);
+    } catch (error) {
+      console.error('Error fetching access requests:', error);
+      res.status(500).json({ error: 'Failed to fetch access requests' });
+    }
+  });
+
+  // Accept or decline access request for private event
+  app.put('/api/events/:eventId/access-requests/:userId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const currentUser = req.user as Express.User;
+      const { eventId, userId } = req.params;
+      const { action } = req.body;
+
+      if (!action || !['accept', 'decline'].includes(action)) {
+        return res.status(400).json({ error: 'Action must be "accept" or "decline"' });
+      }
+
+      // Verify the event exists and user is the creator
+      const event = await db.query.events.findFirst({
+        where: eq(events.id, parseInt(eventId))
+      });
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can manage access requests' });
+      }
+
+      // Find the access request
+      const accessRequest = await db.query.eventParticipants.findFirst({
+        where: and(
+          eq(eventParticipants.eventId, parseInt(eventId)),
+          eq(eventParticipants.userId, parseInt(userId)),
+          eq(eventParticipants.status, 'pending_access')
+        )
+      });
+
+      if (!accessRequest) {
+        return res.status(404).json({ error: 'Access request not found' });
+      }
+
+      // Update the request status
+      if (action === 'accept') {
+        await db.update(eventParticipants)
+          .set({ 
+            status: 'interested',
+            updatedAt: new Date()
+          })
+          .where(eq(eventParticipants.id, accessRequest.id));
+
+        // Increment interested count
+        await db.update(events)
+          .set({ interestedCount: (event.interestedCount || 0) + 1 })
+          .where(eq(events.id, parseInt(eventId)));
+
+        res.json({ message: 'Access request accepted successfully' });
+      } else {
+        // Decline - remove the request
+        await db.delete(eventParticipants)
+          .where(eq(eventParticipants.id, accessRequest.id));
+
+        res.json({ message: 'Access request declined successfully' });
+      }
+    } catch (error) {
+      console.error('Error updating access request:', error);
+      res.status(500).json({ error: 'Failed to update access request' });
+    }
+  });
+
 // Event participation API endpoints
 
 // Get a user's participation status for an event
