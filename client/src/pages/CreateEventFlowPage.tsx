@@ -1255,6 +1255,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
 export default function CreateEventFlowPage() {
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<EventCreationStep>(EventCreationStep.BasicInfo);
+  const { toast } = useToast();
   const [eventData, setEventData] = useState<EventCreationData>({
     // Initialize with default values from schema
     title: "",
@@ -1315,12 +1316,99 @@ export default function CreateEventFlowPage() {
 
   const handleSubmitEvent = async () => {
     try {
-      // Here we would submit to the API
-      console.log("Submitting event:", eventData);
-      // TODO: Implement API submission
-      setLocation("/"); // Redirect after successful creation
+      
+      // Get authentication data
+      const sessionId = localStorage.getItem('maly_session_id');
+      const userId = localStorage.getItem('maly_user_id');
+      
+      if (!sessionId || !userId) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please log in to create an event"
+        });
+        setLocation('/auth');
+        return;
+      }
+
+      // Prepare form data for multipart upload (handles images)
+      const formData = new FormData();
+      
+      // Map our EventCreationData to the backend schema format
+      const eventPayload = {
+        title: eventData.title,
+        description: eventData.summary, // Map summary to description
+        category: eventData.category || "Other",
+        location: eventData.isOnlineEvent ? "Online" : `${eventData.city}${eventData.addressLine1 ? ', ' + eventData.addressLine1 : ''}`,
+        date: eventData.startDate.toISOString(),
+        time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
+        price: eventData.isPaidEvent && eventData.price ? parseFloat(eventData.price) : 0,
+        capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
+        itinerary: eventData.agendaItems?.map(item => ({
+          time: item.time,
+          activity: item.description,
+          location: eventData.location
+        })) || [],
+        tags: [
+          ...(eventData.vibes || []),
+          ...(eventData.dressCode ? ['Dress Code Required'] : []),
+          ...(eventData.isOnlineEvent ? ['Online Event'] : []),
+          ...(eventData.isPaidEvent ? ['Paid Event'] : ['Free Event'])
+        ]
+      };
+
+      // Add text fields to FormData
+      Object.entries(eventPayload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value.toString());
+          }
+        }
+      });
+
+      // Add the main image (backend expects 'image' field name)
+      if (eventData.images && eventData.images.length > 0) {
+        formData.append('image', eventData.images[0]); // Use first image as main image
+      }
+
+      console.log("Submitting event data:", eventPayload);
+
+      // Make API call
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          ...(sessionId ? { 'X-Session-ID': sessionId } : {}),
+          ...(userId ? { 'X-User-ID': userId } : {}),
+        },
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create event: ${errorText}`);
+      }
+
+      const createdEvent = await response.json();
+      console.log("Event created successfully:", createdEvent);
+
+      toast({
+        title: "Event Created!",
+        description: `"${eventData.title}" has been created successfully.`
+      });
+
+      // Redirect to the created event or back to discover
+      setLocation("/discover");
+      
     } catch (error) {
       console.error("Error creating event:", error);
+      toast({
+        variant: "destructive",
+        title: "Creation Failed",
+        description: error.message || "Failed to create event. Please try again."
+      });
     }
   };
 
