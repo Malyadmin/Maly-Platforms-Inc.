@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
+import { Conversation, ConversationMessage } from '@/types/inbox';
 
+// Keep the old Message interface for backward compatibility with direct messages
 export interface Message {
   id: number;
   senderId: number;
@@ -21,17 +23,8 @@ export interface Message {
   };
 }
 
-export interface Conversation {
-  user: {
-    id: number;
-    name: string | null;
-    image: string | null;
-    username?: string;
-    status?: string;
-  };
-  lastMessage: Message;
-  unreadCount?: number;
-}
+// Export the new Conversation type from inbox types
+export { Conversation, ConversationMessage } from '@/types/inbox';
 
 interface MessagesState {
   messages: Message[];
@@ -71,8 +64,19 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       if (!response.ok) {
         throw new Error(`Error fetching conversations: ${response.statusText}`);
       }
-      const data = await response.json();
-      set({ conversations: data, loading: false });
+      const data: Conversation[] = await response.json();
+      
+      // Process conversations to ensure dates are properly handled
+      const processedConversations = data.map(conv => ({
+        ...conv,
+        createdAt: typeof conv.createdAt === 'string' ? new Date(conv.createdAt) : conv.createdAt,
+        lastMessage: conv.lastMessage ? {
+          ...conv.lastMessage,
+          createdAt: typeof conv.lastMessage.createdAt === 'string' ? new Date(conv.lastMessage.createdAt) : conv.lastMessage.createdAt
+        } : null
+      }));
+      
+      set({ conversations: processedConversations, loading: false });
     } catch (error) {
       console.error('Error fetching conversations:', error);
       set({ 
