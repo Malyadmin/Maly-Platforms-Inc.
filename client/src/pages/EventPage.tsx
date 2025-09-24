@@ -316,12 +316,12 @@ export default function EventPage() {
         {/* Participation Section */}
         {user && event.creatorId !== user.id && (
           <div className="pt-4 space-y-4">
-            {event.isPrivate ? (
-              /* Private Event - Show Request Access Button */
+            {event.requireApproval ? (
+              /* RSVP/Private Event - Show Request Access Button */
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-yellow-400 bg-yellow-400/10 px-4 py-2 rounded-lg">
                   <Lock className="w-4 h-4" />
-                  <span className="text-sm">This is a private event requiring host approval</span>
+                  <span className="text-sm">This event requires host approval to attend</span>
                 </div>
                 <Button 
                   className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
