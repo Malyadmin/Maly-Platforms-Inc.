@@ -940,8 +940,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const result = await uploadToCloudinary(
           req.file.buffer, 
           req.file.originalname, 
-          'image',
-          `profiles/${username}`
+          'image'
         );
         imageUrl = result.secure_url;
         console.log(`Uploaded profile image to Cloudinary: ${imageUrl}`);
@@ -996,8 +995,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           const result = await uploadToCloudinary(
             file.buffer, 
             file.originalname, 
-            'image',
-            `profiles/${username}/gallery`
+            'image'
           );
           uploadedUrls.push(result.secure_url);
           console.log(`Uploaded profile image ${i + 1} to Cloudinary: ${result.secure_url}`);
