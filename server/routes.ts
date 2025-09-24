@@ -2284,21 +2284,34 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           return;
         }
         
-        // Validate message structure for chat messages
-        if (!data.senderId || !data.conversationId || !data.content) {
+        // Validate message structure - support both old and new formats
+        const hasOldFormat = data.senderId && data.receiverId && data.content;
+        const hasNewFormat = data.senderId && data.conversationId && data.content;
+        
+        if (!hasOldFormat && !hasNewFormat) {
           console.error('Invalid message format:', data);
           ws.send(JSON.stringify({
             type: 'error',
-            message: 'Invalid message format. Required fields: senderId, conversationId, content'
+            message: 'Invalid message format. Required fields: senderId + (receiverId OR conversationId) + content'
           }));
           return;
         }
         
         try {
+          let conversationId = data.conversationId;
+          
+          // If using old format, find or create conversation
+          if (hasOldFormat && !hasNewFormat) {
+            console.log(`Legacy WebSocket message format detected, converting receiverId ${data.receiverId} to conversation`);
+            const conversation = await getOrCreateDirectConversation(data.senderId, data.receiverId);
+            conversationId = conversation.id;
+            console.log(`Created/found conversation ${conversationId} for users ${data.senderId} and ${data.receiverId}`);
+          }
+          
           // Store the message in the database using conversation-based system
           const newMessage = await sendMessageToConversation({
             senderId: data.senderId,
-            conversationId: data.conversationId,
+            conversationId: conversationId,
             content: data.content
           });
           
