@@ -1315,13 +1315,21 @@ export default function CreateEventFlowPage() {
   };
 
   const handleSubmitEvent = async () => {
+    console.log("🚀 Starting event submission...");
     try {
       
       // Get authentication data
       const sessionId = localStorage.getItem('maly_session_id');
       const userId = localStorage.getItem('maly_user_id');
       
+      console.log("🔐 Auth check:", { 
+        hasSessionId: !!sessionId, 
+        hasUserId: !!userId,
+        sessionIdPrefix: sessionId ? sessionId.substring(0, 8) + '...' : 'none'
+      });
+      
       if (!sessionId || !userId) {
+        console.log("❌ No auth data found, redirecting to login");
         toast({
           variant: "destructive",
           title: "Authentication Error",
@@ -1373,9 +1381,11 @@ export default function CreateEventFlowPage() {
         formData.append('image', eventData.images[0]); // Use first image as main image
       }
 
-      console.log("Submitting event data:", eventPayload);
+      console.log("📦 Submitting event data:", eventPayload);
+      console.log("📸 Has images:", !!eventData.images && eventData.images.length > 0);
 
       // Make API call
+      console.log("🌐 Making API call to /api/events...");
       const response = await fetch('/api/events', {
         method: 'POST',
         headers: {
@@ -1386,13 +1396,16 @@ export default function CreateEventFlowPage() {
         credentials: 'include',
       });
 
+      console.log("📡 Response status:", response.status, response.statusText);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.log("❌ API Error:", errorText);
         throw new Error(`Failed to create event: ${errorText}`);
       }
 
       const createdEvent = await response.json();
-      console.log("Event created successfully:", createdEvent);
+      console.log("✅ Event created successfully:", createdEvent);
 
       toast({
         title: "Event Created!",
@@ -1403,11 +1416,11 @@ export default function CreateEventFlowPage() {
       setLocation("/discover");
       
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("💥 Error creating event:", error);
       toast({
         variant: "destructive",
         title: "Creation Failed",
-        description: error.message || "Failed to create event. Please try again."
+        description: error instanceof Error ? error.message : "Failed to create event. Please try again."
       });
     }
   };
