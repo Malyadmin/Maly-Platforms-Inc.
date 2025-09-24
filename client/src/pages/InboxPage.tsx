@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useUser } from '@/hooks/use-user';
-import { useMessages, Conversation, useMessageNotifications } from '@/hooks/use-messages';
+import { useMessages, useMessageNotifications } from '@/hooks/use-messages';
+import { Conversation } from '@/types/inbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { format } from 'date-fns';
 import { MessageSquare, Search, XCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { useTranslation } from '@/lib/translations';
+import { InboxSection } from '@/components/inbox/InboxSection';
 
 export default function InboxPage() {
   const { t } = useTranslation();
@@ -53,10 +54,16 @@ export default function InboxPage() {
   useEffect(() => {
     setFilteredConversations(
       conversations.filter(
-        (conv) =>
-          conv.user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          conv.user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          conv.lastMessage.content.toLowerCase().includes(searchTerm.toLowerCase())
+        (conv) => {
+          const displayName = conv.type === 'direct' && conv.otherParticipant 
+            ? (conv.otherParticipant.fullName || conv.otherParticipant.username || '')
+            : conv.title;
+          
+          const lastMessageContent = conv.lastMessage?.content || '';
+          
+          return displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lastMessageContent.toLowerCase().includes(searchTerm.toLowerCase());
+        }
       )
     );
   }, [conversations, searchTerm]);
@@ -71,21 +78,23 @@ export default function InboxPage() {
     }
   };
 
-  const formatMessageDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return format(date, 'h:mm a'); // Today: show time only
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return format(date, 'EEEE'); // Show day of week
-    } else {
-      return format(date, 'MMM d'); // Show month and day
-    }
+  // Organize conversations into sections based on type and content
+  const organizeConversations = (conversations: Conversation[]) => {
+    // For now, we'll create sections for different conversation types
+    // In the future, this could include connection requests, etc.
+    const directMessages = conversations.filter(conv => conv.type === 'direct');
+    const groupChats = conversations.filter(conv => conv.type === 'group');
+    const eventChats = conversations.filter(conv => conv.type === 'event');
+    
+    return {
+      directMessages,
+      groupChats,
+      eventChats,
+      hasAnyConversations: conversations.length > 0
+    };
   };
+  
+  const { directMessages, groupChats, eventChats, hasAnyConversations } = organizeConversations(filteredConversations);
 
   if (!user) {
     return (
@@ -176,7 +185,7 @@ export default function InboxPage() {
             <div className="text-center py-8 text-red-500">
               <p>Error loading conversations: {error}</p>
             </div>
-          ) : filteredConversations.length === 0 ? (
+          ) : !hasAnyConversations ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               {searchTerm ? (
                 <>
@@ -206,45 +215,37 @@ export default function InboxPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-1">
-              {filteredConversations.map((conversation, index) => (
-                <React.Fragment key={conversation.user.id}>
-                  <Link href={`/chat/${conversation.user.id}`}>
-                    <div className="flex items-start p-3 hover:bg-muted rounded-md cursor-pointer">
-                      <Avatar className="h-12 w-12 mr-4 flex-shrink-0">
-                        <AvatarImage src={conversation.user.image || undefined} alt={conversation.user.name || 'User'} />
-                        <AvatarFallback>
-                          {conversation.user.name?.[0] || conversation.user.username?.[0] || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium truncate">
-                            {conversation.user.name || conversation.user.username || 'User'}
-                          </h4>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                            {formatMessageDate(conversation.lastMessage.createdAt)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-sm text-muted-foreground truncate max-w-[220px] sm:max-w-[300px] md:max-w-[400px]">
-                            {user.id === conversation.lastMessage.senderId && (
-                              <span className="text-xs text-muted-foreground mr-1">You:</span>
-                            )}
-                            {conversation.lastMessage.content}
-                          </p>
-                          {(conversation.unreadCount || 0) > 0 && (
-                            <Badge className="ml-2 bg-primary" variant="default">
-                              {conversation.unreadCount}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                  {index < filteredConversations.length - 1 && <Separator />}
-                </React.Fragment>
-              ))}
+            <div className="space-y-6" data-testid="inbox-content">
+              {/* Direct Messages Section */}
+              <InboxSection
+                title="Direct Messages"
+                conversations={directMessages}
+              />
+              
+              {/* Group Chats Section */}
+              <InboxSection
+                title="Group Chats"
+                conversations={groupChats}
+              />
+              
+              {/* Event Chats Section */}
+              <InboxSection
+                title="Event Chats"
+                conversations={eventChats}
+              />
+              
+              {/* Show message if search returned no results but we have conversations */}
+              {searchTerm && hasAnyConversations && directMessages.length === 0 && groupChats.length === 0 && eventChats.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <XCircle className="h-8 w-8 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">
+                    No conversations match "{searchTerm}"
+                  </p>
+                  <Button variant="outline" className="mt-2" onClick={clearSearch}>
+                    Clear search
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

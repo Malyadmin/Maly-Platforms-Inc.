@@ -234,14 +234,14 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       // Update conversations if applicable (only for direct messages where receiverId exists)
       if (receiverId) {
         const existingConvIndex = conversations.findIndex(
-          c => c.user && c.user.id === receiverId
+          c => c.type === 'direct' && c.otherParticipant && c.otherParticipant.id === receiverId
         );
 
         if (existingConvIndex !== -1) {
           const updatedConversations = [...conversations];
           updatedConversations[existingConvIndex] = {
             ...updatedConversations[existingConvIndex],
-            lastMessage: newMessage
+            lastMessage: newMessage as any // Type conversion for compatibility
           };
           set({ conversations: updatedConversations });
         }
@@ -433,14 +433,14 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
           // Update conversations if needed
           const existingConvIndex = conversations.findIndex(
-            c => c.user.id === data.message.receiverId
+            c => c.type === 'direct' && c.otherParticipant && c.otherParticipant.id === data.message.receiverId
           );
 
           if (existingConvIndex !== -1) {
             const updatedConversations = [...conversations];
             updatedConversations[existingConvIndex] = {
               ...updatedConversations[existingConvIndex],
-              lastMessage: data.message
+              lastMessage: data.message as any // Type conversion for compatibility
             };
             set({ conversations: updatedConversations });
           }
