@@ -1735,6 +1735,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
         creatorId: currentUser.id,
         isPrivate: req.body.isPrivate === 'true',
+        requireApproval: req.body.isPrivate === 'true', // Set requireApproval to true when event is private
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
