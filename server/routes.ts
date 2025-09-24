@@ -4376,7 +4376,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       .where(
         and(
           eq(eventParticipants.eventId, eventIdNum),
-          eq(eventParticipants.status, 'pending_approval')
+          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
         )
       )
       .orderBy(desc(eventParticipants.createdAt));
@@ -4427,14 +4427,14 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         return res.status(403).json({ error: "You can only manage applications for your own events" });
       }
 
-      // Find the pending application
+      // Find the pending application (either RSVP or access request)
       const [application] = await db.select()
         .from(eventParticipants)
         .where(
           and(
             eq(eventParticipants.eventId, eventIdNum),
             eq(eventParticipants.userId, userIdNum),
-            eq(eventParticipants.status, 'pending_approval')
+            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
           )
         )
         .limit(1);
@@ -4445,8 +4445,15 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         });
       }
 
-      // Update the application status
-      const finalStatus = status === 'approved' ? 'attending' : 'rejected';
+      // Update the application status based on original request type
+      let finalStatus = 'rejected';
+      if (status === 'approved') {
+        if (application.status === 'pending_approval') {
+          finalStatus = 'attending'; // RSVP approval → attending
+        } else if (application.status === 'pending_access') {
+          finalStatus = 'interested'; // Access approval → interested (can upgrade to attending later)
+        }
+      }
       
       const [updatedApplication] = await db.update(eventParticipants)
         .set({
@@ -4456,16 +4463,27 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         .where(eq(eventParticipants.id, application.id))
         .returning();
 
-      // If approved, update the event's attending count and add to group chat
+      // If approved, update the appropriate event count and add to group chat
       if (status === 'approved') {
-        const currentCount = existingEvent.attendingCount || 0;
         const ticketQuantity = application.ticketQuantity || 1;
         
-        await db.update(events)
-          .set({ 
-            attendingCount: currentCount + ticketQuantity 
-          })
-          .where(eq(events.id, eventIdNum));
+        if (finalStatus === 'attending') {
+          // RSVP approval → increment attending count
+          const currentCount = existingEvent.attendingCount || 0;
+          await db.update(events)
+            .set({ 
+              attendingCount: currentCount + ticketQuantity 
+            })
+            .where(eq(events.id, eventIdNum));
+        } else if (finalStatus === 'interested') {
+          // Access approval → increment interested count
+          const currentCount = existingEvent.interestedCount || 0;
+          await db.update(events)
+            .set({ 
+              interestedCount: currentCount + 1 // Access requests always count as 1
+            })
+            .where(eq(events.id, eventIdNum));
+        }
 
         // Get or create event group chat and add the approved user
         try {
