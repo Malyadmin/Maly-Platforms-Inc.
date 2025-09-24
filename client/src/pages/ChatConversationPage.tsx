@@ -45,7 +45,7 @@ export default function ChatConversationPage() {
     isLoading, 
     error 
   } = useQuery<ConversationMessagesResponse>({
-    queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryKey: [`/api/conversations/${conversationId}/messages`],
     enabled: !!conversationId && !!user?.id,
     refetchInterval: 5000, // Auto-refresh every 5 seconds for real-time updates
   });
@@ -79,7 +79,7 @@ export default function ChatConversationPage() {
     onSuccess: () => {
       // Invalidate and refetch messages
       queryClient.invalidateQueries({ 
-        queryKey: ['/api/conversations', conversationId, 'messages'] 
+        queryKey: [`/api/conversations/${conversationId}/messages`] 
       });
       setMessageText('');
     },
