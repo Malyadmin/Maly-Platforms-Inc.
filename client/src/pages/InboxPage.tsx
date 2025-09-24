@@ -1,28 +1,71 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 import { useMessages, useMessageNotifications } from '@/hooks/use-messages';
 import { Conversation } from '@/types/inbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { MessageSquare, Search, XCircle } from 'lucide-react';
+import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GradientHeader } from '@/components/ui/GradientHeader';
 import { useTranslation } from '@/lib/translations';
 import { InboxSection } from '@/components/inbox/InboxSection';
+
+interface ConnectionRequest {
+  id: number;
+  fullName?: string;
+  username?: string;
+  profileImage?: string;
+  status: 'pending';
+  createdAt: string;
+}
+
+interface UserConnection {
+  id: number;
+  fullName?: string;
+  username?: string;
+  profileImage?: string;
+  status: 'accepted';
+  connectedAt: string;
+}
+
+interface RSVPRequest {
+  id: number;
+  eventId: number;
+  eventTitle: string;
+  userName: string;
+  userImage?: string;
+  status: 'pending';
+  createdAt: string;
+}
 
 export default function InboxPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
   const { user } = useUser();
-  const { conversations, loading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
+  const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
   const [, setLocation] = useLocation();
+
+  // Fetch connection requests
+  const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
+    queryKey: ['/api/connections/pending'],
+    enabled: !!user?.id,
+  });
+
+  // Fetch user connections
+  const { data: userConnections = [], isLoading: connectionsLoading } = useQuery<UserConnection[]>({
+    queryKey: ['/api/connections'],
+    enabled: !!user?.id,
+  });
+
+  // Fetch RSVP requests (for events the user created)
+  const { data: rsvpRequests = [], isLoading: rsvpRequestsLoading } = useQuery<RSVPRequest[]>({
+    queryKey: ['/api/events/applications'],
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     if (user?.id) {
@@ -78,45 +121,22 @@ export default function InboxPage() {
     }
   };
 
-  // Organize conversations into sections based on type and content
-  const organizeConversations = (conversations: Conversation[]) => {
-    // For now, we'll create sections for different conversation types
-    // In the future, this could include connection requests, etc.
-    const directMessages = conversations.filter(conv => conv.type === 'direct');
-    const groupChats = conversations.filter(conv => conv.type === 'group');
-    const eventChats = conversations.filter(conv => conv.type === 'event');
-    
-    return {
-      directMessages,
-      groupChats,
-      eventChats,
-      hasAnyConversations: conversations.length > 0
-    };
-  };
-  
-  const { directMessages, groupChats, eventChats, hasAnyConversations } = organizeConversations(filteredConversations);
+  const loading = conversationsLoading || connectionRequestsLoading || connectionsLoading || rsvpRequestsLoading;
 
   if (!user) {
     return (
-      <div className="container max-w-4xl py-8 mx-auto px-4 sm:px-6 lg:px-8">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Messages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-12">
-              <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium">You need to sign in</h3>
-              <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
-              <Button
-                className="mt-4"
-                onClick={() => setLocation('/login')}
-              >
-                Sign In
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-black text-white px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-12">
+          <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-white">You need to sign in</h3>
+          <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
+          <Button
+            className="mt-4"
+            onClick={() => setLocation('/auth')}
+          >
+            Sign In
+          </Button>
+        </div>
       </div>
     );
   }
@@ -126,130 +146,186 @@ export default function InboxPage() {
     0
   );
 
+  // Helper function to render individual inbox items
+  const renderInboxItem = ({ 
+    title, 
+    subtitle, 
+    avatar, 
+    onPress, 
+    showChevron = true,
+    testId
+  }: {
+    title: string;
+    subtitle: string;
+    avatar?: string;
+    onPress: () => void;
+    showChevron?: boolean;
+    testId?: string;
+  }) => (
+    <button
+      onClick={onPress}
+      className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+      data-testid={testId}
+    >
+      <Avatar className="h-10 w-10 mr-3">
+        <AvatarImage src={avatar} alt={title} />
+        <AvatarFallback className="bg-gray-700 text-gray-300">
+          <UserPlus className="h-5 w-5" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1 text-left">
+        <h4 className="text-white font-medium text-sm">{title}</h4>
+        <p className="text-gray-400 text-xs">{subtitle}</p>
+      </div>
+      {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
+    </button>
+  );
+
+  // Helper function to render section headers
+  const renderSectionHeader = (title: string, count: number) => (
+    <div className="flex items-center justify-between px-4 py-2">
+      <h3 className="text-white font-medium text-base">{title}</h3>
+      <span className="text-white font-medium text-base">{count}</span>
+    </div>
+  );
+
+  // Helper function to render empty state
+  const renderEmptyState = (message: string) => (
+    <div className="px-4 py-2">
+      <p className="text-gray-400 text-sm">{message}</p>
+    </div>
+  );
+
   return (
-    <div className="container max-w-4xl py-8 mx-auto px-4 sm:px-6 lg:px-8">
-      <GradientHeader
-        title={t('inbox')}
-        backButtonFallbackPath="/discover"
-        className="mb-4"
-      />
-      <Card className="w-full">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex flex-col space-y-1.5">
-            <CardTitle className="flex items-center">
-              {t('inbox')}
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-primary">{unreadCount}</Badge>
-              )}
-            </CardTitle>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <div className="flex items-center justify-center py-4 border-b border-gray-800">
+        <h1 className="text-white font-semibold text-lg" data-testid="inbox-title">Inbox</h1>
+        <div className="absolute right-4">
+          <h2 className="text-white font-bold text-xl tracking-wider">MALY</h2>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4 p-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center space-x-3">
+              <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-[150px] bg-gray-700" />
+                <Skeleton className="h-3 w-[100px] bg-gray-700" />
+              </div>
+              <Skeleton className="h-4 w-4 bg-gray-700" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-8 pb-20" data-testid="inbox-content">
+          {/* Connection Requests Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('Connection Requests', connectionRequests.length)}
+            {connectionRequests.length === 0 ? (
+              renderEmptyState('No pending connection requests')
+            ) : (
+              <div>
+                {connectionRequests.map((request) => 
+                  renderInboxItem({
+                    title: request.fullName || request.username || 'Unknown User',
+                    subtitle: 'Wants to connect',
+                    avatar: request.profileImage,
+                    onPress: () => setLocation(`/profile/${request.username || request.id}`),
+                    testId: `connection-request-${request.id}`
+                  })
+                )}
+              </div>
+            )}
           </div>
-          {unreadCount > 0 && (
-            <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
-              Mark all as read
-            </Button>
-          )}
-        </CardHeader>
-        <div className="px-6 pb-3">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('searchMessages')}
-              className="pl-8 pr-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <XCircle className="h-4 w-4" />
-              </button>
+
+          {/* RSVP Requests Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('RSVP Requests', rsvpRequests.length)}
+            {rsvpRequests.length === 0 ? (
+              renderEmptyState('No pending RSVP requests')
+            ) : (
+              <div>
+                {rsvpRequests.map((request) => 
+                  renderInboxItem({
+                    title: request.userName,
+                    subtitle: `Wants to join ${request.eventTitle}`,
+                    avatar: request.userImage,
+                    onPress: () => setLocation(`/event/${request.eventId}`),
+                    testId: `rsvp-request-${request.id}`
+                  })
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* My Connections Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('My Connections', userConnections.length)}
+            {userConnections.length === 0 ? (
+              renderEmptyState('No connections yet')
+            ) : (
+              <div>
+                {userConnections.slice(0, 5).map((connection) => 
+                  renderInboxItem({
+                    title: connection.fullName || connection.username || 'Unknown User',
+                    subtitle: 'Connected',
+                    avatar: connection.profileImage,
+                    onPress: () => setLocation(`/profile/${connection.username || connection.id}`),
+                    testId: `connection-${connection.id}`
+                  })
+                )}
+                {userConnections.length > 5 && (
+                  <button
+                    onClick={() => setLocation('/connections')}
+                    className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+                    data-testid="view-all-connections"
+                  >
+                    <div className="flex-1 text-left">
+                      <h4 className="text-blue-400 font-medium text-sm">View All Connections</h4>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-blue-400" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Messages & Groups Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('Messages & Groups', conversations.length)}
+            {conversations.length === 0 ? (
+              renderEmptyState('No messages yet')
+            ) : (
+              <div>
+                {conversations.map((conversation) => {
+                  const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                    ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
+                    : conversation.title;
+                  
+                  const displaySubtitle = conversation.lastMessage?.content 
+                    ? conversation.lastMessage.content 
+                    : 'No messages yet';
+
+                  const avatarUrl = conversation.type === 'direct' && conversation.otherParticipant
+                    ? conversation.otherParticipant.profileImage
+                    : undefined;
+                  
+                  return renderInboxItem({
+                    title: displayName,
+                    subtitle: displaySubtitle,
+                    avatar: avatarUrl,
+                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                    testId: `conversation-${conversation.id}`
+                  });
+                })}
+              </div>
             )}
           </div>
         </div>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-start space-x-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-500">
-              <p>Error loading conversations: {error}</p>
-            </div>
-          ) : !hasAnyConversations ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              {searchTerm ? (
-                <>
-                  <XCircle className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium">No results found</h3>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {t('noConversationsMatch')}
-                  </p>
-                  <Button variant="outline" className="mt-4" onClick={clearSearch}>
-                    Clear search
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium">{t('noConversationsYet')}</h3>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {t('connectWithOthers')}
-                  </p>
-                  <Button
-                    className="mt-4"
-                    onClick={() => setLocation('/connect')}
-                  >
-                    {t('findConnections')}
-                  </Button>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-6" data-testid="inbox-content">
-              {/* Direct Messages Section */}
-              <InboxSection
-                title="Direct Messages"
-                conversations={directMessages}
-              />
-              
-              {/* Group Chats Section */}
-              <InboxSection
-                title="Group Chats"
-                conversations={groupChats}
-              />
-              
-              {/* Event Chats Section */}
-              <InboxSection
-                title="Event Chats"
-                conversations={eventChats}
-              />
-              
-              {/* Show message if search returned no results but we have conversations */}
-              {searchTerm && hasAnyConversations && directMessages.length === 0 && groupChats.length === 0 && eventChats.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <XCircle className="h-8 w-8 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-500">
-                    No conversations match "{searchTerm}"
-                  </p>
-                  <Button variant="outline" className="mt-2" onClick={clearSearch}>
-                    Clear search
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      )}
     </div>
   );
 }
