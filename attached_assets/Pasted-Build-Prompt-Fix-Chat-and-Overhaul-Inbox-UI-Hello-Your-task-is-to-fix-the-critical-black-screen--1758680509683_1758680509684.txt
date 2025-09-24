@@ -1,0 +1,59 @@
+Build Prompt: Fix Chat and Overhaul Inbox UI
+Hello! Your task is to fix the critical "black screen" bug on the chat page and overhaul the /inbox page to match the Figma design, based on the findings from the analysis report.
+
+Please execute the following phases in order.
+
+Phase 1: Fix the "Black Screen" Bug with a New Chat Page
+The existing ChatPage.tsx is incompatible with conversation-based routing. We will create a new component to handle this correctly.
+
+Create ChatConversationPage.tsx:
+
+Create a new file at client/src/pages/ChatConversationPage.tsx.
+
+This component will be responsible for displaying a conversation thread.
+
+Implement the data-fetching logic inside this component:
+
+Get the :conversationId from the URL parameters.
+
+Use a useQuery hook to call a new or existing backend endpoint to fetch all messages for that specific conversation (e.g., GET /api/messages/conversation/:conversationId).
+
+Render the list of messages, along with a message input box.
+
+Update the Main Router:
+
+Open client/src/App.tsx.
+
+Add a new route definition that points to your new component:
+
+JavaScript
+
+<Route path="/chat/conversation/:conversationId" component={ChatConversationPage} />
+Phase 2: Overhaul the Inbox Page
+Now that the links have a working destination, overhaul the /inbox page to match the Figma design.
+
+Update Data Fetching in InboxPage.tsx:
+
+The Figma design requires data from multiple sources. In client/src/pages/InboxPage.tsx, add new useQuery hooks to fetch:
+
+Connection Requests: from an endpoint like /api/connections?status=pending.
+
+RSVP Requests: from an endpoint like /api/events/applications?status=pending.
+
+You will now have three sets of data: conversations, connection requests, and RSVP requests.
+
+Implement the Correct Sectioned Layout:
+
+Completely restructure the JSX in InboxPage.tsx.
+
+Create the sections as required by the Figma design: "Connection Requests," "RSVP Requests," "My Connections," and "Messages & Groups."
+
+Populate each section with the data you fetched in the previous step.
+
+Fix ConversationListItem.tsx:
+
+Open client/src/components/inbox/ConversationListItem.tsx.
+
+Crucially, update the <Link> component's href prop to point to the new, correct route: /chat/conversation/${conversation.id}.
+
+Remove the desktop Card styling and update the Tailwind CSS classes to match the mobile-first, dark-theme Figma design, including adding the right-pointing navigation arrows.
