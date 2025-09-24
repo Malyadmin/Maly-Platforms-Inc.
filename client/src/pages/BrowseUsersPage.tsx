@@ -126,21 +126,25 @@ export default function BrowseUsersPage() {
     queryKey: ['/api/users/browse', selectedCity, selectedGender, selectedInterests, selectedMoods, ageRange, nameSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (selectedCity !== 'all') params.append('city', selectedCity);
+      if (selectedCity !== 'all') params.append('location', selectedCity);
       if (selectedGender !== 'all') params.append('gender', selectedGender);
       if (ageRange.min) params.append('minAge', ageRange.min);
       if (ageRange.max) params.append('maxAge', ageRange.max);
       if (selectedInterests.length > 0) {
         selectedInterests.forEach(interest => 
-          params.append('interests[]', interest)
+          params.append('interests', interest)
         );
       }
       if (selectedMoods.length > 0) {
         selectedMoods.forEach(mood => 
-          params.append('moods[]', mood)
+          params.append('moods', mood)
         );
       }
-      if (nameSearch) params.append('name', nameSearch); 
+      if (nameSearch) params.append('name', nameSearch);
+      
+      // Add limit and offset as in iOS app
+      params.append('limit', '20');
+      params.append('offset', '0'); 
 
       const response = await fetch(`/api/users/browse?${params}`);
       if (!response.ok) throw new Error("Failed to fetch users");
