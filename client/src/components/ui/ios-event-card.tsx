@@ -9,6 +9,12 @@ interface Event {
   price?: string;
   image?: string;
   interestedCount?: number;
+  creator?: {
+    id: number;
+    username: string;
+    fullName: string;
+    profileImage?: string;
+  };
 }
 
 interface IOSEventCardProps {
