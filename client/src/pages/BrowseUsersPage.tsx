@@ -122,7 +122,7 @@ export default function BrowseUsersPage() {
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   const [nameSearch, setNameSearch] = useState(""); 
 
-  const { data: apiUsers, isLoading } = useQuery<User[]>({
+  const { data: browseResponse, isLoading } = useQuery<{ users: User[], pagination: { limit: number, offset: number, total: number, hasMore: boolean } }>({
     queryKey: ['/api/users/browse', selectedCity, selectedGender, selectedInterests, selectedMoods, ageRange, nameSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -144,9 +144,13 @@ export default function BrowseUsersPage() {
 
       const response = await fetch(`/api/users/browse?${params}`);
       if (!response.ok) throw new Error("Failed to fetch users");
-      return response.json();
+      const data = await response.json();
+      console.log('Received data from /api/users/browse:', data);
+      return data;
     },
   });
+
+  const apiUsers = browseResponse?.users || [];
 
   const users = (() => {
     const allUsers = [...(apiUsers || [])];
