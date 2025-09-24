@@ -264,16 +264,14 @@ export default function InboxPage() {
             ) : (
               <div>
                 {connectionsWithoutMessages.slice(0, 5).map((conversation) => {
-                  const otherParticipant = conversation.otherParticipant;
-                  const displayName = otherParticipant 
-                    ? (otherParticipant.fullName || otherParticipant.username || 'Unknown User')
-                    : 'Unknown User';
+                  // For connections without messages, use the title field which contains the other user's name
+                  const displayName = conversation.title || 'Unknown User';
                   
                   return renderInboxItem({
                     title: displayName,
                     subtitle: 'Connected',
-                    avatar: otherParticipant?.profileImage,
-                    onPress: () => setLocation(`/profile/${otherParticipant?.username || otherParticipant?.id}`),
+                    avatar: undefined, // Avatar not available for connections without messages
+                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`), // Navigate to start conversation
                     testId: `connection-${conversation.id}`
                   });
                 })}
