@@ -54,6 +54,11 @@ export default function InboxPage() {
   // Fetch connection requests
   const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
     queryKey: ['/api/connections/pending'],
+    queryFn: async () => {
+      const response = await fetch('/api/connections/pending');
+      if (!response.ok) throw new Error('Failed to fetch pending connection requests');
+      return response.json();
+    },
     enabled: !!user?.id,
   });
 
