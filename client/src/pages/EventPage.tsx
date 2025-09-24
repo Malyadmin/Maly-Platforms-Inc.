@@ -2,14 +2,15 @@ import { useParams, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, Lock } from "lucide-react";
+
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard } from "lucide-react";
+
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/lib/translations";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
-
 // Define the Event type with all fields
 const EventSchema = z.object({
   id: z.number(),
@@ -21,19 +22,22 @@ const EventSchema = z.object({
   longitude: z.number().nullable(),
   date: z.string().or(z.date()),
   category: z.string(),
-  price: z.number().nullable(),
+  price: z.string().nullable(),
+  ticketType: z.string().nullable(),
   image: z.string().nullable(),
   image_url: z.string().nullable(),
   attendingCount: z.number().nullable().default(0),
   interestedCount: z.number().nullable().default(0),
   creatorId: z.number().nullable(),
-  creatorName: z.string().nullable(),
-  creatorImage: z.string().nullable(),
-  creatorUsername: z.string().nullable(),
   tags: z.array(z.string()).nullable(),
   isPrivate: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
-});
+  creator: z.object({
+    id: z.number(),
+    username: z.string(),
+    fullName: z.string(),
+    profileImage: z.string().nullable(),
+  }).nullable(),
 
 type Event = z.infer<typeof EventSchema>;
 
@@ -47,6 +51,45 @@ export default function EventPage() {
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+
+  // Purchase ticket mutation
+  const purchaseTicketMutation = useMutation({
+    mutationFn: async ({ eventId, quantity = 1 }: { eventId: number; quantity?: number }) => {
+      const response = await fetch("/api/payments/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          eventId,
+          quantity,
+          userId: user?.id
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      }
+    },
+    onError: (error: any) => {
+      console.error("Purchase ticket error:", error);
+      toast({
+        title: "Purchase Failed",
+        description: error.message || "Failed to initiate ticket purchase. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
 
   const { data: event, isLoading, error: queryError } = useQuery<Event>({
     queryKey: [`/api/events/${id}`],
@@ -239,11 +282,32 @@ export default function EventPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
           <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-              ✓ Free Event
-            </div>
+            {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 ? (
+              <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                💳 ${event.price}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                ✓ Free Event
+              </div>
+            )}
             <div className="flex items-center gap-2 text-blue-400">
-              👤 UserB
+              <button
+                onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
+                className="flex items-center gap-2 hover:underline cursor-pointer"
+                data-testid="event-creator-link"
+              >
+                {event?.creator?.profileImage ? (
+                  <img
+                    src={event.creator.profileImage}
+                    alt={event.creator.fullName}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
+                <span>{event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -407,6 +471,7 @@ export default function EventPage() {
                   </Button>
                 </div>
               </div>
+
             )}
           </div>
         )}

@@ -1225,8 +1225,44 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log("Fetching events with params:", { location, currentUserId });
 
-      // Query events from the database
-      let query = db.select().from(events);
+      // Query events from the database with creator information
+      let query = db.select({
+        id: events.id,
+        title: events.title,
+        description: events.description,
+        city: events.city,
+        location: events.location,
+        address: events.address,
+        latitude: events.latitude,
+        longitude: events.longitude,
+        date: events.date,
+        endDate: events.endDate,
+        image: events.image,
+        videoUrls: events.videoUrls,
+        category: events.category,
+        creatorId: events.creatorId,
+        capacity: events.capacity,
+        price: events.price,
+        ticketType: events.ticketType,
+        availableTickets: events.availableTickets,
+        tags: events.tags,
+        isPrivate: events.isPrivate,
+        isBusinessEvent: events.isBusinessEvent,
+        timeFrame: events.timeFrame,
+        stripeProductId: events.stripeProductId,
+        stripePriceId: events.stripePriceId,
+        itinerary: events.itinerary,
+        createdAt: events.createdAt,
+        attendingCount: events.attendingCount,
+        interestedCount: events.interestedCount,
+        // Include creator information with explicit aliases
+        creatorUserId: users.id,
+        creatorUsername: users.username,
+        creatorFullName: users.fullName,
+        creatorProfileImage: users.profileImage
+      })
+      .from(events)
+      .leftJoin(users, eq(events.creatorId, users.id));
 
       // Apply location filter if provided and not 'all'
       if (location && location !== 'all' && location !== '') {
@@ -1240,24 +1276,39 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       let dbEvents = await query;
       console.log(`Found ${dbEvents.length} events in database before filtering`);
 
-      console.log(`Found ${dbEvents.length} events to display`);
+      // Map events to include properly structured creator objects
+      const eventsWithCreators = dbEvents.map(event => {
+        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, ...eventData } = event;
+        
+        return {
+          ...eventData,
+          creator: creatorUserId ? {
+            id: creatorUserId,
+            username: creatorUsername,
+            fullName: creatorFullName,
+            profileImage: creatorProfileImage
+          } : null
+        };
+      });
+
+      console.log(`Found ${eventsWithCreators.length} events to display`);
 
       // Sort events by date (most recent first)
-      dbEvents.sort((a, b) => {
+      eventsWithCreators.sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
         return dateB - dateA; // Descending order (most recent first)
       });
 
       // Check if we found any events
-      if (dbEvents.length === 0) {
+      if (eventsWithCreators.length === 0) {
         console.log("No events found in database, using mock data temporarily");
         // Return empty array instead of falling back to mock data
         return res.json([]);
       }
 
-      console.log(`Returning ${dbEvents.length} events from database`);
-      return res.json(dbEvents);
+      console.log(`Returning ${eventsWithCreators.length} events from database`);
+      return res.json(eventsWithCreators);
     } catch (error) {
       console.error("Error fetching events:", error);
       let message = "Failed to fetch events";
@@ -1368,6 +1419,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
+
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
                 requireApproval: event.requireApproval,
@@ -2294,21 +2346,34 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           return;
         }
         
-        // Validate message structure for chat messages
-        if (!data.senderId || !data.receiverId || !data.content) {
+        // Validate message structure - support both old and new formats
+        const hasOldFormat = data.senderId && data.receiverId && data.content;
+        const hasNewFormat = data.senderId && data.conversationId && data.content;
+        
+        if (!hasOldFormat && !hasNewFormat) {
           console.error('Invalid message format:', data);
           ws.send(JSON.stringify({
             type: 'error',
-            message: 'Invalid message format. Required fields: senderId, receiverId, content'
+            message: 'Invalid message format. Required fields: senderId + (receiverId OR conversationId) + content'
           }));
           return;
         }
         
         try {
-          // Store the message in the database (this already checks for connection status)
-          const newMessage = await sendMessage({
+          let conversationId = data.conversationId;
+          
+          // If using old format, find or create conversation
+          if (hasOldFormat && !hasNewFormat) {
+            console.log(`Legacy WebSocket message format detected, converting receiverId ${data.receiverId} to conversation`);
+            const conversation = await getOrCreateDirectConversation(data.senderId, data.receiverId);
+            conversationId = conversation.id;
+            console.log(`Created/found conversation ${conversationId} for users ${data.senderId} and ${data.receiverId}`);
+          }
+          
+          // Store the message in the database using conversation-based system
+          const newMessage = await sendMessageToConversation({
             senderId: data.senderId,
-            receiverId: data.receiverId,
+            conversationId: conversationId,
             content: data.content
           });
           
@@ -2319,14 +2384,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           
           console.log(`Message stored in database:`, JSON.stringify(newMessage));
           
-          // Send the message to the recipient if they're connected
-          const recipientWs = activeConnections.get(data.receiverId);
-          if (recipientWs && recipientWs.ws.readyState === WebSocket.OPEN) {
-            console.log(`Sending message to recipient ${data.receiverId}`);
-            recipientWs.ws.send(JSON.stringify(newMessage));
-          } else {
-            console.log(`Recipient ${data.receiverId} not connected or socket not open`);
-          }
+          // TODO: Broadcast to conversation participants (for now, frontend polling handles real-time updates)
+          console.log(`Message saved to conversation ${data.conversationId}, participants will see it through polling`);
           
           // Send confirmation back to sender
           console.log(`Sending confirmation to sender ${data.senderId}`);

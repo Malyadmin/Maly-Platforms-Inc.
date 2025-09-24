@@ -889,9 +889,28 @@ export function setupAuth(app: Express) {
       
       const messages = await getConversationMessages(parseInt(conversationId), userId);
       
+      // Also fetch conversation details
+      const conversations = await getConversations(userId);
+      const conversation = conversations.find(conv => conv.id === parseInt(conversationId));
+      
+      if (!conversation) {
+        return res.status(404).json({ error: 'Conversation not found or access denied' });
+      }
+      
       console.log(`[FETCH_MESSAGES] Successfully fetched ${messages.length} messages for conversation ${conversationId}`);
       
-      res.json(messages);
+      // Return both messages and conversation details
+      res.json({
+        messages,
+        conversation: {
+          id: conversation.id,
+          type: conversation.type,
+          title: conversation.title,
+          participantCount: conversation.participantCount,
+          participants: [],
+          otherParticipant: conversation.otherParticipant || null // Include profile image data
+        }
+      });
     } catch (error) {
       console.error('[FETCH_MESSAGES] Error getting conversation messages:', error);
       

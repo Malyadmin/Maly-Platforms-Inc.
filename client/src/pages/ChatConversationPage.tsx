@@ -22,6 +22,12 @@ interface ConversationInfo {
     username?: string;
     profileImage?: string;
   }[];
+  otherParticipant?: {
+    id: number;
+    fullName?: string;
+    username?: string;
+    profileImage?: string;
+  };
 }
 
 interface ConversationMessagesResponse {
@@ -46,6 +52,10 @@ export default function ChatConversationPage() {
     error 
   } = useQuery<ConversationMessagesResponse>({
     queryKey: ['/api/conversations', conversationId, 'messages'],
+    queryFn: () => fetch(`/api/conversations/${conversationId}/messages`, { credentials: 'include' }).then(res => {
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    }),
     enabled: !!conversationId && !!user?.id,
     refetchInterval: 5000, // Auto-refresh every 5 seconds for real-time updates
   });
@@ -212,6 +222,12 @@ export default function ChatConversationPage() {
             <div className="flex items-center">
               <div className="relative">
                 <Avatar className="h-10 w-10">
+                  {!isGroupChat && conversation.otherParticipant?.profileImage && (
+                    <AvatarImage 
+                      src={conversation.otherParticipant.profileImage} 
+                      alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
+                    />
+                  )}
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {isGroupChat ? (
                       <Users className="h-5 w-5" />
@@ -294,7 +310,7 @@ export default function ChatConversationPage() {
             ) : (
               <>
                 {messages.map((message, index) => {
-                  const isCurrentUser = message.sender_id === user.id;
+                  const isCurrentUser = Number(message.sender_id) === user.id;
                   const dateHeader = formatMessageDate(message, index);
                   
                   return (
