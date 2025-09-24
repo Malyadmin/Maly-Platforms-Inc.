@@ -1,0 +1,32 @@
+Analyze Inbox UI and Chat Page Bug
+Hello! The /inbox page is now successfully fetching conversations, but we have two new issues: the UI does not match the Figma design, and clicking a conversation leads to a black screen.
+
+Your task is to perform a read-only analysis of the frontend code to diagnose the root cause of both problems. Do not edit any files.
+
+1. Inbox UI Mismatch Analysis
+File Location: Analyze the client/src/pages/InboxPage.tsx and its primary child component, client/src/components/inbox/ConversationListItem.tsx.
+
+Styling & Structure: Compare the JSX structure and Tailwind CSS classes used in these files against the visual requirements from the Figma screenshots.
+
+Data Mapping: Verify that all necessary data fields from the Conversation object (e.g., unreadCount, lastMessage.timestamp, participant details for group chats) are being correctly passed as props and rendered in the ConversationListItem component.
+
+Report On: Why does the current UI deviate from the Figma design? Is it a styling issue (incorrect Tailwind classes), a structural issue (wrong JSX), or a data issue (not all required data is being displayed)?
+
+2. Chat Page "Black Screen" Bug Analysis
+Routing: Check the <Link> component in ConversationListItem.tsx. Does it correctly navigate to the conversation-centric URL format: /chat/conversation/:conversationId?
+
+File Location: Identify the React component that is supposed to render at this route (e.g., client/src/pages/ChatPage.tsx).
+
+Data Fetching: How does this chat page component fetch the messages for a specific conversation? It should be extracting the conversationId from the URL and using it to call an API endpoint like GET /api/messages/:conversationId. Verify this logic.
+
+Rendering Logic: Analyze the component's render method. A black screen is often caused by:
+
+An uncaught JavaScript error.
+
+An unhandled error from the data-fetching hook (useQuery).
+
+The component returning null or undefined before data is ready, without a proper loading state.
+
+Final Report:
+
+Based on your analysis, provide a single report that explains the root cause of both the UI mismatch and the black screen bug. Pinpoint the specific files and logic that need to be fixed.
