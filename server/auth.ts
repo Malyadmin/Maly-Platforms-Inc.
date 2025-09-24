@@ -907,7 +907,8 @@ export function setupAuth(app: Express) {
           type: conversation.type,
           title: conversation.title,
           participantCount: conversation.participantCount,
-          participants: [] // Can be populated if needed
+          participants: [],
+          otherParticipant: conversation.otherParticipant || null // Include profile image data
         }
       });
     } catch (error) {

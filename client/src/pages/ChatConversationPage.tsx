@@ -22,6 +22,12 @@ interface ConversationInfo {
     username?: string;
     profileImage?: string;
   }[];
+  otherParticipant?: {
+    id: number;
+    fullName?: string;
+    username?: string;
+    profileImage?: string;
+  };
 }
 
 interface ConversationMessagesResponse {
@@ -216,6 +222,12 @@ export default function ChatConversationPage() {
             <div className="flex items-center">
               <div className="relative">
                 <Avatar className="h-10 w-10">
+                  {!isGroupChat && conversation.otherParticipant?.profileImage && (
+                    <AvatarImage 
+                      src={conversation.otherParticipant.profileImage} 
+                      alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
+                    />
+                  )}
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {isGroupChat ? (
                       <Users className="h-5 w-5" />
