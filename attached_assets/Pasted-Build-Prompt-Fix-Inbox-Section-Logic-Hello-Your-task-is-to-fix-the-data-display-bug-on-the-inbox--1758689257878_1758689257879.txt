@@ -1,0 +1,34 @@
+Build Prompt: Fix Inbox Section Logic
+Hello! Your task is to fix the data display bug on the /inbox page where users appear in both the "My Connections" and "Messages & Groups" sections. The analysis confirms the backend is working as intended, so the fix must be implemented on the frontend.
+
+Please execute the following steps:
+
+1. Open and Analyze the Frontend Component:
+
+Open the client/src/pages/InboxPage.tsx file.
+
+Locate the data fetching logic where you get the conversations list from the GET /api/conversations endpoint. This list will be the single source of truth for both sections.
+
+2. Implement Correct Filtering Logic:
+
+Before the return statement in your component, create two new filtered arrays from the main conversations list:
+
+For "Messages & Groups": Create a new array named conversationsWithMessages that contains only the items from the original conversations list where conversation.lastMessage is not null.
+
+For "My Connections": Create a new array named connectionsWithoutMessages that contains only the items from the original conversations list where conversation.lastMessage is null.
+
+3. Update the Rendering Logic (JSX):
+
+Find the JSX for the "Messages & Groups" section. Modify it to map over your new conversationsWithMessages array.
+
+Find the JSX for the "My Connections" section. Modify it to map over your new connectionsWithoutMessages array. For these items, you will display the details from the conversation.otherParticipant object.
+
+4. (Optional) Optimize API Calls:
+
+Since the conversations list now provides all the necessary information, the separate API call to GET /api/connections within this component is likely no longer needed. You can remove this useQuery hook to improve page performance.
+
+5. Validate the Fix:
+
+After implementing the changes, test the /inbox page.
+
+Expected Result: Connections with message history should appear ONLY in "Messages & Groups." Connections with NO message history should appear ONLY in "My Connections." No user should ever appear in both sections simultaneously.

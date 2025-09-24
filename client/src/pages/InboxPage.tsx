@@ -20,14 +20,6 @@ interface ConnectionRequest {
   createdAt: string;
 }
 
-interface UserConnection {
-  id: number;
-  fullName?: string;
-  username?: string;
-  profileImage?: string;
-  status: 'accepted';
-  connectedAt: string;
-}
 
 interface RSVPRequest {
   id: number;
@@ -54,11 +46,6 @@ export default function InboxPage() {
     enabled: !!user?.id,
   });
 
-  // Fetch user connections
-  const { data: userConnections = [], isLoading: connectionsLoading } = useQuery<UserConnection[]>({
-    queryKey: ['/api/connections'],
-    enabled: !!user?.id,
-  });
 
   // Fetch RSVP requests (for events the user created)
   const { data: rsvpRequests = [], isLoading: rsvpRequestsLoading } = useQuery<RSVPRequest[]>({
@@ -120,7 +107,7 @@ export default function InboxPage() {
     }
   };
 
-  const loading = conversationsLoading || connectionRequestsLoading || connectionsLoading || rsvpRequestsLoading;
+  const loading = conversationsLoading || connectionRequestsLoading || rsvpRequestsLoading;
 
   if (!user) {
     return (
@@ -143,6 +130,15 @@ export default function InboxPage() {
   const unreadCount = conversations.reduce(
     (count, conv) => count + (conv.unreadCount || 0),
     0
+  );
+
+  // Filter conversations for proper section display
+  // Messages & Groups: Only conversations with message history
+  const conversationsWithMessages = conversations.filter(conv => conv.lastMessage !== null);
+  
+  // My Connections: Only connections without message history (direct conversations only)
+  const connectionsWithoutMessages = conversations.filter(conv => 
+    conv.lastMessage === null && conv.type === 'direct'
   );
 
   // Helper function to render individual inbox items
@@ -262,21 +258,26 @@ export default function InboxPage() {
 
           {/* My Connections Section */}
           <div className="space-y-2">
-            {renderSectionHeader('My Connections', userConnections.length)}
-            {userConnections.length === 0 ? (
+            {renderSectionHeader('My Connections', connectionsWithoutMessages.length)}
+            {connectionsWithoutMessages.length === 0 ? (
               renderEmptyState('No connections yet')
             ) : (
               <div>
-                {userConnections.slice(0, 5).map((connection) => 
-                  renderInboxItem({
-                    title: connection.fullName || connection.username || 'Unknown User',
+                {connectionsWithoutMessages.slice(0, 5).map((conversation) => {
+                  const otherParticipant = conversation.otherParticipant;
+                  const displayName = otherParticipant 
+                    ? (otherParticipant.fullName || otherParticipant.username || 'Unknown User')
+                    : 'Unknown User';
+                  
+                  return renderInboxItem({
+                    title: displayName,
                     subtitle: 'Connected',
-                    avatar: connection.profileImage,
-                    onPress: () => setLocation(`/profile/${connection.username || connection.id}`),
-                    testId: `connection-${connection.id}`
-                  })
-                )}
-                {userConnections.length > 5 && (
+                    avatar: otherParticipant?.profileImage,
+                    onPress: () => setLocation(`/profile/${otherParticipant?.username || otherParticipant?.id}`),
+                    testId: `connection-${conversation.id}`
+                  });
+                })}
+                {connectionsWithoutMessages.length > 5 && (
                   <button
                     onClick={() => setLocation('/connections')}
                     className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
@@ -294,12 +295,12 @@ export default function InboxPage() {
 
           {/* Messages & Groups Section */}
           <div className="space-y-2">
-            {renderSectionHeader('Messages & Groups', conversations.length)}
-            {conversations.length === 0 ? (
+            {renderSectionHeader('Messages & Groups', conversationsWithMessages.length)}
+            {conversationsWithMessages.length === 0 ? (
               renderEmptyState('No messages yet')
             ) : (
               <div>
-                {conversations.map((conversation) => {
+                {conversationsWithMessages.map((conversation) => {
                   const displayName = conversation.type === 'direct' && conversation.otherParticipant 
                     ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
                     : conversation.title;
