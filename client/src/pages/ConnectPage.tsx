@@ -662,20 +662,17 @@ export function ConnectPage() {
             </button>
 
             {/* 2x2 Grid */}
-            <div className="pt-6">
-              <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <div className="pt-6 px-5">
+              <div className="grid grid-cols-2 gap-4">
                 {(users || []).slice(0, 4).map((user) => (
                   <div
                     key={user.id}
                     className="aspect-square"
-                    data-testid={`grid-profile-view-${user.id}`}
+                    data-testid={`grid-user-card-${user.id}`}
                   >
-                    <LargeProfileView
+                    <UserCard
                       user={user}
-                      onConnect={() => {
-                        // TODO: Implement connect functionality
-                        console.log("Connect clicked for user:", user.username);
-                      }}
+                      onClick={() => handleUserClick(user)}
                       className="h-full"
                     />
                   </div>
