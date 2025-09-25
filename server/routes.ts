@@ -4504,8 +4504,10 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Get additional details for each application
       const applications = [];
       for (const app of pendingApplications) {
-        const [user] = await db.select().from(users).where(eq(users.id, app.userId));
-        const [event] = await db.select().from(events).where(eq(events.id, app.eventId));
+        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+        const user = userResult[0];
+        const event = eventResult[0];
         
         applications.push({
           id: app.id,
