@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Search, ChevronDown, User, Filter, X } from "lucide-react";
+import { Search, ChevronDown, User, Filter, X, Grid3X3, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { UserCard } from "@/components/ui/user-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -44,6 +44,8 @@ export function ConnectPage() {
   const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
   const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"single" | "grid">("single");
+  const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const { t } = useTranslation();
 
   // Fetch real users from the API
@@ -81,11 +83,10 @@ export function ConnectPage() {
     refetchOnWindowFocus: false
   });
 
-  // Count users for different sections
-  const nearbyUsers = users?.filter(user => user.location) || [];
-  const commonInterestsUsers = users?.filter(user => 
-    user.interests && user.interests.length > 0
-  ) || [];
+  // Reset current user index when users change
+  if (users && users.length > 0 && currentUserIndex >= users.length) {
+    setCurrentUserIndex(0);
+  }
 
   const handleUserClick = (user: ConnectUser) => {
     setLocation(`/profile/${user.username}`);
@@ -124,6 +125,27 @@ export function ConnectPage() {
       filters.push({ type: "gender", label: selectedGender, value: selectedGender });
     }
     return filters;
+  };
+
+  // Navigation functions for single user view
+  const nextUser = () => {
+    if (users && users.length > 0) {
+      setCurrentUserIndex((prev) => (prev + 1) % users.length);
+    }
+  };
+
+  const prevUser = () => {
+    if (users && users.length > 0) {
+      setCurrentUserIndex((prev) => (prev - 1 + users.length) % users.length);
+    }
+  };
+
+  // Get current user for single view
+  const getCurrentUser = () => {
+    if (users && users.length > 0) {
+      return users[currentUserIndex];
+    }
+    return null;
   };
 
   return (
@@ -195,74 +217,115 @@ export function ConnectPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 px-5 space-y-6">
-        {/* Like-vibe people near you section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-base font-medium">
-              Like-vibe people near you
-            </h2>
-            <span className="text-white text-base font-medium">
-              {nearbyUsers.length}
-            </span>
+      <main className="flex-1 px-5">
+        {isLoading ? (
+          <div className="text-center py-8">
+            <span className="text-gray-400">Loading users...</span>
           </div>
-          
-          {/* Map area placeholder */}
-          <div className="bg-gray-600 rounded-lg h-32 flex items-center justify-center">
-            <User className="h-8 w-8 text-gray-400" />
-          </div>
-          
-          {/* Location indicator */}
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Q</span>
-            <span className="text-gray-400">City Name</span>
-          </div>
-        </section>
+        ) : viewMode === "single" ? (
+          /* Single User View */
+          <div className="relative">
+            {getCurrentUser() ? (
+              <div className="relative">
+                {/* Grid toggle button */}
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className="absolute top-4 right-4 z-10 p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                  data-testid="grid-view-toggle"
+                >
+                  <Grid3X3 className="h-5 w-5 text-white" />
+                </button>
 
-        {/* People near you with common interests section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-base font-medium">
-              People near you with common interests
-            </h2>
-            <span className="text-white text-base font-medium">
-              {commonInterestsUsers.length}
-            </span>
-          </div>
-          
-          {/* Q and A buttons */}
-          <div className="flex gap-4">
-            <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-semibold">Q</span>
-            </div>
-          </div>
+                {/* Navigation arrows */}
+                {users && users.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevUser}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-gray-800 rounded-full hover:bg-gray-700"
+                      data-testid="prev-user-button"
+                    >
+                      <ChevronLeft className="h-6 w-6 text-white" />
+                    </button>
+                    <button
+                      onClick={nextUser}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-gray-800 rounded-full hover:bg-gray-700"
+                      data-testid="next-user-button"
+                    >
+                      <ChevronRight className="h-6 w-6 text-white" />
+                    </button>
+                  </>
+                )}
 
-          {/* User cards list */}
-          <div className="space-y-2">
-            {isLoading ? (
-              // Loading state
-              <div className="text-center py-4">
-                <span className="text-gray-400">Loading users...</span>
+                {/* Single User Card */}
+                <div className="pt-6">
+                  <UserCard
+                    user={getCurrentUser()!}
+                    onClick={() => handleUserClick(getCurrentUser()!)}
+                    data-testid={`single-user-card-${getCurrentUser()!.id}`}
+                  />
+                </div>
+
+                {/* User indicator */}
+                {users && users.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-1">
+                    {users.slice(0, Math.min(users.length, 10)).map((_, index) => (
+                      <div
+                        key={index}
+                        className={`w-2 h-2 rounded-full ${
+                          index === currentUserIndex ? "bg-white" : "bg-gray-600"
+                        }`}
+                      />
+                    ))}
+                    {users.length > 10 && (
+                      <span className="text-gray-400 text-xs ml-2">
+                        {currentUserIndex + 1} / {users.length}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-            ) : commonInterestsUsers.length > 0 ? (
-              commonInterestsUsers.slice(0, 3).map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  onClick={() => handleUserClick(user)}
-                  data-testid={`user-card-${user.id}`}
-                />
-              ))
             ) : (
-              <div className="text-center py-4">
+              <div className="text-center py-8">
                 <span className="text-gray-400">No users found</span>
               </div>
             )}
           </div>
-        </section>
+        ) : (
+          /* Grid View */
+          <div className="relative">
+            {/* Single view toggle button */}
+            <button
+              onClick={() => setViewMode("single")}
+              className="absolute top-4 right-4 z-10 p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+              data-testid="single-view-toggle"
+            >
+              <User className="h-5 w-5 text-white" />
+            </button>
+
+            {/* 4x4 Grid */}
+            <div className="pt-6">
+              <div className="grid grid-cols-2 gap-3">
+                {(users || []).slice(0, 16).map((user) => (
+                  <div
+                    key={user.id}
+                    className="aspect-square"
+                    data-testid={`grid-user-card-${user.id}`}
+                  >
+                    <UserCard
+                      user={user}
+                      onClick={() => handleUserClick(user)}
+                    />
+                  </div>
+                ))}
+                {(!users || users.length === 0) && (
+                  <div className="col-span-2 text-center py-8">
+                    <span className="text-gray-400">No users found</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Filters Modal */}
