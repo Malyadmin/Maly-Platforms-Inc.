@@ -395,8 +395,8 @@ export function ConnectPage() {
                   </>
                 )}
 
-                {/* Fullscreen Profile Image with Overlay */}
-                <div className="relative w-full h-screen">
+                {/* Profile Image with Overlay */}
+                <div className="relative w-full h-[75vh]">
                   {profileData.profileImage ? (
                     <div className="absolute inset-0">
                       <img 
