@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
+import PremiumPaywall from "@/components/PremiumPaywall";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -53,6 +54,7 @@ export function ConnectPage() {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
   const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
@@ -229,6 +231,15 @@ export function ConnectPage() {
     setLocation(`/profile/${user.username}`);
   };
 
+  // Handle filter button click - check premium status first
+  const handleFilterClick = () => {
+    if (currentUser?.isPremium) {
+      setShowFiltersModal(true);
+    } else {
+      setShowPremiumPaywall(true);
+    }
+  };
+
   // Filter management functions
   const applyFilters = () => {
     setSelectedCity(tempSelectedCity);
@@ -304,7 +315,7 @@ export function ConnectPage() {
             <div className="flex items-center gap-2">
               <button 
                 className="p-1"
-                onClick={() => setShowFiltersModal(true)}
+                onClick={handleFilterClick}
                 data-testid="filters-button"
               >
                 <Filter className="h-6 w-6 text-white" />
@@ -756,6 +767,12 @@ export function ConnectPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Premium Paywall */}
+      <PremiumPaywall 
+        isOpen={showPremiumPaywall} 
+        onClose={() => setShowPremiumPaywall(false)} 
+      />
 
       {/* Bottom Navigation */}
       <BottomNav />
