@@ -280,7 +280,7 @@ export function ConnectPage() {
                 <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="city-filter-select">
                   <SelectValue placeholder="Select a city" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600">
+                <SelectContent className="bg-gray-800 border-gray-600 z-[9999]">
                   <SelectItem value="all" className="text-white hover:bg-gray-700">All cities</SelectItem>
                   {DIGITAL_NOMAD_CITIES.map((city) => (
                     <SelectItem 
@@ -303,7 +303,7 @@ export function ConnectPage() {
                 <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="gender-filter-select">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600">
+                <SelectContent className="bg-gray-800 border-gray-600 z-[9999]">
                   <SelectItem value="all" className="text-white hover:bg-gray-700">All genders</SelectItem>
                   <SelectItem value="male" className="text-white hover:bg-gray-700">Male</SelectItem>
                   <SelectItem value="female" className="text-white hover:bg-gray-700">Female</SelectItem>
