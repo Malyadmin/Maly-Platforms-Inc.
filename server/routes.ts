@@ -2931,8 +2931,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         return res.status(404).json({ error: 'Event not found' });
       }
 
-      if (!event.isPrivate) {
-        return res.status(400).json({ error: 'This event is not private and does not require access requests' });
+      if (!event.isPrivate && !event.isRsvp) {
+        return res.status(400).json({ error: 'This event does not require access requests' });
       }
 
       // Check if user is the event creator

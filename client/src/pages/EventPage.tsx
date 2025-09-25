@@ -31,6 +31,7 @@ const EventSchema = z.object({
   creatorId: z.number().nullable(),
   tags: z.array(z.string()).nullable(),
   isPrivate: z.boolean().optional(),
+  isRsvp: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
   creator: z.object({
     id: z.number(),
