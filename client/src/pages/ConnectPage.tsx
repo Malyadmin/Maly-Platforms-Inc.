@@ -5,6 +5,7 @@ import { useLocation, Link } from "wouter";
 import { Search, ChevronDown, User, Filter, X, Grid3X3, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { UserCard } from "@/components/ui/user-card";
+import { LargeProfileView } from "@/components/ui/large-profile-view";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
@@ -256,12 +257,16 @@ export function ConnectPage() {
                   </>
                 )}
 
-                {/* Single User Card */}
+                {/* Large Profile View */}
                 <div className="pt-6">
-                  <UserCard
+                  <LargeProfileView
                     user={getCurrentUser()!}
                     onClick={() => handleUserClick(getCurrentUser()!)}
-                    data-testid={`single-user-card-${getCurrentUser()!.id}`}
+                    onConnect={() => {
+                      // TODO: Implement connect functionality
+                      console.log("Connect clicked for user:", getCurrentUser()!.username);
+                    }}
+                    data-testid={`large-profile-view-${getCurrentUser()!.id}`}
                   />
                 </div>
 
