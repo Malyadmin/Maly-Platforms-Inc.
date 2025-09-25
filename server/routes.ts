@@ -4464,22 +4464,21 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     try {
       const currentUser = req.user as any;
 
-      console.log('Debug applications endpoint - currentUser:', currentUser);
-      console.log('Debug applications endpoint - currentUser.id:', currentUser?.id);
-      console.log('Debug applications endpoint - typeof currentUser.id:', typeof currentUser?.id);
-
-      if (!currentUser || !currentUser.id || isNaN(currentUser.id)) {
-        console.log('Authentication failed in applications endpoint');
+      if (!currentUser || !currentUser.id) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      // Fetch all pending applications for events created by the current user (simplified query)
+      const userId = parseInt(currentUser.id);
+      if (isNaN(userId)) {
+        return res.status(401).json({ error: "Invalid user ID" });
+      }
+
+      // Fetch all pending applications for events created by the current user
       const userEvents = await db.select({ id: events.id })
         .from(events)
-        .where(eq(events.creatorId, currentUser.id));
+        .where(eq(events.creatorId, userId));
 
       const eventIds = userEvents.map(e => e.id);
-      console.log('Debug - User events IDs:', eventIds);
 
       if (eventIds.length === 0) {
         return res.json({
@@ -4498,8 +4497,6 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           )
         )
         .orderBy(desc(eventParticipants.createdAt));
-
-      console.log('Debug - Pending applications:', pendingApplications);
 
       // Get additional details for each application
       const applications = [];
