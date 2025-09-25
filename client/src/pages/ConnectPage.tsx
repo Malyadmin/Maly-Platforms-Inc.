@@ -300,18 +300,8 @@ export function ConnectPage() {
         
         {/* Controls section */}
         <div className="px-5 pb-4">
-          <div className="flex items-center justify-between">
-            {/* Left: City name with dropdown */}
-            <button 
-              className="flex items-center gap-1 text-white"
-              onClick={() => {/* TODO: Implement city selector */}}
-              data-testid="city-selector"
-            >
-              <span className="text-base font-medium">City name</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
-
-            {/* Right: Filter and Search icons */}
+          <div className="flex items-center justify-end">
+            {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
               <button 
                 className="p-1"
