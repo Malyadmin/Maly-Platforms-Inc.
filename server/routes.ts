@@ -4464,40 +4464,67 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     try {
       const currentUser = req.user as any;
 
+      console.log('Debug applications endpoint - currentUser:', currentUser);
+      console.log('Debug applications endpoint - currentUser.id:', currentUser?.id);
+      console.log('Debug applications endpoint - typeof currentUser.id:', typeof currentUser?.id);
+
       if (!currentUser || !currentUser.id || isNaN(currentUser.id)) {
+        console.log('Authentication failed in applications endpoint');
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      // Fetch all pending applications for events created by the current user
-      const applications = await db.select({
-        id: eventParticipants.id,
-        eventId: eventParticipants.eventId,
-        userId: eventParticipants.userId,
-        status: eventParticipants.status,
-        ticketQuantity: eventParticipants.ticketQuantity,
-        purchaseDate: eventParticipants.purchaseDate,
-        createdAt: eventParticipants.createdAt,
-        // User details
-        username: users.username,
-        fullName: users.fullName,
-        profileImage: users.profileImage,
-        email: users.email,
-        bio: users.bio,
-        location: users.location,
-        // Event details
-        eventTitle: events.title,
-        eventImage: events.image
-      })
-      .from(eventParticipants)
-      .innerJoin(users, eq(eventParticipants.userId, users.id))
-      .innerJoin(events, eq(eventParticipants.eventId, events.id))
-      .where(
-        and(
-          eq(events.creatorId, currentUser.id), // Only events created by current user
-          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+      // Fetch all pending applications for events created by the current user (simplified query)
+      const userEvents = await db.select({ id: events.id })
+        .from(events)
+        .where(eq(events.creatorId, currentUser.id));
+
+      const eventIds = userEvents.map(e => e.id);
+      console.log('Debug - User events IDs:', eventIds);
+
+      if (eventIds.length === 0) {
+        return res.json({
+          applications: [],
+          totalPending: 0
+        });
+      }
+
+      // Get pending applications for these events
+      const pendingApplications = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            inArray(eventParticipants.eventId, eventIds),
+            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+          )
         )
-      )
-      .orderBy(desc(eventParticipants.createdAt));
+        .orderBy(desc(eventParticipants.createdAt));
+
+      console.log('Debug - Pending applications:', pendingApplications);
+
+      // Get additional details for each application
+      const applications = [];
+      for (const app of pendingApplications) {
+        const [user] = await db.select().from(users).where(eq(users.id, app.userId));
+        const [event] = await db.select().from(events).where(eq(events.id, app.eventId));
+        
+        applications.push({
+          id: app.id,
+          eventId: app.eventId,
+          userId: app.userId,
+          status: app.status,
+          ticketQuantity: app.ticketQuantity,
+          purchaseDate: app.purchaseDate,
+          createdAt: app.createdAt,
+          username: user?.username,
+          fullName: user?.fullName,
+          profileImage: user?.profileImage,
+          email: user?.email,
+          bio: user?.bio,
+          location: user?.location,
+          eventTitle: event?.title,
+          eventImage: event?.image
+        });
+      }
 
       return res.json({
         applications,
