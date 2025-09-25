@@ -2,11 +2,15 @@
 import { useState } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Search, ChevronDown, User } from "lucide-react";
+import { Search, ChevronDown, User, Filter, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { UserCard } from "@/components/ui/user-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -35,6 +39,10 @@ export function ConnectPage() {
   const [, setLocation] = useLocation();
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [showSearch, setShowSearch] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
+  const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
+  const [selectedGender, setSelectedGender] = useState<string>("all");
   const { t } = useTranslation();
 
   // Fetch real users from the API
@@ -44,12 +52,16 @@ export function ConnectPage() {
     isLoading,
     error
   } = useQuery<ConnectUser[]>({
-    queryKey: ['users', selectedCity, currentUser?.id],
+    queryKey: ['users', selectedCity, selectedGender, currentUser?.id],
     queryFn: async () => {
       const params = new URLSearchParams();
       
       if (selectedCity !== 'all') {
         params.append('location', selectedCity);
+      }
+
+      if (selectedGender !== 'all') {
+        params.append('gender', selectedGender);
       }
 
       if (currentUser?.id) {
@@ -78,6 +90,41 @@ export function ConnectPage() {
     setLocation(`/profile/${user.username}`);
   };
 
+  // Filter management functions
+  const applyFilters = () => {
+    setSelectedCity(tempSelectedCity);
+    setSelectedGender(tempSelectedGender);
+    setShowFiltersModal(false);
+  };
+
+  const clearAllFilters = () => {
+    setTempSelectedCity("all");
+    setTempSelectedGender("all");
+    setSelectedCity("all");
+    setSelectedGender("all");
+    setShowFiltersModal(false);
+  };
+
+  const removeFilter = (filterType: string) => {
+    if (filterType === "city") {
+      setSelectedCity("all");
+    } else if (filterType === "gender") {
+      setSelectedGender("all");
+    }
+  };
+
+  // Get active filters for display
+  const getActiveFilters = () => {
+    const filters = [];
+    if (selectedCity !== "all") {
+      filters.push({ type: "city", label: selectedCity, value: selectedCity });
+    }
+    if (selectedGender !== "all") {
+      filters.push({ type: "gender", label: selectedGender, value: selectedGender });
+    }
+    return filters;
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
       {/* Header Section */}
@@ -100,17 +147,51 @@ export function ConnectPage() {
               <ChevronDown className="h-4 w-4" />
             </button>
 
-            {/* Right: Search icon */}
-            <button 
-              className="p-1"
-              onClick={() => setShowSearch(!showSearch)}
-              data-testid="search-button"
-            >
-              <Search className="h-6 w-6 text-white" />
-            </button>
+            {/* Right: Filter and Search icons */}
+            <div className="flex items-center gap-2">
+              <button 
+                className="p-1"
+                onClick={() => setShowFiltersModal(true)}
+                data-testid="filters-button"
+              >
+                <Filter className="h-6 w-6 text-white" />
+              </button>
+              <button 
+                className="p-1"
+                onClick={() => setShowSearch(!showSearch)}
+                data-testid="search-button"
+              >
+                <Search className="h-6 w-6 text-white" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Active Filters Display */}
+      {getActiveFilters().length > 0 && (
+        <div className="px-5 py-3 border-b border-gray-800">
+          <div className="flex flex-wrap gap-2">
+            {getActiveFilters().map((filter) => (
+              <Badge
+                key={`${filter.type}-${filter.value}`}
+                variant="secondary"
+                className="bg-gray-700 text-white flex items-center gap-1 px-3 py-1"
+                data-testid={`filter-tag-${filter.type}`}
+              >
+                <span className="text-xs">{filter.label}</span>
+                <button
+                  onClick={() => removeFilter(filter.type)}
+                  className="ml-1 hover:bg-gray-600 rounded-full p-0.5"
+                  data-testid={`remove-filter-${filter.type}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 px-5 space-y-6">
@@ -182,6 +263,85 @@ export function ConnectPage() {
           </div>
         </section>
       </main>
+
+      {/* Filters Modal */}
+      <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+        <DialogContent className="bg-black text-white border-gray-800 max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white text-lg font-medium text-center">Filters</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Singles near me section */}
+            <div className="space-y-3">
+              <h3 className="text-white font-medium">Singles near me</h3>
+              <div className="space-y-2">
+                <div
+                  className={`p-3 rounded-lg border cursor-pointer ${
+                    tempSelectedCity === "all" ? "border-white bg-gray-800" : "border-gray-600"
+                  }`}
+                  onClick={() => setTempSelectedCity("all")}
+                  data-testid="city-filter-all"
+                >
+                  <span className="text-white">All cities</span>
+                </div>
+                {DIGITAL_NOMAD_CITIES.map((city) => (
+                  <div
+                    key={city}
+                    className={`p-3 rounded-lg border cursor-pointer ${
+                      tempSelectedCity === city ? "border-white bg-gray-800" : "border-gray-600"
+                    }`}
+                    onClick={() => setTempSelectedCity(city)}
+                    data-testid={`city-filter-${city.toLowerCase().replace(/\s+/g, "-")}`}
+                  >
+                    <span className="text-white">{city}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Gender section */}
+            <div className="space-y-3">
+              <h3 className="text-white font-medium">Gender</h3>
+              <div className="space-y-2">
+                {["all", "male", "female", "other"].map((gender) => (
+                  <div
+                    key={gender}
+                    className={`p-3 rounded-lg border cursor-pointer ${
+                      tempSelectedGender === gender ? "border-white bg-gray-800" : "border-gray-600"
+                    }`}
+                    onClick={() => setTempSelectedGender(gender)}
+                    data-testid={`gender-filter-${gender}`}
+                  >
+                    <span className="text-white capitalize">
+                      {gender === "all" ? "All genders" : gender}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1 border-gray-600 text-white hover:bg-gray-800"
+                onClick={clearAllFilters}
+                data-testid="clear-all-button"
+              >
+                Clear All
+              </Button>
+              <Button
+                className="flex-1 bg-white text-black hover:bg-gray-200"
+                onClick={applyFilters}
+                data-testid="apply-filters-button"
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Bottom Navigation */}
       <BottomNav />
