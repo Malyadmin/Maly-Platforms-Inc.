@@ -940,8 +940,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const result = await uploadToCloudinary(
           req.file.buffer, 
           req.file.originalname, 
-          'image',
-          `profiles/${username}`
+          'image'
         );
         imageUrl = result.secure_url;
         console.log(`Uploaded profile image to Cloudinary: ${imageUrl}`);
@@ -971,6 +970,58 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       return res.status(500).json({ 
         success: false, 
         error: "Failed to upload profile image" 
+      });
+    }
+  });
+
+  // Multiple profile images upload endpoint
+  app.post("/api/upload-profile-images", requireAuth, uploadImage.array('images', 6), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+
+      // Type assertion to access user property safely
+      const user = req.user as { id: number; username?: string };
+      const userId = user.id;
+      const uploadedUrls: string[] = [];
+
+      try {
+        const username = user.username || 'user';
+        
+        // Upload each image to Cloudinary
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          const result = await uploadToCloudinary(
+            file.buffer, 
+            file.originalname, 
+            'image'
+          );
+          uploadedUrls.push(result.secure_url);
+          console.log(`Uploaded profile image ${i + 1} to Cloudinary: ${result.secure_url}`);
+        }
+      } catch (cloudinaryError) {
+        console.error("Error uploading to Cloudinary:", cloudinaryError);
+        return res.status(500).json({ error: "Failed to upload images to Cloudinary" });
+      }
+
+      // Get current user data without updating
+      const currentUser = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+
+      return res.json({ 
+        success: true, 
+        message: `${uploadedUrls.length} profile images uploaded and staged (not saved to profile yet)`,
+        profileImages: uploadedUrls,
+        user: currentUser
+      });
+    } 
+    catch (error) {
+      console.error("Profile images upload error:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload profile images" 
       });
     }
   });
@@ -1804,6 +1855,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         creatorId: currentUser.id,
         isPrivate: req.body.eventPrivacy === 'private',
         requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
+        isRsvp: req.body.eventPrivacy === 'rsvp', // Set isRsvp to true for RSVP events
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
@@ -2879,8 +2931,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         return res.status(404).json({ error: 'Event not found' });
       }
 
-      if (!event.isPrivate) {
-        return res.status(400).json({ error: 'This event is not private and does not require access requests' });
+      if (!event.isPrivate && !event.isRsvp) {
+        return res.status(400).json({ error: 'This event does not require access requests' });
       }
 
       // Check if user is the event creator
@@ -4412,40 +4464,66 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     try {
       const currentUser = req.user as any;
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.id) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
+      const userId = parseInt(currentUser.id);
+      if (isNaN(userId)) {
+        return res.status(401).json({ error: "Invalid user ID" });
+      }
+
       // Fetch all pending applications for events created by the current user
-      const applications = await db.select({
-        id: eventParticipants.id,
-        eventId: eventParticipants.eventId,
-        userId: eventParticipants.userId,
-        status: eventParticipants.status,
-        ticketQuantity: eventParticipants.ticketQuantity,
-        purchaseDate: eventParticipants.purchaseDate,
-        createdAt: eventParticipants.createdAt,
-        // User details
-        username: users.username,
-        fullName: users.fullName,
-        profileImage: users.profileImage,
-        email: users.email,
-        bio: users.bio,
-        location: users.location,
-        // Event details
-        eventTitle: events.title,
-        eventImage: events.image
-      })
-      .from(eventParticipants)
-      .innerJoin(users, eq(eventParticipants.userId, users.id))
-      .innerJoin(events, eq(eventParticipants.eventId, events.id))
-      .where(
-        and(
-          eq(events.creatorId, currentUser.id), // Only events created by current user
-          inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+      const userEvents = await db.select({ id: events.id })
+        .from(events)
+        .where(eq(events.creatorId, userId));
+
+      const eventIds = userEvents.map(e => e.id);
+
+      if (eventIds.length === 0) {
+        return res.json({
+          applications: [],
+          totalPending: 0
+        });
+      }
+
+      // Get pending applications for these events
+      const pendingApplications = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            inArray(eventParticipants.eventId, eventIds),
+            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+          )
         )
-      )
-      .orderBy(desc(eventParticipants.createdAt));
+        .orderBy(desc(eventParticipants.createdAt));
+
+      // Get additional details for each application
+      const applications = [];
+      for (const app of pendingApplications) {
+        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+        const user = userResult[0];
+        const event = eventResult[0];
+        
+        applications.push({
+          id: app.id,
+          eventId: app.eventId,
+          userId: app.userId,
+          status: app.status,
+          ticketQuantity: app.ticketQuantity,
+          purchaseDate: app.purchaseDate,
+          createdAt: app.createdAt,
+          username: user?.username,
+          fullName: user?.fullName,
+          profileImage: user?.profileImage,
+          email: user?.email,
+          bio: user?.bio,
+          location: user?.location,
+          eventTitle: event?.title,
+          eventImage: event?.image
+        });
+      }
 
       return res.json({
         applications,
@@ -4464,7 +4542,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       const eventIdNum = parseInt(eventId);
       const currentUser = req.user as any;
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.id || isNaN(currentUser.id)) {
         return res.status(401).json({ error: "Authentication required" });
       }
 

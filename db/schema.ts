@@ -60,6 +60,7 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at").defaultNow(),
   isPrivate: boolean("is_private").default(false),
   requireApproval: boolean("require_approval").default(false), // For private events requiring access approval
+  isRsvp: boolean("is_rsvp").default(false), // For RSVP events requiring approval
   isBusinessEvent: boolean("is_business_event").default(false),
   tags: jsonb("tags").$type<string[]>().default([]),
   attendingCount: integer("attending_count").default(0),

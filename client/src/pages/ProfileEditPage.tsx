@@ -37,6 +37,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
+import { ProfileGallery } from "@/components/ui/profile-gallery";
 
 const profileSchema = z.object({
   username: z.string().optional(),
@@ -63,7 +64,8 @@ export default function ProfileEditPage() {
   const { user, updateProfile } = useUser();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   
@@ -112,7 +114,15 @@ export default function ProfileEditPage() {
     if (user) {
       if (user.interests) setSelectedInterests(user.interests);
       if (user.currentMoods) setSelectedMoods(user.currentMoods);
-      if (user.profileImage) setImagePreview(user.profileImage);
+      
+      // Initialize image previews from existing profile images
+      const existingImages = user.profileImages || [];
+      if (existingImages.length > 0) {
+        setImagePreviews(existingImages);
+      } else if (user.profileImage) {
+        // Fallback to single profileImage if profileImages is empty
+        setImagePreviews([user.profileImage]);
+      }
       
       form.reset({
         username: user.username,
@@ -131,42 +141,24 @@ export default function ProfileEditPage() {
     }
   }, [user, form]);
 
-  // State to store the selected file for later upload when the user clicks Save
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-
-  // Handle image selection without immediate upload
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
-    // Stage the file for later upload (when user clicks Save)
-    setSelectedImageFile(file);
-    
-    // Show local preview immediately for better UX
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // Store preview in state - but only upload on form submission
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    // Notify user the image is staged but not yet saved
-    toast({
-      title: "Image Selected",
-      description: "Click 'Save' to update your profile with this image.",
-    });
+  // Handle gallery image changes
+  const handleImagesChange = (newImages: File[], newPreviews: string[]) => {
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
   };
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
-      // Step 1: Upload the image first if one was selected
-      let uploadedImageUrl: string | null = null;
+      // Step 1: Upload multiple images if any were selected
+      let uploadedImageUrls: string[] = [];
       
-      if (selectedImageFile) {
-        // Create formData for image upload
+      if (selectedImages.length > 0) {
+        // Create formData for multiple image uploads
         const formData = new FormData();
-        formData.append('image', selectedImageFile);
+        selectedImages.forEach((image, index) => {
+          formData.append(`images`, image);
+        });
         
         // Create headers for auth
         const headers = new Headers();
@@ -175,8 +167,8 @@ export default function ProfileEditPage() {
           headers.append('X-Session-ID', sessionId);
         }
         
-        // Upload the image
-        const imageResponse = await fetch('/api/upload-profile-image', {
+        // Upload the images
+        const imageResponse = await fetch('/api/upload-profile-images', {
           method: 'POST',
           headers,
           credentials: 'include',
@@ -184,24 +176,32 @@ export default function ProfileEditPage() {
         });
         
         if (!imageResponse.ok) {
-          throw new Error('Failed to upload profile image');
+          throw new Error('Failed to upload profile images');
         }
         
         const imageResult = await imageResponse.json();
-        uploadedImageUrl = imageResult.profileImage;
+        uploadedImageUrls = imageResult.profileImages || [];
       }
       
-      // Step 2: Map form values to the API expected format
+      // Step 2: Combine uploaded URLs with existing ones (URLs that weren't files)
+      const finalImageUrls = [
+        ...uploadedImageUrls,
+        ...imagePreviews.filter(preview => !preview.startsWith('data:')) // Keep existing URLs, exclude data URLs
+      ];
+      
+      // Step 3: Map form values to the API expected format
       const profileData = {
         ...data,
         location: data.currentLocation,
         birthLocation: data.birthLocation,
         nextLocation: data.upcomingLocation,
-        // Include the new image URL if we uploaded one
-        ...(uploadedImageUrl && { profileImage: uploadedImageUrl }),
+        // Include the new image URLs
+        profileImages: finalImageUrls,
+        // Set first image as main profile image for backward compatibility
+        ...(finalImageUrls.length > 0 && { profileImage: finalImageUrls[0] }),
       };
 
-      // Step 3: Update the profile with all data
+      // Step 4: Update the profile with all data
       await updateProfile(profileData);
 
       toast({
@@ -209,8 +209,8 @@ export default function ProfileEditPage() {
         description: "Your profile has been successfully updated.",
       });
       
-      // Clear the selected image file state since we've now processed it
-      setSelectedImageFile(null);
+      // Clear the selected images state since we've now processed them
+      setSelectedImages([]);
       
       // Redirect to profile page with username
       setLocation(`/profile/${user?.username}`);
@@ -251,32 +251,17 @@ export default function ProfileEditPage() {
         <div className="max-w-2xl mx-auto">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <Card className="p-6 bg-black border-gray-800">
+                {/* Profile Gallery Section */}
+                <ProfileGallery
+                  images={selectedImages}
+                  imagePreviews={imagePreviews}
+                  onImagesChange={handleImagesChange}
+                  maxImages={6}
+                />
+              </Card>
+
               <Card className="p-6">
-                {/* Profile Image Section */}
-                <div className="flex flex-col items-center mb-8">
-                  <div className="relative mb-4">
-                    <Avatar className="w-24 h-24">
-                      <AvatarImage src={imagePreview || "/attached_assets/profile-image-1.jpg"} />
-                      <AvatarFallback>{user?.fullName?.charAt(0) || user?.username?.charAt(0) || "U"}</AvatarFallback>
-                    </Avatar>
-                    <label 
-                      htmlFor="profile-image" 
-                      className="absolute bottom-0 right-0 rounded-full bg-primary hover:bg-primary/90 p-1.5 cursor-pointer"
-                    >
-                      <Camera className="w-4 h-4" />
-                      <input
-                        id="profile-image"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById('profile-image')?.click()}>
-                    {t("changePhoto")}
-                  </Button>
-                </div>
 
                 {/* Basic Information */}
                 <div className="space-y-6">

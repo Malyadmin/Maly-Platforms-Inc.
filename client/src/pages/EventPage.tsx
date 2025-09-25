@@ -31,6 +31,7 @@ const EventSchema = z.object({
   creatorId: z.number().nullable(),
   tags: z.array(z.string()).nullable(),
   isPrivate: z.boolean().optional(),
+  isRsvp: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
   creator: z.object({
     id: z.number(),
@@ -110,7 +111,7 @@ export default function EventPage() {
   // Get current participation status
   const { data: participationStatus } = useQuery({
     queryKey: [`/api/events/${id}/participation/status`],
-    enabled: !!user && !!event && !event.isPrivate, // Only check for public events
+    enabled: !!user && !!event && !event.isPrivate && !event.isRsvp, // Only check for public events
     queryFn: async () => {
       const response = await fetch(`/api/events/${id}/participation/status`, {
         credentials: 'include'
