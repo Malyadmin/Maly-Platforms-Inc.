@@ -81,7 +81,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
 
   return (
     <div 
-      className={`relative bg-gray-900 rounded-lg overflow-hidden cursor-pointer ${className}`}
+      className={`relative bg-gray-900 overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
       data-testid={`large-profile-view-${user.id}`}
       style={{ height: 'calc(50vh - 2rem)' }}

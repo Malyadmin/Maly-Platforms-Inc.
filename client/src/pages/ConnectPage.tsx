@@ -261,7 +261,6 @@ export function ConnectPage() {
                 <div className="pt-6">
                   <LargeProfileView
                     user={getCurrentUser()!}
-                    onClick={() => handleUserClick(getCurrentUser()!)}
                     onConnect={() => {
                       // TODO: Implement connect functionality
                       console.log("Connect clicked for user:", getCurrentUser()!.username);
@@ -313,12 +312,16 @@ export function ConnectPage() {
                 {(users || []).slice(0, 16).map((user) => (
                   <div
                     key={user.id}
-                    className="aspect-square"
-                    data-testid={`grid-user-card-${user.id}`}
+                    className="h-80"
+                    data-testid={`grid-profile-view-${user.id}`}
                   >
-                    <UserCard
+                    <LargeProfileView
                       user={user}
-                      onClick={() => handleUserClick(user)}
+                      onConnect={() => {
+                        // TODO: Implement connect functionality
+                        console.log("Connect clicked for user:", user.username);
+                      }}
+                      className="h-full"
                     />
                   </div>
                 ))}
