@@ -4464,7 +4464,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     try {
       const currentUser = req.user as any;
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.id || isNaN(currentUser.id)) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
@@ -4516,7 +4516,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       const eventIdNum = parseInt(eventId);
       const currentUser = req.user as any;
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.id || isNaN(currentUser.id)) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
