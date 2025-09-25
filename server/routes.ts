@@ -1855,6 +1855,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         creatorId: currentUser.id,
         isPrivate: req.body.eventPrivacy === 'private',
         requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
+        isRsvp: req.body.eventPrivacy === 'rsvp', // Set isRsvp to true for RSVP events
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
