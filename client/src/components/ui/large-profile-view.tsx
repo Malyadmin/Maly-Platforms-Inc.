@@ -81,10 +81,8 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
 
   return (
     <div 
-      className={`relative bg-gray-900 overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}`}
-      onClick={onClick}
+      className={`relative bg-gray-900 overflow-hidden aspect-square w-full max-h-[calc(100vh-8rem)] ${className}`}
       data-testid={`large-profile-view-${user.id}`}
-      style={{ height: 'calc(50vh - 2rem)' }}
     >
       {/* Main Image */}
       <div className="relative w-full h-full">
@@ -92,7 +90,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           <img 
             src={currentImage} 
             alt={displayName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
         ) : (
           <div className="w-full h-full bg-gray-700 flex items-center justify-center">
@@ -135,42 +133,41 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
         )}
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
         {/* Profile Info Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <div className="flex items-end justify-between">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-1">{displayName}</h2>
-              {user.age && (
-                <p className="text-lg text-white/90 mb-2">{user.age} years old</p>
-              )}
+          {/* Main Profile Info */}
+          <div className="mb-4">
+            <h2 className="text-3xl font-bold mb-2">{displayName}</h2>
+            <div className="flex items-center gap-4 text-lg text-white/90">
+              {user.age && <span>{user.age}</span>}
               {user.location && (
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="h-4 w-4 text-white/80" />
-                  <span className="text-white/90">{user.location}</span>
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  <span>{user.location}</span>
                 </div>
               )}
-              {user.profession && (
-                <p className="text-white/80 mb-3">{user.profession}</p>
-              )}
             </div>
-
-            {/* Connect Button */}
-            <Button
-              onClick={handleConnect}
-              className="bg-white text-black hover:bg-gray-200 font-semibold px-6 py-2 rounded-full"
-              data-testid={`connect-button-${user.id}`}
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Connect
-            </Button>
+            {user.profession && (
+              <p className="text-white/80 mt-2">{user.profession}</p>
+            )}
           </div>
+
+          {/* Connect Button */}
+          <Button
+            onClick={handleConnect}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl mb-4"
+            data-testid={`connect-button-${user.id}`}
+          >
+            <Heart className="w-5 h-5 mr-2" />
+            Connect
+          </Button>
 
           {/* More Info Toggle */}
           <button
             onClick={toggleMoreInfo}
-            className="flex items-center gap-2 mt-4 text-white/80 hover:text-white transition-colors"
+            className="w-full flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors py-2"
             data-testid={`more-info-toggle-${user.id}`}
           >
             <span>More info</span>
@@ -183,13 +180,13 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
         </div>
       </div>
 
-      {/* Expandable More Info Section */}
-      {showMoreInfo && (
-        <div 
-          className="absolute bottom-0 left-0 right-0 bg-black/95 backdrop-blur-sm p-6 transform transition-transform duration-300 ease-out"
-          style={{ transform: 'translateY(0)' }}
-          data-testid={`more-info-section-${user.id}`}
-        >
+      {/* Slide-up More Info Drawer */}
+      <div 
+        className={`absolute bottom-0 left-0 right-0 bg-black/95 backdrop-blur-sm p-6 transform transition-transform duration-300 ease-out ${
+          showMoreInfo ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        data-testid={`more-info-section-${user.id}`}
+      >
           <div className="space-y-4 text-white">
             {user.bio && (
               <div>
@@ -230,7 +227,6 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
             )}
           </div>
         </div>
-      )}
     </div>
   );
 }
