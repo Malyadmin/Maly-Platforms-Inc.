@@ -258,15 +258,17 @@ export function ConnectPage() {
                 )}
 
                 {/* Large Profile View */}
-                <div className="pt-6">
-                  <LargeProfileView
-                    user={getCurrentUser()!}
-                    onConnect={() => {
-                      // TODO: Implement connect functionality
-                      console.log("Connect clicked for user:", getCurrentUser()!.username);
-                    }}
-                    data-testid={`large-profile-view-${getCurrentUser()!.id}`}
-                  />
+                <div className="flex justify-center pt-6">
+                  <div className="w-full max-w-md">
+                    <LargeProfileView
+                      user={getCurrentUser()!}
+                      onConnect={() => {
+                        // TODO: Implement connect functionality
+                        console.log("Connect clicked for user:", getCurrentUser()!.username);
+                      }}
+                      data-testid={`large-profile-view-${getCurrentUser()!.id}`}
+                    />
+                  </div>
                 </div>
 
                 {/* User indicator */}
@@ -306,13 +308,13 @@ export function ConnectPage() {
               <User className="h-5 w-5 text-white" />
             </button>
 
-            {/* 4x4 Grid */}
+            {/* 2x2 Grid */}
             <div className="pt-6">
-              <div className="grid grid-cols-2 gap-3">
-                {(users || []).slice(0, 16).map((user) => (
+              <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                {(users || []).slice(0, 4).map((user) => (
                   <div
                     key={user.id}
-                    className="h-80"
+                    className="aspect-square"
                     data-testid={`grid-profile-view-${user.id}`}
                   >
                     <LargeProfileView
