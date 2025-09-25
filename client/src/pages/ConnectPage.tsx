@@ -10,6 +10,7 @@ import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 
 // User interface matching the existing ConnectPage User type
@@ -275,50 +276,40 @@ export function ConnectPage() {
             {/* Singles near me section */}
             <div className="space-y-3">
               <h3 className="text-white font-medium">Singles near me</h3>
-              <div className="space-y-2">
-                <div
-                  className={`p-3 rounded-lg border cursor-pointer ${
-                    tempSelectedCity === "all" ? "border-white bg-gray-800" : "border-gray-600"
-                  }`}
-                  onClick={() => setTempSelectedCity("all")}
-                  data-testid="city-filter-all"
-                >
-                  <span className="text-white">All cities</span>
-                </div>
-                {DIGITAL_NOMAD_CITIES.map((city) => (
-                  <div
-                    key={city}
-                    className={`p-3 rounded-lg border cursor-pointer ${
-                      tempSelectedCity === city ? "border-white bg-gray-800" : "border-gray-600"
-                    }`}
-                    onClick={() => setTempSelectedCity(city)}
-                    data-testid={`city-filter-${city.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    <span className="text-white">{city}</span>
-                  </div>
-                ))}
-              </div>
+              <Select value={tempSelectedCity} onValueChange={setTempSelectedCity}>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="city-filter-select">
+                  <SelectValue placeholder="Select a city" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="all" className="text-white hover:bg-gray-700">All cities</SelectItem>
+                  {DIGITAL_NOMAD_CITIES.map((city) => (
+                    <SelectItem 
+                      key={city} 
+                      value={city} 
+                      className="text-white hover:bg-gray-700"
+                      data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Gender section */}
             <div className="space-y-3">
               <h3 className="text-white font-medium">Gender</h3>
-              <div className="space-y-2">
-                {["all", "male", "female", "other"].map((gender) => (
-                  <div
-                    key={gender}
-                    className={`p-3 rounded-lg border cursor-pointer ${
-                      tempSelectedGender === gender ? "border-white bg-gray-800" : "border-gray-600"
-                    }`}
-                    onClick={() => setTempSelectedGender(gender)}
-                    data-testid={`gender-filter-${gender}`}
-                  >
-                    <span className="text-white capitalize">
-                      {gender === "all" ? "All genders" : gender}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <Select value={tempSelectedGender} onValueChange={setTempSelectedGender}>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="gender-filter-select">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="all" className="text-white hover:bg-gray-700">All genders</SelectItem>
+                  <SelectItem value="male" className="text-white hover:bg-gray-700">Male</SelectItem>
+                  <SelectItem value="female" className="text-white hover:bg-gray-700">Female</SelectItem>
+                  <SelectItem value="other" className="text-white hover:bg-gray-700">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Action buttons */}
