@@ -51,7 +51,14 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <div className="text-center">
           <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
         </div>
-        <div className="w-12"></div>
+        <button
+          type="submit"
+          form="step1-form"
+          className="text-white font-medium"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
 
       {/* Content */}
@@ -113,23 +120,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
 
         {/* Bottom spacing for mobile */}
         <div className="h-20"></div>
-      </div>
-
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          type="submit"
-          form="step1-form"
-          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
-          data-testid="button-next-bottom"
-        >
-          next
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -242,7 +232,13 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="text-center">
           <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
         </div>
-        <div className="w-12"></div>
+        <button
+          onClick={onSubmit}
+          className="text-white font-medium"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
 
       {/* Content */}
