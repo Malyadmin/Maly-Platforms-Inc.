@@ -642,10 +642,10 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* 4x4 Grid */}
+            {/* 2x2 Grid */}
             <div className="pt-6 px-5">
-              <div className="grid grid-cols-4 gap-2">
-                {(users || []).slice(0, 16).map((user, index) => (
+              <div className="grid grid-cols-2 gap-4">
+                {(users || []).slice(0, 4).map((user, index) => (
                   <div
                     key={user.id}
                     className="aspect-square"
@@ -662,7 +662,7 @@ export function ConnectPage() {
                   </div>
                 ))}
                 {(!users || users.length === 0) && (
-                  <div className="col-span-4 text-center py-8">
+                  <div className="col-span-2 text-center py-8">
                     <span className="text-gray-400">No users found</span>
                   </div>
                 )}
