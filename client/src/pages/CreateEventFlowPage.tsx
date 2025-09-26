@@ -13,6 +13,7 @@ import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Cloc
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -61,6 +62,9 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           Next
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.BasicInfo} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-8">
@@ -244,6 +248,9 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
           Next
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.Gallery} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
@@ -446,6 +453,9 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           Next
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.EventDetails} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
@@ -706,6 +716,9 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           Next
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.EventSpecifics} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
@@ -841,6 +854,9 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           Next
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.PricingAudience} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
@@ -1001,6 +1017,9 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           Create
         </button>
       </div>
+      
+      {/* Progress Bar */}
+      <ProgressBar currentStep={EventCreationStep.AudienceTargeting} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
