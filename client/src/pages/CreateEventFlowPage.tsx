@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -121,6 +122,9 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         {/* Bottom spacing for mobile */}
         <div className="h-20"></div>
       </div>
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
@@ -340,7 +344,9 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         {/* Bottom spacing for mobile */}
         <div className="h-20"></div>
       </div>
-
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
@@ -637,7 +643,9 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         {/* Bottom spacing */}
         <div className="h-20"></div>
       </div>
-
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
@@ -773,7 +781,9 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         {/* Bottom spacing */}
         <div className="h-20"></div>
       </div>
-
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
@@ -915,7 +925,9 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         {/* Bottom spacing */}
         <div className="h-20"></div>
       </div>
-
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
@@ -1149,7 +1161,9 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         {/* Bottom spacing */}
         <div className="h-20"></div>
       </div>
-
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
