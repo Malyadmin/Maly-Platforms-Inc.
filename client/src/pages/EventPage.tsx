@@ -423,6 +423,28 @@ export default function EventPage() {
                 </div>
                 
                 <div className="flex flex-col gap-3">
+                  {/* Purchase button for paid events */}
+                  {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 && (
+                    <Button 
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                      onClick={() => purchaseTicketMutation.mutate({ eventId: event.id })}
+                      disabled={purchaseTicketMutation.isPending}
+                      data-testid="button-purchase-ticket"
+                    >
+                      {purchaseTicketMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase Ticket - ${event.price}
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  
                   <Button 
                     className={`w-full ${
                       participationStatus?.status === 'attending' 
