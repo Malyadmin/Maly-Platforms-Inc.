@@ -51,14 +51,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <div className="text-center">
           <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
         </div>
-        <button
-          type="submit"
-          form="step1-form"
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        <div className="w-12"></div>
       </div>
 
       {/* Content */}
@@ -249,13 +242,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="text-center">
           <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
         </div>
-        <button
-          onClick={onSubmit}
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        <div className="w-12"></div>
       </div>
 
       {/* Content */}
