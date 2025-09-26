@@ -162,13 +162,8 @@ struct InboxView: View {
     // MARK: - Header Section
     private var headerSection: some View {
         VStack(spacing: 0) {
-            // Top header with MALY
+            // Top header with MALY centered
             HStack {
-                Text("Inbox")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                
                 Spacer()
                 
                 Text("MALY")
@@ -178,11 +173,6 @@ struct InboxView: View {
                     .tracking(2)
                 
                 Spacer()
-                
-                // Placeholder for balance
-                Text("")
-                    .font(.headline)
-                    .fontWeight(.medium)
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
