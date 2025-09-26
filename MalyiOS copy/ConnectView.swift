@@ -120,16 +120,8 @@ struct ConnectView: View {
                 // Like-vibe section header
                 likeVibeSection
                 
-                // Featured large profile
-                if let featuredUser = connectViewModel.nearbyUsers.first {
-                    featuredProfileSection(user: featuredUser)
-                }
-                
-                // People with common interests section
-                commonInterestsSection
-                
-                // Other members section  
-                otherMembersSection
+                // 4x4 Grid of all users as main content
+                mainGridSection
             }
         }
         .refreshable {
@@ -165,6 +157,24 @@ struct ConnectView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
+    }
+    
+    private var mainGridSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 4x4 Grid of all users
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 8) {
+                ForEach(connectViewModel.nearbyUsers.prefix(16), id: \.id) { user in
+                    gridUserItem(user: user)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.top, 24)
     }
     
     private func featuredProfileSection(user: ConnectUser) -> some View {
