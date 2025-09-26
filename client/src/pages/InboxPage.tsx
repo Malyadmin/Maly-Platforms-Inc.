@@ -225,10 +225,15 @@ export default function InboxPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="flex items-center justify-center py-4 border-b border-gray-800">
-        <h1 className="text-white font-semibold text-lg" data-testid="inbox-title">Inbox</h1>
-        <div className="absolute right-4">
-          <h2 className="text-white font-bold text-xl tracking-wider">MALY</h2>
+      <div className="py-4 border-b border-gray-800">
+        {/* MALY centered at top */}
+        <div className="flex justify-center pb-3">
+          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+        </div>
+        
+        {/* Inbox title on left */}
+        <div className="px-5">
+          <h2 className="text-white text-lg font-medium" data-testid="inbox-title">Inbox</h2>
         </div>
       </div>
 
