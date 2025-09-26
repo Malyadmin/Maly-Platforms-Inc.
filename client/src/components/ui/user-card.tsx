@@ -29,9 +29,10 @@ interface UserCardProps {
   user: User;
   onClick?: () => void;
   className?: string;
+  variant?: 'horizontal' | 'grid';
 }
 
-export function UserCard({ user, onClick, className = "" }: UserCardProps) {
+export function UserCard({ user, onClick, className = "", variant = 'horizontal' }: UserCardProps) {
   const displayName = user.fullName || user.username;
   const initials = displayName
     ?.split(' ')
@@ -62,6 +63,52 @@ export function UserCard({ user, onClick, className = "" }: UserCardProps) {
 
   const currentImage = images[currentImageIndex];
 
+  if (variant === 'grid') {
+    return (
+      <div 
+        className={`relative w-full h-full cursor-pointer transition-transform hover:scale-105 ${className}`}
+        onClick={onClick}
+        data-testid={`user-card-${user.id}`}
+      >
+        {/* Square Profile Image */}
+        <div className="relative w-full h-full">
+          {currentImage ? (
+            <img 
+              src={currentImage} 
+              alt={displayName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+              <div className="text-4xl font-bold text-white/40">
+                {initials}
+              </div>
+            </div>
+          )}
+          
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          
+          {/* User Info Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-2">
+            <h3 className="text-white font-semibold text-sm leading-tight truncate">
+              {displayName}
+            </h3>
+            {user.location && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <MapPin className="h-2.5 w-2.5 text-gray-300" />
+                <span className="text-gray-300 text-xs truncate">
+                  {user.location}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default horizontal layout
   return (
     <div 
       className={`flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer ${className}`}
