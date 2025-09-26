@@ -341,22 +341,6 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="h-20"></div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          onClick={onSubmit}
-          disabled={selectedImages.length === 0}
-          className="w-full bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 rounded-full py-4 text-lg font-medium"
-          data-testid="button-next-bottom"
-        >
-          next
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -654,22 +638,6 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <div className="h-20"></div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          type="submit"
-          form="step3-form"
-          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
-          data-testid="button-next-bottom"
-        >
-          next
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -806,22 +774,6 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <div className="h-20"></div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          type="submit"
-          form="step4-form"
-          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
-          data-testid="button-next-bottom"
-        >
-          next
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -964,22 +916,6 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <div className="h-20"></div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          type="submit"
-          form="step5-form"
-          className="w-full bg-white text-black hover:bg-gray-200 rounded-full py-4 text-lg font-medium"
-          data-testid="button-next-bottom"
-        >
-          next
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -1214,22 +1150,6 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <div className="h-20"></div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black">
-        <Button
-          type="submit"
-          form="step6-form"
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 rounded-full py-4 text-lg font-medium"
-          data-testid="button-create-event"
-        >
-          Create Event
-        </Button>
-        <div className="text-center mt-4">
-          <button className="text-gray-400 text-sm">
-            Save as draft
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
