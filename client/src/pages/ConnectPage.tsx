@@ -645,55 +645,29 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* Enhanced 2-Column Grid */}
-            <div className="pt-8 px-4 pb-24">
-              {isLoading ? (
-                /* Loading skeleton */
-                <div className="grid grid-cols-2 gap-4">
-                  {Array.from({ length: 6 }, (_, i) => (
-                    <div key={i} className="aspect-square bg-gray-800/50 animate-pulse rounded-2xl" />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {(users || []).map((user, index) => (
-                    <div
-                      key={user.id}
-                      className="aspect-square"
-                      data-testid={`grid-user-card-${user.id}`}
-                      style={{
-                        animationDelay: `${index * 50}ms`
-                      }}
-                    >
-                      <UserCard
-                        user={user}
-                        onClick={() => handleUserClick(user)}
-                        className="h-full animate-in fade-in-50 slide-in-from-bottom-4 duration-500"
-                        variant="grid"
-                      />
-                    </div>
-                  ))}
-                  {(!users || users.length === 0) && !isLoading && (
-                    <div className="col-span-2 text-center py-12">
-                      <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800">
-                        <User className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                        <span className="text-gray-400 text-lg">No users found</span>
-                        <p className="text-gray-500 text-sm mt-2">Try adjusting your filters or check back later</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Scroll indicator for large lists */}
-              {users && users.length > 12 && (
-                <div className="text-center mt-6">
-                  <div className="inline-flex items-center gap-2 bg-gray-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-800">
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-                    <span className="text-gray-400 text-sm">{users.length} people nearby</span>
+            {/* 2-Column Grid */}
+            <div className="pt-6 px-3">
+              <div className="grid grid-cols-2 gap-3">
+                {(users || []).map((user, index) => (
+                  <div
+                    key={user.id}
+                    className="aspect-square"
+                    data-testid={`grid-user-card-${user.id}`}
+                  >
+                    <UserCard
+                      user={user}
+                      onClick={() => handleUserClick(user)}
+                      className="h-full"
+                      variant="grid"
+                    />
                   </div>
-                </div>
-              )}
+                ))}
+                {(!users || users.length === 0) && (
+                  <div className="col-span-2 text-center py-8">
+                    <span className="text-gray-400">No users found</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

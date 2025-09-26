@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, ChevronLeft, ChevronRight, Briefcase } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 
 // User interface matching the one used in ConnectPage
 interface User {
@@ -66,77 +66,43 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
   if (variant === 'grid') {
     return (
       <div 
-        className={`relative w-full h-full cursor-pointer group ${className}`}
+        className={`relative w-full h-full cursor-pointer transition-transform hover:scale-105 ${className}`}
         onClick={onClick}
         data-testid={`user-card-${user.id}`}
       >
-        {/* Card Container with rounded corners and border */}
-        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm transition-all duration-300 group-hover:scale-[1.02] group-hover:border-white/20 group-hover:shadow-xl group-hover:shadow-purple-500/10">
-          {/* Profile Image */}
-          <div className="relative w-full h-[70%]">
-            {currentImage ? (
-              <img 
-                src={currentImage} 
-                alt={displayName}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-600/80 via-blue-600/80 to-indigo-700/80 flex items-center justify-center">
-                <div className="text-3xl font-bold text-white/80">
-                  {initials}
-                </div>
+        {/* Square Profile Image */}
+        <div className="relative w-full h-full">
+          {currentImage ? (
+            <img 
+              src={currentImage} 
+              alt={displayName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+              <div className="text-4xl font-bold text-white/40">
+                {initials}
               </div>
-            )}
-            
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            
-            {/* Multiple images indicator */}
-            {hasMultipleImages && (
-              <div className="absolute top-3 right-3 flex gap-1">
-                {images.slice(0, 3).map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                      index === currentImageIndex ? "bg-white" : "bg-white/40"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
           
-          {/* User Info Section */}
-          <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-black/90 via-black/70 to-transparent p-3 flex flex-col justify-end">
-            <h3 className="text-white font-semibold text-base leading-tight truncate mb-1">
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          
+          {/* User Info Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-2">
+            <h3 className="text-white font-semibold text-sm leading-tight truncate">
               {displayName}
             </h3>
-            
-            <div className="space-y-1">
-              {user.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3 text-gray-300 flex-shrink-0" />
-                  <span className="text-gray-300 text-xs truncate">
-                    {user.location}
-                  </span>
-                </div>
-              )}
-              
-              {user.profession && (
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 flex-shrink-0 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-                  </div>
-                  <span className="text-gray-400 text-xs truncate">
-                    {user.profession}
-                  </span>
-                </div>
-              )}
-            </div>
+            {user.location && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <MapPin className="h-2.5 w-2.5 text-gray-300" />
+                <span className="text-gray-300 text-xs truncate">
+                  {user.location}
+                </span>
+              </div>
+            )}
           </div>
-          
-          {/* Hover effect overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       </div>
     );
