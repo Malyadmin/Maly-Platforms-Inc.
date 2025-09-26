@@ -658,6 +658,7 @@ export function ConnectPage() {
                         setViewMode("single");
                       }}
                       className="h-full"
+                      variant="grid"
                     />
                   </div>
                 ))}
