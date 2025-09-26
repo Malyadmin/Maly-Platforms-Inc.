@@ -93,42 +93,7 @@ export default function DiscoverPage() {
     const matchesEventTypes = selectedEventTypes.length === 0 ||
                              event.tags?.some(tag => selectedEventTypes.includes(tag));
     
-    // Time filtering
-    let matchesTime = true;
-    if (selectedTimeFilter !== 'Anytime') {
-      const eventDate = new Date(event.date);
-      const eventStartOfDay = new Date(eventDate);
-      eventStartOfDay.setHours(0, 0, 0, 0);
-      
-      if (selectedTimeFilter === 'Today') {
-        matchesTime = eventStartOfDay.getTime() === startOfToday.getTime();
-      } else if (selectedTimeFilter === 'This Week') {
-        matchesTime = eventStartOfDay.getTime() > startOfToday.getTime() && eventStartOfDay.getTime() <= endOfThisWeek.getTime();
-      } else if (selectedTimeFilter === 'This Weekend') {
-        const startOfThisWeekend = new Date(startOfToday);
-        const endOfThisWeekend = new Date(startOfToday);
-        
-        // Calculate this weekend (Saturday-Sunday)
-        const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
-        if (daysUntilSaturday === 0 && dayOfWeek === 6) {
-          // Today is Saturday
-          startOfThisWeekend.setDate(startOfToday.getDate());
-        } else if (dayOfWeek === 0) {
-          // Today is Sunday
-          startOfThisWeekend.setDate(startOfToday.getDate());
-        } else {
-          // Calculate upcoming Saturday
-          startOfThisWeekend.setDate(startOfToday.getDate() + daysUntilSaturday);
-        }
-        
-        endOfThisWeekend.setDate(startOfThisWeekend.getDate() + 1);
-        endOfThisWeekend.setHours(23, 59, 59, 999);
-        
-        matchesTime = eventStartOfDay.getTime() >= startOfThisWeekend.getTime() && eventStartOfDay.getTime() <= endOfThisWeekend.getTime();
-      }
-    }
-    
-    return matchesSearch && matchesCategory && matchesEventTypes && matchesTime;
+    return matchesSearch && matchesCategory && matchesEventTypes;
   });
 
   // Date utilities for categorizing events
@@ -255,8 +220,7 @@ export default function DiscoverPage() {
   };
 
   // Create a flattened list of all filtered events for display count
-  const allFilteredEvents = [...filteredEvents];
-  const hasMoreEvents = allFilteredEvents.length > displayCount;
+  const hasMoreEvents = filteredEvents.length > displayCount;
   
   // Load more events when scrolling to the bottom
   const loadMoreEvents = useCallback(() => {
@@ -477,7 +441,7 @@ export default function DiscoverPage() {
           
           {/* Event count */}
           <div className="text-white/70 text-sm">
-            {allFilteredEvents.length} {allFilteredEvents.length === 1 ? 'event' : 'events'} found
+            {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
           </div>
         </div>
         
@@ -573,103 +537,149 @@ export default function DiscoverPage() {
               </div>
             ) : (
               <div className="space-y-10">
-                {/* Today's Events Section */}
-                {groupedEvents.todayOnly.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.todayOnly.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* This Week Section */}
-                {groupedEvents.thisWeek.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.thisWeek.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* This Weekend Section */}
-                {groupedEvents.thisWeekend.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.thisWeekend.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Next Week Section */}
-                {groupedEvents.nextWeek.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.nextWeek.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {selectedTimeFilter === 'Anytime' ? (
+                  // Show all time-based sections when "Anytime" is selected
+                  <>
+                    {/* Today's Events Section */}
+                    {groupedEvents.todayOnly.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.todayOnly.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* This Week Section */}
+                    {groupedEvents.thisWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* This Weekend Section */}
+                    {groupedEvents.thisWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Next Week Section */}
+                    {groupedEvents.nextWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.nextWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                
-                {/* Next Weekend Section */}
-                {groupedEvents.nextWeekend.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.nextWeekend.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                    {/* Next Weekend Section */}
+                    {groupedEvents.nextWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.nextWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {/* This Month Section */}
-                {groupedEvents.month.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.month.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                    {/* This Month Section */}
+                    {groupedEvents.month.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.month.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {/* Upcoming Events Section */}
-                {groupedEvents.upcoming.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.upcoming.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
+                    {/* Upcoming Events Section */}
+                    {groupedEvents.upcoming.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.upcoming.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Show only the selected time period
+                  <>
+                    {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.todayOnly.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* No Events Message */}
