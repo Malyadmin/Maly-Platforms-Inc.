@@ -645,10 +645,10 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* 2x2 Grid */}
+            {/* 2-Column Grid */}
             <div className="pt-6 px-3">
               <div className="grid grid-cols-2 gap-3">
-                {(users || []).slice(0, 4).map((user, index) => (
+                {(users || []).map((user, index) => (
                   <div
                     key={user.id}
                     className="aspect-square"
