@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/lib/translations';
+import { BottomNav } from '@/components/ui/bottom-nav';
 
 interface ConnectionRequest {
   id: number;
@@ -357,6 +358,9 @@ export default function InboxPage() {
           </div>
         </div>
       )}
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

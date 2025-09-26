@@ -80,8 +80,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage and ConnectPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect');
+  // Exclude DiscoverPage, ConnectPage, and InboxPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox');
 
   return (
     <>
@@ -128,6 +128,7 @@ function AppContent() {
           <Route path="/" component={() => <Redirect to="/discover" />} />
           <Route path="/discover" component={DiscoverPage} />
           <Route path="/connect" component={ConnectPage} />
+          <Route path="/inbox" component={InboxPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
