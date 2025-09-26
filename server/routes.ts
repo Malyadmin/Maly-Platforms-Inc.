@@ -1377,6 +1377,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     try {
       const { id } = req.params;
       const eventId = parseInt(id);
+      
+      // Validate eventId
+      if (isNaN(eventId) || eventId > Number.MAX_SAFE_INTEGER) {
+        return res.status(400).json({ error: "Invalid event ID format" });
+      }
+      
       const currentUserId = req.user?.id;
 
       // Try to get event from the database

@@ -656,10 +656,7 @@ export function ConnectPage() {
                   >
                     <UserCard
                       user={user}
-                      onClick={() => {
-                        setCurrentUserIndex(index);
-                        setViewMode("single");
-                      }}
+                      onClick={() => handleUserClick(user)}
                       className="h-full"
                       variant="grid"
                     />
