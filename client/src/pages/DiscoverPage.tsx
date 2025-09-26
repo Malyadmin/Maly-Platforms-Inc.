@@ -438,11 +438,6 @@ export default function DiscoverPage() {
               <Search className="h-6 w-6" />
             </Button>
           </div>
-          
-          {/* Event count */}
-          <div className="text-white/70 text-sm">
-            {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
-          </div>
         </div>
         
         {/* Search Bar (conditionally shown) */}
