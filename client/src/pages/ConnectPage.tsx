@@ -300,7 +300,10 @@ export function ConnectPage() {
         
         {/* Controls section */}
         <div className="px-5 pb-4">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            {/* Connect title */}
+            <h2 className="text-white text-lg font-medium">Connect</h2>
+            
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
               <button 
