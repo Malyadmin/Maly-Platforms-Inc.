@@ -71,6 +71,7 @@ export default function DiscoverPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   // Removed dateFilter state, as we'll always show all events organized by date
@@ -92,7 +93,42 @@ export default function DiscoverPage() {
     const matchesEventTypes = selectedEventTypes.length === 0 ||
                              event.tags?.some(tag => selectedEventTypes.includes(tag));
     
-    return matchesSearch && matchesCategory && matchesEventTypes;
+    // Time filtering
+    let matchesTime = true;
+    if (selectedTimeFilter !== 'Anytime') {
+      const eventDate = new Date(event.date);
+      const eventStartOfDay = new Date(eventDate);
+      eventStartOfDay.setHours(0, 0, 0, 0);
+      
+      if (selectedTimeFilter === 'Today') {
+        matchesTime = eventStartOfDay.getTime() === startOfToday.getTime();
+      } else if (selectedTimeFilter === 'This Week') {
+        matchesTime = eventStartOfDay.getTime() > startOfToday.getTime() && eventStartOfDay.getTime() <= endOfThisWeek.getTime();
+      } else if (selectedTimeFilter === 'This Weekend') {
+        const startOfThisWeekend = new Date(startOfToday);
+        const endOfThisWeekend = new Date(startOfToday);
+        
+        // Calculate this weekend (Saturday-Sunday)
+        const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
+        if (daysUntilSaturday === 0 && dayOfWeek === 6) {
+          // Today is Saturday
+          startOfThisWeekend.setDate(startOfToday.getDate());
+        } else if (dayOfWeek === 0) {
+          // Today is Sunday
+          startOfThisWeekend.setDate(startOfToday.getDate());
+        } else {
+          // Calculate upcoming Saturday
+          startOfThisWeekend.setDate(startOfToday.getDate() + daysUntilSaturday);
+        }
+        
+        endOfThisWeekend.setDate(startOfThisWeekend.getDate() + 1);
+        endOfThisWeekend.setHours(23, 59, 59, 999);
+        
+        matchesTime = eventStartOfDay.getTime() >= startOfThisWeekend.getTime() && eventStartOfDay.getTime() <= endOfThisWeekend.getTime();
+      }
+    }
+    
+    return matchesSearch && matchesCategory && matchesEventTypes && matchesTime;
   });
 
   // Date utilities for categorizing events
@@ -316,10 +352,11 @@ export default function DiscoverPage() {
                 {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
                   <Button
                     key={time}
-                    variant={time === 'Anytime' ? 'default' : 'outline'}
+                    variant={selectedTimeFilter === time ? 'default' : 'outline'}
                     size="sm"
+                    onClick={() => setSelectedTimeFilter(time)}
                     className={`rounded-full ${
-                      time === 'Anytime' 
+                      selectedTimeFilter === time 
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'border-gray-600 text-white hover:bg-gray-800'
                     }`}
@@ -361,116 +398,28 @@ export default function DiscoverPage() {
                 <h3 className="text-white font-medium">Vibes</h3>
               </div>
               
-              {/* Wellness & Movement */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Wellness & Movement</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Wellness', 'Movement', 'Fitness', 'Yoga', 'Meditation', 'Mindfulness'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Social & Entertainment */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Social & Entertainment</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Nightlife', 'Social', 'Networking', 'Dating', 'Party', 'Music'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Learning & Culture */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Learning & Culture</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Learning', 'Cultural', 'Educational', 'Art', 'Creative', 'Tech'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Adventure & Travel */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Adventure & Travel</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Adventure', 'Travel', 'Outdoor', 'Day Trip', 'Excursions', 'Active'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
+              <div className="flex flex-wrap gap-2">
+                {VIBE_AND_MOOD_TAGS.map((vibe) => (
+                  <Button
+                    key={vibe}
+                    variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedEventTypes(prev => 
+                        prev.includes(vibe) 
+                          ? prev.filter(t => t !== vibe)
+                          : [...prev, vibe]
+                      );
+                    }}
+                    className={`rounded-full text-xs px-3 py-1 h-8 ${
+                      selectedEventTypes.includes(vibe) 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'border-gray-600 text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    {vibe}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
