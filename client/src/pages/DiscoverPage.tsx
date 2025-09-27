@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle } from "lucide-react";
+import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -331,25 +331,26 @@ export default function DiscoverPage() {
               </div>
             </div>
             
-            {/* Distance Section */}
+            {/* City Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                <h3 className="text-white font-medium">Distance</h3>
+                <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                <h3 className="text-white font-medium">City</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {['Any Distance', 'Within 1 mile', 'Within 5 miles'].map((distance) => (
+                {[{ value: 'all', label: t('allLocations') }, ...DIGITAL_NOMAD_CITIES.map(city => ({ value: city, label: city }))].map((cityOption) => (
                   <Button
-                    key={distance}
-                    variant={distance === 'Any Distance' ? 'default' : 'outline'}
+                    key={cityOption.value}
+                    variant={selectedCity === cityOption.value ? 'default' : 'outline'}
                     size="sm"
-                    className={`rounded-full ${
-                      distance === 'Any Distance' 
+                    onClick={() => setSelectedCity(cityOption.value)}
+                    className={`rounded-full text-xs px-3 py-1 h-8 ${
+                      selectedCity === cityOption.value 
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'border-gray-600 text-white hover:bg-gray-800'
                     }`}
                   >
-                    {distance}
+                    {cityOption.label}
                   </Button>
                 ))}
               </div>
@@ -393,50 +394,38 @@ export default function DiscoverPage() {
       <div className="bg-black text-white sticky top-0 z-50">
         {/* MÁLY logo centered at top */}
         <div className="flex justify-center pt-3 pb-4">
-          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-12 w-auto"
+          />
         </div>
         
-        {/* Controls and search section */}
-        <div className="px-4 pb-4">
-          <div className="flex items-center justify-between mb-3">
-            {/* Left side - City and Add filter */}
-            <div className="flex flex-col items-start space-y-2">
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="bg-transparent border-none text-white text-lg font-normal p-0 h-auto flex items-center gap-2">
-                  <SelectValue placeholder="City name" />
-                  <MapPin className="h-4 w-4 text-white" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('allLocations')}</SelectItem>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
+        {/* Controls section */}
+        <div className="px-5 pb-4">
+          <div className="flex items-center justify-between">
+            {/* Discover title */}
+            <h2 className="text-white text-lg font-medium">Discover</h2>
+            
+            {/* Filter and Search icons */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white text-sm font-normal p-0 h-auto flex items-center gap-2 hover:bg-transparent"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={() => setShowFilterModal(true)}
               >
-                Add filter
-                <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
-                  <Plus className="h-3 w-3" />
-                </div>
+                <Filter className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
+                onClick={() => setShowSearch(!showSearch)}
+              >
+                <Search className="h-5 w-5" />
               </Button>
             </div>
-
-            {/* Right side - Search */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white p-2 hover:bg-white/10"
-              onClick={() => setShowSearch(!showSearch)}
-            >
-              <Search className="h-6 w-6" />
-            </Button>
           </div>
         </div>
         

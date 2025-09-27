@@ -6,6 +6,7 @@ import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check,
 import { PageHeader } from "@/components/ui/page-header";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
+import PremiumPaywall from "@/components/PremiumPaywall";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -82,6 +83,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isUpdatingMood, setIsUpdatingMood] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
@@ -179,6 +181,17 @@ export default function ProfilePage() {
       });
     },
   });
+
+  // Handle message button click - check premium status first
+  const handleMessageClick = () => {
+    if (!profileData) return;
+    
+    if (currentUser?.isPremium) {
+      createConversationMutation.mutate(profileData.id);
+    } else {
+      setShowPremiumPaywall(true);
+    }
+  };
 
   // Create or find a conversation with another user
   const createConversationMutation = useMutation({
@@ -355,15 +368,21 @@ export default function ProfilePage() {
 
   return (
 <div className="min-h-screen bg-black">
-  {/* Header with back button */}
-  <div className="absolute top-0 left-0 z-20 p-4">
-    <Button
-      variant="ghost"
-      className="text-white bg-black/50 backdrop-blur-sm rounded-full p-2 h-auto"
-      onClick={handleBack}
-    >
-      <ArrowLeft className="h-5 w-5" />
-    </Button>
+  {/* Header */}
+  <div className="absolute top-0 left-0 right-0 z-20 py-4 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
+    {/* MALY logo centered at top */}
+    <div className="flex justify-center pb-3">
+      <img 
+        src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+        alt="MÁLY" 
+        className="h-12 w-auto"
+      />
+    </div>
+    
+    {/* Profile title on left */}
+    <div className="px-5">
+      <h2 className="text-white text-lg font-medium">Profile</h2>
+    </div>
   </div>
 
   {/* Fullscreen Profile Image with Overlay */}
@@ -461,7 +480,7 @@ export default function ProfilePage() {
                   Connected
                 </Button>
                 <Button 
-                  onClick={() => createConversationMutation.mutate(profileData.id)}
+                  onClick={handleMessageClick}
                   disabled={createConversationMutation.isPending}
                   className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 flex-1 sm:flex-auto rounded-full border-0"
                   data-testid="button-message"
@@ -704,6 +723,13 @@ export default function ProfilePage() {
       </div>
     </div>
   )}
+
+  {/* Premium Paywall for Messaging */}
+  <PremiumPaywall
+    isOpen={showPremiumPaywall}
+    onClose={() => setShowPremiumPaywall(false)}
+    feature="messaging"
+  />
 </div>
 );
 }

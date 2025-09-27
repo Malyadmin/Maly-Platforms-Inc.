@@ -1,15 +1,42 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Filter, MapPin, Heart } from "lucide-react";
+import { Crown, Filter, MapPin, Heart, Mail } from "lucide-react";
 
 interface PremiumPaywallProps {
   isOpen: boolean;
   onClose: () => void;
+  feature?: 'filtering' | 'messaging';
 }
 
-export default function PremiumPaywall({ isOpen, onClose }: PremiumPaywallProps) {
+export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' }: PremiumPaywallProps) {
   const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const featureConfig = {
+    filtering: {
+      icon: Filter,
+      title: 'Advanced Filtering',
+      description: 'Filter by gender and location to find exactly who you\'re looking for',
+      features: [
+        { icon: Heart, color: 'text-pink-500', text: 'Filter by gender preferences' },
+        { icon: MapPin, color: 'text-blue-500', text: 'Search by specific locations' },
+        { icon: Crown, color: 'text-yellow-500', text: 'Unlimited premium features' }
+      ]
+    },
+    messaging: {
+      icon: Mail,
+      title: 'Direct Messaging',
+      description: 'Send private messages to your connections and start meaningful conversations',
+      features: [
+        { icon: Mail, color: 'text-blue-500', text: 'Send unlimited messages' },
+        { icon: Heart, color: 'text-pink-500', text: 'Connect with verified users' },
+        { icon: Crown, color: 'text-yellow-500', text: 'Access all premium features' }
+      ]
+    }
+  };
+
+  const config = featureConfig[feature];
+  const FeatureIcon = config.icon;
 
   const handleUpgrade = async () => {
     setIsUpgrading(true);
@@ -48,28 +75,25 @@ export default function PremiumPaywall({ isOpen, onClose }: PremiumPaywallProps)
           {/* Feature explanation */}
           <div className="text-center">
             <div className="bg-gray-900 rounded-lg p-4 mb-4">
-              <Filter className="h-12 w-12 text-purple-500 mx-auto mb-3" />
-              <h3 className="text-lg font-medium mb-2">Advanced Filtering</h3>
+              <FeatureIcon className="h-12 w-12 text-purple-500 mx-auto mb-3" />
+              <h3 className="text-lg font-medium mb-2">{config.title}</h3>
               <p className="text-gray-400 text-sm">
-                Filter by gender and location to find exactly who you're looking for
+                {config.description}
               </p>
             </div>
           </div>
 
           {/* Premium features list */}
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Heart className="h-5 w-5 text-pink-500 flex-shrink-0" />
-              <span className="text-sm">Filter by gender preferences</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
-              <span className="text-sm">Search by specific locations</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Crown className="h-5 w-5 text-yellow-500 flex-shrink-0" />
-              <span className="text-sm">Unlimited premium features</span>
-            </div>
+            {config.features.map((featureItem, index) => {
+              const IconComponent = featureItem.icon;
+              return (
+                <div key={index} className="flex items-center gap-3">
+                  <IconComponent className={`h-5 w-5 ${featureItem.color} flex-shrink-0`} />
+                  <span className="text-sm">{featureItem.text}</span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Pricing */}

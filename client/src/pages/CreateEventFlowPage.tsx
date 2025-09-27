@@ -39,28 +39,45 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="flex items-center text-white"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            Back
-          </button>
-        )}
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="py-4 border-b border-gray-800">
+        {/* MALY logo centered at top */}
+        <div className="flex justify-center pb-3">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-12 w-auto"
+          />
         </div>
-        <button
-          type="submit"
-          form="step1-form"
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-4">
+          <div className="flex items-center justify-between">
+            {/* Create title on left */}
+            <div className="flex items-center">
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="flex items-center text-white mr-4"
+                  data-testid="button-back"
+                >
+                  <ChevronLeft className="w-5 h-5 mr-1" />
+                  Back
+                </button>
+              )}
+              <h2 className="text-white text-lg font-medium">Create</h2>
+            </div>
+            
+            {/* Next button on right */}
+            <button
+              type="submit"
+              form="step1-form"
+              className="text-white font-medium"
+              data-testid="button-next"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
@@ -73,12 +90,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           <p className="text-gray-400 text-sm">Promote or share remarkable experiences</p>
         </div>
 
-        <div className="flex items-center justify-end">
-          <button className="flex items-center text-yellow-400 text-sm font-medium">
-            <span>Create from Previous</span>
-            <RotateCcw className="w-4 h-4 ml-2" />
-          </button>
-        </div>
 
         <form 
           id="step1-form" 

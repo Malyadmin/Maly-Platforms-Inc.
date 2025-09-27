@@ -295,7 +295,11 @@ export function ConnectPage() {
       <header className="bg-black">
         {/* MALY logo centered at top */}
         <div className="flex justify-center pt-3 pb-4">
-          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-12 w-auto"
+          />
         </div>
         
         {/* Controls section */}
@@ -306,23 +310,41 @@ export function ConnectPage() {
             
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
-              <button 
-                className="p-1"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={handleFilterClick}
                 data-testid="filters-button"
               >
-                <Filter className="h-6 w-6 text-white" />
-              </button>
-              <button 
-                className="p-1"
+                <Filter className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={() => setShowSearch(!showSearch)}
                 data-testid="search-button"
               >
-                <Search className="h-6 w-6 text-white" />
-              </button>
+                <Search className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
+        
+        {/* Search Bar (conditionally shown) */}
+        {showSearch && (
+          <div className="px-5 pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                placeholder="Search profiles..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                // Add search functionality here if needed
+              />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Active Filters Display */}
@@ -645,19 +667,19 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* 2-Column Grid */}
-            <div className="pt-6 px-3">
-              <div className="grid grid-cols-2 gap-3">
+            {/* 2-Column Grid - Bigger, more rectangular cards */}
+            <div className="pt-6 px-4">
+              <div className="grid grid-cols-2 gap-4">
                 {(users || []).map((user, index) => (
                   <div
                     key={user.id}
-                    className="aspect-square"
+                    className="aspect-[4/5]"
                     data-testid={`grid-user-card-${user.id}`}
                   >
                     <UserCard
                       user={user}
                       onClick={() => handleUserClick(user)}
-                      className="h-full"
+                      className="h-full rounded-2xl overflow-hidden"
                       variant="grid"
                     />
                   </div>
