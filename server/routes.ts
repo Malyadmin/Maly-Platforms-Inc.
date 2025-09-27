@@ -1372,6 +1372,83 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // RSVP Management Endpoints - Must come before parameterized routes
+  // GET /api/events/applications - Fetch all pending applications across all events for current user
+  app.get('/api/events/applications', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+
+      if (!currentUser || !currentUser.id) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userId = parseInt(currentUser.id);
+      if (isNaN(userId)) {
+        return res.status(401).json({ error: "Invalid user ID" });
+      }
+
+      // Fetch all pending applications for events created by the current user
+      const userEvents = await db.select({ id: events.id })
+        .from(events)
+        .where(eq(events.creatorId, userId));
+
+      const eventIds = userEvents.map(e => e.id);
+
+      if (eventIds.length === 0) {
+        return res.json({
+          applications: [],
+          totalPending: 0
+        });
+      }
+
+      // Get pending applications for these events
+      const pendingApplications = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            inArray(eventParticipants.eventId, eventIds),
+            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+          )
+        )
+        .orderBy(desc(eventParticipants.createdAt));
+
+      // Get additional details for each application
+      const applications = [];
+      for (const app of pendingApplications) {
+        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+        const user = userResult[0];
+        const event = eventResult[0];
+        
+        applications.push({
+          id: app.id,
+          eventId: app.eventId,
+          userId: app.userId,
+          status: app.status,
+          ticketQuantity: app.ticketQuantity,
+          purchaseDate: app.purchaseDate,
+          createdAt: app.createdAt,
+          username: user?.username,
+          fullName: user?.fullName,
+          profileImage: user?.profileImage,
+          email: user?.email,
+          bio: user?.bio,
+          location: user?.location,
+          eventTitle: event?.title,
+          eventImage: event?.image
+        });
+      }
+
+      return res.json({
+        applications,
+        totalPending: applications.length
+      });
+    } catch (error) {
+      console.error("Error fetching all applications:", error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
   // Get a specific event by ID
   app.get("/api/events/:id", async (req, res) => {
     try {
@@ -4461,85 +4538,6 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   });
 
   // Add JWT test endpoint to demonstrate token authentication
-  
-  // RSVP Management Endpoints
-  
-  // GET /api/events/:eventId/applications - Fetch pending RSVP applications for an event
-  // GET /api/events/applications - Fetch all pending applications across all events for current user
-  app.get('/api/events/applications', requireAuth, async (req, res) => {
-    try {
-      const currentUser = req.user as any;
-
-      if (!currentUser || !currentUser.id) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
-
-      const userId = parseInt(currentUser.id);
-      if (isNaN(userId)) {
-        return res.status(401).json({ error: "Invalid user ID" });
-      }
-
-      // Fetch all pending applications for events created by the current user
-      const userEvents = await db.select({ id: events.id })
-        .from(events)
-        .where(eq(events.creatorId, userId));
-
-      const eventIds = userEvents.map(e => e.id);
-
-      if (eventIds.length === 0) {
-        return res.json({
-          applications: [],
-          totalPending: 0
-        });
-      }
-
-      // Get pending applications for these events
-      const pendingApplications = await db.select()
-        .from(eventParticipants)
-        .where(
-          and(
-            inArray(eventParticipants.eventId, eventIds),
-            inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
-          )
-        )
-        .orderBy(desc(eventParticipants.createdAt));
-
-      // Get additional details for each application
-      const applications = [];
-      for (const app of pendingApplications) {
-        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
-        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
-        const user = userResult[0];
-        const event = eventResult[0];
-        
-        applications.push({
-          id: app.id,
-          eventId: app.eventId,
-          userId: app.userId,
-          status: app.status,
-          ticketQuantity: app.ticketQuantity,
-          purchaseDate: app.purchaseDate,
-          createdAt: app.createdAt,
-          username: user?.username,
-          fullName: user?.fullName,
-          profileImage: user?.profileImage,
-          email: user?.email,
-          bio: user?.bio,
-          location: user?.location,
-          eventTitle: event?.title,
-          eventImage: event?.image
-        });
-      }
-
-      return res.json({
-        applications,
-        totalPending: applications.length
-      });
-    } catch (error) {
-      console.error("Error fetching all applications:", error);
-      res.status(500).json({ error: "Failed to fetch applications" });
-    }
-  });
 
   // GET /api/events/:eventId/applications - Fetch all pending applications for a specific event
   app.get('/api/events/:eventId/applications', requireAuth, async (req, res) => {
