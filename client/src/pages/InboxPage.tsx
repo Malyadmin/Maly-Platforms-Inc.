@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 import { useMessages, useMessageNotifications } from '@/hooks/use-messages';
 import { Conversation } from '@/types/inbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/lib/translations';
 import { BottomNav } from '@/components/ui/bottom-nav';
@@ -28,6 +28,7 @@ interface RSVPRequest {
   eventTitle: string;
   userName: string;
   userImage?: string;
+  userId: number;
   status: 'pending';
   createdAt: string;
 }
@@ -52,6 +53,7 @@ export default function InboxPage() {
   const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   // Fetch connection requests
   const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
@@ -83,9 +85,33 @@ export default function InboxPage() {
     eventTitle: app.eventTitle,
     userName: app.username || app.fullName || 'Unknown User',
     userImage: app.profileImage,
+    userId: app.userId,
     status: 'pending',
     createdAt: app.createdAt
   })) || [];
+
+  // Mutation for accepting/declining RSVP requests
+  const handleRSVPMutation = useMutation({
+    mutationFn: async ({ eventId, userId, action }: { eventId: number; userId: number; action: 'approved' | 'rejected' }) => {
+      const response = await fetch(`/api/events/${eventId}/applications/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: action }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update RSVP request');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      // Refetch RSVP requests to update the UI
+      queryClient.invalidateQueries({ queryKey: ['/api/events/applications'] });
+    },
+  });
 
   // Fetch connections (users who are connected with the current user)
   const {
@@ -376,15 +402,42 @@ export default function InboxPage() {
                       <h4 className="text-gray-300 font-medium text-sm">RSVP Requests</h4>
                     </div>
                     <div>
-                      {rsvpRequests.map((request) => 
-                        renderInboxItem({
-                          title: request.userName,
-                          subtitle: `Wants to join ${request.eventTitle}`,
-                          avatar: request.userImage,
-                          onPress: () => setLocation(`/event/${request.eventId}`),
-                          testId: `rsvp-request-${request.id}`
-                        })
-                      )}
+                      {rsvpRequests.map((request) => (
+                        <div key={request.id} className="w-full flex items-center px-4 py-3 border-b border-gray-800 last:border-b-0" data-testid={`rsvp-request-${request.id}`}>
+                          <Avatar className="h-10 w-10 mr-3">
+                            <AvatarImage src={request.userImage} alt={request.userName} />
+                            <AvatarFallback className="bg-gray-700 text-gray-300">
+                              <UserPlus className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h4 className="text-white font-medium text-sm">{request.userName}</h4>
+                            <p className="text-gray-400 text-xs">Wants to join {request.eventTitle}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                              onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'approved' })}
+                              disabled={handleRSVPMutation.isPending}
+                              data-testid={`accept-rsvp-${request.id}`}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                              onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'rejected' })}
+                              disabled={handleRSVPMutation.isPending}
+                              data-testid={`decline-rsvp-${request.id}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
