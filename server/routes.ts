@@ -1759,10 +1759,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       console.log("File:", req.file);
 
       // Parse ticketTiers from the request body
-      let ticketTiers = [];
+      let parsedTicketTiers = [];
       try {
         if (req.body.ticketTiers) {
-          ticketTiers = Array.isArray(req.body.ticketTiers) 
+          parsedTicketTiers = Array.isArray(req.body.ticketTiers) 
             ? req.body.ticketTiers 
             : JSON.parse(req.body.ticketTiers);
         }
@@ -1778,7 +1778,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const validationResult = createEventSchema.safeParse({
         ...req.body,
         date: req.body.date || new Date().toISOString(),
-        ticketTiers: ticketTiers,
+        ticketTiers: parsedTicketTiers,
         capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
         itinerary: req.body.itinerary ? JSON.parse(req.body.itinerary) : undefined,
         tags: req.body.tags ? (Array.isArray(req.body.tags) ? req.body.tags : JSON.parse(req.body.tags)) : undefined
@@ -1982,7 +1982,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       // CRUCIAL FIX: Prepare the tiers for insertion using the captured eventId
-      const tiersToInsert = ticketTiers.map((tier, index) => ({
+      const tiersToInsert = parsedTicketTiers.map((tier, index) => ({
         eventId: eventId, // Use camelCase to match schema property names
         name: tier.name,
         description: tier.description || null,
