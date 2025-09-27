@@ -298,7 +298,7 @@ export function ConnectPage() {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-8 w-auto"
+            className="h-12 w-auto"
           />
         </div>
         
