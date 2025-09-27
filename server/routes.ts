@@ -10,7 +10,7 @@ import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
+import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe';
 import Stripe from 'stripe';
@@ -45,7 +45,7 @@ import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 // Import admin authentication middleware
 import { requireAdmin } from './middleware/adminAuth';
 // Import validation schemas
-import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema } from './validation/schemas';
+import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema } from './validation/schemas';
 
 const categories = [
   "Retail",
@@ -1734,11 +1734,27 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       console.log("Form data:", req.body);
       console.log("File:", req.file);
 
+      // Parse ticketTiers from the request body
+      let ticketTiers = [];
+      try {
+        if (req.body.ticketTiers) {
+          ticketTiers = Array.isArray(req.body.ticketTiers) 
+            ? req.body.ticketTiers 
+            : JSON.parse(req.body.ticketTiers);
+        }
+      } catch (e) {
+        console.warn("Failed to parse ticketTiers JSON:", e);
+        return res.status(400).json({
+          error: 'Invalid ticket tiers format',
+          details: 'Ticket tiers must be a valid JSON array'
+        });
+      }
+
       // Validate input data with Zod schema
       const validationResult = createEventSchema.safeParse({
         ...req.body,
         date: req.body.date || new Date().toISOString(),
-        price: req.body.price ? parseFloat(req.body.price) : 0,
+        ticketTiers: ticketTiers,
         capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
         itinerary: req.body.itinerary ? JSON.parse(req.body.itinerary) : undefined,
         tags: req.body.tags ? (Array.isArray(req.body.tags) ? req.body.tags : JSON.parse(req.body.tags)) : undefined
@@ -1776,15 +1792,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Default to empty array if parsing fails
       }
 
-      // Process price (making sure it's a number)
-      let price = 0;
-      try {
-        price = parseFloat(req.body.price || '0');
-        if (isNaN(price)) price = 0;
-      } catch (e) {
-        console.warn("Invalid price format:", e);
-        price = 0;
-      }
+      // Get validated ticket tiers from the validation result
+      const validatedTicketTiers = validationResult.data.ticketTiers;
 
       // Process image and video uploads to Cloudinary
       let imageUrl = '';
@@ -1839,6 +1848,16 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }
       }
 
+      // Determine ticket type based on ticket tiers
+      const hasFreeTiers = validatedTicketTiers.some(tier => tier.price === 0);
+      const hasPaidTiers = validatedTicketTiers.some(tier => tier.price > 0);
+      let ticketType = 'free';
+      if (hasPaidTiers && hasFreeTiers) {
+        ticketType = 'paid'; // Mixed tiers, consider as paid
+      } else if (hasPaidTiers) {
+        ticketType = 'paid';
+      }
+
       // Create event data object with all required fields from schema
       const eventData = {
         title: req.body.title,
@@ -1849,9 +1868,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         longitude: coordinates?.longitude || null,
         city: req.body.city || 'Unknown',
         category: req.body.category || 'Other', // Add default category value
-        ticketType: req.body.price && parseFloat(req.body.price) > 0 ? 'paid' : 'free',
+        ticketType: ticketType,
         capacity: parseInt(req.body.capacity || '10'),
-        price: req.body.price ? req.body.price.toString() : '0', // Ensure price is a string
+        price: '0', // Keep for backward compatibility, will be replaced by tiers
         date: new Date(req.body.date || new Date()),
         tags: tags,
         image: imageUrl,
@@ -1872,19 +1891,84 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log(`Creating new event:`, eventData.title);
 
-      // Insert the event into the database
+      // Insert the event into the database first
       const result = await db.insert(events).values(eventData).returning();
 
-      if (result && result.length > 0) {
-        console.log(`Event successfully saved to database with ID: ${result[0].id}`);
-        return res.status(201).json({
-          success: true,
-          message: "Event published successfully",
-          event: result[0]
-        });
-      } else {
+      if (!result || !result.length) {
         throw new Error("Database operation did not return an event ID");
       }
+
+      const createdEvent = result[0];
+      console.log(`Event successfully saved to database with ID: ${createdEvent.id}`);
+
+      // Create Stripe Products and Prices for each ticket tier
+      const createdTiers = [];
+      for (const tier of validatedTicketTiers) {
+        try {
+          let stripeProductId = null;
+          let stripePriceId = null;
+
+          // Only create Stripe products/prices for paid tiers
+          if (tier.price > 0) {
+            console.log(`Creating Stripe Product for tier: ${tier.name}`);
+            
+            // Create Stripe Product
+            const stripeProduct = await stripe.products.create({
+              name: `${eventData.title} - ${tier.name}`,
+              description: tier.description || `${tier.name} ticket for ${eventData.title}`,
+              metadata: {
+                eventId: createdEvent.id.toString(),
+                tierName: tier.name
+              }
+            });
+            stripeProductId = stripeProduct.id;
+
+            // Create Stripe Price
+            const stripePrice = await stripe.prices.create({
+              currency: 'usd',
+              unit_amount: Math.round(tier.price * 100), // Convert to cents
+              product: stripeProductId,
+              metadata: {
+                eventId: createdEvent.id.toString(),
+                tierName: tier.name
+              }
+            });
+            stripePriceId = stripePrice.id;
+
+            console.log(`Created Stripe Product ${stripeProductId} and Price ${stripePriceId} for tier ${tier.name}`);
+          }
+
+          // Insert ticket tier into database
+          const tierData = {
+            eventId: createdEvent.id,
+            name: tier.name,
+            description: tier.description || null,
+            price: tier.price.toString(),
+            quantity: tier.quantity || null,
+            stripeProductId,
+            stripePriceId,
+            isActive: true,
+            createdAt: new Date()
+          };
+
+          const tierResult = await db.insert(ticketTiers).values(tierData).returning();
+          if (tierResult && tierResult.length > 0) {
+            createdTiers.push(tierResult[0]);
+            console.log(`Tier ${tier.name} saved to database with ID: ${tierResult[0].id}`);
+          }
+
+        } catch (error) {
+          console.error(`Error creating tier ${tier.name}:`, error);
+          // Continue with other tiers, but log the error
+        }
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "Event published successfully with ticket tiers",
+        event: createdEvent,
+        ticketTiers: createdTiers
+      });
     } catch (error) {
       console.error("Error creating event:", error);
       const message = error instanceof Error ? error.message : "Unknown database error";
