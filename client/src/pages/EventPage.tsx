@@ -421,50 +421,6 @@ export default function EventPage() {
           </div>
         </div>
 
-        {/* Ticket Tiers Section */}
-        {event.ticketTiers && event.ticketTiers.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-white">
-              <span className="text-lg">🎫</span>
-              <h3 className="text-white font-semibold">Choose Your Ticket</h3>
-            </div>
-            <div className="space-y-3">
-              {event.ticketTiers.map((tier) => (
-                <div
-                  key={tier.id}
-                  onClick={() => setSelectedTierId(tier.id)}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
-                    selectedTierId === tier.id
-                      ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
-                      : 'border-white/20 bg-white/10 hover:border-white/40'
-                  }`}
-                  data-testid={`ticket-tier-${tier.id}`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="text-white font-semibold text-lg">{tier.name}</h4>
-                      {tier.description && (
-                        <p className="text-white/70 text-sm mt-1">{tier.description}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
-                      {tier.quantity && (
-                        <div className="text-white/60 text-xs">{tier.quantity} available</div>
-                      )}
-                    </div>
-                  </div>
-                  {selectedTierId === tier.id && (
-                    <div className="flex items-center gap-2 text-purple-300 text-sm">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Selected</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Participation Section */}
         {user && event.creatorId !== user.id && (
@@ -512,61 +468,14 @@ export default function EventPage() {
                 <div className="flex flex-col gap-3">
                   {/* Purchase button for paid events */}
                   {event.ticketType === 'paid' && (
-                    (() => {
-                      // If event has ticket tiers, use selected tier logic
-                      if (event.ticketTiers && event.ticketTiers.length > 0) {
-                        const selectedTier = selectedTierId ? event.ticketTiers.find(t => t.id === selectedTierId) : null;
-                        return (
-                          <Button 
-                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => purchaseTicketMutation.mutate({ eventId: event.id, ticketTierId: selectedTierId || undefined })}
-                            disabled={purchaseTicketMutation.isPending || !selectedTierId}
-                            data-testid="button-purchase-ticket"
-                          >
-                            {purchaseTicketMutation.isPending ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Processing...
-                              </>
-                            ) : selectedTier ? (
-                              <>
-                                <CreditCard className="w-4 h-4 mr-2" />
-                                Purchase {selectedTier.name} - ${parseFloat(selectedTier.price).toFixed(2)}
-                              </>
-                            ) : (
-                              <>
-                                <CreditCard className="w-4 h-4 mr-2" />
-                                Select a ticket tier above
-                              </>
-                            )}
-                          </Button>
-                        );
-                      }
-                      // Fallback to original logic for events without tiers
-                      else if (event.price && parseFloat(event.price) > 0) {
-                        return (
-                          <Button 
-                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                            onClick={() => purchaseTicketMutation.mutate({ eventId: event.id })}
-                            disabled={purchaseTicketMutation.isPending}
-                            data-testid="button-purchase-ticket"
-                          >
-                            {purchaseTicketMutation.isPending ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <CreditCard className="w-4 h-4 mr-2" />
-                                Purchase Ticket - ${event.price}
-                              </>
-                            )}
-                          </Button>
-                        );
-                      }
-                      return null;
-                    })()
+                    <Button 
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                      onClick={() => setIsTicketModalOpen(true)}
+                      data-testid="button-purchase-ticket"
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Purchase Tickets
+                    </Button>
                   )}
                   
                   <Button 
