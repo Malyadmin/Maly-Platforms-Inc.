@@ -69,7 +69,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       {/* Content */}
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Create your event</h2>
           <p className="text-gray-400 text-sm">Promote or share remarkable experiences</p>
         </div>
 

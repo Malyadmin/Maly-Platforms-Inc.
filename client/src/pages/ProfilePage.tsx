@@ -368,15 +368,17 @@ export default function ProfilePage() {
 
   return (
 <div className="min-h-screen bg-black">
-  {/* Header with back button */}
-  <div className="absolute top-0 left-0 z-20 p-4">
-    <Button
-      variant="ghost"
-      className="text-white bg-black/50 backdrop-blur-sm rounded-full p-2 h-auto"
-      onClick={handleBack}
-    >
-      <ArrowLeft className="h-5 w-5" />
-    </Button>
+  {/* Header */}
+  <div className="absolute top-0 left-0 right-0 z-20 py-4 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
+    {/* MALY centered at top */}
+    <div className="flex justify-center pb-3">
+      <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+    </div>
+    
+    {/* Profile title on left */}
+    <div className="px-5">
+      <h2 className="text-white text-lg font-medium">Profile</h2>
+    </div>
   </div>
 
   {/* Fullscreen Profile Image with Overlay */}
