@@ -840,8 +840,16 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       name: "",
       description: "",
       price: 0,
-      quantity: 1
+      quantity: undefined
     });
+  };
+
+  // Automatically add a tier when paid event is toggled on and no tiers exist
+  const handlePaidEventToggle = (checked: boolean) => {
+    setIsPaidEvent(checked);
+    if (checked && fields.length === 0) {
+      addTier();
+    }
   };
 
   return (
@@ -893,7 +901,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             </div>
             <Switch
               checked={isPaidEvent}
-              onCheckedChange={setIsPaidEvent}
+              onCheckedChange={handlePaidEventToggle}
               data-testid="switch-paid-event"
             />
           </div>
@@ -1303,7 +1311,7 @@ export default function CreateEventFlowPage() {
     dressCode: false,
     dressCodeDetails: "",
     isPaidEvent: false,
-    price: "",
+    ticketTiers: [],
     eventPrivacy: "public",
     whoShouldAttend: "",
     spotsAvailable: "",
@@ -1356,7 +1364,8 @@ export default function CreateEventFlowPage() {
         location: eventData.isOnlineEvent ? "Online" : `${eventData.city}${eventData.addressLine1 ? ', ' + eventData.addressLine1 : ''}`,
         date: eventData.startDate.toISOString(),
         time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
-        price: eventData.isPaidEvent && eventData.price ? parseFloat(eventData.price) : 0,
+        price: eventData.isPaidEvent && eventData.ticketTiers?.length > 0 ? eventData.ticketTiers[0].price : 0,
+        ticketTiers: eventData.isPaidEvent ? eventData.ticketTiers : [],
         capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
         eventPrivacy: eventData.eventPrivacy || "public", // Add the missing eventPrivacy field
         itinerary: eventData.agendaItems?.map(item => ({
