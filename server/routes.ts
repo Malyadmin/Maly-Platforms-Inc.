@@ -1983,15 +1983,15 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       // CRUCIAL FIX: Prepare the tiers for insertion using the captured eventId
       const tiersToInsert = ticketTiers.map((tier, index) => ({
-        eventId: eventId, // Use the captured eventId
+        event_id: eventId, // Use snake_case to match database schema
         name: tier.name,
         description: tier.description || null,
         price: tier.price,
         quantity: tier.quantity || null,
-        stripeProductId: stripeTiers[index].productId,
-        stripePriceId: stripeTiers[index].priceId,
-        isActive: true,
-        createdAt: new Date()
+        stripe_product_id: stripeTiers[index].productId, // snake_case
+        stripe_price_id: stripeTiers[index].priceId, // snake_case
+        is_active: true, // snake_case
+        created_at: new Date() // snake_case
       }));
 
       // Add debug log to verify the data before the final step
