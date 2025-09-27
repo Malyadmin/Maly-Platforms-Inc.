@@ -172,6 +172,10 @@ export default function InboxPage() {
     );
   }, [conversations, searchTerm]);
 
+  // Separate conversations into direct messages and group chats
+  const directMessages = filteredConversations.filter(conv => conv.type === 'direct');
+  const groupChats = filteredConversations.filter(conv => conv.type === 'event' || conv.type === 'group');
+
   const clearSearch = () => {
     setSearchTerm('');
   };
@@ -291,25 +295,23 @@ export default function InboxPage() {
         </div>
       ) : (
         <div className="space-y-8 pb-20" data-testid="inbox-content">
-          {/* Messages & Groups Section */}
+          {/* Direct Messages Section */}
           <div className="space-y-2">
-            {renderSectionHeader('Messages & Groups', conversationsWithMessages.length)}
-            {conversationsWithMessages.length === 0 ? (
-              renderEmptyState('No messages yet')
+            {renderSectionHeader('Direct Messages', directMessages.length)}
+            {directMessages.length === 0 ? (
+              renderEmptyState('No direct messages yet')
             ) : (
               <div>
-                {conversationsWithMessages.map((conversation) => {
-                  const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                {directMessages.map((conversation) => {
+                  const displayName = conversation.otherParticipant 
                     ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
-                    : conversation.title;
+                    : 'Unknown User';
                   
                   const displaySubtitle = conversation.lastMessage?.content 
                     ? conversation.lastMessage.content 
                     : 'No messages yet';
 
-                  const avatarUrl = conversation.type === 'direct' && conversation.otherParticipant
-                    ? conversation.otherParticipant.profileImage
-                    : undefined;
+                  const avatarUrl = conversation.otherParticipant?.profileImage;
                   
                   return renderInboxItem({
                     title: displayName,
@@ -317,6 +319,35 @@ export default function InboxPage() {
                     avatar: avatarUrl,
                     onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
                     testId: `conversation-${conversation.id}`
+                  });
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Group Chats Section */}
+          <div className="space-y-2">
+            {renderSectionHeader('Group Chats', groupChats.length)}
+            {groupChats.length === 0 ? (
+              renderEmptyState('No group chats yet')
+            ) : (
+              <div>
+                {groupChats.map((conversation) => {
+                  // Format group chat title as "Event Name Group Thread"
+                  const displayName = conversation.type === 'event' && conversation.title 
+                    ? conversation.title.replace(' - Event Chat', ' Group Thread')
+                    : (conversation.title || 'Group Chat');
+                  
+                  const displaySubtitle = conversation.lastMessage?.content 
+                    ? conversation.lastMessage.content 
+                    : `${conversation.participantCount} members`;
+                  
+                  return renderInboxItem({
+                    title: displayName,
+                    subtitle: displaySubtitle,
+                    avatar: undefined, // Group chats don't have profile images
+                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                    testId: `group-conversation-${conversation.id}`
                   });
                 })}
               </div>
