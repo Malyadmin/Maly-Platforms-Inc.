@@ -1925,8 +1925,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const createdEvent = result[0];
       console.log(`Event successfully saved to database with ID: ${createdEvent.id}`);
 
-      // Create Stripe Products and Prices for each ticket tier
-      const createdTiers = [];
+      // Create Stripe Products and Prices for each ticket tier, then bulk insert to database
+      const tiersWithStripeData = [];
+      
       for (const tier of validatedTicketTiers) {
         try {
           let stripeProductId = null;
@@ -1962,30 +1963,46 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
             console.log(`Created Stripe Product ${stripeProductId} and Price ${stripePriceId} for tier ${tier.name}`);
           }
 
-          // Insert ticket tier into database
-          const tierData = {
+          // Prepare tier data with eventId and Stripe IDs
+          tiersWithStripeData.push({
+            ...tier,
             eventId: createdEvent.id,
-            name: tier.name,
-            description: tier.description || null,
-            price: tier.price, // Keep as number for decimal type
-            quantity: tier.quantity || null,
             stripeProductId,
             stripePriceId,
             isActive: true,
             createdAt: new Date()
-          };
-
-          const tierResult = await db.insert(ticketTiers).values(tierData).returning();
-          if (tierResult && tierResult.length > 0) {
-            createdTiers.push(tierResult[0]);
-            console.log(`Tier ${tier.name} saved to database with ID: ${tierResult[0].id}`);
-          }
+          });
 
         } catch (error) {
-          console.error(`Error creating tier ${tier.name}:`, error);
-          // Continue with other tiers, but log the error
+          console.error(`Error creating Stripe data for tier ${tier.name}:`, error);
+          // Still add the tier without Stripe data
+          tiersWithStripeData.push({
+            ...tier,
+            eventId: createdEvent.id,
+            stripeProductId: null,
+            stripePriceId: null,
+            isActive: true,
+            createdAt: new Date()
+          });
         }
       }
+
+      // Bulk insert all ticket tiers with eventId
+      const tiersToInsert = tiersWithStripeData.map(tier => ({
+        eventId: tier.eventId,
+        name: tier.name,
+        description: tier.description || null,
+        price: tier.price,
+        quantity: tier.quantity || null,
+        stripeProductId: tier.stripeProductId,
+        stripePriceId: tier.stripePriceId,
+        isActive: tier.isActive,
+        createdAt: tier.createdAt
+      }));
+
+      console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
+      const createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
+      console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
 
       return res.status(201).json({
         success: true,
