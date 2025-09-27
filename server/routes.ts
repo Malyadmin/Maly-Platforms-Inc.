@@ -1986,7 +1986,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         eventId: eventId, // Use camelCase - Drizzle handles conversion to snake_case
         name: tier.name,
         description: tier.description || null,
-        price: tier.price,
+        price: tier.price.toString(), // Convert to string for decimal field
         quantity: tier.quantity || null,
         stripeProductId: stripeTiers[index].productId, // camelCase
         stripePriceId: stripeTiers[index].priceId, // camelCase

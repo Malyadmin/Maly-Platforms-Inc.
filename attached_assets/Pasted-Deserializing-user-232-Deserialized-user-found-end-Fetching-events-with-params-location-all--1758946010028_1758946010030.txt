@@ -1,0 +1,84 @@
+Deserializing user: 232
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
+No location filter applied, showing all events
+Deserialized user found: end
+Found 75 events in database before filtering
+Found 75 events to display
+Returning 75 events from database
+4:04:42 AM [express] GET /api/events 304 in 156ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Deserialized user found: end
+Full request query object: { currentUserId: '232' }
+User browse: Using currentUserId from query: 232
+User browse request received with city=undefined
+Mood filters: none
+Query returned 20 users (limit: 20, offset: 0)
+Found 20 users, total: 42
+4:04:43 AM [express] GET /api/users/browse 304 in 164ms :: {"users":[{"id":234,"username":"win","ful…
+Deserializing user: 232
+Deserialized user found: end
+4:04:43 AM [express] GET /api/connections/status/234 304 in 179ms :: {"outgoing":null,"incoming":nul…
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserialized user found: end
+Event creation request received from user: end
+Form data: [Object: null prototype] {
+  title: 'tier 7',
+  description: 'dvvsdggdvsvs',
+  category: 'Other',
+  location: 'Cinnaminson, 1506 Cinnaminson Avenue',
+  date: '2025-09-27T17:00:00.000Z',
+  time: '12:00:00',
+  price: '10',
+  ticketTiers: '[{"name":"Early Bird","description":"gebbebebeb","price":10,"quantity":10},{"name":"VIP","description":"inbrionhoinbiobnrbt","price":50,"quantity":30}]',
+  eventPrivacy: 'public',
+  itinerary: '[]',
+  tags: '["Paid Event"]'
+}
+File: undefined
+Parsed itinerary data: []
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1758945980/images/uploads/1758945979625_IMG_5298.jpeg.jpg
+Geocoding location: Cinnaminson, 1506 Cinnaminson Avenue
+Geocoding successful: lat=39.992254, lng=-75.014261
+Creating new event: tier 7
+Event successfully saved to database with ID: 179
+Creating Stripe Product for tier: Early Bird
+Created Stripe Product prod_T85azbMrDPABoU and Price price_1SBpOrRxoKeYwVbtst78eyaA for tier Early Bird
+Creating Stripe Product for tier: VIP
+Created Stripe Product prod_T85aokbcxAUfxs and Price price_1SBpOrRxoKeYwVbtHT178rBG for tier VIP
+DEBUG: Tiers prepared for insertion: [
+  {
+    eventId: 179,
+    name: 'Early Bird',
+    description: 'gebbebebeb',
+    price: 10,
+    quantity: 10,
+    stripeProductId: 'prod_T85azbMrDPABoU',
+    stripePriceId: 'price_1SBpOrRxoKeYwVbtst78eyaA',
+    isActive: true,
+    createdAt: 2025-09-27T04:06:22.093Z
+  },
+  {
+    eventId: 179,
+    name: 'VIP',
+    description: 'inbrionhoinbiobnrbt',
+    price: 50,
+    quantity: 30,
+    stripeProductId: 'prod_T85aokbcxAUfxs',
+    stripePriceId: 'price_1SBpOrRxoKeYwVbtHT178rBG',
+    isActive: true,
+    createdAt: 2025-09-27T04:06:22.093Z
+  }
+]
+Inserting 2 ticket tiers into database
+Error creating event: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4949:58
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+4:06:22 AM [express] POST /api/events 500 in 5315ms :: {"error":"Failed to create event","details":"…
