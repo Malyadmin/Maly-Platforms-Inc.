@@ -3584,9 +3584,13 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         return res.status(400).json({ error: 'Cannot create checkout session for free tickets' });
       }
 
-      // Check if we have the required Stripe Price ID
+      // Check if we have the required Stripe Price ID and event ID
       if (!ticketTier.stripePriceId) {
         return res.status(400).json({ error: 'Stripe Price ID not found for this ticket tier' });
+      }
+
+      if (!ticketTier.eventId) {
+        return res.status(400).json({ error: 'Event not found for this ticket tier' });
       }
 
       // Calculate total amount and application fee
