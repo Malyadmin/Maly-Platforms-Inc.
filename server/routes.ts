@@ -1406,6 +1406,21 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const eventTicketTiers = await db.select()
           .from(ticketTiers)
           .where(eq(ticketTiers.eventId, eventId));
+
+        // Recalculate ticket type based on ticket tiers
+        let calculatedTicketType = event.ticketType; // Default to existing value
+        if (eventTicketTiers && eventTicketTiers.length > 0) {
+          const hasFreeTiers = eventTicketTiers.some(tier => parseFloat(tier.price) === 0);
+          const hasPaidTiers = eventTicketTiers.some(tier => parseFloat(tier.price) > 0);
+          
+          if (hasPaidTiers && hasFreeTiers) {
+            calculatedTicketType = 'paid'; // Mixed tiers, consider as paid
+          } else if (hasPaidTiers) {
+            calculatedTicketType = 'paid';
+          } else {
+            calculatedTicketType = 'free';
+          }
+        }
         
         // Create separate lists for attending and interested users
         const attendingUserIds = eventParticipantsList
@@ -1481,6 +1496,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
+                ticketType: calculatedTicketType, // Use calculated ticket type
 
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
@@ -1513,6 +1529,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Add participants to the event object even if we don't have creator details
         const eventWithParticipants = {
           ...event,
+          ticketType: calculatedTicketType, // Use calculated ticket type
           // Transform snake_case to camelCase for frontend compatibility
           isPrivate: event.isPrivate,
           requireApproval: event.requireApproval,

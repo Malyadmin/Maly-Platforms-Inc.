@@ -297,15 +297,42 @@ export default function EventPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
           <div className="flex items-center gap-4 mb-4">
-            {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 ? (
-              <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                💳 ${event.price}
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                ✓ Free Event
-              </div>
-            )}
+            {(() => {
+              // Check if event has ticket tiers
+              if (event.ticketTiers && event.ticketTiers.length > 0) {
+                const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
+                if (hasPaidTiers) {
+                  const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                  const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                  const priceRange = minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+                  return (
+                    <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                      💳 {priceRange}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                      ✓ Free Event
+                    </div>
+                  );
+                }
+              }
+              // Fallback to original logic for events without tiers
+              else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
+                return (
+                  <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                    💳 ${event.price}
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                    ✓ Free Event
+                  </div>
+                );
+              }
+            })()}
             <div className="flex items-center gap-2 text-blue-400">
               <button
                 onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
