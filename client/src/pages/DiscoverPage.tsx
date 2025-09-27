@@ -305,7 +305,7 @@ export default function DiscoverPage() {
             <p className="text-gray-400 text-sm mt-2">Customize your event discovery</p>
           </DialogHeader>
           
-          <div className="space-y-3 mt-6">
+          <div className="space-y-6 mt-6">
             {/* When Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -483,14 +483,14 @@ export default function DiscoverPage() {
 
           <div className="px-4 py-6">
             {/* Event Grid with Date Categories */}
-            <div className="space-y-3 sm:space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">
                 {filteredEvents.length} {t('eventsFound')}
               </h2>
 
             {isLoading ? (
               // Loading skeleton list
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="flex gap-4 p-2">
                     <Skeleton className="w-32 h-32 flex-shrink-0" />
@@ -526,11 +526,11 @@ export default function DiscoverPage() {
                   <>
                     {/* Today's Events Section */}
                     {groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -540,11 +540,11 @@ export default function DiscoverPage() {
                     
                     {/* This Week Section */}
                     {groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -554,11 +554,11 @@ export default function DiscoverPage() {
                     
                     {/* This Weekend Section */}
                     {groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.thisWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -568,11 +568,11 @@ export default function DiscoverPage() {
                     
                     {/* Next Week Section */}
                     {groupedEvents.nextWeek.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.nextWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -582,11 +582,11 @@ export default function DiscoverPage() {
 
                     {/* Next Weekend Section */}
                     {groupedEvents.nextWeekend.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.nextWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -596,11 +596,11 @@ export default function DiscoverPage() {
 
                     {/* This Month Section */}
                     {groupedEvents.month.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.month.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -610,11 +610,11 @@ export default function DiscoverPage() {
 
                     {/* Upcoming Events Section */}
                     {groupedEvents.upcoming.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.upcoming.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -626,11 +626,11 @@ export default function DiscoverPage() {
                   // Show only the selected time period
                   <>
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -639,11 +639,11 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -652,11 +652,11 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         <div className="py-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {groupedEvents.thisWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}

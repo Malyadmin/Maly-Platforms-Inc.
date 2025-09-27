@@ -29,12 +29,12 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
 
   return (
     <div 
-      className="flex gap-4 cursor-pointer hover:bg-gray-900/20 py-1 pr-4 transition-colors"
+      className="flex gap-4 cursor-pointer hover:bg-gray-900/20 p-2 rounded-lg transition-colors"
       onClick={() => setLocation(`/event/${event.id}`)}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Event Image - Larger and left-aligned to screen edge */}
-      <div className="w-24 h-24 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+      {/* Event Image - iOS style 128x128 */}
+      <div className="w-32 h-32 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden">
         {event.image ? (
           <img
             src={event.image}
