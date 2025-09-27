@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { useTranslation } from "@/lib/translations";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // Define the Event type with all fields
 const TicketTierSchema = z.object({
   id: z.number(),
@@ -63,6 +64,7 @@ export default function EventPage() {
   const queryClient = useQueryClient();
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
   const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
