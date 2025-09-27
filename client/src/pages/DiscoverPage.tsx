@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle } from "lucide-react";
+import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -396,47 +396,43 @@ export default function DiscoverPage() {
           <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
         </div>
         
-        {/* Controls and search section */}
-        <div className="px-4 pb-4">
-          <div className="flex items-center justify-between mb-3">
-            {/* Left side - City and Add filter */}
-            <div className="flex flex-col items-start space-y-2">
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="bg-transparent border-none text-white text-lg font-normal p-0 h-auto flex items-center gap-2">
-                  <SelectValue placeholder="City name" />
-                  <MapPin className="h-4 w-4 text-white" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('allLocations')}</SelectItem>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
+        {/* Controls section */}
+        <div className="px-5 pb-4">
+          <div className="flex items-center justify-between">
+            {/* All Locations dropdown */}
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="bg-transparent border-none text-white text-lg font-medium p-0 h-auto">
+                <SelectValue placeholder="All Locations" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allLocations')}</SelectItem>
+                {DIGITAL_NOMAD_CITIES.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {/* Filter and Search icons */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white text-sm font-normal p-0 h-auto flex items-center gap-2 hover:bg-transparent"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={() => setShowFilterModal(true)}
               >
-                Add filter
-                <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
-                  <Plus className="h-3 w-3" />
-                </div>
+                <Filter className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
+                onClick={() => setShowSearch(!showSearch)}
+              >
+                <Search className="h-5 w-5" />
               </Button>
             </div>
-
-            {/* Right side - Search */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white p-2 hover:bg-white/10"
-              onClick={() => setShowSearch(!showSearch)}
-            >
-              <Search className="h-6 w-6" />
-            </Button>
           </div>
         </div>
         

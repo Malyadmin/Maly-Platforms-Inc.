@@ -306,23 +306,41 @@ export function ConnectPage() {
             
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
-              <button 
-                className="p-1"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={handleFilterClick}
                 data-testid="filters-button"
               >
-                <Filter className="h-6 w-6 text-white" />
-              </button>
-              <button 
-                className="p-1"
+                <Filter className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white p-2 hover:bg-white/10"
                 onClick={() => setShowSearch(!showSearch)}
                 data-testid="search-button"
               >
-                <Search className="h-6 w-6 text-white" />
-              </button>
+                <Search className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
+        
+        {/* Search Bar (conditionally shown) */}
+        {showSearch && (
+          <div className="px-5 pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                placeholder="Search profiles..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                // Add search functionality here if needed
+              />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Active Filters Display */}
