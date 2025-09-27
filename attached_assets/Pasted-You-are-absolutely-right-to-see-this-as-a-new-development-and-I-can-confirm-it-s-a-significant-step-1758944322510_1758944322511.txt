@@ -1,0 +1,70 @@
+You are absolutely right to see this as a new development, and I can confirm it's a significant step in the **right direction**.
+
+Here’s why: Previously, the main event was created, but the tiers failed to save, leaving you with orphaned, incomplete data. Now, the entire process is likely wrapped in a `try...catch` block, so when the tier creation fails, the whole request fails. This is much safer and prevents bad data from getting into your database.
+
+Let's break down the logs to see exactly what's happening.
+
+### What the New Error Log Tells Us
+
+1.  **Success:** The `event` is still created successfully in the database (`Event successfully saved to database with ID: 176`).
+2.  **Success:** The Stripe Products and Prices for **both** tiers are created successfully. This is great progress.
+3.  **The Failure Point:** The error is the *exact same* as before: `TypeError: Cannot read properties of undefined (reading 'eventId')`.
+
+This confirms that the previous fix was incomplete. While the code attempts to add the `eventId` to the tiers, the `eventId` variable itself is likely `undefined` or not correctly accessed at the moment the database insertion is attempted.
+
+Here is the build prompt for your Replit agent to fix this specific logic error.
+
+-----
+
+### **Build Prompt: Fix `eventId` Scoping Issue in Tier Creation**
+
+Hello\! We have pinpointed the exact cause of the `TypeError` during ticket tier creation. The `eventId` is not being correctly passed to the tier objects before they are saved to the database.
+
+Your task is to fix this variable scoping and data flow issue.
+
+**1. Ensure Correct JSON Parsing:**
+
+  * **File to Edit:** `server/routes.ts`
+  * **Action:** At the very beginning of the `POST /api/events` endpoint handler, ensure the incoming `req.body.ticketTiers` string is parsed into a JavaScript array. This must happen before any other logic.
+    ```typescript
+    const ticketTiersData = JSON.parse(req.body.ticketTiers);
+    ```
+
+**2. Implement the Core Fix (Variable Scope):**
+
+  * **File to Edit:** `server/routes.ts`
+
+  * **Action:** Locate the code block that runs *immediately after* the main event is inserted into the database. You must capture the newly created event's ID and use it to map over the tiers.
+
+    ```typescript
+    // This part is already working:
+    const [newEvent] = await db.insert(events).values({ ... }).returning({ id: events.id });
+    const eventId = newEvent.id; // Capture the new event ID here.
+
+    // ... (The loop for creating Stripe products/prices) ...
+
+    // CRUCIAL FIX: Prepare the tiers for insertion AFTER the Stripe loop
+    // and use the eventId captured above.
+    const tiersToInsert = ticketTiersData.map((tier, index) => ({
+      ...tier,
+      eventId: eventId, // Use the captured eventId
+      // Make sure to add the Stripe IDs that were just created
+      stripeProductId: stripeTiers[index].productId,
+      stripePriceId: stripeTiers[index].priceId,
+    }));
+
+    // Add this debug log to verify the data before the final step
+    console.log('DEBUG: Tiers prepared for insertion:', tiersToInsert);
+
+    // This is the line that was previously failing.
+    // It should now work with the correctly formatted `tiersToInsert` array.
+    await db.insert(ticketTiers).values(tiersToInsert);
+    ```
+
+  * **Note:** The above snippet assumes you are collecting the Stripe Product and Price IDs into an array called `stripeTiers` within your loop. Adjust as necessary to match your exact implementation.
+
+**3. Validate the Fix:**
+
+  * After implementing the changes, restart the server.
+  * Attempt to create an event with multiple ticket tiers.
+  * **Expected Result:** The `DEBUG` log should print an array of tier objects, and **each object must have a valid `eventId` property**. The event creation process should then complete successfully with no `TypeError`.

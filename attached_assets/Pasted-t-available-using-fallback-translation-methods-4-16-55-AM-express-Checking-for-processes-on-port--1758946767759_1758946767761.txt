@@ -1,0 +1,93 @@
+t available, using fallback translation methods
+4:16:55 AM [express] Checking for processes on port 5000...
+4:16:55 AM [express] Port cleanup completed
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+4:16:55 AM [express] NODE_ENV: production, isProduction: true
+4:16:55 AM [express] Using static file serving for production
+4:16:55 AM [express] Attempting to start server (attempt 1/3)
+4:16:55 AM [express] Server started successfully on port 5000
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+User verified exists: end
+4:17:08 AM [express] POST /api/verify-user 200 in 131ms :: {"valid":true}
+Deserialized user found: end
+Deserializing user: 232
+Deserializing user: 232
+Deserialized user found: end
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
+No location filter applied, showing all events
+Found 77 events in database before filtering
+Found 77 events to display
+Returning 77 events from database
+4:17:12 AM [express] GET /api/events 200 in 167ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 232
+Deserialized user found: end
+Deserializing user: 232
+Deserialized user found: end
+Event creation request received from user: end
+Form data: [Object: null prototype] {
+  title: 'mongenger',
+  description: 'ergjnkjhn4jkng',
+  category: 'Other',
+  location: 'Cinnaminson, 1506 Cinnaminson Avenue',
+  date: '2025-09-27T17:00:00.000Z',
+  time: '12:00:00',
+  price: '10',
+  ticketTiers: '[{"name":"Early bird","description":"ergkmg","price":10,"quantity":30},{"name":"VIP","description":"wkjgngjkngwe","price":50,"quantity":100}]',
+  eventPrivacy: 'public',
+  itinerary: '[]',
+  tags: '["Paid Event"]'
+}
+File: undefined
+Parsed itinerary data: []
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1758946740/images/uploads/1758946739545_IMG_5298.jpeg.jpg
+Geocoding location: Cinnaminson, 1506 Cinnaminson Avenue
+Geocoding successful: lat=39.992254, lng=-75.014261
+Creating new event: mongenger
+Event successfully saved to database with ID: 181
+Creating Stripe Product for tier: Early bird
+Created Stripe Product prod_T85mmovsLKhlsd and Price price_1SBpb7RxoKeYwVbtb5pjO6bR for tier Early bird
+Creating Stripe Product for tier: VIP
+Created Stripe Product prod_T85miY8YRiGYVs and Price price_1SBpb8RxoKeYwVbtmtHXQAWY for tier VIP
+DEBUG: Tiers prepared for insertion: [
+  {
+    eventId: 181,
+    name: 'Early bird',
+    description: 'ergkmg',
+    price: 10,
+    quantity: 30,
+    stripeProductId: 'prod_T85mmovsLKhlsd',
+    stripePriceId: 'price_1SBpb7RxoKeYwVbtb5pjO6bR',
+    isActive: true,
+    createdAt: 2025-09-27T04:19:02.177Z
+  },
+  {
+    eventId: 181,
+    name: 'VIP',
+    description: 'wkjgngjkngwe',
+    price: 50,
+    quantity: 100,
+    stripeProductId: 'prod_T85miY8YRiGYVs',
+    stripePriceId: 'price_1SBpb8RxoKeYwVbtmtHXQAWY',
+    isActive: true,
+    createdAt: 2025-09-27T04:19:02.177Z
+  }
+]
+Inserting 2 ticket tiers into database
+Error creating event: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4949:58
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+4:19:02 AM [express] POST /api/events 500 in 2907ms :: {"error":"Failed to create event","details":"…

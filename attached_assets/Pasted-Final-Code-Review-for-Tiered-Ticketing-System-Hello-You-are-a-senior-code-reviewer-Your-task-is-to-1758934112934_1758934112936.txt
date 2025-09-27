@@ -1,0 +1,53 @@
+Final Code Review for Tiered Ticketing System
+Hello! You are a senior code reviewer. Your task is to perform a final, comprehensive review of the recently implemented Tiered Ticketing System.
+
+The previous agent reported that the feature is complete and has been tested. Your job is to verify this claim by scrutinizing the implementation for correctness, security, and adherence to best practices.
+
+Please execute the following review steps:
+
+1. Review Database Schema Changes
+Examine db/schema.ts.
+
+Confirm:
+
+Does the new ticket_tiers table exist with all the required columns (eventId, name, price, stripePriceId, etc.)?
+
+Has the event_participants table been correctly updated with a ticketTierId foreign key?
+
+Are the data types appropriate (e.g., decimal for price)?
+
+2. Scrutinize the Event Creation Endpoint (POST /api/events)
+This is the most critical part of the new logic.
+
+Verify:
+
+Does the endpoint now correctly accept an array of ticketTiers objects in the request body?
+
+For each tier in the array, does the handler make the correct calls to stripe.products.create() and stripe.prices.create()?
+
+Are the stripeProductId and stripePriceId returned from Stripe correctly saved into the new ticket_tiers table in the database?
+
+Is there robust error handling? What happens if one of the Stripe API calls fails mid-loop?
+
+3. Review the Checkout Session Endpoint (POST /api/payments/create-checkout-session)
+Verify:
+
+Does the endpoint now require a ticketTierId in the request body?
+
+Does it correctly fetch the tier's stripePriceId from the ticket_tiers table?
+
+Crucially: Has the old, dynamic price_data object been completely removed from the stripe.checkout.sessions.create() call?
+
+Is the call now correctly using the line_items parameter with the pre-created stripePriceId?
+
+4. Review the Webhook Handler
+Analyze the Stripe webhook handler.
+
+Verify: Does it correctly read the ticketTierId from the checkout session metadata after a successful payment? Is this ticketTierId being correctly saved to the event_participants record?
+
+Final Code Review Report
+Based on your comprehensive review, generate a final report that either:
+
+Approves the implementation, confirming it is correct, secure, and follows the new architecture.
+
+Rejects the implementation, providing a clear, actionable list of any bugs, security concerns, or missing logic that must be fixed.

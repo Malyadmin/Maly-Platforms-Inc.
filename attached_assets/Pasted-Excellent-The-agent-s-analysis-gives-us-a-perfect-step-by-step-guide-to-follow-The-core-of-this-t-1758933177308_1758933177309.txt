@@ -1,0 +1,74 @@
+Excellent. The agent's analysis gives us a perfect, step-by-step guide to follow. The core of this task is to shift from a simple, single-price system to a more robust, multi-tiered model using permanent Stripe Products and Prices.
+
+Here is the complete build prompt for your Replit agent to implement the tiered ticketing feature.
+
+-----
+
+### **Build Prompt: Implement Tiered Ticketing System with Stripe**
+
+Hello\! Your task is to implement a new tiered ticketing system for events based on the provided analysis report. This requires significant changes to the database schema, event creation logic, and the Stripe payment flow.
+
+Please execute the following phases in order.
+
+### **Phase 1: Database Schema Overhaul**
+
+First, create the necessary database structure to support multiple ticket tiers per event.
+
+1.  **Create `ticket_tiers` Table:**
+
+      * In `db/schema.ts`, create a new table named `ticketTiers` exactly as specified in the analysis report. It must include columns for `eventId`, `name`, `description`, `price`, `quantity`, and the Stripe IDs.
+
+2.  **Update `event_participants` Table:**
+
+      * In the same schema file, modify the `event_participants` table.
+      * Add a new column: `ticketTierId: integer("ticket_tier_id").references(() => ticketTiers.id)`. This will track exactly which tier was purchased by an attendee.
+
+3.  **Generate and Apply Migration:**
+
+      * Use Drizzle Kit to generate a new database migration for these schema changes and apply it to the database.
+
+### **Phase 2: Refactor Event Creation and Stripe Integration**
+
+Next, update the event creation process to handle an array of tiers and create corresponding objects in Stripe.
+
+1.  **Modify `POST /api/events` Endpoint:**
+      * Update the Zod validation for this endpoint to accept an array of `ticketTiers` objects in the request body, instead of a single `price` string.
+      * In the endpoint's handler function, iterate through each tier object provided in the request.
+      * For **each tier**, perform the following Stripe API calls:
+          * Create a new Stripe **Product** using the tier's `name` and `description`.
+          * Create a new Stripe **Price** for that Product, using the tier's `price`.
+          * Save the `stripeProductId` and `stripePriceId` returned from Stripe.
+      * After the loop, insert the tier data, including the new Stripe IDs, into your new `ticket_tiers` database table.
+
+### **Phase 3: Update the Checkout Process**
+
+Finally, refactor the payment endpoint to use the pre-created Stripe Price IDs for purchases.
+
+1.  **Modify `POST /api/payments/create-checkout-session` Endpoint:**
+
+      * This endpoint must now accept a `ticketTierId` in the request body instead of just an `eventId`.
+      * In the handler, use the `ticketTierId` to fetch the correct tier record from your `ticket_tiers` table to get its `stripePriceId`.
+      * **Crucially, remove the old `price_data` object** from the `stripe.checkout.sessions.create()` call.
+      * Instead, use the `line_items` parameter with the pre-created `stripePriceId` you just fetched.
+
+    <!-- end list -->
+
+    ```typescript
+    // Example of the new checkout session creation
+    const session = await stripe.checkout.sessions.create({
+      // ... existing parameters like success_url, etc.
+      line_items: [{
+        price: ticketTier.stripePriceId, // Use the pre-created Price ID
+        quantity: 1,
+      }],
+      payment_intent_data: {
+        // ... existing application_fee and transfer_data logic
+      },
+    });
+    ```
+
+### **4. Update API Documentation**
+
+  * Update your `API_DOCUMENTATION.md` file to reflect all changes.
+  * Document the new request body for `POST /api/events`, showing that it now accepts an array of ticket tiers.
+  * Update the documentation for `POST /api/payments/create-checkout-session` to show the new required `ticketTierId` parameter.

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useLocation } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
@@ -824,10 +824,15 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
     resolver: zodResolver(step5Schema),
     defaultValues: {
       isPaidEvent: data.isPaidEvent,
-      price: data.price,
+      ticketTiers: data.ticketTiers || [],
       eventPrivacy: data.eventPrivacy,
       whoShouldAttend: data.whoShouldAttend,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "ticketTiers"
   });
 
   const [isPaidEvent, setIsPaidEvent] = useState(data.isPaidEvent);
@@ -836,9 +841,26 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
     const submissionData = {
       ...formData,
       isPaidEvent,
-      price: isPaidEvent ? formData.price : "",
+      ticketTiers: isPaidEvent ? formData.ticketTiers : [],
     };
     onNext(submissionData);
+  };
+
+  const addTier = () => {
+    append({
+      name: "",
+      description: "",
+      price: 0,
+      quantity: undefined
+    });
+  };
+
+  // Automatically add a tier when paid event is toggled on and no tiers exist
+  const handlePaidEventToggle = (checked: boolean) => {
+    setIsPaidEvent(checked);
+    if (checked && fields.length === 0) {
+      addTier();
+    }
   };
 
   return (
@@ -890,22 +912,97 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             </div>
             <Switch
               checked={isPaidEvent}
-              onCheckedChange={setIsPaidEvent}
+              onCheckedChange={handlePaidEventToggle}
               data-testid="switch-paid-event"
             />
           </div>
 
-          {/* Price Field */}
+          {/* Ticket Tiers */}
           {isPaidEvent && (
-            <div className="space-y-2">
-              <label className="text-white font-medium">Event Price</label>
-              <Input
-                {...form.register("price")}
-                placeholder="Enter price (e.g., 50)"
-                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-                data-testid="input-price"
-              />
-              <p className="text-xs text-gray-400">Enter amount without currency symbol</p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-white font-medium">Ticket Tiers</label>
+                <Button
+                  type="button"
+                  onClick={addTier}
+                  className="bg-gray-800 hover:bg-gray-700 text-white"
+                  data-testid="button-add-tier"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Tier
+                </Button>
+              </div>
+              
+              {fields.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <p>No ticket tiers yet. Add a tier to get started.</p>
+                </div>
+              )}
+              
+              {fields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-700 rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white font-medium">Tier {index + 1}</h4>
+                    <Button
+                      type="button"
+                      onClick={() => remove(index)}
+                      variant="ghost"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                      data-testid={`button-remove-tier-${index}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-white text-sm">Name</label>
+                      <Input
+                        {...form.register(`ticketTiers.${index}.name`)}
+                        placeholder="e.g., Early Bird, VIP"
+                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        data-testid={`input-tier-name-${index}`}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-white text-sm">Price</label>
+                      <Input
+                        {...form.register(`ticketTiers.${index}.price`)}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        data-testid={`input-tier-price-${index}`}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-white text-sm">Description (optional)</label>
+                    <Textarea
+                      {...form.register(`ticketTiers.${index}.description`)}
+                      placeholder="What's included in this tier?"
+                      rows={2}
+                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                      data-testid={`textarea-tier-description-${index}`}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-white text-sm">Quantity (optional)</label>
+                    <Input
+                      {...form.register(`ticketTiers.${index}.quantity`)}
+                      type="number"
+                      min="1"
+                      placeholder="Leave empty for unlimited"
+                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                      data-testid={`input-tier-quantity-${index}`}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -1225,7 +1322,7 @@ export default function CreateEventFlowPage() {
     dressCode: false,
     dressCodeDetails: "",
     isPaidEvent: false,
-    price: "",
+    ticketTiers: [],
     eventPrivacy: "public",
     whoShouldAttend: "",
     spotsAvailable: "",
@@ -1278,7 +1375,8 @@ export default function CreateEventFlowPage() {
         location: eventData.isOnlineEvent ? "Online" : `${eventData.city}${eventData.addressLine1 ? ', ' + eventData.addressLine1 : ''}`,
         date: eventData.startDate.toISOString(),
         time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
-        price: eventData.isPaidEvent && eventData.price ? parseFloat(eventData.price) : 0,
+        price: eventData.isPaidEvent && eventData.ticketTiers?.length > 0 ? eventData.ticketTiers[0].price : 0,
+        ticketTiers: eventData.isPaidEvent ? eventData.ticketTiers : [],
         capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
         eventPrivacy: eventData.eventPrivacy || "public", // Add the missing eventPrivacy field
         itinerary: eventData.agendaItems?.map(item => ({
