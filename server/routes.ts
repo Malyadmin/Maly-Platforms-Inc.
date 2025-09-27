@@ -3366,14 +3366,16 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         // --- Retrieve and validate metadata --- 
         const userIdStr = session.metadata?.userId;
         const eventIdStr = session.metadata?.eventId;
+        const ticketTierIdStr = session.metadata?.ticketTierId;
         const quantityStr = session.metadata?.quantity;
         
         const userId = userIdStr ? parseInt(userIdStr, 10) : NaN;
         const eventId = eventIdStr ? parseInt(eventIdStr, 10) : NaN;
+        const ticketTierId = ticketTierIdStr ? parseInt(ticketTierIdStr, 10) : NaN;
         const quantity = quantityStr ? parseInt(quantityStr, 10) : 1; // Default quantity to 1 if missing/invalid
 
-        if (isNaN(userId) || isNaN(eventId) || isNaN(quantity)) {
-            console.error('Missing or invalid metadata in checkout session:', session.id, { userIdStr, eventIdStr, quantityStr });
+        if (isNaN(userId) || isNaN(eventId) || isNaN(ticketTierId) || isNaN(quantity)) {
+            console.error('Missing or invalid metadata in checkout session:', session.id, { userIdStr, eventIdStr, ticketTierIdStr, quantityStr });
             return res.status(400).send('Metadata error.');
         }
 
@@ -3406,6 +3408,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
                 .where(and(
                     eq(eventParticipants.userId, userId), // Use validated number userId
                     eq(eventParticipants.eventId, eventId), // Use validated number eventId
+                    eq(eventParticipants.ticketTierId, ticketTierId), // Use validated ticket tier ID
                     eq(eventParticipants.paymentIntentId, stripeCheckoutSessionId) // Look for session ID in paymentIntentId field
                 ))
                 .returning();
@@ -3532,42 +3535,63 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       return res.status(401).json({ error: 'Authentication required' });
     }
     
-    const { eventId: eventIdReq, quantity: quantityReq = 1 } = req.body;
+    const { ticketTierId: ticketTierIdReq, quantity: quantityReq = 1 } = req.body;
 
-    if (!eventIdReq) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    if (!ticketTierIdReq) {
+      return res.status(400).json({ error: 'Missing required parameters. ticketTierId is required.' });
     }
 
     try {
-      const eventId = parseInt(eventIdReq.toString(), 10);
+      const ticketTierId = parseInt(ticketTierIdReq.toString(), 10);
       const quantity = parseInt(quantityReq.toString(), 10);
 
-      // Fetch event details with creator information
-      const event = await db
+      // Fetch ticket tier details with event and creator information
+      const tierQuery = await db
         .select({
-          id: events.id,
-          title: events.title,
-          description: events.description,
-          price: events.price,
-          image: events.image,
+          tierId: ticketTiers.id,
+          tierName: ticketTiers.name,
+          tierDescription: ticketTiers.description,
+          tierPrice: ticketTiers.price,
+          tierQuantity: ticketTiers.quantity,
+          stripePriceId: ticketTiers.stripePriceId,
+          stripeProductId: ticketTiers.stripeProductId,
+          eventId: events.id,
+          eventTitle: events.title,
+          eventDescription: events.description,
+          eventImage: events.image,
           creatorId: events.creatorId
         })
-        .from(events)
-        .where(eq(events.id, eventId))
+        .from(ticketTiers)
+        .leftJoin(events, eq(ticketTiers.eventId, events.id))
+        .where(and(
+          eq(ticketTiers.id, ticketTierId),
+          eq(ticketTiers.isActive, true)
+        ))
         .limit(1);
 
-      if (!event || !event.length) {
-        return res.status(404).json({ error: 'Event not found' });
+      if (!tierQuery || !tierQuery.length) {
+        return res.status(404).json({ error: 'Ticket tier not found or inactive' });
       }
 
-      // Validate event creator can receive payments using Connect module
-      const eventCreator = await validateEventCreatorForPayment(event[0].creatorId!);
+      const ticketTier = tierQuery[0];
 
-      // Convert string price to cents for Stripe
-      const unitAmount = parseInt((parseFloat(event[0].price || '0') * 100).toString(), 10);
+      // Validate event creator can receive payments using Connect module
+      const eventCreator = await validateEventCreatorForPayment(ticketTier.creatorId!);
+
+      // For free tiers, check if Stripe Price ID exists (should be null for free tickets)
+      const tierPrice = parseFloat(ticketTier.tierPrice || '0');
+      if (tierPrice === 0) {
+        return res.status(400).json({ error: 'Cannot create checkout session for free tickets' });
+      }
+
+      // Check if we have the required Stripe Price ID
+      if (!ticketTier.stripePriceId) {
+        return res.status(400).json({ error: 'Stripe Price ID not found for this ticket tier' });
+      }
+
+      // Calculate total amount and application fee
+      const unitAmount = Math.round(tierPrice * 100); // Convert to cents
       const totalAmount = unitAmount * quantity;
-      
-      // Calculate 3% application fee using Connect module
       const applicationFeeAmount = calculateApplicationFee(totalAmount);
 
       // Construct the base URL properly for Stripe redirects
@@ -3578,24 +3602,13 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Ensure the URL has a proper scheme
       const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
 
-      // Create Stripe checkout session with Connect payment
+      // Create Stripe checkout session with Connect payment using pre-created Price ID
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         automatic_tax: { enabled: true },
         line_items: [
           {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: event[0].title,
-                description: event[0].description,
-                // Only include images if they have a valid URL
-                ...(event[0].image && event[0].image.startsWith('http') ? {
-                  images: [event[0].image]
-                } : {}),
-              },
-              unit_amount: unitAmount,
-            },
+            price: ticketTier.stripePriceId, // Use the pre-created Price ID
             quantity,
           },
         ],
@@ -3607,9 +3620,10 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           },
         },
         success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/payment-cancel?eventId=${eventId}`,
+        cancel_url: `${baseUrl}/payment-cancel?eventId=${ticketTier.eventId}`,
         metadata: {
-          eventId: eventId.toString(),
+          eventId: ticketTier.eventId.toString(),
+          ticketTierId: ticketTier.tierId.toString(),
           userId: userId.toString(),
           quantity: quantity.toString(),
           creatorId: eventCreator.id.toString(),
@@ -3620,7 +3634,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Create initial participation record
       await db.insert(eventParticipants).values({
         userId,
-        eventId,
+        eventId: ticketTier.eventId,
+        ticketTierId: ticketTier.tierId,
         status: 'pending',
         ticketQuantity: quantity,
         paymentStatus: 'initiated',
