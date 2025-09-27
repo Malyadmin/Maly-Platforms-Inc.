@@ -295,7 +295,11 @@ export function ConnectPage() {
       <header className="bg-black">
         {/* MALY logo centered at top */}
         <div className="flex justify-center pt-3 pb-4">
-          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-8 w-auto"
+          />
         </div>
         
         {/* Controls section */}

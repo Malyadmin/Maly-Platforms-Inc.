@@ -370,9 +370,13 @@ export default function ProfilePage() {
 <div className="min-h-screen bg-black">
   {/* Header */}
   <div className="absolute top-0 left-0 right-0 z-20 py-4 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
-    {/* MALY centered at top */}
+    {/* MALY logo centered at top */}
     <div className="flex justify-center pb-3">
-      <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+      <img 
+        src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+        alt="MÁLY" 
+        className="h-8 w-auto"
+      />
     </div>
     
     {/* Profile title on left */}
