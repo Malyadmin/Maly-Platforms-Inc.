@@ -1,0 +1,56 @@
+Implement Tiered Ticket Display and Checkout on Event Page
+Hello! Your task is to implement the frontend functionality for tiered ticketing on the event view page. Currently, the ticket tiers and the purchase button are not appearing. You will need to fetch the tier data, display it, and enable users to purchase any selected tier.
+
+Please execute the following steps in order:
+
+1. Update Data Fetching Logic
+First, ensure the event page is receiving the new ticketTiers data from the backend.
+
+File to Edit: The React component for the event view page (e.g., client/src/pages/EventShowPage.tsx).
+
+Action:
+
+Locate the useQuery hook that fetches data for the single event (e.g., from GET /api/events/:id).
+
+Verify that the frontend's data type or interface for the event object now includes the ticketTiers array, matching the backend's response.
+
+2. Implement the Ticket Tier Display UI
+Next, render the fetched ticket tiers on the page.
+
+File to Edit: The event view page component.
+
+Action:
+
+Below the event details, create a new section for tickets.
+
+Map over the event.ticketTiers array. For each tier in the array, display its name, description, and price.
+
+Implement a selection mechanism. A good approach is to use a useState hook to keep track of the selectedTierId. When a user clicks on a tier row, update this state. Apply a visual style (e.g., a border or background color) to the currently selected tier.
+
+3. Implement the Purchase Logic
+Finally, wire up the "Purchase Ticket" button to the checkout process.
+
+File to Edit: The event view page component.
+
+Action:
+
+Add a "Purchase Ticket" button to the page. This button should be disabled until a user has selected a tier (selectedTierId is not null).
+
+Create an onClick handler for this button.
+
+Inside the handler, call the API endpoint to create a checkout session: POST /api/payments/create-checkout-session.
+
+Crucially, in the request body, you must now pass the ticketTierId from the state (selectedTierId). This is the key change from the old system.
+
+On a successful response, redirect the user to the Stripe Checkout URL.
+
+4. Validate the Fix
+After implementing the changes, navigate to an event page that has multiple ticket tiers.
+
+Expected Result:
+
+You should see a list of all available ticket tiers with their details.
+
+You should be able to click and select a specific tier.
+
+Clicking the "Purchase Ticket" button should successfully redirect you to a Stripe Checkout page for the exact price of the tier you selected.
