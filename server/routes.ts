@@ -1401,6 +1401,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         })
         .from(eventParticipants)
         .where(eq(eventParticipants.eventId, eventId));
+
+        // Get ticket tiers for this event
+        const eventTicketTiers = await db.select()
+          .from(ticketTiers)
+          .where(eq(ticketTiers.eventId, eventId));
         
         // Create separate lists for attending and interested users
         const attendingUserIds = eventParticipantsList
@@ -1492,7 +1497,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
                   profileImage: creator.profileImage
                 },
                 attendingUsers,
-                interestedUsers
+                interestedUsers,
+                ticketTiers: eventTicketTiers
               };
               
               console.log(`Found event in database with creator: ${event.title}, creator: ${creator.username}`);
@@ -1511,7 +1517,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           isPrivate: event.isPrivate,
           requireApproval: event.requireApproval,
           attendingUsers,
-          interestedUsers
+          interestedUsers,
+          ticketTiers: eventTicketTiers
         };
         
         console.log("Found event in database:", event.title);

@@ -12,6 +12,16 @@ import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 // Define the Event type with all fields
+const TicketTierSchema = z.object({
+  id: z.number(),
+  eventId: z.number(),
+  name: z.string(),
+  description: z.string().nullable(),
+  price: z.string(),
+  quantity: z.number().nullable(),
+  isActive: z.boolean(),
+});
+
 const EventSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -39,6 +49,7 @@ const EventSchema = z.object({
     fullName: z.string(),
     profileImage: z.string().nullable(),
   }).nullable(),
+  ticketTiers: z.array(TicketTierSchema).optional(),
 });
 
 type Event = z.infer<typeof EventSchema>;
