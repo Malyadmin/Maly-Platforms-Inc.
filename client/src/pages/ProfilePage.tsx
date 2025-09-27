@@ -6,6 +6,7 @@ import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check,
 import { PageHeader } from "@/components/ui/page-header";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
+import PremiumPaywall from "@/components/PremiumPaywall";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -82,6 +83,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isUpdatingMood, setIsUpdatingMood] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
@@ -179,6 +181,17 @@ export default function ProfilePage() {
       });
     },
   });
+
+  // Handle message button click - check premium status first
+  const handleMessageClick = () => {
+    if (!profileData) return;
+    
+    if (currentUser?.isPremium) {
+      createConversationMutation.mutate(profileData.id);
+    } else {
+      setShowPremiumPaywall(true);
+    }
+  };
 
   // Create or find a conversation with another user
   const createConversationMutation = useMutation({
@@ -461,7 +474,7 @@ export default function ProfilePage() {
                   Connected
                 </Button>
                 <Button 
-                  onClick={() => createConversationMutation.mutate(profileData.id)}
+                  onClick={handleMessageClick}
                   disabled={createConversationMutation.isPending}
                   className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 flex-1 sm:flex-auto rounded-full border-0"
                   data-testid="button-message"
@@ -704,6 +717,13 @@ export default function ProfilePage() {
       </div>
     </div>
   )}
+
+  {/* Premium Paywall for Messaging */}
+  <PremiumPaywall
+    isOpen={showPremiumPaywall}
+    onClose={() => setShowPremiumPaywall(false)}
+    feature="messaging"
+  />
 </div>
 );
 }
