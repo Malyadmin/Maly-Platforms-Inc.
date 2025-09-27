@@ -10,7 +10,7 @@ import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions } from "../db/schema";
+import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe';
 import Stripe from 'stripe';
@@ -45,7 +45,7 @@ import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 // Import admin authentication middleware
 import { requireAdmin } from './middleware/adminAuth';
 // Import validation schemas
-import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema } from './validation/schemas';
+import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema } from './validation/schemas';
 
 const categories = [
   "Retail",
@@ -1377,6 +1377,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     try {
       const { id } = req.params;
       const eventId = parseInt(id);
+      
+      // Validate eventId
+      if (isNaN(eventId) || eventId > Number.MAX_SAFE_INTEGER) {
+        return res.status(400).json({ error: "Invalid event ID format" });
+      }
+      
       const currentUserId = req.user?.id;
 
       // Try to get event from the database
@@ -1395,6 +1401,26 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         })
         .from(eventParticipants)
         .where(eq(eventParticipants.eventId, eventId));
+
+        // Get ticket tiers for this event
+        const eventTicketTiers = await db.select()
+          .from(ticketTiers)
+          .where(eq(ticketTiers.eventId, eventId));
+
+        // Recalculate ticket type based on ticket tiers
+        let calculatedTicketType = event.ticketType; // Default to existing value
+        if (eventTicketTiers && eventTicketTiers.length > 0) {
+          const hasFreeTiers = eventTicketTiers.some(tier => parseFloat(tier.price) === 0);
+          const hasPaidTiers = eventTicketTiers.some(tier => parseFloat(tier.price) > 0);
+          
+          if (hasPaidTiers && hasFreeTiers) {
+            calculatedTicketType = 'paid'; // Mixed tiers, consider as paid
+          } else if (hasPaidTiers) {
+            calculatedTicketType = 'paid';
+          } else {
+            calculatedTicketType = 'free';
+          }
+        }
         
         // Create separate lists for attending and interested users
         const attendingUserIds = eventParticipantsList
@@ -1470,6 +1496,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               const creator = creatorQuery[0];
               const eventWithDetails = {
                 ...event,
+                ticketType: calculatedTicketType, // Use calculated ticket type
 
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
@@ -1486,7 +1513,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
                   profileImage: creator.profileImage
                 },
                 attendingUsers,
-                interestedUsers
+                interestedUsers,
+                ticketTiers: eventTicketTiers
               };
               
               console.log(`Found event in database with creator: ${event.title}, creator: ${creator.username}`);
@@ -1501,11 +1529,13 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Add participants to the event object even if we don't have creator details
         const eventWithParticipants = {
           ...event,
+          ticketType: calculatedTicketType, // Use calculated ticket type
           // Transform snake_case to camelCase for frontend compatibility
           isPrivate: event.isPrivate,
           requireApproval: event.requireApproval,
           attendingUsers,
-          interestedUsers
+          interestedUsers,
+          ticketTiers: eventTicketTiers
         };
         
         console.log("Found event in database:", event.title);
@@ -1728,11 +1758,27 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       console.log("Form data:", req.body);
       console.log("File:", req.file);
 
+      // Parse ticketTiers from the request body
+      let parsedTicketTiers = [];
+      try {
+        if (req.body.ticketTiers) {
+          parsedTicketTiers = Array.isArray(req.body.ticketTiers) 
+            ? req.body.ticketTiers 
+            : JSON.parse(req.body.ticketTiers);
+        }
+      } catch (e) {
+        console.warn("Failed to parse ticketTiers JSON:", e);
+        return res.status(400).json({
+          error: 'Invalid ticket tiers format',
+          details: 'Ticket tiers must be a valid JSON array'
+        });
+      }
+
       // Validate input data with Zod schema
       const validationResult = createEventSchema.safeParse({
         ...req.body,
         date: req.body.date || new Date().toISOString(),
-        price: req.body.price ? parseFloat(req.body.price) : 0,
+        ticketTiers: parsedTicketTiers,
         capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
         itinerary: req.body.itinerary ? JSON.parse(req.body.itinerary) : undefined,
         tags: req.body.tags ? (Array.isArray(req.body.tags) ? req.body.tags : JSON.parse(req.body.tags)) : undefined
@@ -1770,15 +1816,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         // Default to empty array if parsing fails
       }
 
-      // Process price (making sure it's a number)
-      let price = 0;
-      try {
-        price = parseFloat(req.body.price || '0');
-        if (isNaN(price)) price = 0;
-      } catch (e) {
-        console.warn("Invalid price format:", e);
-        price = 0;
-      }
+      // Get validated ticket tiers from the validation result
+      const validatedTicketTiers = validationResult.data.ticketTiers;
 
       // Process image and video uploads to Cloudinary
       let imageUrl = '';
@@ -1833,6 +1872,16 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }
       }
 
+      // Determine ticket type based on ticket tiers
+      const hasFreeTiers = validatedTicketTiers.some(tier => tier.price === 0);
+      const hasPaidTiers = validatedTicketTiers.some(tier => tier.price > 0);
+      let ticketType = 'free';
+      if (hasPaidTiers && hasFreeTiers) {
+        ticketType = 'paid'; // Mixed tiers, consider as paid
+      } else if (hasPaidTiers) {
+        ticketType = 'paid';
+      }
+
       // Create event data object with all required fields from schema
       const eventData = {
         title: req.body.title,
@@ -1843,9 +1892,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         longitude: coordinates?.longitude || null,
         city: req.body.city || 'Unknown',
         category: req.body.category || 'Other', // Add default category value
-        ticketType: req.body.price && parseFloat(req.body.price) > 0 ? 'paid' : 'free',
+        ticketType: ticketType,
         capacity: parseInt(req.body.capacity || '10'),
-        price: req.body.price ? req.body.price.toString() : '0', // Ensure price is a string
+        price: '0', // Keep for backward compatibility, will be replaced by tiers
         date: new Date(req.body.date || new Date()),
         tags: tags,
         image: imageUrl,
@@ -1866,19 +1915,98 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log(`Creating new event:`, eventData.title);
 
-      // Insert the event into the database
+      // Insert the event into the database first
       const result = await db.insert(events).values(eventData).returning();
 
-      if (result && result.length > 0) {
-        console.log(`Event successfully saved to database with ID: ${result[0].id}`);
-        return res.status(201).json({
-          success: true,
-          message: "Event published successfully",
-          event: result[0]
-        });
-      } else {
+      if (!result || !result.length) {
         throw new Error("Database operation did not return an event ID");
       }
+
+      const createdEvent = result[0];
+      const eventId = createdEvent.id; // Capture the event ID explicitly
+      console.log(`Event successfully saved to database with ID: ${eventId}`);
+
+      // Create Stripe Products and Prices for each ticket tier
+      const stripeTiers = [];
+      
+      for (let i = 0; i < validatedTicketTiers.length; i++) {
+        const tier = validatedTicketTiers[i];
+        try {
+          let stripeProductId = null;
+          let stripePriceId = null;
+
+          // Only create Stripe products/prices for paid tiers
+          if (tier.price > 0) {
+            console.log(`Creating Stripe Product for tier: ${tier.name}`);
+            
+            // Create Stripe Product
+            const stripeProduct = await stripe.products.create({
+              name: `${eventData.title} - ${tier.name}`,
+              description: tier.description || `${tier.name} ticket for ${eventData.title}`,
+              metadata: {
+                eventId: eventId.toString(),
+                tierName: tier.name
+              }
+            });
+            stripeProductId = stripeProduct.id;
+
+            // Create Stripe Price
+            const stripePrice = await stripe.prices.create({
+              currency: 'usd',
+              unit_amount: Math.round(tier.price * 100), // Convert to cents
+              product: stripeProductId,
+              metadata: {
+                eventId: eventId.toString(),
+                tierName: tier.name
+              }
+            });
+            stripePriceId = stripePrice.id;
+
+            console.log(`Created Stripe Product ${stripeProductId} and Price ${stripePriceId} for tier ${tier.name}`);
+          }
+
+          // Store Stripe data for this tier
+          stripeTiers.push({
+            productId: stripeProductId,
+            priceId: stripePriceId
+          });
+
+        } catch (error) {
+          console.error(`Error creating Stripe data for tier ${tier.name}:`, error);
+          // Still add empty Stripe data for this tier
+          stripeTiers.push({
+            productId: null,
+            priceId: null
+          });
+        }
+      }
+
+      // CRUCIAL FIX: Prepare the tiers for insertion using the captured eventId
+      const tiersToInsert = parsedTicketTiers.map((tier, index) => ({
+        eventId: eventId, // Use camelCase to match schema property names
+        name: tier.name,
+        description: tier.description || null,
+        price: tier.price,
+        quantity: tier.quantity || null,
+        stripeProductId: stripeTiers[index].productId,
+        stripePriceId: stripeTiers[index].priceId,
+        isActive: true,
+        createdAt: new Date()
+      }));
+
+      // Add debug log to verify the data before the final step
+      console.log('DEBUG: Tiers prepared for insertion:', tiersToInsert);
+
+      console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
+      const createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
+      console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
+
+      return res.status(201).json({
+        success: true,
+        message: "Event published successfully with ticket tiers",
+        event: createdEvent,
+        ticketTiers: createdTiers
+      });
     } catch (error) {
       console.error("Error creating event:", error);
       const message = error instanceof Error ? error.message : "Unknown database error";
@@ -3276,14 +3404,16 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         // --- Retrieve and validate metadata --- 
         const userIdStr = session.metadata?.userId;
         const eventIdStr = session.metadata?.eventId;
+        const ticketTierIdStr = session.metadata?.ticketTierId;
         const quantityStr = session.metadata?.quantity;
         
         const userId = userIdStr ? parseInt(userIdStr, 10) : NaN;
         const eventId = eventIdStr ? parseInt(eventIdStr, 10) : NaN;
+        const ticketTierId = ticketTierIdStr ? parseInt(ticketTierIdStr, 10) : NaN;
         const quantity = quantityStr ? parseInt(quantityStr, 10) : 1; // Default quantity to 1 if missing/invalid
 
-        if (isNaN(userId) || isNaN(eventId) || isNaN(quantity)) {
-            console.error('Missing or invalid metadata in checkout session:', session.id, { userIdStr, eventIdStr, quantityStr });
+        if (isNaN(userId) || isNaN(eventId) || isNaN(ticketTierId) || isNaN(quantity)) {
+            console.error('Missing or invalid metadata in checkout session:', session.id, { userIdStr, eventIdStr, ticketTierIdStr, quantityStr });
             return res.status(400).send('Metadata error.');
         }
 
@@ -3316,6 +3446,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
                 .where(and(
                     eq(eventParticipants.userId, userId), // Use validated number userId
                     eq(eventParticipants.eventId, eventId), // Use validated number eventId
+                    eq(eventParticipants.ticketTierId, ticketTierId), // Use validated ticket tier ID
                     eq(eventParticipants.paymentIntentId, stripeCheckoutSessionId) // Look for session ID in paymentIntentId field
                 ))
                 .returning();
@@ -3442,42 +3573,67 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       return res.status(401).json({ error: 'Authentication required' });
     }
     
-    const { eventId: eventIdReq, quantity: quantityReq = 1 } = req.body;
+    const { ticketTierId: ticketTierIdReq, quantity: quantityReq = 1 } = req.body;
 
-    if (!eventIdReq) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    if (!ticketTierIdReq) {
+      return res.status(400).json({ error: 'Missing required parameters. ticketTierId is required.' });
     }
 
     try {
-      const eventId = parseInt(eventIdReq.toString(), 10);
+      const ticketTierId = parseInt(ticketTierIdReq.toString(), 10);
       const quantity = parseInt(quantityReq.toString(), 10);
 
-      // Fetch event details with creator information
-      const event = await db
+      // Fetch ticket tier details with event and creator information
+      const tierQuery = await db
         .select({
-          id: events.id,
-          title: events.title,
-          description: events.description,
-          price: events.price,
-          image: events.image,
+          tierId: ticketTiers.id,
+          tierName: ticketTiers.name,
+          tierDescription: ticketTiers.description,
+          tierPrice: ticketTiers.price,
+          tierQuantity: ticketTiers.quantity,
+          stripePriceId: ticketTiers.stripePriceId,
+          stripeProductId: ticketTiers.stripeProductId,
+          eventId: events.id,
+          eventTitle: events.title,
+          eventDescription: events.description,
+          eventImage: events.image,
           creatorId: events.creatorId
         })
-        .from(events)
-        .where(eq(events.id, eventId))
+        .from(ticketTiers)
+        .leftJoin(events, eq(ticketTiers.eventId, events.id))
+        .where(and(
+          eq(ticketTiers.id, ticketTierId),
+          eq(ticketTiers.isActive, true)
+        ))
         .limit(1);
 
-      if (!event || !event.length) {
-        return res.status(404).json({ error: 'Event not found' });
+      if (!tierQuery || !tierQuery.length) {
+        return res.status(404).json({ error: 'Ticket tier not found or inactive' });
       }
 
-      // Validate event creator can receive payments using Connect module
-      const eventCreator = await validateEventCreatorForPayment(event[0].creatorId!);
+      const ticketTier = tierQuery[0];
 
-      // Convert string price to cents for Stripe
-      const unitAmount = parseInt((parseFloat(event[0].price || '0') * 100).toString(), 10);
+      // Validate event creator can receive payments using Connect module
+      const eventCreator = await validateEventCreatorForPayment(ticketTier.creatorId!);
+
+      // For free tiers, check if Stripe Price ID exists (should be null for free tickets)
+      const tierPrice = parseFloat(ticketTier.tierPrice || '0');
+      if (tierPrice === 0) {
+        return res.status(400).json({ error: 'Cannot create checkout session for free tickets' });
+      }
+
+      // Check if we have the required Stripe Price ID and event ID
+      if (!ticketTier.stripePriceId) {
+        return res.status(400).json({ error: 'Stripe Price ID not found for this ticket tier' });
+      }
+
+      if (!ticketTier.eventId) {
+        return res.status(400).json({ error: 'Event not found for this ticket tier' });
+      }
+
+      // Calculate total amount and application fee
+      const unitAmount = Math.round(tierPrice * 100); // Convert to cents
       const totalAmount = unitAmount * quantity;
-      
-      // Calculate 3% application fee using Connect module
       const applicationFeeAmount = calculateApplicationFee(totalAmount);
 
       // Construct the base URL properly for Stripe redirects
@@ -3488,24 +3644,13 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Ensure the URL has a proper scheme
       const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
 
-      // Create Stripe checkout session with Connect payment
+      // Create Stripe checkout session with Connect payment using pre-created Price ID
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         automatic_tax: { enabled: true },
         line_items: [
           {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: event[0].title,
-                description: event[0].description,
-                // Only include images if they have a valid URL
-                ...(event[0].image && event[0].image.startsWith('http') ? {
-                  images: [event[0].image]
-                } : {}),
-              },
-              unit_amount: unitAmount,
-            },
+            price: ticketTier.stripePriceId, // Use the pre-created Price ID
             quantity,
           },
         ],
@@ -3517,9 +3662,10 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           },
         },
         success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/payment-cancel?eventId=${eventId}`,
+        cancel_url: `${baseUrl}/payment-cancel?eventId=${ticketTier.eventId}`,
         metadata: {
-          eventId: eventId.toString(),
+          eventId: ticketTier.eventId.toString(),
+          ticketTierId: ticketTier.tierId.toString(),
           userId: userId.toString(),
           quantity: quantity.toString(),
           creatorId: eventCreator.id.toString(),
@@ -3530,7 +3676,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       // Create initial participation record
       await db.insert(eventParticipants).values({
         userId,
-        eventId,
+        eventId: ticketTier.eventId,
+        ticketTierId: ticketTier.tierId,
         status: 'pending',
         ticketQuantity: quantity,
         paymentStatus: 'initiated',

@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+// Ticket tier schema for tiered ticketing
+export const ticketTierSchema = z.object({
+  name: z.string().min(1, 'Tier name is required').max(100, 'Tier name too long'),
+  description: z.string().max(500, 'Description too long').optional(),
+  price: z.number().min(0, 'Price cannot be negative'),
+  quantity: z.number().int().min(1, 'Quantity must be at least 1').optional()
+});
+
 // Event creation schema
 export const createEventSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
@@ -8,7 +16,7 @@ export const createEventSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   date: z.string().refine((date) => !isNaN(Date.parse(date)), 'Invalid date format'),
   time: z.string().optional(),
-  price: z.number().min(0, 'Price cannot be negative').optional(),
+  ticketTiers: z.array(ticketTierSchema).min(1, 'At least one ticket tier is required'),
   capacity: z.number().min(1, 'Capacity must be at least 1').optional(),
   itinerary: z.array(z.object({
     time: z.string(),

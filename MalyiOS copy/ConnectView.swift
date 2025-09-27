@@ -120,16 +120,8 @@ struct ConnectView: View {
                 // Like-vibe section header
                 likeVibeSection
                 
-                // Featured large profile
-                if let featuredUser = connectViewModel.nearbyUsers.first {
-                    featuredProfileSection(user: featuredUser)
-                }
-                
-                // People with common interests section
-                commonInterestsSection
-                
-                // Other members section  
-                otherMembersSection
+                // 4x4 Grid of all users as main content
+                mainGridSection
             }
         }
         .refreshable {
@@ -165,6 +157,24 @@ struct ConnectView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
+    }
+    
+    private var mainGridSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 4x4 Grid of all users
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 8) {
+                ForEach(connectViewModel.nearbyUsers.prefix(16), id: \.id) { user in
+                    gridUserItem(user: user)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.top, 24)
     }
     
     private func featuredProfileSection(user: ConnectUser) -> some View {
@@ -303,7 +313,7 @@ struct ConnectView: View {
             }
             .padding(.horizontal, 20)
             
-            // 3x4 Grid of users
+            // 4x4 Grid of users
             let gridUsers = Array(connectViewModel.nearbyUsers.dropFirst(3))
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -311,7 +321,7 @@ struct ConnectView: View {
                 GridItem(.flexible()),
                 GridItem(.flexible())
             ], spacing: 8) {
-                ForEach(gridUsers.prefix(12), id: \.id) { user in
+                ForEach(gridUsers.prefix(16), id: \.id) { user in
                     gridUserItem(user: user)
                 }
             }
@@ -381,22 +391,43 @@ struct ConnectView: View {
             selectedUser = user
             showingUserProfile = true
         }) {
-            AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Image(systemName: "person.fill")
+            ZStack(alignment: .bottomLeading) {
+                AsyncImage(url: URL(string: user.profileImage ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.white)
+                                .font(.title)
+                        )
+                }
+                .frame(height: 80)
+                .clipShape(Rectangle())
+                
+                // Name and Location Overlay
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(user.fullName?.uppercased() ?? user.username.uppercased())
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    if let location = user.location {
+                        Text(location)
+                            .font(.caption2)
                             .foregroundColor(.white)
-                            .font(.title)
-                    )
+                            .lineLimit(1)
+                    }
+                }
+                .padding(4)
+                .background(Color.black.opacity(0.7))
+                .cornerRadius(4)
+                .padding(4)
             }
-            .frame(height: 80)
-            .clipShape(Rectangle())
-            .cornerRadius(8)
         }
     }
     

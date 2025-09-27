@@ -7,9 +7,10 @@ import { Conversation } from '@/types/inbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users } from 'lucide-react';
+import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/lib/translations';
+import { BottomNav } from '@/components/ui/bottom-nav';
 
 interface ConnectionRequest {
   id: number;
@@ -46,6 +47,7 @@ export default function InboxPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
+  const [requestsExpanded, setRequestsExpanded] = useState(false);
   const { user } = useUser();
   const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
@@ -225,10 +227,15 @@ export default function InboxPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="flex items-center justify-center py-4 border-b border-gray-800">
-        <h1 className="text-white font-semibold text-lg" data-testid="inbox-title">Inbox</h1>
-        <div className="absolute right-4">
-          <h2 className="text-white font-bold text-xl tracking-wider">MALY</h2>
+      <div className="py-4 border-b border-gray-800">
+        {/* MALY centered at top */}
+        <div className="flex justify-center pb-3">
+          <h1 className="text-white text-xl font-bold tracking-[0.3em] leading-none" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+        </div>
+        
+        {/* Inbox title on left */}
+        <div className="px-5">
+          <h2 className="text-white text-lg font-medium" data-testid="inbox-title">Inbox</h2>
         </div>
       </div>
 
@@ -247,42 +254,34 @@ export default function InboxPage() {
         </div>
       ) : (
         <div className="space-y-8 pb-20" data-testid="inbox-content">
-          {/* Connection Requests Section */}
+          {/* Messages & Groups Section */}
           <div className="space-y-2">
-            {renderSectionHeader('Connection Requests', connectionRequests.length)}
-            {connectionRequests.length === 0 ? (
-              renderEmptyState('No pending connection requests')
+            {renderSectionHeader('Messages & Groups', conversationsWithMessages.length)}
+            {conversationsWithMessages.length === 0 ? (
+              renderEmptyState('No messages yet')
             ) : (
               <div>
-                {connectionRequests.map((request) => 
-                  renderInboxItem({
-                    title: request.fullName || request.username || 'Unknown User',
-                    subtitle: 'Wants to connect',
-                    avatar: request.profileImage,
-                    onPress: () => setLocation(`/profile/${request.username || request.id}`),
-                    testId: `connection-request-${request.id}`
-                  })
-                )}
-              </div>
-            )}
-          </div>
+                {conversationsWithMessages.map((conversation) => {
+                  const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                    ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
+                    : conversation.title;
+                  
+                  const displaySubtitle = conversation.lastMessage?.content 
+                    ? conversation.lastMessage.content 
+                    : 'No messages yet';
 
-          {/* RSVP Requests Section */}
-          <div className="space-y-2">
-            {renderSectionHeader('RSVP Requests', rsvpRequests.length)}
-            {rsvpRequests.length === 0 ? (
-              renderEmptyState('No pending RSVP requests')
-            ) : (
-              <div>
-                {rsvpRequests.map((request) => 
-                  renderInboxItem({
-                    title: request.userName,
-                    subtitle: `Wants to join ${request.eventTitle}`,
-                    avatar: request.userImage,
-                    onPress: () => setLocation(`/event/${request.eventId}`),
-                    testId: `rsvp-request-${request.id}`
-                  })
-                )}
+                  const avatarUrl = conversation.type === 'direct' && conversation.otherParticipant
+                    ? conversation.otherParticipant.profileImage
+                    : undefined;
+                  
+                  return renderInboxItem({
+                    title: displayName,
+                    subtitle: displaySubtitle,
+                    avatar: avatarUrl,
+                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                    testId: `conversation-${conversation.id}`
+                  });
+                })}
               </div>
             )}
           </div>
@@ -319,39 +318,80 @@ export default function InboxPage() {
             )}
           </div>
 
-          {/* Messages & Groups Section */}
+          {/* Requests Section (Dropdown) */}
           <div className="space-y-2">
-            {renderSectionHeader('Messages & Groups', conversationsWithMessages.length)}
-            {conversationsWithMessages.length === 0 ? (
-              renderEmptyState('No messages yet')
-            ) : (
-              <div>
-                {conversationsWithMessages.map((conversation) => {
-                  const displayName = conversation.type === 'direct' && conversation.otherParticipant 
-                    ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
-                    : conversation.title;
-                  
-                  const displaySubtitle = conversation.lastMessage?.content 
-                    ? conversation.lastMessage.content 
-                    : 'No messages yet';
-
-                  const avatarUrl = conversation.type === 'direct' && conversation.otherParticipant
-                    ? conversation.otherParticipant.profileImage
-                    : undefined;
-                  
-                  return renderInboxItem({
-                    title: displayName,
-                    subtitle: displaySubtitle,
-                    avatar: avatarUrl,
-                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                    testId: `conversation-${conversation.id}`
-                  });
-                })}
+            <button
+              onClick={() => setRequestsExpanded(!requestsExpanded)}
+              className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+              data-testid="requests-dropdown"
+            >
+              <h3 className="text-white font-medium text-base">Requests</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-base">{connectionRequests.length + rsvpRequests.length}</span>
+                {requestsExpanded ? (
+                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                )}
+              </div>
+            </button>
+            
+            {requestsExpanded && (
+              <div className="space-y-4">
+                {/* Connection Requests */}
+                {connectionRequests.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="px-4">
+                      <h4 className="text-gray-300 font-medium text-sm">Connection Requests</h4>
+                    </div>
+                    <div>
+                      {connectionRequests.map((request) => 
+                        renderInboxItem({
+                          title: request.fullName || request.username || 'Unknown User',
+                          subtitle: 'Wants to connect',
+                          avatar: request.profileImage,
+                          onPress: () => setLocation(`/profile/${request.username || request.id}`),
+                          testId: `connection-request-${request.id}`
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* RSVP Requests */}
+                {rsvpRequests.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="px-4">
+                      <h4 className="text-gray-300 font-medium text-sm">RSVP Requests</h4>
+                    </div>
+                    <div>
+                      {rsvpRequests.map((request) => 
+                        renderInboxItem({
+                          title: request.userName,
+                          subtitle: `Wants to join ${request.eventTitle}`,
+                          avatar: request.userImage,
+                          onPress: () => setLocation(`/event/${request.eventId}`),
+                          testId: `rsvp-request-${request.id}`
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Empty state for requests */}
+                {connectionRequests.length === 0 && rsvpRequests.length === 0 && (
+                  <div className="px-4 py-2">
+                    <p className="text-gray-400 text-sm">No pending requests</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       )}
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

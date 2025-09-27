@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,18 @@ import { useTranslation } from "@/lib/translations";
 import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // Define the Event type with all fields
+const TicketTierSchema = z.object({
+  id: z.number(),
+  eventId: z.number(),
+  name: z.string(),
+  description: z.string().nullable(),
+  price: z.string(),
+  quantity: z.number().nullable(),
+  isActive: z.boolean(),
+});
+
 const EventSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -39,6 +50,7 @@ const EventSchema = z.object({
     fullName: z.string(),
     profileImage: z.string().nullable(),
   }).nullable(),
+  ticketTiers: z.array(TicketTierSchema).optional(),
 });
 
 type Event = z.infer<typeof EventSchema>;
@@ -51,12 +63,14 @@ export default function EventPage() {
   const { t, language, translateEvent } = useTranslation();
   const queryClient = useQueryClient();
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
+  const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
   // Purchase ticket mutation
   const purchaseTicketMutation = useMutation({
-    mutationFn: async ({ eventId, quantity = 1 }: { eventId: number; quantity?: number }) => {
+    mutationFn: async ({ eventId, quantity = 1, ticketTierId }: { eventId: number; quantity?: number; ticketTierId?: number }) => {
       const response = await fetch("/api/payments/create-checkout-session", {
         method: "POST",
         headers: {
@@ -66,6 +80,7 @@ export default function EventPage() {
         body: JSON.stringify({
           eventId,
           quantity,
+          ticketTierId,
           userId: user?.id
         })
       });
@@ -284,15 +299,42 @@ export default function EventPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
           <div className="flex items-center gap-4 mb-4">
-            {event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0 ? (
-              <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                💳 ${event.price}
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                ✓ Free Event
-              </div>
-            )}
+            {(() => {
+              // Check if event has ticket tiers
+              if (event.ticketTiers && event.ticketTiers.length > 0) {
+                const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
+                if (hasPaidTiers) {
+                  const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                  const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                  const priceRange = minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+                  return (
+                    <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                      💳 {priceRange}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                      ✓ Free Event
+                    </div>
+                  );
+                }
+              }
+              // Fallback to original logic for events without tiers
+              else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
+                return (
+                  <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
+                    💳 ${event.price}
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                    ✓ Free Event
+                  </div>
+                );
+              }
+            })()}
             <div className="flex items-center gap-2 text-blue-400">
               <button
                 onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
@@ -379,6 +421,7 @@ export default function EventPage() {
           </div>
         </div>
 
+
         {/* Participation Section */}
         {user && event.creatorId !== user.id && (
           <div className="pt-4 space-y-4">
@@ -423,6 +466,18 @@ export default function EventPage() {
                 </div>
                 
                 <div className="flex flex-col gap-3">
+                  {/* Purchase button for paid events */}
+                  {event.ticketType === 'paid' && (
+                    <Button 
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                      onClick={() => setIsTicketModalOpen(true)}
+                      data-testid="button-purchase-ticket"
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Purchase Tickets
+                    </Button>
+                  )}
+                  
                   <Button 
                     className={`w-full ${
                       participationStatus?.status === 'attending' 
@@ -479,6 +534,95 @@ export default function EventPage() {
         )}
 
       </div>
+
+      {/* Ticket Selection Modal */}
+      <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Select Your Ticket</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            {event.ticketTiers && event.ticketTiers.length > 0 ? (
+              <>
+                {event.ticketTiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    onClick={() => setSelectedTierId(tier.id)}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+                      selectedTierId === tier.id
+                        ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
+                        : 'border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-400/10'
+                    }`}
+                    data-testid={`modal-ticket-tier-${tier.id}`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-white font-semibold text-lg">{tier.name}</h4>
+                        {tier.description && (
+                          <p className="text-gray-300 text-sm mt-1">{tier.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
+                        {tier.quantity && (
+                          <div className="text-gray-400 text-xs">{tier.quantity} available</div>
+                        )}
+                      </div>
+                    </div>
+                    {selectedTierId === tier.id && (
+                      <div className="flex items-center gap-2 text-purple-300 text-sm">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Selected</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsTicketModalOpen(false)}
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                    data-testid="button-cancel-modal"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (selectedTierId) {
+                        setIsTicketModalOpen(false);
+                        purchaseTicketMutation.mutate({ eventId: event.id, ticketTierId: selectedTierId });
+                      }
+                    }}
+                    disabled={!selectedTierId || purchaseTicketMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50"
+                    data-testid="button-confirm-purchase"
+                  >
+                    {purchaseTicketMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : selectedTierId ? (
+                      <>
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase
+                      </>
+                    ) : (
+                      'Select a ticket'
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-300">No ticket tiers available for this event.</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

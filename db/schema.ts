@@ -71,10 +71,24 @@ export const events = pgTable("events", {
   itinerary: jsonb("itinerary").$type<{ startTime: string; endTime: string; description: string }[]>().default([]),
 });
 
+export const ticketTiers = pgTable("ticket_tiers", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").references(() => events.id),
+  name: text("name").notNull(), // "Basic", "VIP", "Early Bird"
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  quantity: integer("quantity"), // Available tickets for this tier
+  stripeProductId: text("stripe_product_id"),
+  stripePriceId: text("stripe_price_id"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const eventParticipants = pgTable("event_participants", {
   id: serial("id").primaryKey(),
   eventId: integer("event_id").references(() => events.id),
   userId: integer("user_id").references(() => users.id),
+  ticketTierId: integer("ticket_tier_id").references(() => ticketTiers.id),
   status: text("status").notNull(), // attending, interested, not_attending
   ticketQuantity: integer("ticket_quantity").default(1),
   purchaseDate: timestamp("purchase_date"),
@@ -245,7 +259,16 @@ export const eventRelations = relations(events, ({ one, many }) => ({
     references: [users.id],
   }),
   participants: many(eventParticipants),
+  ticketTiers: many(ticketTiers),
   conversations: many(conversations), // Add relation to event conversations
+}));
+
+export const ticketTiersRelations = relations(ticketTiers, ({ one, many }) => ({
+  event: one(events, {
+    fields: [ticketTiers.eventId],
+    references: [events.id],
+  }),
+  participants: many(eventParticipants),
 }));
 
 export const eventParticipantsRelations = relations(eventParticipants, ({ one }) => ({
@@ -256,6 +279,10 @@ export const eventParticipantsRelations = relations(eventParticipants, ({ one })
   user: one(users, {
     fields: [eventParticipants.userId],
     references: [users.id],
+  }),
+  ticketTier: one(ticketTiers, {
+    fields: [eventParticipants.ticketTierId],
+    references: [ticketTiers.id],
   }),
   payment: one(payments, { // Add relation from participant to payment
     fields: [eventParticipants.stripeCheckoutSessionId],
@@ -401,6 +428,11 @@ export const insertEventParticipantSchema = createInsertSchema(eventParticipants
 export const selectEventParticipantSchema = createSelectSchema(eventParticipants);
 export type EventParticipant = typeof eventParticipants.$inferSelect;
 export type NewEventParticipant = typeof eventParticipants.$inferInsert;
+
+export const insertTicketTierSchema = createInsertSchema(ticketTiers);
+export const selectTicketTierSchema = createSelectSchema(ticketTiers);
+export type TicketTier = typeof ticketTiers.$inferSelect;
+export type NewTicketTier = typeof ticketTiers.$inferInsert;
 
 export const insertUserConnectionSchema = createInsertSchema(userConnections);
 export const selectUserConnectionSchema = createSelectSchema(userConnections);

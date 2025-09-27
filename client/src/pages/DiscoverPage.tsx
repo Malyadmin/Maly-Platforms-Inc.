@@ -71,6 +71,7 @@ export default function DiscoverPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   // Removed dateFilter state, as we'll always show all events organized by date
@@ -219,8 +220,7 @@ export default function DiscoverPage() {
   };
 
   // Create a flattened list of all filtered events for display count
-  const allFilteredEvents = [...filteredEvents];
-  const hasMoreEvents = allFilteredEvents.length > displayCount;
+  const hasMoreEvents = filteredEvents.length > displayCount;
   
   // Load more events when scrolling to the bottom
   const loadMoreEvents = useCallback(() => {
@@ -316,10 +316,11 @@ export default function DiscoverPage() {
                 {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
                   <Button
                     key={time}
-                    variant={time === 'Anytime' ? 'default' : 'outline'}
+                    variant={selectedTimeFilter === time ? 'default' : 'outline'}
                     size="sm"
+                    onClick={() => setSelectedTimeFilter(time)}
                     className={`rounded-full ${
-                      time === 'Anytime' 
+                      selectedTimeFilter === time 
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'border-gray-600 text-white hover:bg-gray-800'
                     }`}
@@ -361,116 +362,28 @@ export default function DiscoverPage() {
                 <h3 className="text-white font-medium">Vibes</h3>
               </div>
               
-              {/* Wellness & Movement */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Wellness & Movement</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Wellness', 'Movement', 'Fitness', 'Yoga', 'Meditation', 'Mindfulness'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Social & Entertainment */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Social & Entertainment</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Nightlife', 'Social', 'Networking', 'Dating', 'Party', 'Music'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Learning & Culture */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Learning & Culture</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Learning', 'Cultural', 'Educational', 'Art', 'Creative', 'Tech'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Adventure & Travel */}
-              <div className="mb-4">
-                <h4 className="text-white/70 text-sm mb-2">Adventure & Travel</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Adventure', 'Travel', 'Outdoor', 'Day Trip', 'Excursions', 'Active'].map((vibe) => (
-                    <Button
-                      key={vibe}
-                      variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedEventTypes(prev => 
-                          prev.includes(vibe) 
-                            ? prev.filter(t => t !== vibe)
-                            : [...prev, vibe]
-                        );
-                      }}
-                      className={`rounded-full text-xs px-3 py-1 h-8 ${
-                        selectedEventTypes.includes(vibe) 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'border-gray-600 text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {vibe}
-                    </Button>
-                  ))}
-                </div>
+              <div className="flex flex-wrap gap-2">
+                {VIBE_AND_MOOD_TAGS.map((vibe) => (
+                  <Button
+                    key={vibe}
+                    variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedEventTypes(prev => 
+                        prev.includes(vibe) 
+                          ? prev.filter(t => t !== vibe)
+                          : [...prev, vibe]
+                      );
+                    }}
+                    className={`rounded-full text-xs px-3 py-1 h-8 ${
+                      selectedEventTypes.includes(vibe) 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'border-gray-600 text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    {vibe}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
@@ -524,11 +437,6 @@ export default function DiscoverPage() {
             >
               <Search className="h-6 w-6" />
             </Button>
-          </div>
-          
-          {/* Event count */}
-          <div className="text-white/70 text-sm">
-            {allFilteredEvents.length} {allFilteredEvents.length === 1 ? 'event' : 'events'} found
           </div>
         </div>
         
@@ -624,103 +532,149 @@ export default function DiscoverPage() {
               </div>
             ) : (
               <div className="space-y-10">
-                {/* Today's Events Section */}
-                {groupedEvents.todayOnly.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.todayOnly.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* This Week Section */}
-                {groupedEvents.thisWeek.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.thisWeek.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* This Weekend Section */}
-                {groupedEvents.thisWeekend.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.thisWeekend.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Next Week Section */}
-                {groupedEvents.nextWeek.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.nextWeek.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {selectedTimeFilter === 'Anytime' ? (
+                  // Show all time-based sections when "Anytime" is selected
+                  <>
+                    {/* Today's Events Section */}
+                    {groupedEvents.todayOnly.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.todayOnly.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* This Week Section */}
+                    {groupedEvents.thisWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* This Weekend Section */}
+                    {groupedEvents.thisWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Next Week Section */}
+                    {groupedEvents.nextWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.nextWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                
-                {/* Next Weekend Section */}
-                {groupedEvents.nextWeekend.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.nextWeekend.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                    {/* Next Weekend Section */}
+                    {groupedEvents.nextWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.nextWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {/* This Month Section */}
-                {groupedEvents.month.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.month.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                    {/* This Month Section */}
+                    {groupedEvents.month.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.month.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {/* Upcoming Events Section */}
-                {groupedEvents.upcoming.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="py-2">
-                      <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
-                    </div>
-                    <div className="space-y-6">
-                      {groupedEvents.upcoming.map((event: any) => (
-                        <IOSEventCard key={event.id} event={event} />
-                      ))}
-                    </div>
-                  </div>
+                    {/* Upcoming Events Section */}
+                    {groupedEvents.upcoming.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.upcoming.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Show only the selected time period
+                  <>
+                    {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.todayOnly.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
+                      <div className="space-y-6">
+                        <div className="py-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                        </div>
+                        <div className="space-y-6">
+                          {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* No Events Message */}

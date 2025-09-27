@@ -6,6 +6,13 @@ export const agendaItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
 });
 
+export const ticketTierSchema = z.object({
+  name: z.string().min(1, "Tier name is required"),
+  description: z.string().optional(),
+  price: z.coerce.number().min(0, "Price must be 0 or greater"),
+  quantity: z.coerce.number().min(1, "Quantity must be at least 1").optional(),
+});
+
 // Comprehensive event creation schema based on Swift EventCreationData
 export const eventCreationSchema = z.object({
   // Step 1: Basic Info
@@ -38,7 +45,7 @@ export const eventCreationSchema = z.object({
   
   // Step 5: Pricing & Audience
   isPaidEvent: z.boolean().default(false),
-  price: z.string().optional(),
+  ticketTiers: z.array(ticketTierSchema).default([]),
   deadline: z.coerce.date().optional(),
   eventPrivacy: z.enum(["public", "private", "friends", "rsvp"]).default("public"),
   whoShouldAttend: z.string().optional(),
@@ -64,6 +71,7 @@ export const eventCreationSchema = z.object({
 
 // Infer the type from the schema
 export type EventCreationData = z.infer<typeof eventCreationSchema>;
+export type TicketTier = z.infer<typeof ticketTierSchema>;
 
 // Individual step schemas for validation
 export const step1Schema = eventCreationSchema.pick({
@@ -100,7 +108,7 @@ export const step4Schema = eventCreationSchema.pick({
 
 export const step5Schema = eventCreationSchema.pick({
   isPaidEvent: true,
-  price: true,
+  ticketTiers: true,
   deadline: true,
   eventPrivacy: true,
   whoShouldAttend: true,

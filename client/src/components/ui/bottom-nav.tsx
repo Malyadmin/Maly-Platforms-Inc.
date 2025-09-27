@@ -22,7 +22,7 @@ import {
 export const mainNavItems = [
   { icon: Globe, label: 'discover', href: "/discover" },
   { icon: Users, label: 'connect', href: "/connect" },
-  { icon: Plus, label: 'create', href: "/create", isCenter: true as const },
+  { icon: Plus, label: 'create', href: "/create" },
   { icon: Inbox, label: 'inbox', href: "/inbox" },
   { icon: UserCircle, label: 'profile', href: "/profile" }
 ] as const;
@@ -38,26 +38,8 @@ export function BottomNav() {
       {/* Mobile Bottom Navigation - iOS Style */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-black border-t border-gray-800 shadow-lg">
         <div className="flex justify-around items-center h-20 px-2">
-          {mainNavItems.map(({ icon: Icon, label, href, isCenter }) => {
+          {mainNavItems.map(({ icon: Icon, label, href }) => {
             const isActive = location === href;
-            
-            if (isCenter) {
-              // Center elevated create button
-              return (
-                <Link 
-                  key={href} 
-                  href={href}
-                  className="relative flex flex-col items-center justify-center"
-                >
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg -mt-7">
-                    <Icon className="w-6 h-6 text-black font-bold" />
-                  </div>
-                  <span className="text-[10px] font-medium text-white mt-1">
-                    {t(label)}
-                  </span>
-                </Link>
-              );
-            }
             
             return (
               <Link 

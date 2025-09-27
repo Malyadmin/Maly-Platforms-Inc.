@@ -1,0 +1,51 @@
+Excellent. The agent's analysis gives us the exact location and context we need to build the frontend UI for tiered ticketing. We'll replace the simple price input with a dynamic form section.
+
+Here is the complete build prompt for your Replit agent.
+
+---
+
+### **Build Prompt: Implement Frontend UI for Tiered Ticketing**
+
+Hello! Your task is to implement the frontend UI for the new tiered ticketing system within the event creation flow. You will replace the existing single price input with a dynamic interface for adding and managing multiple ticket tiers, using `react-hook-form`.
+
+Please execute the following phases in order.
+
+### **Phase 1: Update State and Validation Schema**
+
+First, update the data structures to support an array of tiers.
+
+1.  **Update Form State Type:**
+    * Locate the `EventCreationData` type definition.
+    * Remove the `price: string` property and replace it with `ticketTiers: TicketTier[]`, where `TicketTier` is an object containing `name`, `description`, `price`, and `quantity`.
+
+2.  **Update Validation Schema:**
+    * Open the `shared/eventCreation.ts` file.
+    * Modify the `step5Schema` (Zod schema).
+    * Remove the validation for the single `price` field.
+    * Add new validation logic for the `ticketTiers` array. It should ensure that if `isPaidEvent` is true, the array contains at least one tier, and each tier object has a valid `name` and `price`.
+
+### **Phase 2: Build the Dynamic Tiered Ticketing UI**
+
+Next, build the new user interface using `react-hook-form`'s capabilities for dynamic fields.
+
+1.  **Implement `useFieldArray`:**
+    * Open `client/src/pages/CreateEventFlowPage.tsx` and find the `Step5PricingAudience` component.
+    * Inside the component, initialize `react-hook-form`'s `useFieldArray` hook to manage the `ticketTiers` state. This will provide `fields`, `append`, and `remove` functions.
+
+2.  **Replace the Old Price Input:**
+    * Locate and **delete the entire `div` that contains the single `<Input>` for the event price.**
+    * In its place, add the new dynamic UI:
+        * Map over the `fields` array provided by `useFieldArray`.
+        * For each item, render a set of `<Input>` fields for the tier's **Name**, **Description**, **Price**, and **Quantity**. Each input must be correctly registered with `react-hook-form` (e.g., `register(\`ticketTiers.${index}.name\`)`).
+        * Include a "Remove" button next to each tier that calls the `remove(index)` function from `useFieldArray`.
+        * Below the list of tiers, add an **"Add Tier"** button. Its `onClick` handler should call the `append()` function from `useFieldArray` with a default new tier object (e.g., `{ name: '', price: '', ... }`).
+
+### **Phase 3: Validate the Implementation**
+
+After implementing the changes, test the event creation flow.
+
+* **Expected Result:**
+    1.  In the "Pricing & Audience" step, the old single price input is gone.
+    2.  When the "Paid Event" switch is toggled on, the new tiered ticketing interface appears.
+    3.  You can successfully add multiple ticket tiers, fill in their details, and remove them.
+    4.  The form submission correctly passes the array of `ticketTiers` to the next step.

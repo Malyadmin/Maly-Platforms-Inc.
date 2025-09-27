@@ -58,7 +58,7 @@ export function ConnectPage() {
   const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
   const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"single" | "grid">("single");
+  const [viewMode, setViewMode] = useState<"single" | "grid">("grid");
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { t } = useTranslation();
@@ -300,7 +300,10 @@ export function ConnectPage() {
         
         {/* Controls section */}
         <div className="px-5 pb-4">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            {/* Connect title */}
+            <h2 className="text-white text-lg font-medium">Connect</h2>
+            
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
               <button 
@@ -358,17 +361,6 @@ export function ConnectPage() {
           <div className="relative">
             {profileData ? (
               <div>
-                {/* Grid toggle button */}
-                <div className="absolute top-4 right-4 z-20">
-                  <Button
-                    variant="ghost"
-                    className="text-white bg-black/50 backdrop-blur-sm rounded-full p-2 h-auto"
-                    onClick={() => setViewMode("grid")}
-                    data-testid="grid-view-toggle"
-                  >
-                    <Grid3X3 className="h-5 w-5" />
-                  </Button>
-                </div>
 
                 {/* Navigation arrows */}
                 {users && users.length > 1 && (
@@ -653,19 +645,10 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* Single view toggle button */}
-            <button
-              onClick={() => setViewMode("single")}
-              className="absolute top-4 right-4 z-10 p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
-              data-testid="single-view-toggle"
-            >
-              <User className="h-5 w-5 text-white" />
-            </button>
-
-            {/* 2x2 Grid */}
-            <div className="pt-6 px-5">
-              <div className="grid grid-cols-2 gap-4">
-                {(users || []).slice(0, 4).map((user) => (
+            {/* 2-Column Grid */}
+            <div className="pt-6 px-3">
+              <div className="grid grid-cols-2 gap-3">
+                {(users || []).map((user, index) => (
                   <div
                     key={user.id}
                     className="aspect-square"
@@ -675,6 +658,7 @@ export function ConnectPage() {
                       user={user}
                       onClick={() => handleUserClick(user)}
                       className="h-full"
+                      variant="grid"
                     />
                   </div>
                 ))}

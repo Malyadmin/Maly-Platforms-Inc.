@@ -1,0 +1,100 @@
+Deserialized user found: end
+Event creation request received from user: end
+Form data: [Object: null prototype] {
+  title: 'gjengijnbj4',
+  description: 'erbjnb 4jobnjgn4',
+  category: 'Other',
+  location: 'Cinnaminson, 1506 Cinnaminson Avenue',
+  date: '2025-10-01T03:00:00.000Z',
+  time: '22:00:00',
+  price: '10',
+  ticketTiers: '[{"name":"Early bird","description":"gekrmgrjbnbbeb","price":10,"quantity":8},{"name":"VIP","description":"bfbnbjo4tnbionbeb","price":40,"quantity":40}]',
+  eventPrivacy: 'public',
+  itinerary: '[]',
+  tags: '["Paid Event"]'
+}
+File: undefined
+Parsed itinerary data: []
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1758942597/images/uploads/1758942596913_IMG_5298.jpeg.jpg
+Geocoding location: Cinnaminson, 1506 Cinnaminson Avenue
+Geocoding successful: lat=39.992254, lng=-75.014261
+Creating new event: gjengijnbj4
+Event successfully saved to database with ID: 174
+DEBUG - createdEvent object: {
+  "id": 174,
+  "title": "gjengijnbj4",
+  "description": "erbjnb 4jobnjgn4",
+  "city": "Unknown",
+  "location": "Cinnaminson, 1506 Cinnaminson Avenue",
+  "address": "",
+  "latitude": "39.9922540",
+  "longitude": "-75.0142610",
+  "date": "2025-10-01T03:00:00.000Z",
+  "endDate": null,
+  "image": "https://res.cloudinary.com/dwmolc54p/image/upload/v1758942597/images/uploads/1758942596913_IMG_5298.jpeg.jpg",
+  "videoUrls": [],
+  "category": "Other",
+  "creatorId": 232,
+  "capacity": 10,
+  "price": "0",
+  "ticketType": "paid",
+  "availableTickets": null,
+  "createdAt": "2025-09-27T03:09:58.428Z",
+  "isPrivate": false,
+  "requireApproval": false,
+  "isRsvp": false,
+  "isBusinessEvent": false,
+  "tags": [
+    "Paid Event"
+  ],
+  "attendingCount": 0,
+  "interestedCount": 0,
+  "timeFrame": "",
+  "stripeProductId": null,
+  "stripePriceId": null,
+  "itinerary": []
+}
+Creating Stripe Product for tier: Early bird
+Created Stripe Product prod_T84fxwC2nxdFk2 and Price price_1SBoWIRxoKeYwVbtk4RCUXus for tier Early bird
+DEBUG - About to create tierData, createdEvent.id: 174
+DEBUG - tierData: {
+  "eventId": 174,
+  "name": "Early bird",
+  "description": "gekrmgrjbnbbeb",
+  "price": "10",
+  "quantity": 8,
+  "stripeProductId": "prod_T84fxwC2nxdFk2",
+  "stripePriceId": "price_1SBoWIRxoKeYwVbtk4RCUXus",
+  "isActive": true,
+  "createdAt": "2025-09-27T03:09:58.952Z"
+}
+Error creating tier Early bird: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4931:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Creating Stripe Product for tier: VIP
+Created Stripe Product prod_T84f3MzHUBz21b and Price price_1SBoWJRxoKeYwVbtqMJSWAxg for tier VIP
+DEBUG - About to create tierData, createdEvent.id: 174
+DEBUG - tierData: {
+  "eventId": 174,
+  "name": "VIP",
+  "description": "bfbnbjo4tnbionbeb",
+  "price": "40",
+  "quantity": 40,
+  "stripeProductId": "prod_T84f3MzHUBz21b",
+  "stripePriceId": "price_1SBoWJRxoKeYwVbtqMJSWAxg",
+  "isActive": true,
+  "createdAt": "2025-09-27T03:09:59.309Z"
+}
+Error creating tier VIP: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4931:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+3:09:59 AM [express] POST /api/events 201 in 2679ms :: {"success":true,"message":"Event published su…
+Deserializing user: 232
+Deserialized user found: end
+Fetching events with params: { location: 'all', currentUserId: 232 }
