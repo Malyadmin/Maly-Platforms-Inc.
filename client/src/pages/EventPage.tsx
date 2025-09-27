@@ -534,6 +534,95 @@ export default function EventPage() {
         )}
 
       </div>
+
+      {/* Ticket Selection Modal */}
+      <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Select Your Ticket</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            {event.ticketTiers && event.ticketTiers.length > 0 ? (
+              <>
+                {event.ticketTiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    onClick={() => setSelectedTierId(tier.id)}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+                      selectedTierId === tier.id
+                        ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
+                        : 'border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-400/10'
+                    }`}
+                    data-testid={`modal-ticket-tier-${tier.id}`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-white font-semibold text-lg">{tier.name}</h4>
+                        {tier.description && (
+                          <p className="text-gray-300 text-sm mt-1">{tier.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
+                        {tier.quantity && (
+                          <div className="text-gray-400 text-xs">{tier.quantity} available</div>
+                        )}
+                      </div>
+                    </div>
+                    {selectedTierId === tier.id && (
+                      <div className="flex items-center gap-2 text-purple-300 text-sm">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Selected</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsTicketModalOpen(false)}
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                    data-testid="button-cancel-modal"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (selectedTierId) {
+                        setIsTicketModalOpen(false);
+                        purchaseTicketMutation.mutate({ eventId: event.id, ticketTierId: selectedTierId });
+                      }
+                    }}
+                    disabled={!selectedTierId || purchaseTicketMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50"
+                    data-testid="button-confirm-purchase"
+                  >
+                    {purchaseTicketMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : selectedTierId ? (
+                      <>
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase
+                      </>
+                    ) : (
+                      'Select a ticket'
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-300">No ticket tiers available for this event.</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
