@@ -1924,7 +1924,6 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       const createdEvent = result[0];
       console.log(`Event successfully saved to database with ID: ${createdEvent.id}`);
-      console.log('DEBUG - createdEvent object:', JSON.stringify(createdEvent, null, 2));
 
       // Create Stripe Products and Prices for each ticket tier
       const createdTiers = [];
@@ -1964,19 +1963,17 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           }
 
           // Insert ticket tier into database
-          console.log('DEBUG - About to create tierData, createdEvent.id:', createdEvent.id);
           const tierData = {
             eventId: createdEvent.id,
             name: tier.name,
             description: tier.description || null,
-            price: tier.price.toString(),
+            price: tier.price, // Keep as number for decimal type
             quantity: tier.quantity || null,
             stripeProductId,
             stripePriceId,
             isActive: true,
             createdAt: new Date()
           };
-          console.log('DEBUG - tierData:', JSON.stringify(tierData, null, 2));
 
           const tierResult = await db.insert(ticketTiers).values(tierData).returning();
           if (tierResult && tierResult.length > 0) {
