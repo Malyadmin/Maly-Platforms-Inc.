@@ -667,19 +667,19 @@ export function ConnectPage() {
         ) : (
           /* Grid View */
           <div className="relative">
-            {/* 2-Column Grid */}
-            <div className="pt-6 px-3">
-              <div className="grid grid-cols-2 gap-3">
+            {/* 2-Column Grid - Bigger, more rectangular cards */}
+            <div className="pt-6 px-4">
+              <div className="grid grid-cols-2 gap-4">
                 {(users || []).map((user, index) => (
                   <div
                     key={user.id}
-                    className="aspect-square"
+                    className="aspect-[4/5]"
                     data-testid={`grid-user-card-${user.id}`}
                   >
                     <UserCard
                       user={user}
                       onClick={() => handleUserClick(user)}
-                      className="h-full"
+                      className="h-full rounded-2xl overflow-hidden"
                       variant="grid"
                     />
                   </div>
