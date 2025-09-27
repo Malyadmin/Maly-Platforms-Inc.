@@ -4603,6 +4603,61 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   });
 
   // PUT /api/events/:eventId/applications/:userId - Approve or reject a pending application
+  // GET individual user's application status for an event
+  app.get('/api/events/:eventId/applications/:userId', requireAuth, async (req, res) => {
+    try {
+      const { eventId, userId } = req.params;
+      const eventIdNum = parseInt(eventId);
+      const userIdNum = parseInt(userId);
+      const currentUser = req.user as any;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Users can only check their own status unless they're the event creator
+      if (currentUser.id !== userIdNum) {
+        // Check if current user is the event creator
+        const [existingEvent] = await db.select()
+          .from(events)
+          .where(eq(events.id, eventIdNum))
+          .limit(1);
+
+        if (!existingEvent || existingEvent.creatorId !== currentUser.id) {
+          return res.status(403).json({ error: "You can only check your own application status" });
+        }
+      }
+
+      // Find the user's application for this event
+      const [application] = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            eq(eventParticipants.eventId, eventIdNum),
+            eq(eventParticipants.userId, userIdNum)
+          )
+        )
+        .limit(1);
+
+      if (!application) {
+        return res.status(404).json({ error: "No application found" });
+      }
+
+      return res.json({
+        id: application.id,
+        eventId: eventIdNum,
+        userId: userIdNum,
+        status: application.status,
+        ticketQuantity: application.ticketQuantity,
+        createdAt: application.createdAt,
+        updatedAt: application.updatedAt
+      });
+    } catch (error) {
+      console.error("Error fetching application status:", error);
+      res.status(500).json({ error: "Failed to fetch application status" });
+    }
+  });
+
   app.put('/api/events/:eventId/applications/:userId', requireAuth, async (req, res) => {
     try {
       const { eventId, userId } = req.params;

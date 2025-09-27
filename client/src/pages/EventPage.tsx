@@ -108,7 +108,7 @@ export default function EventPage() {
     },
   });
 
-  // Get current participation status
+  // Get current participation status for public events
   const { data: participationStatus } = useQuery({
     queryKey: [`/api/events/${id}/participation/status`],
     enabled: !!user && !!event && !event.isPrivate && !event.isRsvp, // Only check for public events
@@ -117,6 +117,20 @@ export default function EventPage() {
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch participation status');
+      return response.json();
+    },
+  });
+
+  // Get current RSVP status for approval-required events
+  const { data: rsvpStatus } = useQuery({
+    queryKey: [`/api/events/${id}/rsvp/status`],
+    enabled: !!user && !!event && (event.isPrivate || event.isRsvp || event.requireApproval), // Only for approval events
+    queryFn: async () => {
+      const response = await fetch(`/api/events/${id}/applications/${user?.id}`, {
+        credentials: 'include'
+      });
+      if (response.status === 404) return null; // No application found
+      if (!response.ok) throw new Error('Failed to fetch RSVP status');
       return response.json();
     },
   });
@@ -383,30 +397,59 @@ export default function EventPage() {
         {user && event.creatorId !== user.id && (
           <div className="pt-4 space-y-4">
             {event.requireApproval ? (
-              /* RSVP/Private Event - Show Request Access Button */
+              /* RSVP/Private Event - Show Request Access Button or Status */
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-yellow-400 bg-yellow-400/10 px-4 py-2 rounded-lg">
                   <Lock className="w-4 h-4" />
                   <span className="text-sm">This event requires host approval to attend</span>
                 </div>
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                  onClick={() => accessRequestMutation.mutate()}
-                  disabled={accessRequestMutation.isPending}
-                  data-testid="button-request-access"
-                >
-                  {accessRequestMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending Request...
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4 mr-2" />
-                      Request Access
-                    </>
-                  )}
-                </Button>
+                
+                {/* Show current RSVP status if user has one */}
+                {rsvpStatus?.status ? (
+                  <div className="space-y-3">
+                    {rsvpStatus.status === 'pending_approval' || rsvpStatus.status === 'pending_access' ? (
+                      <div className="flex items-center gap-2 text-orange-400 bg-orange-400/10 px-4 py-2 rounded-lg">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Your request is pending approval</span>
+                      </div>
+                    ) : rsvpStatus.status === 'attending' ? (
+                      <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-2 rounded-lg">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-sm">You are attending this event</span>
+                      </div>
+                    ) : rsvpStatus.status === 'rejected' ? (
+                      <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-2 rounded-lg">
+                        <XCircle className="w-4 h-4" />
+                        <span className="text-sm">Your request was declined</span>
+                      </div>
+                    ) : rsvpStatus.status === 'interested' ? (
+                      <div className="flex items-center gap-2 text-blue-400 bg-blue-400/10 px-4 py-2 rounded-lg">
+                        <Star className="w-4 h-4" />
+                        <span className="text-sm">You are interested in this event</span>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  /* Show request button if no status */
+                  <Button 
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                    onClick={() => accessRequestMutation.mutate()}
+                    disabled={accessRequestMutation.isPending}
+                    data-testid="button-request-access"
+                  >
+                    {accessRequestMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending Request...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4 mr-2" />
+                        Request Access
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             ) : (
               /* Public Event - Show Regular Participation Buttons */
