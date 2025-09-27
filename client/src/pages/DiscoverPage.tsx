@@ -331,25 +331,26 @@ export default function DiscoverPage() {
               </div>
             </div>
             
-            {/* Distance Section */}
+            {/* City Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                <h3 className="text-white font-medium">Distance</h3>
+                <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                <h3 className="text-white font-medium">City</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {['Any Distance', 'Within 1 mile', 'Within 5 miles'].map((distance) => (
+                {[{ value: 'all', label: t('allLocations') }, ...DIGITAL_NOMAD_CITIES.map(city => ({ value: city, label: city }))].map((cityOption) => (
                   <Button
-                    key={distance}
-                    variant={distance === 'Any Distance' ? 'default' : 'outline'}
+                    key={cityOption.value}
+                    variant={selectedCity === cityOption.value ? 'default' : 'outline'}
                     size="sm"
-                    className={`rounded-full ${
-                      distance === 'Any Distance' 
+                    onClick={() => setSelectedCity(cityOption.value)}
+                    className={`rounded-full text-xs px-3 py-1 h-8 ${
+                      selectedCity === cityOption.value 
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'border-gray-600 text-white hover:bg-gray-800'
                     }`}
                   >
-                    {distance}
+                    {cityOption.label}
                   </Button>
                 ))}
               </div>
@@ -399,20 +400,8 @@ export default function DiscoverPage() {
         {/* Controls section */}
         <div className="px-5 pb-4">
           <div className="flex items-center justify-between">
-            {/* All Locations dropdown */}
-            <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="bg-transparent border-none text-white text-lg font-medium p-0 h-auto">
-                <SelectValue placeholder="All Locations" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('allLocations')}</SelectItem>
-                {DIGITAL_NOMAD_CITIES.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Discover title */}
+            <h2 className="text-white text-lg font-medium">Discover</h2>
             
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
