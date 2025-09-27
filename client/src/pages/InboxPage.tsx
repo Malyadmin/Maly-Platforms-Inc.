@@ -66,7 +66,7 @@ export default function InboxPage() {
 
 
   // Fetch RSVP requests (for events the user created)
-  const { data: rsvpRequests = [], isLoading: rsvpRequestsLoading } = useQuery<RSVPRequest[]>({
+  const { data: rsvpData, isLoading: rsvpRequestsLoading } = useQuery<{ applications: any[], totalPending: number }>({
     queryKey: ['/api/events/applications'],
     queryFn: async () => {
       const response = await fetch('/api/events/applications');
@@ -75,6 +75,17 @@ export default function InboxPage() {
     },
     enabled: !!user?.id,
   });
+
+  // Transform the API response to match the frontend format
+  const rsvpRequests: RSVPRequest[] = rsvpData?.applications?.map((app: any) => ({
+    id: app.id,
+    eventId: app.eventId,
+    eventTitle: app.eventTitle,
+    userName: app.username || app.fullName || 'Unknown User',
+    userImage: app.profileImage,
+    status: 'pending',
+    createdAt: app.createdAt
+  })) || [];
 
   // Fetch connections (users who are connected with the current user)
   const {
