@@ -1923,12 +1923,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       const createdEvent = result[0];
-      console.log(`Event successfully saved to database with ID: ${createdEvent.id}`);
+      const eventId = createdEvent.id; // Capture the event ID explicitly
+      console.log(`Event successfully saved to database with ID: ${eventId}`);
 
-      // Create Stripe Products and Prices for each ticket tier, then bulk insert to database
-      const tiersWithStripeData = [];
+      // Create Stripe Products and Prices for each ticket tier
+      const stripeTiers = [];
       
-      for (const tier of validatedTicketTiers) {
+      for (let i = 0; i < validatedTicketTiers.length; i++) {
+        const tier = validatedTicketTiers[i];
         try {
           let stripeProductId = null;
           let stripePriceId = null;
@@ -1942,7 +1944,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               name: `${eventData.title} - ${tier.name}`,
               description: tier.description || `${tier.name} ticket for ${eventData.title}`,
               metadata: {
-                eventId: createdEvent.id.toString(),
+                eventId: eventId.toString(),
                 tierName: tier.name
               }
             });
@@ -1954,7 +1956,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
               unit_amount: Math.round(tier.price * 100), // Convert to cents
               product: stripeProductId,
               metadata: {
-                eventId: createdEvent.id.toString(),
+                eventId: eventId.toString(),
                 tierName: tier.name
               }
             });
@@ -1963,42 +1965,37 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
             console.log(`Created Stripe Product ${stripeProductId} and Price ${stripePriceId} for tier ${tier.name}`);
           }
 
-          // Prepare tier data with eventId and Stripe IDs
-          tiersWithStripeData.push({
-            ...tier,
-            eventId: createdEvent.id,
-            stripeProductId,
-            stripePriceId,
-            isActive: true,
-            createdAt: new Date()
+          // Store Stripe data for this tier
+          stripeTiers.push({
+            productId: stripeProductId,
+            priceId: stripePriceId
           });
 
         } catch (error) {
           console.error(`Error creating Stripe data for tier ${tier.name}:`, error);
-          // Still add the tier without Stripe data
-          tiersWithStripeData.push({
-            ...tier,
-            eventId: createdEvent.id,
-            stripeProductId: null,
-            stripePriceId: null,
-            isActive: true,
-            createdAt: new Date()
+          // Still add empty Stripe data for this tier
+          stripeTiers.push({
+            productId: null,
+            priceId: null
           });
         }
       }
 
-      // Bulk insert all ticket tiers with eventId
-      const tiersToInsert = tiersWithStripeData.map(tier => ({
-        eventId: tier.eventId,
+      // CRUCIAL FIX: Prepare the tiers for insertion using the captured eventId
+      const tiersToInsert = ticketTiers.map((tier, index) => ({
+        eventId: eventId, // Use the captured eventId
         name: tier.name,
         description: tier.description || null,
         price: tier.price,
         quantity: tier.quantity || null,
-        stripeProductId: tier.stripeProductId,
-        stripePriceId: tier.stripePriceId,
-        isActive: tier.isActive,
-        createdAt: tier.createdAt
+        stripeProductId: stripeTiers[index].productId,
+        stripePriceId: stripeTiers[index].priceId,
+        isActive: true,
+        createdAt: new Date()
       }));
+
+      // Add debug log to verify the data before the final step
+      console.log('DEBUG: Tiers prepared for insertion:', tiersToInsert);
 
       console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
       const createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
