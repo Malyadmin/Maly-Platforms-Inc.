@@ -1,0 +1,131 @@
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Deserialized user found: begin
+Found 68 events in database before filtering
+Found 68 events to display
+Returning 68 events from database
+2:38:37 AM [express] GET /api/events 304 in 257ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 233
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+Deserialized user found: begin
+2:39:35 AM [express] GET /api/events/166/participation/status 304 in 258ms :: {"status":"not_partici…
+Found event in database with creator: Tier Test 2, creator: IosTestAccount
+2:39:35 AM [express] GET /api/events/166 304 in 335ms :: {"id":166,"title":"Tier Test 2","descriptio…
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Deserialized user found: begin
+Found 68 events in database before filtering
+Found 68 events to display
+Returning 68 events from database
+2:39:38 AM [express] GET /api/events 304 in 127ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Found 68 events in database before filtering
+Found 68 events to display
+Returning 68 events from database
+2:44:25 AM [express] GET /api/events 200 in 131ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+User verified exists: begin
+2:44:25 AM [express] POST /api/verify-user 200 in 126ms :: {"valid":true}
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+Found event in database with creator: Tier Test 2, creator: IosTestAccount
+2:44:39 AM [express] GET /api/events/166 304 in 344ms :: {"id":166,"title":"Tier Test 2","descriptio…
+Deserializing user: 233
+Deserialized user found: begin
+2:44:40 AM [express] GET /api/events/166/participation/status 304 in 129ms :: {"status":"not_partici…
+Deserializing user: 233
+Deserializing user: 233
+Deserialized user found: begin
+Deserialized user found: begin
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Found 68 events in database before filtering
+Found 68 events to display
+Returning 68 events from database
+2:44:44 AM [express] GET /api/events 304 in 132ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Found 68 events in database before filtering
+Found 68 events to display
+Returning 68 events from database
+2:47:58 AM [express] GET /api/events 304 in 133ms :: [{"id":121,"title":"Another Test Event","descri…
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Deserializing user: 233
+Deserialized user found: begin
+Event creation request received from user: begin
+Form data: [Object: null prototype] {
+  title: 'bbe;blmbklerm',
+  description: 'brbrbfbrbrbb',
+  category: 'Other',
+  location: 'Cinnaminson, 1506 Cinnaminson Avenue',
+  date: '2025-10-30T17:00:00.000Z',
+  time: '12:00:00',
+  price: '10',
+  ticketTiers: '[{"name":"Early bird","description":"rggregrger","price":10,"quantity":10},{"name":"Early bird","description":"berrjknmbkjb","price":20,"quantity":40}]',
+  eventPrivacy: 'public',
+  itinerary: '[]',
+  tags: '["Paid Event"]'
+}
+File: undefined
+Parsed itinerary data: []
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1758941362/images/uploads/1758941361576_IMG_5298.jpeg.jpg
+Geocoding location: Cinnaminson, 1506 Cinnaminson Avenue
+Geocoding successful: lat=39.992254, lng=-75.014261
+Creating new event: bbe;blmbklerm
+Event successfully saved to database with ID: 172
+Creating Stripe Product for tier: Early bird
+Created Stripe Product prod_T84LBNOZnYi9uv and Price price_1SBoCNRxoKeYwVbte91YttC1 for tier Early bird
+Error creating tier Early bird: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4909:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Creating Stripe Product for tier: Early bird
+Created Stripe Product prod_T84Lyo3Q58vh2d and Price price_1SBoCNRxoKeYwVbt7LOz6VwH for tier Early bird
+Error creating tier Early bird: TypeError: Cannot read properties of undefined (reading 'eventId')
+    at file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:37:81
+    at Array.map (<anonymous>)
+    at PgInsertBuilder.values (file:///home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/insert.js:32:33)
+    at file:///home/runner/workspace/dist/index.js:4909:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2:49:24 AM [express] POST /api/events 201 in 2720ms :: {"success":true,"message":"Event published su…
+Deserializing user: 233
+Deserialized user found: begin
+Fetching events with params: { location: 'all', currentUserId: 233 }
+No location filter applied, showing all events
+Found 69 events in database before filtering
+Found 69 events to display
+Returning 69 events from database
+2:49:24 AM [express] GET /api/events 200 in 132
