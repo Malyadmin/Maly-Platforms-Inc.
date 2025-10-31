@@ -2,9 +2,8 @@
 import { useState } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Search, ChevronDown, User, Filter, X, Grid3X3, ChevronLeft, ChevronRight, ArrowLeft, Mail, Briefcase, UserPlus, Check, UserCheck, Loader2, MapPin } from "lucide-react";
+import { Filter, X, Mail, UserPlus, Loader2, MapPin } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { UserCard } from "@/components/ui/user-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
@@ -52,15 +51,11 @@ interface ConnectionStatus {
 export function ConnectPage() {
   const [, setLocation] = useLocation();
   const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [showSearch, setShowSearch] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
   const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"single" | "grid">("grid");
-  const [currentUserIndex, setCurrentUserIndex] = useState(0);
-  const [showMoreInfo, setShowMoreInfo] = useState(false);
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -100,35 +95,6 @@ export function ConnectPage() {
     refetchOnWindowFocus: false
   });
 
-  // Reset current user index when users change
-  if (users && users.length > 0 && currentUserIndex >= users.length) {
-    setCurrentUserIndex(0);
-  }
-
-  // Get current profile being viewed
-  const getCurrentUser = () => {
-    if (!users || users.length === 0) return null;
-    return users[currentUserIndex];
-  };
-
-  const profileData = getCurrentUser();
-
-  // Get the connection status between current user and profile user
-  const {
-    data: connectionStatus,
-    isLoading: connectionLoading,
-  } = useQuery<ConnectionStatus>({
-    queryKey: ['connection-status', profileData?.id, currentUser?.id],
-    queryFn: async () => {
-      if (!profileData?.id || !currentUser?.id) {
-        return { outgoing: null, incoming: null };
-      }
-      const response = await fetch(`/api/connections/status/${profileData.id}`);
-      if (!response.ok) throw new Error('Failed to fetch connection status');
-      return response.json();
-    },
-    enabled: !!profileData?.id && !!currentUser?.id,
-  });
 
   // Create a connection request
   const createConnectionMutation = useMutation({
@@ -151,7 +117,7 @@ export function ConnectPage() {
         title: 'Connection request sent',
         description: 'Your connection request has been sent successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: ['connection-status', profileData?.id, currentUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     },
     onError: (error: Error) => {
       toast({
@@ -185,7 +151,7 @@ export function ConnectPage() {
           ? 'You are now connected with this user.' 
           : 'You have declined this connection request.',
       });
-      queryClient.invalidateQueries({ queryKey: ['connection-status', profileData?.id, currentUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     },
     onError: (error: Error) => {
       toast({
@@ -275,76 +241,47 @@ export function ConnectPage() {
     return filters;
   };
 
-  // Navigation functions for single user view
-  const nextUser = () => {
-    if (users && users.length > 0) {
-      setCurrentUserIndex((prev) => (prev + 1) % users.length);
-    }
-  };
-
-  const prevUser = () => {
-    if (users && users.length > 0) {
-      setCurrentUserIndex((prev) => (prev - 1 + users.length) % users.length);
-    }
-  };
-
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
-      {/* Header Section */}
-      <header className="bg-black">
-        {/* MALY logo centered at top */}
-        <div className="flex justify-center pt-3 pb-4">
+      {/* Header Section - Match Discover Page Style */}
+      <header className="bg-black text-white sticky top-0 z-50">
+        {/* Top bar with MÁLY logo on left and inbox icon on right */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-12 w-auto"
+            className="h-14 w-auto"
           />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white p-2 hover:bg-white/10"
+            onClick={() => setLocation("/inbox")}
+            data-testid="button-inbox-header"
+          >
+            <Mail className="h-7 w-7" />
+          </Button>
         </div>
         
         {/* Controls section */}
-        <div className="px-5 pb-4">
+        <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
-            {/* Connect title */}
-            <h2 className="text-white text-lg font-medium">Connect</h2>
+            {/* Connect title with gradient */}
+            <h2 className="gradient-text text-lg font-medium">Connect</h2>
             
-            {/* Filter and Search icons */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={handleFilterClick}
-                data-testid="filters-button"
-              >
-                <Filter className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={() => setShowSearch(!showSearch)}
-                data-testid="search-button"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
+            {/* Filter icon */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white p-2 hover:bg-white/10"
+              onClick={handleFilterClick}
+              data-testid="filters-button"
+            >
+              <Filter className="h-7 w-7" />
+            </Button>
           </div>
         </div>
-        
-        {/* Search Bar (conditionally shown) */}
-        {showSearch && (
-          <div className="px-5 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                placeholder="Search profiles..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                // Add search functionality here if needed
-              />
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Active Filters Display */}
@@ -373,323 +310,111 @@ export function ConnectPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 overflow-auto pb-24">
         {isLoading ? (
           <div className="text-center py-8">
             <span className="text-gray-400">Loading users...</span>
           </div>
-        ) : viewMode === "single" ? (
-          /* Single User View - Fullscreen Profile */
-          <div className="relative">
-            {profileData ? (
-              <div>
-
-                {/* Navigation arrows */}
-                {users && users.length > 1 && (
-                  <>
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20">
-                      <Button
-                        variant="ghost"
-                        className="text-white bg-black/50 backdrop-blur-sm rounded-full p-2 h-auto"
-                        onClick={prevUser}
-                        data-testid="prev-user-button"
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </Button>
-                    </div>
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
-                      <Button
-                        variant="ghost"
-                        className="text-white bg-black/50 backdrop-blur-sm rounded-full p-2 h-auto"
-                        onClick={nextUser}
-                        data-testid="next-user-button"
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </Button>
-                    </div>
-                  </>
-                )}
-
-                {/* Profile Image with Overlay */}
-                <div className="relative w-full h-[75vh]">
-                  {profileData.profileImage ? (
-                    <div className="absolute inset-0">
-                      <img 
-                        src={profileData.profileImage} 
-                        alt={profileData.fullName || profileData.username}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-                      <div className="text-9xl font-bold text-white/20">
-                        {profileData.username[0].toUpperCase()}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Profile info overlay at bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 space-y-4">
-                    <div className="space-y-3">
-                      <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                        {profileData.fullName || profileData.username}
-                      </h1>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {profileData.location && (
-                          <Badge className="bg-white/20 hover:bg-white/30 text-white py-2 px-3 text-sm backdrop-blur-sm border-0">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            {profileData.location}
-                          </Badge>
-                        )}
-                        
-                        {profileData.profession && (
-                          <Badge className="bg-white/20 hover:bg-white/30 text-white py-2 px-3 text-sm backdrop-blur-sm border-0">
-                            <Briefcase className="h-4 w-4 mr-2" />
-                            {profileData.profession}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Connection Button */}
-                    {currentUser && profileData.id !== currentUser.id && (
-                      <div className="w-full">
-                        {connectionLoading ? (
-                          <Button disabled className="w-full bg-white/20 backdrop-blur-sm text-white border-0">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Loading
-                          </Button>
-                        ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
-                          <div className="flex gap-2 w-full">
-                            <Button variant="secondary" className="gap-2 bg-green-500/30 backdrop-blur-sm text-white border-0 flex-1" disabled>
-                              <UserCheck className="h-4 w-4" />
-                              Connected
-                            </Button>
-                            <Button 
-                              onClick={() => createConversationMutation.mutate(profileData.id)}
-                              disabled={createConversationMutation.isPending}
-                              className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 flex-1 rounded-full border-0"
-                              data-testid="button-message"
-                            >
-                              {createConversationMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Mail className="h-4 w-4" />
-                              )}
-                              Message
-                            </Button>
-                          </div>
-                        ) : connectionStatus?.outgoing?.status === 'pending' ? (
-                          <Button variant="secondary" className="gap-2 bg-yellow-500/30 backdrop-blur-sm text-white border-0 w-full" disabled>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Request Pending
-                          </Button>
-                        ) : connectionStatus?.incoming?.status === 'pending' ? (
-                          <div className="flex gap-2 w-full">
-                            <Button 
-                              variant="default" 
-                              className="gap-1 bg-green-600 hover:bg-green-700 flex-1 border-0"
-                              onClick={() => respondToConnectionMutation.mutate({ 
-                                userId: profileData.id, 
-                                status: 'accepted' 
-                              })}
-                              disabled={respondToConnectionMutation.isPending}
-                            >
-                              <Check className="h-4 w-4" />
-                              Accept
-                            </Button>
-                            <Button 
-                              variant="secondary" 
-                              className="gap-1 bg-red-500/30 backdrop-blur-sm text-white border-0 hover:bg-red-500/40 flex-1"
-                              onClick={() => respondToConnectionMutation.mutate({ 
-                                userId: profileData.id, 
-                                status: 'declined' 
-                              })}
-                              disabled={respondToConnectionMutation.isPending}
-                            >
-                              <X className="h-4 w-4" />
-                              Decline
-                            </Button>
-                          </div>
-                        ) : (
-                          <Button 
-                            onClick={() => createConnectionMutation.mutate(profileData.id)}
-                            disabled={createConnectionMutation.isPending}
-                            className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-full rounded-full border-0"
-                          >
-                            {createConnectionMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <UserPlus className="h-4 w-4" />
-                            )}
-                            Connect
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* More Info Button */}
-                    <Button 
-                      onClick={() => setShowMoreInfo(!showMoreInfo)}
-                      variant="secondary"
-                      className="w-full gap-2 bg-white/20 backdrop-blur-sm text-white border-0 hover:bg-white/30"
-                    >
-                      {showMoreInfo ? 'Less Info' : 'More Info'}
-                      <ChevronDown className={`h-4 w-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`} />
-                    </Button>
-
-                    {/* User indicator */}
-                    {users && users.length > 1 && (
-                      <div className="flex justify-center mt-4 space-x-1">
-                        {users.slice(0, Math.min(users.length, 10)).map((_, index) => (
-                          <div
-                            key={index}
-                            className={`w-2 h-2 rounded-full ${
-                              index === currentUserIndex ? "bg-white" : "bg-gray-600"
-                            }`}
-                          />
-                        ))}
-                        {users.length > 10 && (
-                          <span className="text-gray-400 text-xs ml-2">
-                            {currentUserIndex + 1} / {users.length}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Collapsible More Info Section */}
-                {showMoreInfo && (
-                  <div className="bg-black/90 backdrop-blur-sm">
-                    <div className="container mx-auto px-4 sm:px-6 py-6">
-                      <div className="max-w-2xl mx-auto space-y-6">
-                        <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
-                          {/* Bio */}
-                          {profileData.bio && (
-                            <div className="mb-6">
-                              <h3 className="text-lg font-medium text-white mb-3">About</h3>
-                              <p className="text-base text-white/80">{profileData.bio}</p>
-                            </div>
-                          )}
-                          
-                          {/* Personal Details */}
-                          <div className="space-y-6">
-                            {/* Gender & Sexual Orientation */}
-                            {(profileData.gender || profileData.sexualOrientation) && (
-                              <div>
-                                <h3 className="text-lg font-medium text-white mb-3">Personal</h3>
-                                <div className="flex flex-wrap gap-2">
-                                  {profileData.gender && (
-                                    <Badge className="bg-white/20 text-white py-2 px-3 text-sm border-0">
-                                      Gender: {profileData.gender}
-                                    </Badge>
-                                  )}
-                                  {profileData.sexualOrientation && (
-                                    <Badge className="bg-white/20 text-white py-2 px-3 text-sm border-0">
-                                      Orientation: {profileData.sexualOrientation}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Interests */}
-                            {profileData.interests && profileData.interests.length > 0 && (
-                              <div>
-                                <h3 className="text-lg font-medium text-white mb-3">Interests</h3>
-                                <div className="flex flex-wrap gap-2">
-                                  {profileData.interests.map((interest) => (
-                                    <Badge key={interest} className="bg-white/20 text-white py-1 px-3 text-sm border-0">
-                                      {interest}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Current Moods */}
-                            {profileData.currentMoods && (
-                              <div>
-                                <h3 className="text-lg font-medium text-white mb-3">Current Vibes</h3>
-                                <div className="flex flex-wrap gap-2">
-                                  {Array.isArray(profileData.currentMoods) 
-                                    ? profileData.currentMoods.map((mood) => (
-                                        <Badge key={mood} className="bg-white/20 text-white py-1 px-3 text-sm border-0">
-                                          {mood}
-                                        </Badge>
-                                      ))
-                                    : (
-                                        <Badge className="bg-white/20 text-white py-1 px-3 text-sm border-0">
-                                          {profileData.currentMoods}
-                                        </Badge>
-                                      )
-                                  }
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Locations */}
-                            {(profileData.birthLocation || profileData.nextLocation) && (
-                              <div>
-                                <h3 className="text-lg font-medium text-white mb-3">Locations</h3>
-                                <div className="space-y-3">
-                                  {profileData.birthLocation && (
-                                    <div className="flex items-center gap-3 text-sm">
-                                      <MapPin className="h-4 w-4 text-blue-400" />
-                                      <span className="text-white/80">From <span className="font-medium text-white">{profileData.birthLocation}</span></span>
-                                    </div>
-                                  )}
-                                  {profileData.nextLocation && (
-                                    <div className="flex items-center gap-3 text-sm">
-                                      <MapPin className="h-4 w-4 text-purple-400" />
-                                      <span className="text-white/80">Next destination <span className="font-medium text-white">{profileData.nextLocation}</span></span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <span className="text-gray-400">No users found</span>
-              </div>
-            )}
-          </div>
         ) : (
-          /* Grid View */
-          <div className="relative">
-            {/* 2-Column Grid - Bigger, more rectangular cards */}
-            <div className="pt-6 px-4">
-              <div className="grid grid-cols-2 gap-4">
-                {(users || []).map((user, index) => (
-                  <div
+          /* List View - Similar to Discover Page */
+          <div className="px-4 py-3">
+            <div className="space-y-3">
+              {(users || []).map((user) => {
+                // Prepare user connection status
+                const getUserConnectionStatus = (userId: number) => {
+                  if (!currentUser || userId === currentUser.id) return null;
+                  return null; // We'll load individual statuses on demand
+                };
+
+                // Get first mood/vibe
+                const userVibe = Array.isArray(user.currentMoods) && user.currentMoods.length > 0
+                  ? user.currentMoods[0]
+                  : typeof user.currentMoods === 'string'
+                  ? user.currentMoods
+                  : null;
+
+                return (
+                  <div 
                     key={user.id}
-                    className="aspect-[4/5]"
-                    data-testid={`grid-user-card-${user.id}`}
+                    className="flex gap-4 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
+                    data-testid={`user-card-${user.id}`}
                   >
-                    <UserCard
-                      user={user}
+                    {/* User Image */}
+                    <div 
+                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
                       onClick={() => handleUserClick(user)}
-                      className="h-full rounded-2xl overflow-hidden"
-                      variant="grid"
-                    />
+                    >
+                      {user.profileImage ? (
+                        <img
+                          src={user.profileImage}
+                          alt={user.fullName || user.username}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
+                          <span className="text-6xl font-bold text-white/40">
+                            {(user.fullName || user.username).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* User Details */}
+                    <div className="flex-1 flex flex-col justify-start space-y-2 min-w-0">
+                      <h3 
+                        className="text-lg font-medium text-white leading-tight line-clamp-1 cursor-pointer hover:text-purple-400"
+                        onClick={() => handleUserClick(user)}
+                      >
+                        {user.fullName || user.username}
+                      </h3>
+                      
+                      {userVibe && (
+                        <p className="text-sm text-white/80 line-clamp-1">
+                          {userVibe}
+                        </p>
+                      )}
+                      
+                      {user.location && (
+                        <div className="flex items-center gap-1 text-sm text-white/80">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className="line-clamp-1">{user.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Connect Button */}
+                    {currentUser && user.id !== currentUser.id && (
+                      <div className="flex items-center ml-2">
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            createConnectionMutation.mutate(user.id);
+                          }}
+                          disabled={createConnectionMutation.isPending}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2 px-4 whitespace-nowrap"
+                          data-testid={`connect-button-${user.id}`}
+                        >
+                          {createConnectionMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Connect
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                ))}
-                {(!users || users.length === 0) && (
-                  <div className="col-span-2 text-center py-8">
-                    <span className="text-gray-400">No users found</span>
-                  </div>
-                )}
-              </div>
+                );
+              })}
+              
+              {(!users || users.length === 0) && (
+                <div className="text-center py-8">
+                  <span className="text-gray-400">No users found</span>
+                </div>
+              )}
             </div>
           </div>
         )}
