@@ -25,7 +25,7 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
   const [, setLocation] = useLocation();
 
   const formattedDate = format(new Date(event.date), "EEEE, MMMM d, h:mm a");
-  const priceText = event.price === "0" ? "$00 (notes)" : `$${event.price} (notes)`;
+  const priceText = event.price === "0" ? "Free" : `$${event.price}`;
 
   return (
     <div 
@@ -33,8 +33,8 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
       onClick={() => setLocation(`/event/${event.id}`)}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Event Image - iOS style 128x128 */}
-      <div className="w-32 h-32 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden">
+      {/* Event Image - iOS style larger size */}
+      <div className="w-40 h-40 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden">
         {event.image ? (
           <img
             src={event.image}
@@ -59,6 +59,12 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
           <p className="text-sm text-white">
             {formattedDate}
           </p>
+          
+          {event.location && (
+            <p className="text-sm text-white/80">
+              {event.location}
+            </p>
+          )}
           
           <p className="text-sm text-white">
             {priceText}
