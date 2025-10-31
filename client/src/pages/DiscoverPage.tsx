@@ -4,10 +4,9 @@ import { useEvents } from "@/hooks/use-events";
 import { useUser } from "@/hooks/use-user";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter, Inbox } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, Inbox } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -73,7 +72,6 @@ export default function DiscoverPage() {
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   // Removed dateFilter state, as we'll always show all events organized by date
   const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity);
   const [, setLocation] = useLocation();
@@ -397,7 +395,7 @@ export default function DiscoverPage() {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-10 w-auto"
+            className="h-14 w-auto"
           />
           <Button
             variant="ghost"
@@ -406,7 +404,7 @@ export default function DiscoverPage() {
             onClick={() => setLocation("/inbox")}
             data-testid="button-inbox-header"
           >
-            <Inbox className="h-5 w-5" />
+            <Inbox className="h-7 w-7" />
           </Button>
         </div>
         
@@ -416,42 +414,17 @@ export default function DiscoverPage() {
             {/* Discover title with gradient */}
             <h2 className="gradient-text text-lg font-medium">Discover</h2>
             
-            {/* Filter and Search icons */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={() => setShowFilterModal(true)}
-              >
-                <Filter className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={() => setShowSearch(!showSearch)}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
+            {/* Filter icon */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white p-2 hover:bg-white/10"
+              onClick={() => setShowFilterModal(true)}
+            >
+              <Filter className="h-7 w-7" />
+            </Button>
           </div>
         </div>
-        
-        {/* Search Bar (conditionally shown) */}
-        {showSearch && (
-          <div className="px-4 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder={t('searchEvents')}
-                className="pl-10 bg-gray-800 border-gray-700 text-white"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="flex-1 overflow-auto">
