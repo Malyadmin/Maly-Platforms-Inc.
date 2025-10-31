@@ -2,16 +2,14 @@
 import { useState } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Filter, X, Mail, UserPlus, Loader2, MapPin } from "lucide-react";
+import { Filter, X, Mail, UserPlus, Loader2, MapPin, ChevronDown } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
+import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import PremiumPaywall from "@/components/PremiumPaywall";
 
 // User interface matching the existing ConnectPage User type
@@ -51,11 +49,11 @@ interface ConnectionStatus {
 export function ConnectPage() {
   const [, setLocation] = useLocation();
   const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [showFiltersModal, setShowFiltersModal] = useState(false);
-  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
-  const [tempSelectedCity, setTempSelectedCity] = useState<string>("all");
-  const [tempSelectedGender, setTempSelectedGender] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
+  const [selectedVibe, setSelectedVibe] = useState<string>("all");
+  const [showFiltersBar, setShowFiltersBar] = useState(false);
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -67,7 +65,7 @@ export function ConnectPage() {
     isLoading,
     error
   } = useQuery<ConnectUser[]>({
-    queryKey: ['users', selectedCity, selectedGender, currentUser?.id],
+    queryKey: ['users', selectedCity, selectedGender, selectedVibe, currentUser?.id],
     queryFn: async () => {
       const params = new URLSearchParams();
       
@@ -77,6 +75,10 @@ export function ConnectPage() {
 
       if (selectedGender !== 'all') {
         params.append('gender', selectedGender);
+      }
+
+      if (selectedVibe !== 'all') {
+        params.append('moods', selectedVibe);
       }
 
       if (currentUser?.id) {
@@ -200,25 +202,19 @@ export function ConnectPage() {
   // Handle filter button click - check premium status first
   const handleFilterClick = () => {
     if (currentUser?.isPremium) {
-      setShowFiltersModal(true);
+      setShowFiltersBar(!showFiltersBar);
+      setActiveDropdown(null);
     } else {
       setShowPremiumPaywall(true);
     }
   };
 
   // Filter management functions
-  const applyFilters = () => {
-    setSelectedCity(tempSelectedCity);
-    setSelectedGender(tempSelectedGender);
-    setShowFiltersModal(false);
-  };
-
   const clearAllFilters = () => {
-    setTempSelectedCity("all");
-    setTempSelectedGender("all");
     setSelectedCity("all");
     setSelectedGender("all");
-    setShowFiltersModal(false);
+    setSelectedVibe("all");
+    setActiveDropdown(null);
   };
 
   const removeFilter = (filterType: string) => {
@@ -226,6 +222,8 @@ export function ConnectPage() {
       setSelectedCity("all");
     } else if (filterType === "gender") {
       setSelectedGender("all");
+    } else if (filterType === "vibe") {
+      setSelectedVibe("all");
     }
   };
 
@@ -236,9 +234,17 @@ export function ConnectPage() {
       filters.push({ type: "city", label: selectedCity, value: selectedCity });
     }
     if (selectedGender !== "all") {
-      filters.push({ type: "gender", label: selectedGender, value: selectedGender });
+      filters.push({ type: "gender", label: selectedGender.charAt(0).toUpperCase() + selectedGender.slice(1), value: selectedGender });
+    }
+    if (selectedVibe !== "all") {
+      filters.push({ type: "vibe", label: selectedVibe, value: selectedVibe });
     }
     return filters;
+  };
+
+  // Toggle dropdown
+  const toggleDropdown = (dropdown: string) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
 
 
@@ -284,28 +290,163 @@ export function ConnectPage() {
         </div>
       </header>
 
-      {/* Active Filters Display */}
-      {getActiveFilters().length > 0 && (
-        <div className="px-5 py-3 border-b border-gray-800">
-          <div className="flex flex-wrap gap-2">
-            {getActiveFilters().map((filter) => (
-              <Badge
-                key={`${filter.type}-${filter.value}`}
-                variant="secondary"
-                className="bg-gray-700 text-white flex items-center gap-1 px-3 py-1"
-                data-testid={`filter-tag-${filter.type}`}
+      {/* Filter Bar - Shows when filter icon is clicked */}
+      {showFiltersBar && (
+        <div className="bg-black border-b border-gray-800">
+          {/* Filter Categories */}
+          <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
+            {/* Gender */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('gender')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-gender"
               >
-                <span className="text-xs">{filter.label}</span>
-                <button
-                  onClick={() => removeFilter(filter.type)}
-                  className="ml-1 hover:bg-gray-600 rounded-full p-0.5"
-                  data-testid={`remove-filter-${filter.type}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+                Gender
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'gender' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Gender Dropdown */}
+              {activeDropdown === 'gender' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[120px]">
+                  <button
+                    onClick={() => { setSelectedGender('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg"
+                    data-testid="gender-option-all"
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('male'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    data-testid="gender-option-male"
+                  >
+                    Male
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('female'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    data-testid="gender-option-female"
+                  >
+                    Female
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('other'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 last:rounded-b-lg"
+                    data-testid="gender-option-other"
+                  >
+                    Other
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Vibe */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('vibe')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-vibe"
+              >
+                Vibe
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'vibe' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Vibe Dropdown */}
+              {activeDropdown === 'vibe' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedVibe('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    data-testid="vibe-option-all"
+                  >
+                    All Vibes
+                  </button>
+                  {VIBE_AND_MOOD_TAGS.map((vibe) => (
+                    <button
+                      key={vibe}
+                      onClick={() => { setSelectedVibe(vibe); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {vibe}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Location */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('location')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-location"
+              >
+                Location
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'location' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Location Dropdown */}
+              {activeDropdown === 'location' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    data-testid="location-option-all"
+                  >
+                    All Cities
+                  </button>
+                  {DIGITAL_NOMAD_CITIES.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Clear All X */}
+            {getActiveFilters().length > 0 && (
+              <button
+                onClick={clearAllFilters}
+                className="ml-auto text-white hover:text-purple-400 transition-colors"
+                data-testid="clear-all-filters"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
+
+          {/* Selected Filters Bar */}
+          {getActiveFilters().length > 0 && (
+            <div className="px-5 pb-3">
+              <div className="flex flex-wrap gap-2">
+                {getActiveFilters().map((filter) => (
+                  <Badge
+                    key={`${filter.type}-${filter.value}`}
+                    variant="secondary"
+                    className="bg-gray-800 text-white flex items-center gap-2 px-3 py-1 text-xs"
+                    data-testid={`filter-badge-${filter.type}`}
+                  >
+                    <span>{filter.label}</span>
+                    <button
+                      onClick={() => removeFilter(filter.type)}
+                      className="hover:text-purple-400 transition-colors"
+                      data-testid={`remove-filter-${filter.type}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -419,75 +560,6 @@ export function ConnectPage() {
           </div>
         )}
       </main>
-
-      {/* Filters Modal */}
-      <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
-        <DialogContent className="bg-black text-white border-gray-800 max-w-sm mx-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white text-lg font-medium text-center">Filters</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6 py-4">
-            {/* Singles near me section */}
-            <div className="space-y-3">
-              <h3 className="text-white font-medium">Singles near me</h3>
-              <Select value={tempSelectedCity} onValueChange={setTempSelectedCity}>
-                <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="city-filter-select">
-                  <SelectValue placeholder="Select a city" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600 z-[9999]">
-                  <SelectItem value="all" className="text-white hover:bg-gray-700">All cities</SelectItem>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <SelectItem 
-                      key={city} 
-                      value={city} 
-                      className="text-white hover:bg-gray-700"
-                      data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Gender section */}
-            <div className="space-y-3">
-              <h3 className="text-white font-medium">Gender</h3>
-              <Select value={tempSelectedGender} onValueChange={setTempSelectedGender}>
-                <SelectTrigger className="bg-gray-800 border-gray-600 text-white" data-testid="gender-filter-select">
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600 z-[9999]">
-                  <SelectItem value="all" className="text-white hover:bg-gray-700">All genders</SelectItem>
-                  <SelectItem value="male" className="text-white hover:bg-gray-700">Male</SelectItem>
-                  <SelectItem value="female" className="text-white hover:bg-gray-700">Female</SelectItem>
-                  <SelectItem value="other" className="text-white hover:bg-gray-700">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-3 pt-4">
-              <Button
-                variant="outline"
-                className="flex-1 border-gray-600 text-white hover:bg-gray-800"
-                onClick={clearAllFilters}
-                data-testid="clear-all-button"
-              >
-                Clear All
-              </Button>
-              <Button
-                className="flex-1 bg-white text-black hover:bg-gray-200"
-                onClick={applyFilters}
-                data-testid="apply-filters-button"
-              >
-                Apply
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Premium Paywall */}
       <PremiumPaywall 
