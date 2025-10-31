@@ -69,6 +69,7 @@ export const events = pgTable("events", {
   stripeProductId: text("stripe_product_id"), // For payment integration
   stripePriceId: text("stripe_price_id"), // For payment integration
   itinerary: jsonb("itinerary").$type<{ startTime: string; endTime: string; description: string }[]>().default([]),
+  dressCode: text("dress_code"), // Dress code for the event
 });
 
 export const ticketTiers = pgTable("ticket_tiers", {
