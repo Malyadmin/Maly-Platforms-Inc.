@@ -44,6 +44,7 @@ const EventSchema = z.object({
   isPrivate: z.boolean().optional(),
   isRsvp: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
+  dressCode: z.string().nullable().optional(),
   creator: z.object({
     id: z.number(),
     username: z.string(),
@@ -67,6 +68,7 @@ export default function EventPage() {
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [showAllVibes, setShowAllVibes] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showDressCode, setShowDressCode] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -386,6 +388,22 @@ export default function EventPage() {
                 </button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Dress Code - Collapsible */}
+        {event.dressCode && (
+          <div className="space-y-2">
+            <button
+              onClick={() => setShowDressCode(!showDressCode)}
+              className="flex items-center gap-2 text-white/80 hover:text-white text-sm"
+            >
+              <span>Dress Code</span>
+              <ChevronRight className={`w-4 h-4 transition-transform ${showDressCode ? 'rotate-90' : ''}`} />
+            </button>
+            {showDressCode && (
+              <p className="text-sm text-white/80 pl-6">{event.dressCode}</p>
+            )}
           </div>
         )}
 
