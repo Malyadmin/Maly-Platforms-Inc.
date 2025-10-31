@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter } from "lucide-react";
+import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter, Inbox } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -392,20 +392,29 @@ export default function DiscoverPage() {
       </Dialog>
       {/* iOS-style Header */}
       <div className="bg-black text-white sticky top-0 z-50">
-        {/* MÁLY logo centered at top */}
-        <div className="flex justify-center pt-3 pb-4">
+        {/* Top bar with MÁLY logo on left and inbox icon on right */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-12 w-auto"
+            className="h-10 w-auto"
           />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white p-2 hover:bg-white/10"
+            onClick={() => setLocation("/inbox")}
+            data-testid="button-inbox-header"
+          >
+            <Inbox className="h-5 w-5" />
+          </Button>
         </div>
         
         {/* Controls section */}
-        <div className="px-5 pb-4">
+        <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
-            {/* Discover title */}
-            <h2 className="text-white text-lg font-medium">Discover</h2>
+            {/* Discover title with gradient */}
+            <h2 className="gradient-text text-lg font-medium">Discover</h2>
             
             {/* Filter and Search icons */}
             <div className="flex items-center gap-2">
@@ -481,10 +490,10 @@ export default function DiscoverPage() {
             </div>
           )}
 
-          <div className="px-4 py-6">
+          <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}
-            <div className="space-y-6 sm:space-y-8">
-              <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">
+            <div className="space-y-3">
+              <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
                 {filteredEvents.length} {t('eventsFound')}
               </h2>
 
@@ -520,17 +529,17 @@ export default function DiscoverPage() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {selectedTimeFilter === 'Anytime' ? (
                   // Show all time-based sections when "Anytime" is selected
                   <>
                     {/* Today's Events Section */}
                     {groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -540,11 +549,11 @@ export default function DiscoverPage() {
                     
                     {/* This Week Section */}
                     {groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -554,11 +563,11 @@ export default function DiscoverPage() {
                     
                     {/* This Weekend Section */}
                     {groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -568,11 +577,11 @@ export default function DiscoverPage() {
                     
                     {/* Next Week Section */}
                     {groupedEvents.nextWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -582,11 +591,11 @@ export default function DiscoverPage() {
 
                     {/* Next Weekend Section */}
                     {groupedEvents.nextWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.nextWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -596,11 +605,11 @@ export default function DiscoverPage() {
 
                     {/* This Month Section */}
                     {groupedEvents.month.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -610,11 +619,11 @@ export default function DiscoverPage() {
 
                     {/* Upcoming Events Section */}
                     {groupedEvents.upcoming.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.upcoming.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -626,11 +635,11 @@ export default function DiscoverPage() {
                   // Show only the selected time period
                   <>
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -639,11 +648,11 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -652,11 +661,11 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
+                      <div className="space-y-4">
+                        <div className="py-1">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
