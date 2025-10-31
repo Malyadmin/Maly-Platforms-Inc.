@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
-import PremiumPaywall from "@/components/PremiumPaywall";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -52,7 +51,6 @@ export function ConnectPage() {
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [selectedVibe, setSelectedVibe] = useState<string>("all");
   const [showFiltersBar, setShowFiltersBar] = useState(false);
-  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -199,17 +197,10 @@ export function ConnectPage() {
     setLocation(`/profile/${user.username}`);
   };
 
-  // Handle filter button click - check premium status first
+  // Handle filter button click
   const handleFilterClick = () => {
-    console.log("Filter button clicked. Current user:", currentUser);
-    console.log("isPremium value:", currentUser?.isPremium);
-    
-    if (currentUser?.isPremium === true) {
-      setShowFiltersBar(!showFiltersBar);
-      setActiveDropdown(null);
-    } else {
-      setShowPremiumPaywall(true);
-    }
+    setShowFiltersBar(!showFiltersBar);
+    setActiveDropdown(null);
   };
 
   // Filter management functions
@@ -563,12 +554,6 @@ export function ConnectPage() {
           </div>
         )}
       </main>
-
-      {/* Premium Paywall */}
-      <PremiumPaywall 
-        isOpen={showPremiumPaywall} 
-        onClose={() => setShowPremiumPaywall(false)} 
-      />
 
       {/* Bottom Navigation */}
       <BottomNav />
