@@ -201,7 +201,10 @@ export function ConnectPage() {
 
   // Handle filter button click - check premium status first
   const handleFilterClick = () => {
-    if (currentUser?.isPremium) {
+    console.log("Filter button clicked. Current user:", currentUser);
+    console.log("isPremium value:", currentUser?.isPremium);
+    
+    if (currentUser?.isPremium === true) {
       setShowFiltersBar(!showFiltersBar);
       setActiveDropdown(null);
     } else {
