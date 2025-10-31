@@ -9,6 +9,10 @@ interface Event {
   price?: string;
   image?: string;
   interestedCount?: number;
+  isRsvp?: boolean;
+  requireApproval?: boolean;
+  ticketType?: string;
+  ticketTiers?: { price: string }[];
   creator?: {
     id: number;
     username: string;
@@ -25,7 +29,23 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
   const [, setLocation] = useLocation();
 
   const formattedDate = format(new Date(event.date), "EEEE, MMMM d, h:mm a");
-  const priceText = event.price === "0" ? "Free" : `$${event.price}`;
+  
+  // Determine the price text based on event type
+  let priceText = "Free";
+  
+  if (event.isRsvp || event.requireApproval) {
+    priceText = "RSVP";
+  } else if (event.ticketTiers && event.ticketTiers.length > 0) {
+    const prices = event.ticketTiers.map(tier => parseFloat(tier.price));
+    const hasPaidTiers = prices.some(price => price > 0);
+    if (hasPaidTiers) {
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      priceText = minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+    }
+  } else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
+    priceText = `$${event.price}`;
+  }
 
   return (
     <div 
