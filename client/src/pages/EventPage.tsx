@@ -277,7 +277,7 @@ export default function EventPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* iOS-style Header with Close and Share */}
+      {/* iOS-style Header with Close */}
       <div className="absolute top-0 left-0 right-0 z-50 p-4 pt-12">
         <div className="flex items-center justify-between">
           <button 
@@ -285,9 +285,6 @@ export default function EventPage() {
             className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm"
           >
             Close
-          </button>
-          <button className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-            Share
           </button>
         </div>
       </div>
@@ -300,12 +297,6 @@ export default function EventPage() {
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          {/* MÁLY logo overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-black/30 px-8 py-4 rounded-lg backdrop-blur-sm">
-              <h1 className="text-white text-3xl font-bold tracking-[0.3em]" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
-            </div>
-          </div>
         </div>
       )}
 
@@ -414,14 +405,14 @@ export default function EventPage() {
         </div>
 
 
-        {/* Ticket CTA and Save Button */}
+        {/* Ticket CTA, Share, and Save Button */}
         {user && event.creatorId !== user.id && (
           <div className="pt-2 space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Ticket/Purchase Button */}
               {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
                 <Button 
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2 px-6"
                   onClick={() => setIsTicketModalOpen(true)}
                   data-testid="button-purchase-ticket"
                 >
@@ -430,7 +421,7 @@ export default function EventPage() {
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2 px-6"
                   onClick={() => accessRequestMutation.mutate()}
                   disabled={accessRequestMutation.isPending}
                   data-testid="button-request-access"
@@ -449,7 +440,7 @@ export default function EventPage() {
                 </Button>
               ) : (
                 <Button 
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2 px-6"
                   onClick={() => participateMutation.mutate(
                     participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
                   )}
@@ -468,6 +459,41 @@ export default function EventPage() {
                   )}
                 </Button>
               )}
+              
+              {/* Share Button */}
+              <Button 
+                variant="outline" 
+                className="border-gray-600 text-white hover:bg-gray-800 px-4"
+                onClick={async () => {
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({
+                        title: event.title,
+                        text: `Check out this event: ${event.title}`,
+                        url: window.location.href,
+                      });
+                    } catch (err) {
+                      if ((err as Error).name !== 'AbortError') {
+                        console.error('Error sharing:', err);
+                        toast({
+                          title: "Share failed",
+                          description: "Unable to share this event",
+                          variant: "destructive",
+                        });
+                      }
+                    }
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast({
+                      title: "Link copied!",
+                      description: "Event link copied to clipboard",
+                    });
+                  }
+                }}
+                data-testid="button-share"
+              >
+                <Share2 className="w-5 h-5" />
+              </Button>
               
               {/* Save Button */}
               <Button 
