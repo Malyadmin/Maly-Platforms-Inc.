@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X, Bookmark, ChevronRight } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -65,6 +65,8 @@ export default function EventPage() {
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
   const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [showAllVibes, setShowAllVibes] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -308,89 +310,58 @@ export default function EventPage() {
       )}
 
       {/* Event Details */}
-      <div className="px-6 py-8 space-y-8">
+      <div className="px-5 py-4 space-y-4">
         {/* Event Title */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-          <div className="flex items-center gap-4 mb-4">
-            {(() => {
-              // Check if event has ticket tiers
-              if (event.ticketTiers && event.ticketTiers.length > 0) {
-                const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
-                if (hasPaidTiers) {
-                  const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
-                  const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
-                  const priceRange = minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
-                  return (
-                    <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                      💳 {priceRange}
-                    </div>
-                  );
+        <h1 className="text-xl font-semibold text-white">{event.title}</h1>
+        
+        {/* Hosted by */}
+        <button
+          onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          data-testid="event-creator-link"
+        >
+          {event?.creator?.profileImage ? (
+            <img
+              src={event.creator.profileImage}
+              alt={event.creator.fullName}
+              className="w-5 h-5 rounded-full"
+            />
+          ) : (
+            <div className="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center">
+              <span className="text-white text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
+            </div>
+          )}
+          <span className="text-sm text-white/80">Hosted by {event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
+        </button>
+
+        {/* Date, Time, Price, Address */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-white">{format(new Date(event.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-white">
+              {(() => {
+                if (event.ticketTiers && event.ticketTiers.length > 0) {
+                  const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
+                  if (hasPaidTiers) {
+                    const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                    const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                    return minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+                  } else {
+                    return "Free";
+                  }
+                } else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
+                  return `$${event.price}`;
                 } else {
-                  return (
-                    <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                      ✓ Free Event
-                    </div>
-                  );
+                  return "Free";
                 }
-              }
-              // Fallback to original logic for events without tiers
-              else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
-                return (
-                  <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                    💳 ${event.price}
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                    ✓ Free Event
-                  </div>
-                );
-              }
-            })()}
-            <div className="flex items-center gap-2 text-blue-400">
-              <button
-                onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
-                className="flex items-center gap-2 hover:underline cursor-pointer"
-                data-testid="event-creator-link"
-              >
-                {event?.creator?.profileImage ? (
-                  <img
-                    src={event.creator.profileImage}
-                    alt={event.creator.fullName}
-                    className="w-6 h-6 rounded-full"
-                  />
-                ) : (
-                  <span>👤</span>
-                )}
-                <span>{event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
-              </button>
-            </div>
+              })()}
+            </p>
           </div>
-        </div>
-
-        {/* Date & Time Section */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">📅</span>
-            <div>
-              <h3 className="text-white font-semibold">Date & Time</h3>
-              <p className="text-white text-lg font-medium">{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
-              <p className="text-white/70">{format(new Date(event.date), "h:mm a")}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Location Section */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">✈️</span>
-            <div>
-              <h3 className="text-white font-semibold">Location</h3>
-              <p className="text-white text-lg font-medium">{event.location}</p>
-              <p className="text-white/70">{event.address || event.location}</p>
-            </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-white/60" />
+            <p className="text-sm text-white/80">{event.address || event.location}</p>
           </div>
         </div>
 
@@ -399,182 +370,136 @@ export default function EventPage() {
           <div 
             ref={mapContainer} 
             className="h-48 w-full rounded-lg"
-            style={{ minHeight: '300px' }}
           />
         ) : (
           <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-            <p className="text-white/60">Location coordinates not available</p>
+            <p className="text-sm text-white/60">Location coordinates not available</p>
           </div>
         )}
 
-        {/* About This Event Section */}
+        {/* Vibes - Show 3, expand with > */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {(showAllVibes ? event.tags : event.tags.slice(0, 3)).map((tag, index) => (
+                <span key={index} className="bg-white/20 text-white px-3 py-1 rounded-full text-xs">
+                  {tag}
+                </span>
+              ))}
+              {event.tags.length > 3 && (
+                <button
+                  onClick={() => setShowAllVibes(!showAllVibes)}
+                  className="flex items-center gap-1 text-white/80 hover:text-white text-xs"
+                >
+                  <ChevronRight className={`w-4 h-4 transition-transform ${showAllVibes ? 'rotate-90' : ''}`} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Description Preview */}
         <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">☰</span>
-            <h3 className="text-white font-semibold">About This Event</h3>
-          </div>
-          <p className="text-white/80 leading-relaxed">{event.description}</p>
-        </div>
-
-        {/* Event Vibes Section */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">✨</span>
-            <h3 className="text-white font-semibold">Event Vibes</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {event.tags?.map((tag, index) => (
-              <span key={index} className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                {tag}
-              </span>
-            )) || (
-              <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                Wellness & Movement
-              </span>
-            )}
-          </div>
+          <p className={`text-sm text-white/80 leading-relaxed ${showFullDescription ? '' : 'line-clamp-3'}`}>
+            {event.description}
+          </p>
+          {event.description && event.description.length > 150 && (
+            <button
+              onClick={() => setShowFullDescription(!showFullDescription)}
+              className="text-sm text-white hover:underline"
+            >
+              {showFullDescription ? 'View Less' : 'View More'}
+            </button>
+          )}
         </div>
 
 
-        {/* Participation Section */}
+        {/* Ticket CTA and Save Button */}
         {user && event.creatorId !== user.id && (
-          <div className="pt-4 space-y-4">
-            {event.requireApproval ? (
-              /* RSVP/Private Event - Show Request Access Button or Status */
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-yellow-400 bg-yellow-400/10 px-4 py-2 rounded-lg">
-                  <Lock className="w-4 h-4" />
-                  <span className="text-sm">This event requires host approval to attend</span>
-                </div>
-                
-                {/* Show current RSVP status if user has one */}
-                {rsvpStatus?.status ? (
-                  <div className="space-y-3">
-                    {rsvpStatus.status === 'pending_approval' || rsvpStatus.status === 'pending_access' ? (
-                      <div className="flex items-center gap-2 text-orange-400 bg-orange-400/10 px-4 py-2 rounded-lg">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Your request is pending approval</span>
-                      </div>
-                    ) : rsvpStatus.status === 'attending' ? (
-                      <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-2 rounded-lg">
-                        <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm">You are attending this event</span>
-                      </div>
-                    ) : rsvpStatus.status === 'rejected' ? (
-                      <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-2 rounded-lg">
-                        <XCircle className="w-4 h-4" />
-                        <span className="text-sm">Your request was declined</span>
-                      </div>
-                    ) : rsvpStatus.status === 'interested' ? (
-                      <div className="flex items-center gap-2 text-blue-400 bg-blue-400/10 px-4 py-2 rounded-lg">
-                        <Star className="w-4 h-4" />
-                        <span className="text-sm">You are interested in this event</span>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  /* Show request button if no status */
-                  <Button 
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                    onClick={() => accessRequestMutation.mutate()}
-                    disabled={accessRequestMutation.isPending}
-                    data-testid="button-request-access"
-                  >
-                    {accessRequestMutation.isPending ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Sending Request...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 mr-2" />
-                        Request Access
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-            ) : (
-              /* Public Event - Show Regular Participation Buttons */
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 text-white/60 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>{event.attendingCount || 0} attending</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    <span>{event.interestedCount || 0} interested</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-3">
-                  {/* Purchase button for paid events */}
-                  {event.ticketType === 'paid' && (
-                    <Button 
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                      onClick={() => setIsTicketModalOpen(true)}
-                      data-testid="button-purchase-ticket"
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Purchase Tickets
-                    </Button>
+          <div className="pt-2 space-y-3">
+            <div className="flex items-center gap-3">
+              {/* Ticket/Purchase Button */}
+              {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
+                <Button 
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2"
+                  onClick={() => setIsTicketModalOpen(true)}
+                  data-testid="button-purchase-ticket"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Get Tickets
+                </Button>
+              ) : event.requireApproval ? (
+                <Button 
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2"
+                  onClick={() => accessRequestMutation.mutate()}
+                  disabled={accessRequestMutation.isPending}
+                  data-testid="button-request-access"
+                >
+                  {accessRequestMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Requesting...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Request
+                    </>
                   )}
-                  
-                  <Button 
-                    className={`w-full ${
-                      participationStatus?.status === 'attending' 
-                        ? 'bg-green-600 hover:bg-green-700' 
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                    } text-white`}
-                    onClick={() => participateMutation.mutate(
-                      participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
-                    )}
-                    disabled={participateMutation.isPending}
-                    data-testid="button-attending"
-                  >
-                    {participateMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : participationStatus?.status === 'attending' ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Cancel Attendance
-                      </>
-                    ) : (
-                      "I'll be attending"
-                    )}
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className={`w-full ${
-                      participationStatus?.status === 'interested'
-                        ? 'bg-yellow-600/20 border-yellow-600 text-yellow-400 hover:bg-yellow-600/30'
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                    onClick={() => participateMutation.mutate(
-                      participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
-                    )}
-                    disabled={participateMutation.isPending}
-                    data-testid="button-interested"
-                  >
-                    {participateMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : participationStatus?.status === 'interested' ? (
-                      <>
-                        <Star className="w-4 h-4 mr-2" />
-                        No longer interested
-                      </>
-                    ) : (
-                      "I'm interested"
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-            )}
+                </Button>
+              ) : (
+                <Button 
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2"
+                  onClick={() => participateMutation.mutate(
+                    participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
+                  )}
+                  disabled={participateMutation.isPending}
+                  data-testid="button-attending"
+                >
+                  {participateMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : participationStatus?.status === 'attending' ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Attending
+                    </>
+                  ) : (
+                    "RSVP"
+                  )}
+                </Button>
+              )}
+              
+              {/* Save Button */}
+              <Button 
+                variant="outline" 
+                className={`px-4 ${
+                  participationStatus?.status === 'interested'
+                    ? 'bg-purple-600/20 border-purple-600 text-purple-400 hover:bg-purple-600/30'
+                    : 'border-gray-600 text-white hover:bg-gray-800'
+                }`}
+                onClick={() => participateMutation.mutate(
+                  participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
+                )}
+                disabled={participateMutation.isPending}
+                data-testid="button-interested"
+              >
+                <Bookmark className={`w-5 h-5 ${participationStatus?.status === 'interested' ? 'fill-current' : ''}`} />
+              </Button>
+            </div>
           </div>
         )}
+
+        {/* Counts - Attending (left) and Interested (right) */}
+        <div className="flex items-center justify-between text-white/60 text-xs pt-2">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span>{event.attendingCount || 0} Attending</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Bookmark className="w-4 h-4" />
+            <span>{event.interestedCount || 0} Interested</span>
+          </div>
+        </div>
 
       </div>
 
