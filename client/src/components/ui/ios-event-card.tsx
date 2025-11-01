@@ -28,7 +28,9 @@ interface IOSEventCardProps {
 export function IOSEventCard({ event }: IOSEventCardProps) {
   const [, setLocation] = useLocation();
 
-  const formattedDate = format(new Date(event.date), "EEEE, MMMM d, h:mm a");
+  // Split date and time formatting
+  const formattedDate = format(new Date(event.date), "EEEE, MMMM d");
+  const formattedTime = format(new Date(event.date), "h:mm a");
   
   // Determine the price text based on event type
   let priceText = "Free";
@@ -69,62 +71,29 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
         )}
       </div>
       
-      {/* Event Details */}
-      <div className="flex-1 flex flex-col justify-start space-y-2">
-        <h3 className="text-lg font-medium text-white leading-tight line-clamp-2">
+      {/* Event Details - Simplified */}
+      <div className="flex-1 flex flex-col justify-center space-y-1 pr-2">
+        <h3 className="text-lg font-medium text-white leading-tight truncate">
           {event.title}
         </h3>
         
-        <div className="space-y-1">
-          <p className="text-sm text-white">
-            {formattedDate}
-          </p>
-          
-          {event.location && (
-            <p className="text-sm text-white/80">
-              {event.location}
-            </p>
-          )}
-          
-          <p className="text-sm text-white">
-            {priceText}
-          </p>
-          
-          <p className="text-sm text-white">
-            {event.interestedCount || 0} Interested
-          </p>
-        </div>
+        <p className="text-sm text-white/80 truncate">
+          {formattedDate}
+        </p>
         
-        {/* Event Creator/Host Information */}
-        {event.creator && (
-          <div className="flex items-center gap-2 mt-2">
-            <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden flex-shrink-0">
-              {event.creator.profileImage ? (
-                <img
-                  src={event.creator.profileImage}
-                  alt={event.creator.fullName || event.creator.username}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                  <span className="text-gray-300 text-xs font-medium">
-                    {(event.creator.fullName || event.creator.username)?.charAt(0)?.toUpperCase()}
-                  </span>
-                </div>
-              )}
-            </div>
-            <span 
-              className="text-sm text-white hover:text-gray-300 cursor-pointer transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLocation(`/profile/${event.creator?.username}`);
-              }}
-              data-testid={`creator-link-${event.id}`}
-            >
-              {event.creator.fullName || event.creator.username}
-            </span>
-          </div>
+        <p className="text-sm text-white/80 truncate">
+          {formattedTime}
+        </p>
+        
+        {event.location && (
+          <p className="text-sm text-white/80 truncate">
+            {event.location}
+          </p>
         )}
+        
+        <p className="text-sm text-white truncate">
+          {priceText}
+        </p>
       </div>
     </div>
   );
