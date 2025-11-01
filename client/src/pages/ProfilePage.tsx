@@ -386,9 +386,9 @@ export default function ProfilePage() {
       </button>
     </div>
     
-    {/* Profile title with gradient - uppercase with letter spacing */}
+    {/* Profile title with gradient - uppercase with extra letter spacing */}
     <div className="px-5 pb-3">
-      <h2 className="gradient-text text-lg font-medium uppercase tracking-widest">Profile</h2>
+      <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
     </div>
   </div>
 
@@ -411,8 +411,8 @@ export default function ProfilePage() {
       </div>
     )}
     
-    {/* Name and Location overlay - sticky to stay at bottom of image */}
-    <div className="sticky bottom-0 left-0 right-0 px-6 pb-6 pt-24 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-10">
+    {/* Name and Location overlay - absolute positioned at bottom */}
+    <div className="absolute bottom-6 left-0 right-0 px-6 z-10">
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
           {profileData.fullName || profileData.username}

@@ -267,9 +267,9 @@ export function ConnectPage() {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
-            {/* Connect title with gradient - uppercase with letter spacing */}
+            {/* Connect title with gradient - uppercase with extra letter spacing */}
             <div>
-              <h2 className="gradient-text text-lg font-medium uppercase tracking-widest">Connect</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Connect</h2>
               {/* Show profile count here when filter bar is hidden */}
               {!showFiltersBar && (
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">
