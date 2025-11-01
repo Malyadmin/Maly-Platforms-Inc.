@@ -384,7 +384,7 @@ export default function ProfilePage() {
         onClick={() => setLocation("/inbox")}
         data-testid="button-inbox-header"
       >
-        <Inbox className="h-7 w-7" />
+        <Inbox className="h-7 w-7 text-white" />
       </Button>
     </div>
     
