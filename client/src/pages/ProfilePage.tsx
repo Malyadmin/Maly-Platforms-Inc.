@@ -368,8 +368,8 @@ export default function ProfilePage() {
 
   return (
 <div className="min-h-screen bg-black">
-  {/* Header */}
-  <div className="absolute top-0 left-0 right-0 z-20 bg-black border-b border-gray-800">
+  {/* Header - Sticky */}
+  <div className="sticky top-0 left-0 right-0 z-20 bg-black border-b border-gray-800">
     {/* MALY logo and inbox icon row */}
     <div className="flex items-center justify-between px-5 pt-3 pb-2">
       <img 
@@ -377,15 +377,13 @@ export default function ProfilePage() {
         alt="MÁLY" 
         className="h-14 w-auto"
       />
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-white p-2 hover:bg-white/10"
+      <button
+        className="p-2 hover:bg-white/10 rounded-lg"
         onClick={() => setLocation("/inbox")}
         data-testid="button-inbox-header"
       >
-        <Inbox className="h-7 w-7 text-white" />
-      </Button>
+        <Inbox className="h-7 w-7" style={{ color: 'white', stroke: 'white' }} />
+      </button>
     </div>
     
     {/* Profile title with gradient */}
@@ -413,8 +411,8 @@ export default function ProfilePage() {
       </div>
     )}
     
-    {/* Name and Location overlay - positioned in lower third for immediate visibility */}
-    <div className="absolute bottom-32 left-0 right-0 px-6 space-y-2">
+    {/* Name and Location overlay - positioned higher for immediate visibility */}
+    <div className="absolute bottom-48 left-0 right-0 px-6 space-y-2">
       <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
         {profileData.fullName || profileData.username}
       </h1>
