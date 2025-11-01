@@ -488,22 +488,20 @@ export default function ProfilePage() {
         {/* Action Buttons */}
         {currentUser && profileData.id !== currentUser.id && (
           <div className="space-y-3 pt-6">
-            {/* Message Button */}
-            {(connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted') && (
-              <Button 
-                onClick={handleMessageClick}
-                disabled={createConversationMutation.isPending}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full border-0"
-                data-testid="button-message"
-              >
-                {createConversationMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Mail className="h-4 w-4 mr-2" />
-                )}
-                Message
-              </Button>
-            )}
+            {/* Message Button - Always shown */}
+            <Button 
+              onClick={handleMessageClick}
+              disabled={createConversationMutation.isPending}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full border-0"
+              data-testid="button-message"
+            >
+              {createConversationMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4 mr-2" />
+              )}
+              Message
+            </Button>
             
             {/* Connect and Share Row */}
             <div className="flex gap-3">
