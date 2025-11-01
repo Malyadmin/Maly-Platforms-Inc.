@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, Inbox } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, Inbox, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -335,11 +335,10 @@ export default function DiscoverPage() {
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Filter Bar - Shows when filter icon is clicked */}
-      {showFiltersBar && (
-        <div className="bg-black border-b border-gray-800">
+        {/* Filter Bar - Shows when filter icon is clicked */}
+        {showFiltersBar && (
+          <div className="border-t border-gray-800">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* When */}
@@ -471,8 +470,9 @@ export default function DiscoverPage() {
               </div>
             </div>
           )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       <div className="flex-1 overflow-auto">
         <main className="bg-black text-white pb-24">
