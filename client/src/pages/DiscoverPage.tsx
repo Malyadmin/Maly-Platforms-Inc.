@@ -320,8 +320,8 @@ export default function DiscoverPage() {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
-            {/* Discover title with gradient */}
-            <h2 className="gradient-text text-lg font-medium">Discover</h2>
+            {/* Discover title with gradient - uppercase with letter spacing */}
+            <h2 className="gradient-text text-lg font-medium uppercase tracking-widest">Discover</h2>
             
             {/* Filter icon */}
             <Button
