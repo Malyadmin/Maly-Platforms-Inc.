@@ -425,13 +425,13 @@ export function ConnectPage() {
                   <Badge
                     key={`${filter.type}-${filter.value}`}
                     variant="secondary"
-                    className="bg-gray-800 text-white flex items-center gap-2 px-3 py-1 text-xs"
+                    className="bg-gray-800 text-white flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                     data-testid={`filter-badge-${filter.type}`}
                   >
-                    <span>{filter.label}</span>
+                    <span className="truncate">{filter.label}</span>
                     <button
                       onClick={() => removeFilter(filter.type)}
-                      className="hover:text-purple-400 transition-colors"
+                      className="hover:text-purple-400 transition-colors flex-shrink-0"
                       data-testid={`remove-filter-${filter.type}`}
                     >
                       <X className="h-3 w-3" />
@@ -471,12 +471,12 @@ export function ConnectPage() {
                 return (
                   <div 
                     key={user.id}
-                    className="flex gap-3 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
+                    className="flex gap-4 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
                     data-testid={`user-card-${user.id}`}
                   >
                     {/* User Image */}
                     <div 
-                      className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
+                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
                       onClick={() => handleUserClick(user)}
                     >
                       {user.profileImage ? (
@@ -488,7 +488,7 @@ export function ConnectPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
-                          <span className="text-3xl sm:text-5xl md:text-6xl font-bold text-white/40">
+                          <span className="text-6xl font-bold text-white/40">
                             {(user.fullName || user.username).charAt(0).toUpperCase()}
                           </span>
                         </div>
