@@ -367,27 +367,9 @@ export default function ProfilePage() {
   return (
 <div className="min-h-screen bg-black">
   {/* Header - Sticky */}
-  <div className="sticky top-0 left-0 right-0 z-20 bg-black border-b border-gray-800">
-    {/* MALY logo and inbox icon row */}
-    <div className="flex items-center justify-between px-5 pt-3 pb-2">
-      <img 
-        src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
-        alt="MÁLY" 
-        className="h-14 w-auto"
-      />
-      <button
-        className="p-2 hover:bg-white/10 rounded-lg"
-        onClick={() => setLocation("/inbox")}
-        data-testid="button-inbox-header"
-      >
-        <Inbox className="h-7 w-7" style={{ color: 'white', stroke: 'white' }} />
-      </button>
-    </div>
-    
+  <div className="sticky top-0 left-0 right-0 z-20 bg-black border-b border-gray-800 px-5 py-3">
     {/* Profile title with gradient - uppercase with extra letter spacing */}
-    <div className="px-5 pb-3">
-      <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
-    </div>
+    <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
   </div>
 
   {/* Fullscreen Profile Image with Name Overlay on Left */}
