@@ -295,7 +295,7 @@ export default function InboxPage() {
 
         {/* Filter Bar - Always Present */}
         <div className="bg-black border-b border-gray-800">
-          <div className="px-5 py-3 flex items-center gap-6">
+          <div className="px-5 py-3 flex items-center justify-between">
             <button
               onClick={() => setActiveFilter('all')}
               className={`text-sm transition-colors ${
@@ -359,173 +359,43 @@ export default function InboxPage() {
         </div>
       ) : (
         <div className="pb-20" data-testid="inbox-content">
-          {/* All Filter - Show All Sections */}
+          {/* All Filter - Show All Messages in a Simple List */}
           {activeFilter === 'all' && (
-            <div className="space-y-8">
-              {/* Direct Messages Section */}
-              <div className="space-y-2">
-                {renderSectionHeader('Direct Messages', directMessages.length)}
-                {directMessages.length === 0 ? (
-                  renderEmptyState('No direct messages yet')
-                ) : (
-                  <div>
-                    {directMessages.map((conversation) => {
-                      const displayName = conversation.otherParticipant 
-                        ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
-                        : 'Unknown User';
-                      
-                      const displaySubtitle = conversation.lastMessage?.content 
-                        ? conversation.lastMessage.content 
-                        : 'No messages yet';
-
-                      const avatarUrl = conversation.otherParticipant?.profileImage;
-                      
-                      return renderInboxItem({
-                        title: displayName,
-                        subtitle: displaySubtitle,
-                        avatar: avatarUrl,
-                        onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                        testId: `conversation-${conversation.id}`
-                      });
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Group Chats Section */}
-              <div className="space-y-2">
-                {renderSectionHeader('Group Chats', groupChats.length)}
-                {groupChats.length === 0 ? (
-                  renderEmptyState('No group chats yet')
-                ) : (
-                  <div>
-                    {groupChats.map((conversation) => {
-                      const displayName = conversation.type === 'event' && conversation.title 
+            <div>
+              {filteredConversations.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-gray-400 text-sm">No messages yet</p>
+                </div>
+              ) : (
+                <div>
+                  {filteredConversations.map((conversation) => {
+                    // Handle both direct messages and group chats
+                    const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                      ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
+                      : conversation.type === 'event' && conversation.title 
                         ? conversation.title.replace(' - Event Chat', ' Group Thread')
                         : (conversation.title || 'Group Chat');
-                      
-                      const displaySubtitle = conversation.lastMessage?.content 
-                        ? conversation.lastMessage.content 
-                        : `${conversation.participantCount} members`;
-                      
-                      return renderInboxItem({
-                        title: displayName,
-                        subtitle: displaySubtitle,
-                        avatar: undefined,
-                        onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                        testId: `group-conversation-${conversation.id}`
-                      });
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* My Connections Section */}
-              <div className="space-y-2">
-                {renderSectionHeader('My Connections', connections.length)}
-                {connections.length === 0 ? (
-                  renderEmptyState('No connections yet')
-                ) : (
-                  <div>
-                    {connections.slice(0, 5).map((connection) => {
-                      return renderInboxItem({
-                        title: connection.fullName || connection.username,
-                        subtitle: 'Connected',
-                        avatar: connection.profileImage || undefined,
-                        onPress: () => setLocation(`/profile/${connection.username}`),
-                        testId: `connection-${connection.id}`
-                      });
-                    })}
-                    {connections.length > 5 && (
-                      <button
-                        onClick={() => setLocation('/connections')}
-                        className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
-                        data-testid="view-all-connections"
-                      >
-                        <div className="flex-1 text-left">
-                          <h4 className="text-blue-400 font-medium text-sm">View All Connections</h4>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-blue-400" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Requests Section */}
-              <div className="space-y-2">
-                {renderSectionHeader('Requests', connectionRequests.length + rsvpRequests.length)}
-                {connectionRequests.length === 0 && rsvpRequests.length === 0 ? (
-                  renderEmptyState('No pending requests')
-                ) : (
-                  <div className="space-y-4">
-                    {connectionRequests.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="px-4">
-                          <h4 className="text-gray-300 font-medium text-sm">Connection Requests</h4>
-                        </div>
-                        <div>
-                          {connectionRequests.map((request) => 
-                            renderInboxItem({
-                              title: request.fullName || request.username || 'Unknown User',
-                              subtitle: 'Wants to connect',
-                              avatar: request.profileImage,
-                              onPress: () => setLocation(`/profile/${request.username || request.id}`),
-                              testId: `connection-request-${request.id}`
-                            })
-                          )}
-                        </div>
-                      </div>
-                    )}
                     
-                    {rsvpRequests.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="px-4">
-                          <h4 className="text-gray-300 font-medium text-sm">RSVP Requests</h4>
-                        </div>
-                        <div>
-                          {rsvpRequests.map((request) => (
-                            <div key={request.id} className="w-full flex items-center px-4 py-3 border-b border-gray-800 last:border-b-0" data-testid={`rsvp-request-${request.id}`}>
-                              <Avatar className="h-10 w-10 mr-3">
-                                <AvatarImage src={request.userImage} alt={request.userName} />
-                                <AvatarFallback className="bg-gray-700 text-gray-300">
-                                  <UserPlus className="h-5 w-5" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <h4 className="text-white font-medium text-sm">{request.userName}</h4>
-                                <p className="text-gray-400 text-xs">Wants to join {request.eventTitle}</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                                  onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'approved' })}
-                                  disabled={handleRSVPMutation.isPending}
-                                  data-testid={`accept-rsvp-${request.id}`}
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                                  onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'rejected' })}
-                                  disabled={handleRSVPMutation.isPending}
-                                  data-testid={`decline-rsvp-${request.id}`}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                    const displaySubtitle = conversation.lastMessage?.content 
+                      ? conversation.lastMessage.content 
+                      : conversation.type === 'direct'
+                        ? 'No messages yet'
+                        : `${conversation.participantCount} members`;
+
+                    const avatarUrl = conversation.type === 'direct' 
+                      ? conversation.otherParticipant?.profileImage
+                      : undefined;
+                    
+                    return renderInboxItem({
+                      title: displayName,
+                      subtitle: displaySubtitle,
+                      avatar: avatarUrl,
+                      onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                      testId: `conversation-${conversation.id}`
+                    });
+                  })}
+                </div>
+              )}
             </div>
           )}
 
