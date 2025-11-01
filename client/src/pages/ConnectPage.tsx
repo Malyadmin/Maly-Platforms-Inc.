@@ -268,7 +268,15 @@ export function ConnectPage() {
         <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
             {/* Connect title with gradient */}
-            <h2 className="gradient-text text-lg font-medium">Connect</h2>
+            <div>
+              <h2 className="gradient-text text-lg font-medium">Connect</h2>
+              {/* Show profile count here when filter bar is hidden */}
+              {!showFiltersBar && (
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                  {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
+                </p>
+              )}
+            </div>
             
             {/* Filter icon */}
             <Button
@@ -441,6 +449,13 @@ export function ConnectPage() {
               </div>
             </div>
           )}
+
+          {/* Show profile count below filter bar when it's visible */}
+          <div className="px-5 pb-3">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
+            </p>
+          </div>
         </div>
       )}
 
