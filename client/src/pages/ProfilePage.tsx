@@ -12,6 +12,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 // Mood badge styles configuration
 const moodStyles = {
@@ -365,11 +366,20 @@ export default function ProfilePage() {
   };
 
   return (
-<div className="min-h-screen bg-black">
+<div className="min-h-screen bg-black pb-24">
   {/* Header - Sticky */}
-  <div className="sticky top-0 left-0 right-0 z-20 bg-black border-b border-gray-800 px-5 py-3">
+  <div className="sticky top-0 left-0 right-0 z-20 bg-black px-5 py-3 flex items-center justify-between">
     {/* Profile title with gradient - uppercase with extra letter spacing */}
     <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+    
+    {/* Inbox Icon - White */}
+    <button
+      className="p-2 hover:bg-white/10 rounded-lg"
+      onClick={() => setLocation("/inbox")}
+      data-testid="button-inbox-header"
+    >
+      <Inbox className="h-6 w-6 text-white" />
+    </button>
   </div>
 
   {/* Fullscreen Profile Image with Name Overlay on Left */}
@@ -583,6 +593,9 @@ export default function ProfilePage() {
     onClose={() => setShowPremiumPaywall(false)}
     feature="messaging"
   />
+  
+  {/* Bottom Navigation */}
+  <BottomNav />
 </div>
 );
 }
