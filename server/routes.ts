@@ -1298,6 +1298,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         availableTickets: events.availableTickets,
         tags: events.tags,
         isPrivate: events.isPrivate,
+        isRsvp: events.isRsvp,
+        requireApproval: events.requireApproval,
         isBusinessEvent: events.isBusinessEvent,
         timeFrame: events.timeFrame,
         stripeProductId: events.stripeProductId,
@@ -1327,9 +1329,21 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       let dbEvents = await query;
       console.log(`Found ${dbEvents.length} events in database before filtering`);
 
-      // Map events to include properly structured creator objects
+      // Fetch ticket tiers for all events
+      const eventIds = dbEvents.map(e => e.id);
+      let allTicketTiers: any[] = [];
+      if (eventIds.length > 0) {
+        allTicketTiers = await db.select()
+          .from(ticketTiers)
+          .where(inArray(ticketTiers.eventId, eventIds));
+      }
+
+      // Map events to include properly structured creator objects and ticket tiers
       const eventsWithCreators = dbEvents.map(event => {
         const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, ...eventData } = event;
+        
+        // Get ticket tiers for this event
+        const eventTicketTiers = allTicketTiers.filter(tier => tier.eventId === event.id);
         
         return {
           ...eventData,
@@ -1338,7 +1352,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
             username: creatorUsername,
             fullName: creatorFullName,
             profileImage: creatorProfileImage
-          } : null
+          } : null,
+          ticketTiers: eventTicketTiers
         };
       });
 
