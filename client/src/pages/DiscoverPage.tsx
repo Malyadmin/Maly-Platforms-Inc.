@@ -71,7 +71,8 @@ export default function DiscoverPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
-  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showFiltersBar, setShowFiltersBar] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   // Removed dateFilter state, as we'll always show all events organized by date
   const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity);
   const [, setLocation] = useLocation();
@@ -271,6 +272,24 @@ export default function DiscoverPage() {
     setSeenEmptyCities(prev => [...prev, selectedCity]);
   };
 
+  // Toggle dropdown
+  const toggleDropdown = (dropdown: string) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
+  // Handle filter click
+  const handleFilterClick = () => {
+    setShowFiltersBar(!showFiltersBar);
+    setActiveDropdown(null);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCity("all");
+    setSelectedEventTypes([]);
+    setSelectedTimeFilter('Anytime');
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <FirstEventModal 
@@ -278,116 +297,6 @@ export default function DiscoverPage() {
         open={showFirstEventModal} 
         onClose={handleModalClose} 
       />
-      
-      {/* iOS-style Filter Modal */}
-      <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
-        <DialogContent className="bg-black text-white border-gray-800 max-w-md">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowFilterModal(false)}
-                className="text-white p-0 h-auto font-normal"
-              >
-                Cancel
-              </Button>
-              <DialogTitle className="text-white text-lg font-semibold">Filter Events</DialogTitle>
-              <Button 
-                variant="ghost" 
-                onClick={() => setSelectedEventTypes([])}
-                className="text-white p-0 h-auto font-normal"
-              >
-                Clear All
-              </Button>
-            </div>
-            <p className="text-gray-400 text-sm mt-2">Customize your event discovery</p>
-          </DialogHeader>
-          
-          <div className="space-y-6 mt-6">
-            {/* When Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                <h3 className="text-white font-medium">When</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
-                  <Button
-                    key={time}
-                    variant={selectedTimeFilter === time ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedTimeFilter(time)}
-                    className={`rounded-full ${
-                      selectedTimeFilter === time 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* City Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                <h3 className="text-white font-medium">City</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[{ value: 'all', label: t('allLocations') }, ...DIGITAL_NOMAD_CITIES.map(city => ({ value: city, label: city }))].map((cityOption) => (
-                  <Button
-                    key={cityOption.value}
-                    variant={selectedCity === cityOption.value ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCity(cityOption.value)}
-                    className={`rounded-full text-xs px-3 py-1 h-8 ${
-                      selectedCity === cityOption.value 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {cityOption.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Vibes Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
-                <h3 className="text-white font-medium">Vibes</h3>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {VIBE_AND_MOOD_TAGS.map((vibe) => (
-                  <Button
-                    key={vibe}
-                    variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedEventTypes(prev => 
-                        prev.includes(vibe) 
-                          ? prev.filter(t => t !== vibe)
-                          : [...prev, vibe]
-                      );
-                    }}
-                    className={`rounded-full text-xs px-3 py-1 h-8 ${
-                      selectedEventTypes.includes(vibe) 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {vibe}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
       {/* iOS-style Header */}
       <div className="bg-black text-white sticky top-0 z-50">
         {/* Top bar with MÁLY logo on left and inbox icon on right */}
@@ -419,7 +328,8 @@ export default function DiscoverPage() {
               variant="ghost"
               size="sm"
               className="text-white p-2 hover:bg-white/10"
-              onClick={() => setShowFilterModal(true)}
+              onClick={handleFilterClick}
+              data-testid="filters-button"
             >
               <Filter className="h-7 w-7" />
             </Button>
@@ -427,42 +337,145 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <main className="bg-black text-white pb-24">
-          {/* Selected Filters Display */}
+      {/* Filter Bar - Shows when filter icon is clicked */}
+      {showFiltersBar && (
+        <div className="bg-black border-b border-gray-800">
+          {/* Filter Categories */}
+          <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
+            {/* When */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('when')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-when"
+              >
+                When
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'when' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'when' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[140px]">
+                  {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
+                    <button
+                      key={time}
+                      onClick={() => { setSelectedTimeFilter(time); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg"
+                      data-testid={`when-option-${time.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* City */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('city')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-city"
+              >
+                City
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'city' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'city' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    data-testid="city-option-all"
+                  >
+                    {t('allLocations')}
+                  </button>
+                  {DIGITAL_NOMAD_CITIES.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Vibes */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('vibes')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-vibes"
+              >
+                Vibes
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'vibes' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'vibes' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                  {VIBE_AND_MOOD_TAGS.map((vibe) => (
+                    <button
+                      key={vibe}
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 flex items-center gap-2"
+                      data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {selectedEventTypes.includes(vibe) && <span className="text-purple-400">✓</span>}
+                      {vibe}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Clear All X */}
+            {(selectedCity !== 'all' || selectedEventTypes.length > 0 || selectedTimeFilter !== 'Anytime') && (
+              <button
+                onClick={clearAllFilters}
+                className="ml-auto text-white hover:text-purple-400 transition-colors"
+                data-testid="clear-all-filters"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+
+          {/* Selected Filters Bar */}
           {selectedEventTypes.length > 0 && (
-            <div className="px-4 py-3 border-b border-gray-800">
+            <div className="px-5 pb-3">
               <div className="flex flex-wrap gap-2">
                 {selectedEventTypes.map((type) => (
                   <Badge
                     key={type}
                     variant="secondary"
-                    className="px-3 py-1 flex items-center gap-2 text-xs bg-gray-800 text-white"
+                    className="bg-gray-800 text-white flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                   >
-                    {type}
+                    <span className="truncate">{type}</span>
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedEventTypes(prev => prev.filter(t => t !== type));
-                      }}
-                      className="hover:text-red-400 focus:outline-none"
+                      onClick={() => setSelectedEventTypes(prev => prev.filter(t => t !== type))}
+                      className="hover:text-purple-400 transition-colors flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 ))}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedEventTypes([])}
-                  className="text-gray-400 hover:text-white text-xs h-8 px-3"
-                >
-                  Clear all
-                </Button>
               </div>
             </div>
           )}
+        </div>
+      )}
 
+      <div className="flex-1 overflow-auto">
+        <main className="bg-black text-white pb-24">
           <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}
             <div className="space-y-3">
