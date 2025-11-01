@@ -3,13 +3,11 @@ import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown, Inbox } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
 import PremiumPaywall from "@/components/PremiumPaywall";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";

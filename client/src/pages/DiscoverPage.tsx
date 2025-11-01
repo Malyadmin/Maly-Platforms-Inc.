@@ -479,8 +479,8 @@ export default function DiscoverPage() {
           <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}
             <div className="space-y-3">
-              {/* Centered event count */}
-              <div className="text-center py-2">
+              {/* Left-aligned event count */}
+              <div className="text-left py-2">
                 <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">
                   {filteredEvents.length} {t('eventsFound')}
                 </h2>

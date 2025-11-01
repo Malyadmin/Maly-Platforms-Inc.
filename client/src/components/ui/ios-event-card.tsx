@@ -71,26 +71,31 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
         )}
       </div>
       
-      {/* Event Details - Simplified */}
-      <div className="flex-1 flex flex-col justify-center space-y-1 pr-2">
+      {/* Event Details - Simplified with vertical alignment */}
+      <div className="flex-1 flex flex-col justify-between pr-2">
+        {/* Title - aligned to top */}
         <h3 className="text-lg font-medium text-white leading-tight truncate">
           {event.title}
         </h3>
         
-        <p className="text-sm text-white/80 truncate">
-          {formattedDate}
-        </p>
-        
-        <p className="text-sm text-white/80 truncate">
-          {formattedTime}
-        </p>
-        
-        {event.location && (
+        {/* Middle elements - evenly spaced */}
+        <div className="flex-1 flex flex-col justify-evenly">
           <p className="text-sm text-white/80 truncate">
-            {event.location}
+            {formattedDate}
           </p>
-        )}
+          
+          <p className="text-sm text-white/80 truncate">
+            {formattedTime}
+          </p>
+          
+          {event.location && (
+            <p className="text-sm text-white/80 truncate">
+              {event.location}
+            </p>
+          )}
+        </div>
         
+        {/* Price - aligned to bottom */}
         <p className="text-sm text-white truncate">
           {priceText}
         </p>
