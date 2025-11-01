@@ -290,7 +290,7 @@ export default function InboxPage() {
         
         {/* Inbox title with gradient */}
         <div className="px-5 pb-3">
-          <h2 className="gradient-text text-lg font-medium" data-testid="inbox-title">Inbox</h2>
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">Inbox</h2>
         </div>
 
         {/* Filter Bar - Always Present */}
