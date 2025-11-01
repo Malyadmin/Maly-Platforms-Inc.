@@ -413,8 +413,8 @@ export default function ProfilePage() {
       </div>
     )}
     
-    {/* Name and Location overlay on left side */}
-    <div className="absolute bottom-40 left-0 right-0 px-6 space-y-2">
+    {/* Name and Location overlay - positioned just above vibes */}
+    <div className="absolute bottom-16 left-0 right-0 px-6 space-y-2">
       <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
         {profileData.fullName || profileData.username}
       </h1>
@@ -427,7 +427,7 @@ export default function ProfilePage() {
     </div>
     
     {/* Three vibes under the image */}
-    <div className="absolute bottom-6 left-0 right-0 px-6">
+    <div className="absolute bottom-3 left-0 right-0 px-6">
       {profileData.currentMoods && profileData.currentMoods.length > 0 && (
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 text-white text-sm">
