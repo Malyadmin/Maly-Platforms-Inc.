@@ -385,7 +385,7 @@ export default function ProfilePage() {
     </div>
   </div>
 
-  {/* Fullscreen Profile Image with Overlay */}
+  {/* Fullscreen Profile Image with Name Overlay on Left */}
   <div className="relative w-full h-screen">
     {profileData.profileImage ? (
       <div className="absolute inset-0">
@@ -394,7 +394,7 @@ export default function ProfilePage() {
           alt={profileData.fullName || profileData.username}
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
       </div>
     ) : (
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
@@ -404,325 +404,193 @@ export default function ProfilePage() {
       </div>
     )}
     
-    {/* Profile info overlay at bottom */}
-    <div className="absolute bottom-0 left-0 right-0 p-6 space-y-4">
-      <div className="space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          {profileData.fullName || profileData.username}
-        </h1>
-        
-        <div className="flex flex-wrap gap-2">
-          {profileData.location && (
-            <Badge className="bg-white/20 hover:bg-white/30 text-white py-2 px-3 text-sm backdrop-blur-sm border-0">
-              <MapPin className="h-4 w-4 mr-2" />
-              {t(profileData.location)}
-            </Badge>
+    {/* Name and Location overlay on left side */}
+    <div className="absolute bottom-40 left-0 right-0 px-6 space-y-2">
+      <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+        {profileData.fullName || profileData.username}
+      </h1>
+      
+      {profileData.location && (
+        <p className="text-white text-base">
+          {t(profileData.location)}
+        </p>
+      )}
+    </div>
+    
+    {/* Three vibes under the image */}
+    <div className="absolute bottom-6 left-0 right-0 px-6">
+      {profileData.currentMoods && profileData.currentMoods.length > 0 && (
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 text-white text-sm">
+            {profileData.currentMoods[0]}
+          </div>
+          {profileData.currentMoods.length > 1 && (
+            <div className="flex-1 text-center text-white text-sm">
+              {profileData.currentMoods[1]}
+            </div>
           )}
-          
-          {profileData.profession && (
-            <Badge className="bg-white/20 hover:bg-white/30 text-white py-2 px-3 text-sm backdrop-blur-sm border-0">
-              <Briefcase className="h-4 w-4 mr-2" />
-              {t(profileData.profession)}
-            </Badge>
+          {profileData.currentMoods.length > 2 && (
+            <div className="flex-1 text-right text-white text-sm flex items-center justify-end gap-1">
+              {profileData.currentMoods[2]}
+              {profileData.currentMoods.length > 3 && (
+                <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
+              )}
+            </div>
           )}
         </div>
-      </div>
-      
-      {/* Action buttons */}
-      <div className="flex flex-wrap gap-3">
-        {/* Edit Profile button - only show if viewing own profile */}
-        {currentUser && profileData.id === currentUser.id && (
-          <>
-            <Button 
-              variant="secondary"
-              className="gap-2 bg-white/20 backdrop-blur-sm text-white border-0 hover:bg-white/30"
-              onClick={() => setLocation('/profile-edit')}
-            >
-              <Edit3 className="h-4 w-4" />
-              {t('editProfile')}
-            </Button>
-            <Button 
-              variant="secondary"
-              className="gap-2 bg-white/20 backdrop-blur-sm text-white border-0 hover:bg-white/30"
-              onClick={() => setLocation('/stripe/connect')}
-            >
-              <Briefcase className="h-4 w-4" />
-              Payment Settings
-            </Button>
-          </>
-        )}
-        
-        {/* Share Profile Button - always visible */}
-        <ReferralShareButton
-          contentType="profile"
-          contentId={profileData.username || profileData.id}
-          title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
-          text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
-          variant="secondary"
-          className="gap-2 bg-white/20 backdrop-blur-sm text-white border-0 hover:bg-white/30"
-        >
-          <Share2 className="h-4 w-4" />
-          {t('shareProfile')}
-        </ReferralShareButton>
-        
-        {/* Connection Button - only show if viewing profile of other user and user is logged in */}
-        {currentUser && profileData.id !== currentUser.id && (
-          <div className="w-full sm:w-auto">
-            {connectionLoading ? (
-              <Button disabled className="w-full sm:w-auto bg-white/20 backdrop-blur-sm text-white border-0">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Loading
-              </Button>
-            ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
-              <div className="flex gap-2 w-full">
-                <Button variant="secondary" className="gap-2 bg-green-500/30 backdrop-blur-sm text-white border-0 flex-1 sm:flex-auto" disabled>
-                  <UserCheck className="h-4 w-4" />
-                  Connected
-                </Button>
-                <Button 
-                  onClick={handleMessageClick}
-                  disabled={createConversationMutation.isPending}
-                  className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 flex-1 sm:flex-auto rounded-full border-0"
-                  data-testid="button-message"
-                >
-                  {createConversationMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Mail className="h-4 w-4" />
-                  )}
-                  Message
-                </Button>
-              </div>
-            ) : connectionStatus?.outgoing?.status === 'pending' ? (
-              <Button variant="secondary" className="gap-2 bg-yellow-500/30 backdrop-blur-sm text-white border-0 w-full sm:w-auto" disabled>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Request Pending
-              </Button>
-            ) : connectionStatus?.incoming?.status === 'pending' ? (
-              <div className="flex gap-2 w-full">
-                <Button 
-                  variant="default" 
-                  className="gap-1 bg-green-600 hover:bg-green-700 flex-1 sm:flex-auto border-0"
-                  onClick={() => respondToConnectionMutation.mutate({ 
-                    userId: profileData.id, 
-                    status: 'accepted' 
-                  })}
-                  disabled={respondToConnectionMutation.isPending}
-                >
-                  <Check className="h-4 w-4" />
-                  Accept
-                </Button>
-                <Button 
-                  variant="secondary" 
-                  className="gap-1 bg-red-500/30 backdrop-blur-sm text-white border-0 hover:bg-red-500/40 flex-1 sm:flex-auto"
-                  onClick={() => respondToConnectionMutation.mutate({ 
-                    userId: profileData.id, 
-                    status: 'declined' 
-                  })}
-                  disabled={respondToConnectionMutation.isPending}
-                >
-                  <X className="h-4 w-4" />
-                  Decline
-                </Button>
-              </div>
-            ) : (
-              <Button 
-                onClick={() => createConnectionMutation.mutate(profileData.id)}
-                disabled={createConnectionMutation.isPending}
-                className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-full sm:w-auto rounded-full border-0"
-              >
-                {createConnectionMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <UserPlus className="h-4 w-4" />
-                )}
-                {t('connectProfile')}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-      
-      {/* More Info Button */}
-      <Button 
-        onClick={() => setShowMoreInfo(!showMoreInfo)}
-        variant="secondary"
-        className="w-full gap-2 bg-white/20 backdrop-blur-sm text-white border-0 hover:bg-white/30"
-      >
-        {showMoreInfo ? 'Less Info' : 'More Info'}
-        <ChevronDown className={`h-4 w-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`} />
-      </Button>
+      )}
     </div>
   </div>
 
-  {/* Collapsible More Info Section */}
-  {showMoreInfo && (
-    <div className="bg-black/90 backdrop-blur-sm">
-      <div className="container mx-auto px-4 sm:px-6 py-6">
-        <div className="max-w-2xl mx-auto space-y-6">
-          {/* Personal Info Section */}
-          <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
-            {/* Bio */}
-            {profileData.bio && (
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-white mb-3">About</h3>
-                <p className="text-base text-white/80">{profileData.bio}</p>
-              </div>
-            )}
-            
-            {/* Personal Details */}
-            <div className="space-y-6">
-              {/* Gender & Sexual Orientation */}
-              {(profileData.gender || profileData.sexualOrientation) && (
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-3">Personal</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profileData.gender && (
-                      <Badge className="bg-white/20 text-white py-2 px-3 text-sm border-0">
-                        Gender: {profileData.gender}
-                      </Badge>
-                    )}
-                    {profileData.sexualOrientation && (
-                      <Badge className="bg-white/20 text-white py-2 px-3 text-sm border-0">
-                        Orientation: {profileData.sexualOrientation}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Locations */}
-              <div>
-                <h3 className="text-lg font-medium text-white mb-3">{t('viewLocations')}</h3>
-                <div className="space-y-3">
-                  {profileData.location && (
-                    <div className="flex items-center gap-3 text-sm">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <span className="text-white/80">{language === 'es' ? 'Actualmente en' : 'Currently in'} <span className="font-medium text-white">{t(profileData.location)}</span></span>
-                    </div>
-                  )}
-                  {profileData.birthLocation && (
-                    <div className="flex items-center gap-3 text-sm">
-                      <MapPin className="h-4 w-4 text-blue-400" />
-                      <span className="text-white/80">{language === 'es' ? 'Nacido en' : 'Born in'} <span className="font-medium text-white">{t(profileData.birthLocation)}</span></span>
-                    </div>
-                  )}
-                  {profileData.nextLocation && (
-                    <div className="flex items-center gap-3 text-sm">
-                      <MapPin className="h-4 w-4 text-green-400" />
-                      <span className="text-white/80">{language === 'es' ? 'Próximo destino' : 'Going to'} <span className="font-medium text-white">{t(profileData.nextLocation)}</span></span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+  {/* Scrollable Content Section */}
+  <div className="bg-black">
+    <div className="container mx-auto px-6 py-6">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* All Vibes Section */}
+        {profileData.currentMoods && profileData.currentMoods.length > 0 && (
+          <div className="space-y-3">
+            {profileData.currentMoods.map((mood, index) => (
+              <p key={`mood-${index}`} className="text-white text-base">
+                {t(mood)}
+              </p>
+            ))}
           </div>
-          
-          {/* Mood & Vibe Section */}
-          <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Smile className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-medium text-white">{t('moodAndVibe')}</h3>
-              </div>
-              
-              {/* Only show change mood button if viewing own profile */}
-              {currentUser && profileData.id === currentUser.id && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="gap-1 text-xs text-white bg-white/10 rounded-full h-8 px-3"
-                  onClick={() => setIsUpdatingMood(!isUpdatingMood)}
-                  disabled={updateMoodMutation.isPending}
-                >
-                  {updateMoodMutation.isPending ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Edit3 className="h-3 w-3" />
-                  )}
-                  {isUpdatingMood ? "Cancel" : (profileData.currentMoods?.length ? "Change" : "Add")}
-                </Button>
-              )}
-            </div>
-            
-            {/* Mood & Vibe Display */}
-            {!isUpdatingMood ? (
-              <div>
-                {((profileData.currentMoods && profileData.currentMoods.length > 0) || (profileData.interests && profileData.interests.length > 0)) ? (
-                  <div className="flex flex-wrap gap-2">
-                    {/* First display currentMoods if available */}
-                    {profileData.currentMoods && profileData.currentMoods.length > 0 ? 
-                      profileData.currentMoods.map((mood, index) => (
-                        <Badge 
-                          key={`mood-${index}`}
-                          className={`py-2 px-3 text-sm font-medium border-0 ${moodStyles[mood as keyof typeof moodStyles] || 'bg-white/20 text-white'} rounded-full`}
-                        >
-                          {t(mood)}
-                        </Badge>
-                      ))
-                    : 
-                      /* Otherwise fall back to interests for backward compatibility */
-                      profileData.interests && profileData.interests.map((interest, index) => (
-                        <Badge 
-                          key={`interest-${index}`}
-                          className={`py-2 px-3 text-sm font-medium border-0 ${moodStyles[interest as keyof typeof moodStyles] || 'bg-white/20 text-white'} rounded-full`}
-                        >
-                          {t(interest)}
-                        </Badge>
-                      ))
-                    }
-                  </div>
-                ) : (
-                  <p className="text-white/60 text-sm italic">
-                    {currentUser && profileData.id === currentUser.id 
-                      ? "You haven't shared your mood & vibe preferences yet."
-                      : "This user hasn't shared their mood & vibe preferences yet."}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="bg-black/40 rounded-xl p-4 space-y-3">
-                <p className="text-sm text-white/60">Select your mood & vibe preferences:</p>
-                <div className="flex flex-wrap gap-2">
-                  {moods.map((mood) => (
-                    <Button
-                      key={mood}
-                      variant="outline"
-                      size="sm"
-                      className={`
-                        border-0 rounded-full px-3 py-1 h-auto text-xs text-white bg-white/20 hover:bg-white/30
-                        ${moodStyles[mood as keyof typeof moodStyles] || ''}
-                      `}
-                      onClick={() => updateMoodMutation.mutate(mood)}
-                    >
-                      {mood}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Interests Section - Only show if they have interests separate from moods */}
-          {profileData.interests && profileData.interests.length > 0 && (
-            <div className="bg-black/60 backdrop-blur-sm rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Heart className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-medium text-white">{t('interests')}</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profileData.interests.map((interest, index) => (
-                  <Badge key={index} className="bg-white/20 text-white py-2 px-3 text-sm border-0 rounded-full">
-                    {interest}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+        )}
+        
+        {/* Location Details - Line by Line */}
+        <div className="space-y-3 pt-4">
+          {profileData.birthLocation && (
+            <p className="text-white text-base">
+              {language === 'es' ? 'Nacido en' : 'Born in'} {t(profileData.birthLocation)}
+            </p>
+          )}
+          {profileData.location && (
+            <p className="text-white text-base">
+              {language === 'es' ? 'Vive en' : 'Lives in'} {t(profileData.location)}
+            </p>
+          )}
+          {profileData.nextLocation && (
+            <p className="text-white text-base">
+              {language === 'es' ? 'Próximo destino' : 'Upcoming'} {t(profileData.nextLocation)}
+            </p>
           )}
         </div>
+        
+        {/* Action Buttons */}
+        {currentUser && profileData.id !== currentUser.id && (
+          <div className="space-y-3 pt-6">
+            {/* Message Button */}
+            {(connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted') && (
+              <Button 
+                onClick={handleMessageClick}
+                disabled={createConversationMutation.isPending}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full border-0"
+                data-testid="button-message"
+              >
+                {createConversationMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                Message
+              </Button>
+            )}
+            
+            {/* Connect and Share Row */}
+            <div className="flex gap-3">
+              {/* Connect Button */}
+              {connectionLoading ? (
+                <Button disabled className="flex-1 bg-gray-700 text-white rounded-full border-0">
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading
+                </Button>
+              ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
+                <Button className="flex-1 bg-green-600 text-white rounded-full border-0" disabled>
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  Connected
+                </Button>
+              ) : connectionStatus?.outgoing?.status === 'pending' ? (
+                <Button className="flex-1 bg-yellow-600 text-white rounded-full border-0" disabled>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Pending
+                </Button>
+              ) : connectionStatus?.incoming?.status === 'pending' ? (
+                <>
+                  <Button 
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full border-0"
+                    onClick={() => respondToConnectionMutation.mutate({ 
+                      userId: profileData.id, 
+                      status: 'accepted' 
+                    })}
+                    disabled={respondToConnectionMutation.isPending}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Accept
+                  </Button>
+                  <Button 
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-full border-0"
+                    onClick={() => respondToConnectionMutation.mutate({ 
+                      userId: profileData.id, 
+                      status: 'declined' 
+                    })}
+                    disabled={respondToConnectionMutation.isPending}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Decline
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  onClick={() => createConnectionMutation.mutate(profileData.id)}
+                  disabled={createConnectionMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-full border-0"
+                >
+                  {createConnectionMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <UserPlus className="h-4 w-4 mr-2" />
+                  )}
+                  {t('connectProfile')}
+                </Button>
+              )}
+              
+              {/* Share Button */}
+              <ReferralShareButton
+                contentType="profile"
+                contentId={profileData.username || profileData.id}
+                title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
+                text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
+                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </ReferralShareButton>
+            </div>
+          </div>
+        )}
+        
+        {/* Edit Profile buttons for own profile */}
+        {currentUser && profileData.id === currentUser.id && (
+          <div className="space-y-3 pt-6">
+            <Button 
+              className="w-full bg-white/20 hover:bg-white/30 text-white rounded-full border-0"
+              onClick={() => setLocation('/profile-edit')}
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              {t('editProfile')}
+            </Button>
+            <Button 
+              className="w-full bg-white/20 hover:bg-white/30 text-white rounded-full border-0"
+              onClick={() => setLocation('/stripe/connect')}
+            >
+              <Briefcase className="h-4 w-4 mr-2" />
+              Payment Settings
+            </Button>
+          </div>
+        )}
       </div>
     </div>
-  )}
+  </div>
 
   {/* Premium Paywall for Messaging */}
   <PremiumPaywall
