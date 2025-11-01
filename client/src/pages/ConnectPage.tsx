@@ -471,12 +471,12 @@ export function ConnectPage() {
                 return (
                   <div 
                     key={user.id}
-                    className="flex gap-4 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
+                    className="flex gap-3 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
                     data-testid={`user-card-${user.id}`}
                   >
                     {/* User Image */}
                     <div 
-                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
+                      className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
                       onClick={() => handleUserClick(user)}
                     >
                       {user.profileImage ? (
@@ -488,7 +488,7 @@ export function ConnectPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
-                          <span className="text-6xl font-bold text-white/40">
+                          <span className="text-3xl sm:text-5xl md:text-6xl font-bold text-white/40">
                             {(user.fullName || user.username).charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -496,23 +496,23 @@ export function ConnectPage() {
                     </div>
                     
                     {/* User Details */}
-                    <div className="flex-1 flex flex-col justify-start space-y-2 min-w-0">
+                    <div className="flex-1 flex flex-col justify-start space-y-1 sm:space-y-2 min-w-0">
                       <h3 
-                        className="text-lg font-medium text-white leading-tight line-clamp-1 cursor-pointer hover:text-purple-400"
+                        className="text-sm sm:text-base md:text-lg font-medium text-white leading-tight line-clamp-1 cursor-pointer hover:text-purple-400"
                         onClick={() => handleUserClick(user)}
                       >
                         {user.fullName || user.username}
                       </h3>
                       
                       {userVibe && (
-                        <p className="text-sm text-white/80 line-clamp-1">
+                        <p className="text-xs sm:text-sm text-white/80 line-clamp-1">
                           {userVibe}
                         </p>
                       )}
                       
                       {user.location && (
-                        <div className="flex items-center gap-1 text-sm text-white/80">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                        <div className="flex items-center gap-1 text-xs sm:text-sm text-white/80">
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                           <span className="line-clamp-1">{user.location}</span>
                         </div>
                       )}
@@ -520,22 +520,22 @@ export function ConnectPage() {
                     
                     {/* Connect Button */}
                     {currentUser && user.id !== currentUser.id && (
-                      <div className="flex items-center ml-2">
+                      <div className="flex items-center ml-1 sm:ml-2">
                         <Button 
                           onClick={(e) => {
                             e.stopPropagation();
                             createConnectionMutation.mutate(user.id);
                           }}
                           disabled={createConnectionMutation.isPending}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2 px-4 whitespace-nowrap"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
                           data-testid={`connect-button-${user.id}`}
                         >
                           {createConnectionMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                           ) : (
                             <>
-                              <UserPlus className="h-4 w-4 mr-2" />
-                              Connect
+                              <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Connect</span>
                             </>
                           )}
                         </Button>
