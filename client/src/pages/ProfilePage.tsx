@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown, Inbox } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
@@ -369,19 +369,28 @@ export default function ProfilePage() {
   return (
 <div className="min-h-screen bg-black">
   {/* Header */}
-  <div className="absolute top-0 left-0 right-0 z-20 py-4 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
-    {/* MALY logo centered at top */}
-    <div className="flex justify-center pb-3">
+  <div className="absolute top-0 left-0 right-0 z-20 bg-black border-b border-gray-800">
+    {/* MALY logo and inbox icon row */}
+    <div className="flex items-center justify-between px-5 pt-3 pb-2">
       <img 
         src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
         alt="MÁLY" 
-        className="h-12 w-auto"
+        className="h-14 w-auto"
       />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-white p-2 hover:bg-white/10"
+        onClick={() => setLocation("/inbox")}
+        data-testid="button-inbox-header"
+      >
+        <Inbox className="h-7 w-7" />
+      </Button>
     </div>
     
-    {/* Profile title on left */}
-    <div className="px-5">
-      <h2 className="text-white text-lg font-medium">Profile</h2>
+    {/* Profile title with gradient */}
+    <div className="px-5 pb-3">
+      <h2 className="gradient-text text-lg font-medium">Profile</h2>
     </div>
   </div>
 
