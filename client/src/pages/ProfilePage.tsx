@@ -454,19 +454,8 @@ export default function ProfilePage() {
   <div className="bg-black">
     <div className="container mx-auto px-6 py-6">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* All Vibes Section */}
-        {profileData.currentMoods && profileData.currentMoods.length > 0 && (
-          <div className="space-y-3">
-            {profileData.currentMoods.map((mood, index) => (
-              <p key={`mood-${index}`} className="text-white text-base">
-                {t(mood)}
-              </p>
-            ))}
-          </div>
-        )}
-        
         {/* Location Details - Line by Line */}
-        <div className="space-y-3 pt-4">
+        <div className="space-y-3">
           {profileData.birthLocation && (
             <p className="text-white text-base">
               {language === 'es' ? 'Nacido en' : 'Born in'} {t(profileData.birthLocation)}
