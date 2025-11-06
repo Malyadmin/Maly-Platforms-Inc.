@@ -368,19 +368,30 @@ export default function ProfilePage() {
   return (
 <div className="min-h-screen bg-black pb-24">
   {/* Header - Sticky */}
-  <div className="sticky top-0 left-0 right-0 z-20 bg-black px-5 py-3 flex items-center justify-between">
-    {/* Profile title with gradient - uppercase with extra letter spacing */}
-    <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+  <header className="bg-black text-white sticky top-0 z-50">
+    {/* Top bar with MÁLY logo on left and inbox icon on right */}
+    <div className="flex items-center justify-between px-5 pt-3 pb-2">
+      <img 
+        src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+        alt="MÁLY" 
+        className="h-14 w-auto"
+      />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-white p-2 hover:bg-white/10"
+        onClick={() => setLocation("/inbox")}
+        data-testid="button-inbox-header"
+      >
+        <Inbox className="h-7 w-7" />
+      </Button>
+    </div>
     
-    {/* Inbox Icon - White */}
-    <button
-      className="p-2 hover:bg-white/10 rounded-lg"
-      onClick={() => setLocation("/inbox")}
-      data-testid="button-inbox-header"
-    >
-      <Inbox className="h-6 w-6 text-white" />
-    </button>
-  </div>
+    {/* Profile title with gradient - uppercase with extra letter spacing */}
+    <div className="px-5 pb-3">
+      <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+    </div>
+  </header>
 
   {/* Fullscreen Profile Image with Name Overlay on Left */}
   <div className="relative w-full h-screen">
