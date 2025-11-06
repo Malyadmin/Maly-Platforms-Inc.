@@ -64,7 +64,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
                   Back
                 </button>
               )}
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Next button on right */}
@@ -262,7 +262,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
                 <ChevronLeft className="w-5 h-5 mr-1" />
                 Back
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Next button on right */}
@@ -483,7 +483,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
                 <ChevronLeft className="w-5 h-5 mr-1" />
                 Back
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Next button on right */}
@@ -763,7 +763,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
                 <ChevronLeft className="w-5 h-5 mr-1" />
                 Back
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Next button on right */}
@@ -940,7 +940,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
                 <ChevronLeft className="w-5 h-5 mr-1" />
                 Back
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Next button on right */}
@@ -1195,7 +1195,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
                 <ChevronLeft className="w-5 h-5 mr-1" />
                 Back
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
             </div>
             
             {/* Create button on right */}

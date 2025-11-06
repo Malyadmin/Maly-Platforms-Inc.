@@ -342,6 +342,41 @@ export function ConnectPage() {
               )}
             </div>
 
+            {/* City */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('location')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-location"
+              >
+                City
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'location' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* City Dropdown */}
+              {activeDropdown === 'location' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    data-testid="location-option-all"
+                  >
+                    All Cities
+                  </button>
+                  {DIGITAL_NOMAD_CITIES.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Vibe */}
             <div className="relative">
               <button
@@ -371,41 +406,6 @@ export function ConnectPage() {
                       data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {vibe}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Location */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('location')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
-                data-testid="filter-category-location"
-              >
-                Location
-                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'location' ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {/* Location Dropdown */}
-              {activeDropdown === 'location' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
-                  <button
-                    onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
-                    data-testid="location-option-all"
-                  >
-                    All Cities
-                  </button>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <button
-                      key={city}
-                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
-                      data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      {city}
                     </button>
                   ))}
                 </div>
