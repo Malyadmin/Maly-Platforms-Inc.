@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Filter, X, Mail, UserPlus, Loader2, MapPin, ChevronDown } from "lucide-react";
+import { Filter, X, Inbox, UserPlus, Loader2, MapPin, ChevronDown } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
@@ -260,7 +260,7 @@ export function ConnectPage() {
             onClick={() => setLocation("/inbox")}
             data-testid="button-inbox-header"
           >
-            <Mail className="h-7 w-7" />
+            <Inbox className="h-7 w-7" />
           </Button>
         </div>
         
@@ -268,15 +268,7 @@ export function ConnectPage() {
         <div className="px-5 pb-3">
           <div className="flex items-center justify-between">
             {/* Connect title with gradient - uppercase with extra letter spacing */}
-            <div>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Connect</h2>
-              {/* Show profile count here when filter bar is hidden */}
-              {!showFiltersBar && (
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
-                </p>
-              )}
-            </div>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Connect</h2>
             
             {/* Filter icon */}
             <Button
@@ -289,6 +281,13 @@ export function ConnectPage() {
               <Filter className="h-7 w-7" />
             </Button>
           </div>
+          
+          {/* Show profile count here when filter bar is hidden */}
+          {!showFiltersBar && (
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
+            </p>
+          )}
         </div>
       </header>
 

@@ -3,7 +3,6 @@ import {
   Globe, 
   Users,
   Plus,
-  Inbox,
   UserCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +17,11 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
-// Main navigation items - iOS style 5 tabs
+// Main navigation items - iOS style 4 tabs
 export const mainNavItems = [
   { icon: Globe, label: 'discover', href: "/discover" },
   { icon: Users, label: 'connect', href: "/connect" },
   { icon: Plus, label: 'create', href: "/create" },
-  { icon: Inbox, label: 'inbox', href: "/inbox" },
   { icon: UserCircle, label: 'profile', href: "/profile" }
 ] as const;
 
