@@ -66,6 +66,7 @@ export const userBrowseSchema = z.object({
   maxAge: z.string().transform((val) => val ? parseInt(val, 10) : undefined).optional(),
   moods: z.union([z.string(), z.array(z.string())]).optional(),
   interests: z.union([z.string(), z.array(z.string())]).optional(),
+  intention: z.string().optional(),
   name: z.string().optional()
 }).merge(paginationSchema);
 

@@ -1082,7 +1082,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         });
       }
       
-      const { location: city, gender, minAge, maxAge, moods, interests, name, limit, offset } = validationResult.data;
+      const { location: city, gender, minAge, maxAge, moods, interests, intention, name, limit, offset } = validationResult.data;
       
       // Comprehensive debug logging to see all query parameters
       console.log("Full request query object:", req.query);
@@ -1124,6 +1124,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       if (gender && gender !== 'all') {
         whereConditions.push(eq(users.gender, gender));
       }
+      
+      if (intention && intention !== 'all') {
+        whereConditions.push(sql`${users.intention} ILIKE ${'%' + intention + '%'}`);
+      }
 
       if (minAge !== undefined) {
         whereConditions.push(gte(users.age, minAge));
@@ -1153,7 +1157,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         profileImages: users.profileImages,
         location: users.location,
         birthLocation: users.birthLocation,
+        livedLocation: users.livedLocation,
         nextLocation: users.nextLocation,
+        intention: users.intention,
         interests: users.interests,
         currentMoods: users.currentMoods,
         profession: users.profession,

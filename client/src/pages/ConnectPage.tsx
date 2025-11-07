@@ -52,6 +52,7 @@ export function ConnectPage() {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [selectedVibe, setSelectedVibe] = useState<string>("all");
+  const [selectedIntention, setSelectedIntention] = useState<string>("all");
   const [showFiltersBar, setShowFiltersBar] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [connectionStatuses, setConnectionStatuses] = useState<Record<number, ConnectionStatus>>({});
@@ -66,7 +67,7 @@ export function ConnectPage() {
     isLoading,
     error
   } = useQuery<ConnectUser[]>({
-    queryKey: ['users', selectedCity, selectedGender, selectedVibe, currentUser?.id],
+    queryKey: ['users', selectedCity, selectedGender, selectedVibe, selectedIntention, currentUser?.id],
     queryFn: async () => {
       const params = new URLSearchParams();
       
@@ -80,6 +81,10 @@ export function ConnectPage() {
 
       if (selectedVibe !== 'all') {
         params.append('moods', selectedVibe);
+      }
+      
+      if (selectedIntention !== 'all') {
+        params.append('intention', selectedIntention);
       }
 
       if (currentUser?.id) {
@@ -249,6 +254,7 @@ export function ConnectPage() {
     setSelectedCity("all");
     setSelectedGender("all");
     setSelectedVibe("all");
+    setSelectedIntention("all");
     setActiveDropdown(null);
   };
 
@@ -259,6 +265,8 @@ export function ConnectPage() {
       setSelectedGender("all");
     } else if (filterType === "vibe") {
       setSelectedVibe("all");
+    } else if (filterType === "intention") {
+      setSelectedIntention("all");
     }
   };
 
@@ -273,6 +281,9 @@ export function ConnectPage() {
     }
     if (selectedVibe !== "all") {
       filters.push({ type: "vibe", label: selectedVibe, value: selectedVibe });
+    }
+    if (selectedIntention !== "all") {
+      filters.push({ type: "intention", label: selectedIntention.charAt(0).toUpperCase() + selectedIntention.slice(1), value: selectedIntention });
     }
     return filters;
   };
@@ -449,6 +460,59 @@ export function ConnectPage() {
                       {vibe}
                     </button>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Intention */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('intention')}
+                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                data-testid="filter-category-intention"
+              >
+                Intention
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'intention' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Intention Dropdown */}
+              {activeDropdown === 'intention' && (
+                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[150px]">
+                  <button
+                    onClick={() => { setSelectedIntention('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    data-testid="intention-option-all"
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => { setSelectedIntention('dating'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    data-testid="intention-option-dating"
+                  >
+                    Dating
+                  </button>
+                  <button
+                    onClick={() => { setSelectedIntention('social'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    data-testid="intention-option-social"
+                  >
+                    Social
+                  </button>
+                  <button
+                    onClick={() => { setSelectedIntention('networking'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    data-testid="intention-option-networking"
+                  >
+                    Networking
+                  </button>
+                  <button
+                    onClick={() => { setSelectedIntention('friends'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 last:rounded-b-lg"
+                    data-testid="intention-option-friends"
+                  >
+                    Friends
+                  </button>
                 </div>
               )}
             </div>
