@@ -427,28 +427,6 @@ export default function ProfilePage() {
           </p>
         )}
       </div>
-      
-      {/* Three vibes */}
-      {profileData.currentMoods && profileData.currentMoods.length > 0 && (
-        <div className="flex items-center justify-between gap-4 mt-4">
-          <div className="flex-1 text-white text-sm">
-            {profileData.currentMoods[0]}
-          </div>
-          {profileData.currentMoods.length > 1 && (
-            <div className="flex-1 text-center text-white text-sm">
-              {profileData.currentMoods[1]}
-            </div>
-          )}
-          {profileData.currentMoods.length > 2 && (
-            <div className="flex-1 text-right text-white text-sm flex items-center justify-end gap-1">
-              {profileData.currentMoods[2]}
-              {profileData.currentMoods.length > 3 && (
-                <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   </div>
 
