@@ -780,7 +780,10 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               <Checkbox 
                 id="terms" 
                 checked={termsAccepted}
-                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                onCheckedChange={(checked) => {
+                  setTermsAccepted(checked as boolean);
+                  form.setValue('termsAccepted', checked as boolean);
+                }}
                 className="mt-1"
                 data-testid="checkbox-terms"
               />
@@ -827,7 +830,10 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               <Checkbox 
                 id="privacy" 
                 checked={privacyAccepted}
-                onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
+                onCheckedChange={(checked) => {
+                  setPrivacyAccepted(checked as boolean);
+                  form.setValue('privacyAccepted', checked as boolean);
+                }}
                 className="mt-1"
                 data-testid="checkbox-privacy"
               />
