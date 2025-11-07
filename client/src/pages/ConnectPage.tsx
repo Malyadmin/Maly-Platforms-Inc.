@@ -580,11 +580,11 @@ export function ConnectPage() {
                                    connectionStatus?.incoming?.status === 'accepted';
                 const isPending = connectionStatus?.outgoing?.status === 'pending';
 
-                // Get vibes as comma-separated string
+                // Get only the first vibe
                 const userVibes = Array.isArray(user.currentMoods) && user.currentMoods.length > 0
-                  ? user.currentMoods.join(', ')
+                  ? user.currentMoods[0]
                   : typeof user.currentMoods === 'string'
-                  ? user.currentMoods
+                  ? user.currentMoods.split(',')[0].trim()
                   : null;
                 
                 // Get intention as comma-separated string (could be array or string)
