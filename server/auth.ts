@@ -391,8 +391,7 @@ export function setupAuth(app: Express) {
           const result = await uploadToCloudinary(
             req.file.buffer, 
             req.file.originalname, 
-            'image',
-            `profiles/${username}`
+            'image'
           );
           profileImage = result.secure_url;
           console.log(`Successfully uploaded profile image to Cloudinary: ${profileImage}`);
