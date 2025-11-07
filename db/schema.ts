@@ -17,7 +17,10 @@ export const users = pgTable("users", {
   profileImages: jsonb("profile_images").$type<string[]>().default([]), 
   location: text("location"), // Current location
   birthLocation: text("birth_location"),
+  livedLocation: text("lived_location"), // Places where user has lived
   nextLocation: text("next_location"),
+  phoneNumber: text("phone_number"), // User phone number
+  intention: text("intention"), // dating, social, networking, friends
   interests: jsonb("interests").$type<string[]>(),
   currentMoods: jsonb("current_moods").$type<string[]>(), // Filter by mood
   profession: text("profession"),

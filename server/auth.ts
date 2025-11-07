@@ -213,11 +213,17 @@ export function setupAuth(app: Express) {
         currentMoods,
         age,
         gender,
-        nextLocation
+        nextLocation,
+        phoneNumber,
+        birthLocation,
+        livedLocation,
+        sexualOrientation,
+        intention,
+        bio
       } = req.body;
       
-      // Handle the uploaded profile image
-      const profileImage = req.file ? getFileUrl(req.file.filename) : null;
+      // Handle the uploaded profile image (basic storage, cloudinary is used in register-redirect)
+      const profileImage = req.file ? `/uploads/${req.file.filename}` : null;
 
       if (!username || !password || !email) {
         return res.status(400).send("Username, email, and password are required");
@@ -272,7 +278,14 @@ export function setupAuth(app: Express) {
         profession: profession || null,
         age: age ? Number(age) : null,
         gender: gender || null,
-        nextLocation: nextLocation || null
+        nextLocation: nextLocation || null,
+        phoneNumber: phoneNumber || null,
+        birthLocation: birthLocation || null,
+        livedLocation: livedLocation || null,
+        sexualOrientation: sexualOrientation || null,
+        intention: intention || null,
+        bio: bio || null,
+        currentMoods: processedMoods
       };
 
       // Create user with extended fields
@@ -361,7 +374,13 @@ export function setupAuth(app: Express) {
         currentMoods,
         age,
         gender,
-        nextLocation
+        nextLocation,
+        phoneNumber,
+        birthLocation,
+        livedLocation,
+        sexualOrientation,
+        intention,
+        bio
       } = req.body;
       
       // Handle the uploaded profile image (with Cloudinary support)
@@ -449,12 +468,37 @@ export function setupAuth(app: Express) {
         }
       }
 
+      // Process currentMoods similar to interests
+      let processedMoods: string[] | null = null;
+      if (currentMoods) {
+        if (typeof currentMoods === 'string') {
+          if (currentMoods.startsWith('[') && currentMoods.endsWith(']')) {
+            try {
+              processedMoods = JSON.parse(currentMoods);
+            } catch (e) {
+              processedMoods = currentMoods.split(',').map((m: string) => m.trim());
+            }
+          } else {
+            processedMoods = currentMoods.split(',').map((m: string) => m.trim());
+          }
+        } else if (Array.isArray(currentMoods)) {
+          processedMoods = currentMoods;
+        }
+      }
+
       // Create additional user metadata
       const userData = {
         profession: profession || null,
         age: age ? Number(age) : null,
         gender: gender || null,
-        nextLocation: nextLocation || null
+        nextLocation: nextLocation || null,
+        phoneNumber: phoneNumber || null,
+        birthLocation: birthLocation || null,
+        livedLocation: livedLocation || null,
+        sexualOrientation: sexualOrientation || null,
+        intention: intention || null,
+        bio: bio || null,
+        currentMoods: processedMoods
       };
 
       try {

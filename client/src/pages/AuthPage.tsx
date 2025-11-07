@@ -656,7 +656,13 @@ export default function AuthPage() {
             variant="ghost"
             type="button"
             className="w-full"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              if (isLogin) {
+                setLocation("/signup");
+              } else {
+                setIsLogin(true);
+              }
+            }}
             disabled={isSubmitting}
           >
             {isLogin

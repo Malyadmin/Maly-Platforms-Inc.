@@ -29,6 +29,7 @@ import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AiEventDemoPage from "./pages/AiEventDemoPage.jsx";
 import AuthPage from "./pages/AuthPage";
+import SignupFlowPage from "./pages/SignupFlowPage";
 import StripeConnectPage from "./pages/StripeConnectPage";
 import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
 import StripeConnectReauthPage from "./pages/StripeConnectReauthPage";
@@ -67,8 +68,8 @@ function AppContent() {
     }
     
     // Don't perform redundant auth checks - defer to the Layout component
-    // Skip check if we're already on the auth page or during loading
-    if (location.startsWith('/auth') || location.startsWith('/payment-') || location.startsWith('/stripe/connect') || isLoading) {
+    // Skip check if we're already on the auth page, signup page, or during loading
+    if (location.startsWith('/auth') || location.startsWith('/signup') || location.startsWith('/payment-') || location.startsWith('/stripe/connect') || isLoading) {
       return;
     }
     
@@ -80,8 +81,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, and CreateEventFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/create');
+  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, CreateEventFlowPage, and SignupFlowPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/create');
 
   return (
     <>
@@ -134,6 +135,7 @@ function AppContent() {
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/signup" component={SignupFlowPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
           <Route path="/stripe/connect" component={StripeConnectPage} />
