@@ -943,13 +943,20 @@ export default function SignupFlowPage() {
 
       const response = await fetch('/api/register-redirect', {
         method: 'POST',
-        body: registrationData
+        body: registrationData,
+        credentials: 'include',
+        redirect: 'manual'
       });
       
-      if (response.redirected) {
-        window.location.href = response.url;
+      // Handle redirect responses (3xx status codes)
+      if (response.type === 'opaqueredirect' || response.status >= 300 && response.status < 400) {
+        // Wait a moment for session to be established, then navigate
+        setTimeout(() => {
+          window.location.href = '/discover';
+        }, 100);
       } else if (response.ok) {
-        window.location.href = '/';
+        // Direct success without redirect
+        window.location.href = '/discover';
       } else {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Registration failed');

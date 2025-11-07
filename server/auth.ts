@@ -531,8 +531,8 @@ export function setupAuth(app: Express) {
               return res.redirect('/auth?error=Session+error');
             }
 
-            console.log("Registration successful, redirecting to homepage");
-            return res.redirect('/');
+            console.log("Registration successful, redirecting to discover page");
+            return res.redirect('/discover');
           });
         });
       } catch (dbError) {
