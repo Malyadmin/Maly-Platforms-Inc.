@@ -334,6 +334,13 @@ export default function DiscoverPage() {
               <Filter className="h-7 w-7" />
             </Button>
           </div>
+          
+          {/* Show event count here when filter bar is hidden */}
+          {!showFiltersBar && (
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {filteredEvents.length} {t('eventsFound')}
+            </p>
+          )}
         </div>
 
         {/* Filter Bar - Shows when filter icon is clicked */}
@@ -479,12 +486,14 @@ export default function DiscoverPage() {
           <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}
             <div className="space-y-3">
-              {/* Left-aligned event count - centered vertically when filter bar is hidden */}
-              <div className={`text-left ${showFiltersBar ? 'py-2' : 'py-6'}`}>
-                <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  {filteredEvents.length} {t('eventsFound')}
-                </h2>
-              </div>
+              {/* Show event count below filter bar when it's visible */}
+              {showFiltersBar && (
+                <div className="pb-3">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {filteredEvents.length} {t('eventsFound')}
+                  </p>
+                </div>
+              )}
 
             {isLoading ? (
               // Loading skeleton list
@@ -525,7 +534,7 @@ export default function DiscoverPage() {
                     {/* Today's Events Section */}
                     {groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
                         <div className="space-y-4">
@@ -539,7 +548,7 @@ export default function DiscoverPage() {
                     {/* This Week Section */}
                     {groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
                         <div className="space-y-4">
@@ -553,7 +562,7 @@ export default function DiscoverPage() {
                     {/* This Weekend Section */}
                     {groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
@@ -567,7 +576,7 @@ export default function DiscoverPage() {
                     {/* Next Week Section */}
                     {groupedEvents.nextWeek.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
                         </div>
                         <div className="space-y-4">
@@ -581,7 +590,7 @@ export default function DiscoverPage() {
                     {/* Next Weekend Section */}
                     {groupedEvents.nextWeekend.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
@@ -595,7 +604,7 @@ export default function DiscoverPage() {
                     {/* This Month Section */}
                     {groupedEvents.month.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
                         </div>
                         <div className="space-y-4">
@@ -609,7 +618,7 @@ export default function DiscoverPage() {
                     {/* Upcoming Events Section */}
                     {groupedEvents.upcoming.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
                         </div>
                         <div className="space-y-4">
@@ -625,7 +634,7 @@ export default function DiscoverPage() {
                   <>
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
                         </div>
                         <div className="space-y-4">
@@ -638,7 +647,7 @@ export default function DiscoverPage() {
                     
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
                         </div>
                         <div className="space-y-4">
@@ -651,7 +660,7 @@ export default function DiscoverPage() {
                     
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
-                        <div className="py-1">
+                        <div className="pb-2">
                           <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
