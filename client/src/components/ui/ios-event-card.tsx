@@ -28,9 +28,8 @@ interface IOSEventCardProps {
 export function IOSEventCard({ event }: IOSEventCardProps) {
   const [, setLocation] = useLocation();
 
-  // Split date and time formatting
-  const formattedDate = format(new Date(event.date), "EEEE, MMMM d");
-  const formattedTime = format(new Date(event.date), "h:mm a");
+  // Abbreviated date and time formatting on one line
+  const formattedDateTime = format(new Date(event.date), "EEE, MMM d · h:mm a");
   
   // Determine the price text based on event type
   let priceText = "Free";
@@ -80,12 +79,8 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
         
         {/* Middle elements - evenly spaced */}
         <div className="flex-1 flex flex-col justify-evenly">
-          <p className="text-sm text-white/80 truncate">
-            {formattedDate}
-          </p>
-          
-          <p className="text-sm text-white/80 truncate">
-            {formattedTime}
+          <p className="text-sm text-white/80 truncate whitespace-nowrap">
+            {formattedDateTime}
           </p>
           
           {event.location && (
