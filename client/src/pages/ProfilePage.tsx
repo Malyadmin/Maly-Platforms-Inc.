@@ -77,7 +77,7 @@ interface ConnectionStatus {
 export default function ProfilePage() {
   const [, setLocation] = useLocation();
   const { username } = useParams();
-  const { user: currentUser } = useUser();
+  const { user: currentUser, logout } = useUser();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdatingMood, setIsUpdatingMood] = useState(false);
@@ -580,6 +580,24 @@ export default function ProfilePage() {
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Payment Settings
+            </Button>
+            <Button 
+              className="w-full bg-transparent hover:bg-white/10 text-white/60 hover:text-white rounded-full border-0 text-sm py-2"
+              onClick={async () => {
+                try {
+                  await logout();
+                } catch (error) {
+                  console.error('Logout error:', error);
+                  toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to sign out. Please try again."
+                  });
+                }
+              }}
+              data-testid="button-sign-out"
+            >
+              Sign Out
             </Button>
           </div>
         )}
