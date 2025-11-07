@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Filter, X, Inbox, UserPlus, Loader2, MapPin, ChevronDown } from "lucide-react";
+import { Filter, X, Inbox, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
@@ -52,6 +52,7 @@ export function ConnectPage() {
   const [selectedVibe, setSelectedVibe] = useState<string>("all");
   const [showFiltersBar, setShowFiltersBar] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [connectionStatuses, setConnectionStatuses] = useState<Record<number, ConnectionStatus>>({});
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -96,6 +97,34 @@ export function ConnectPage() {
   });
 
 
+  // Fetch connection statuses for all users
+  useEffect(() => {
+    const fetchConnectionStatuses = async () => {
+      if (!users || !currentUser) return;
+      
+      const statuses: Record<number, ConnectionStatus> = {};
+      
+      await Promise.all(
+        users.map(async (user) => {
+          if (user.id === currentUser.id) return;
+          
+          try {
+            const response = await fetch(`/api/connections/status/${user.id}`);
+            if (response.ok) {
+              statuses[user.id] = await response.json();
+            }
+          } catch (error) {
+            console.error(`Failed to fetch connection status for user ${user.id}:`, error);
+          }
+        })
+      );
+      
+      setConnectionStatuses(statuses);
+    };
+    
+    fetchConnectionStatuses();
+  }, [users, currentUser]);
+
   // Create a connection request
   const createConnectionMutation = useMutation({
     mutationFn: async (targetUserId: number) => {
@@ -112,11 +141,21 @@ export function ConnectPage() {
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, targetUserId) => {
       toast({
         title: 'Connection request sent',
         description: 'Your connection request has been sent successfully.',
       });
+      
+      // Optimistically update connection status
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [targetUserId]: {
+          outgoing: { status: 'pending', date: new Date().toISOString() },
+          incoming: null
+        }
+      }));
+      
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     },
     onError: (error: Error) => {
@@ -469,11 +508,11 @@ export function ConnectPage() {
           <div className="px-4 py-3">
             <div className="space-y-3">
               {(users || []).map((user) => {
-                // Prepare user connection status
-                const getUserConnectionStatus = (userId: number) => {
-                  if (!currentUser || userId === currentUser.id) return null;
-                  return null; // We'll load individual statuses on demand
-                };
+                // Get connection status for this user
+                const connectionStatus = connectionStatuses[user.id];
+                const isConnected = connectionStatus?.outgoing?.status === 'accepted' || 
+                                   connectionStatus?.incoming?.status === 'accepted';
+                const isPending = connectionStatus?.outgoing?.status === 'pending';
 
                 // Get first mood/vibe
                 const userVibe = Array.isArray(user.currentMoods) && user.currentMoods.length > 0
@@ -538,14 +577,30 @@ export function ConnectPage() {
                         <Button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            createConnectionMutation.mutate(user.id);
+                            if (!isConnected && !isPending) {
+                              createConnectionMutation.mutate(user.id);
+                            }
                           }}
-                          disabled={createConnectionMutation.isPending}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
+                          disabled={createConnectionMutation.isPending || isConnected}
+                          className={
+                            isConnected || isPending
+                              ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
+                              : "bg-transparent border border-purple-500 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:border-transparent text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
+                          }
                           data-testid={`connect-button-${user.id}`}
                         >
                           {createConnectionMutation.isPending ? (
                             <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                          ) : isConnected ? (
+                            <>
+                              <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Connected</span>
+                            </>
+                          ) : isPending ? (
+                            <>
+                              <Clock className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                              <span className="hidden sm:inline">Pending</span>
+                            </>
                           ) : (
                             <>
                               <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
