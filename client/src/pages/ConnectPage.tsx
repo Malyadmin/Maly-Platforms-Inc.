@@ -25,11 +25,13 @@ interface ConnectUser {
   profileImages?: string[];
   location?: string | null;
   birthLocation?: string | null;
+  livedLocation?: string | null;
   nextLocation?: string | null;
   interests?: string[] | null;
   currentMoods?: string[] | string | null;
   profession?: string | null;
   age?: number | null;
+  intention?: string | string[] | null;
   createdAt?: Date | string | null;
   tags?: string[];
 }
@@ -514,11 +516,18 @@ export function ConnectPage() {
                                    connectionStatus?.incoming?.status === 'accepted';
                 const isPending = connectionStatus?.outgoing?.status === 'pending';
 
-                // Get first mood/vibe
-                const userVibe = Array.isArray(user.currentMoods) && user.currentMoods.length > 0
-                  ? user.currentMoods[0]
+                // Get vibes as comma-separated string
+                const userVibes = Array.isArray(user.currentMoods) && user.currentMoods.length > 0
+                  ? user.currentMoods.join(', ')
                   : typeof user.currentMoods === 'string'
                   ? user.currentMoods
+                  : null;
+                
+                // Get intention as comma-separated string (could be array or string)
+                const userIntention = Array.isArray(user.intention) && user.intention.length > 0
+                  ? user.intention.join(', ')
+                  : typeof user.intention === 'string'
+                  ? user.intention
                   : null;
 
                 return (
@@ -548,26 +557,42 @@ export function ConnectPage() {
                       )}
                     </div>
                     
-                    {/* User Details */}
-                    <div className="flex-1 flex flex-col justify-start space-y-1 sm:space-y-2 min-w-0">
+                    {/* User Details - Matching DiscoverPage spacing */}
+                    <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
+                      {/* Name - aligned to top */}
                       <h3 
-                        className="text-sm sm:text-base md:text-lg font-medium text-white leading-tight line-clamp-1 cursor-pointer hover:text-purple-400"
+                        className="text-lg font-medium text-white leading-tight truncate cursor-pointer hover:text-purple-400"
                         onClick={() => handleUserClick(user)}
                       >
                         {user.fullName || user.username}
                       </h3>
                       
-                      {userVibe && (
-                        <p className="text-xs sm:text-sm text-white/80 line-clamp-1">
-                          {userVibe}
-                        </p>
-                      )}
+                      {/* Middle elements - evenly spaced */}
+                      <div className="flex-1 flex flex-col justify-evenly">
+                        {user.profession && (
+                          <p className="text-sm text-white/80 truncate">
+                            {user.profession}
+                          </p>
+                        )}
+                        
+                        {user.location && (
+                          <p className="text-sm text-white/80 truncate">
+                            {user.location}
+                          </p>
+                        )}
+                        
+                        {userVibes && (
+                          <p className="text-sm text-white/80 truncate">
+                            {userVibes}
+                          </p>
+                        )}
+                      </div>
                       
-                      {user.location && (
-                        <div className="flex items-center gap-1 text-xs sm:text-sm text-white/80">
-                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="line-clamp-1">{user.location}</span>
-                        </div>
+                      {/* Intention - aligned to bottom */}
+                      {userIntention && (
+                        <p className="text-sm text-white truncate">
+                          {userIntention}
+                        </p>
                       )}
                     </div>
                     

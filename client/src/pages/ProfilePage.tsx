@@ -54,6 +54,7 @@ interface ProfileData {
   bio: string | null;
   location: string | null;
   birthLocation: string | null;
+  livedLocation: string | null;
   nextLocation: string | null;
   interests: string[];
   currentMoods?: string[] | null;
@@ -61,6 +62,7 @@ interface ProfileData {
   age: number | null;
   gender: string | null;
   sexualOrientation: string | null;
+  intention: string | string[] | null;
 }
 
 interface ConnectionStatus {
@@ -454,22 +456,66 @@ export default function ProfilePage() {
   <div className="bg-black">
     <div className="container mx-auto px-6 py-6">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Location Details - Line by Line */}
-        <div className="space-y-3">
+        {/* User Info - Labeled Fields */}
+        <div className="space-y-4">
+          {/* Occupation */}
+          {profileData.profession && (
+            <div>
+              <p className="text-white/60 text-sm">Occupation</p>
+              <p className="text-white text-base mt-1">{profileData.profession}</p>
+            </div>
+          )}
+          
+          {/* Bio */}
+          {profileData.bio && (
+            <div>
+              <p className="text-white/60 text-sm">Bio</p>
+              <p className="text-white text-base mt-1 line-clamp-2">{profileData.bio}</p>
+            </div>
+          )}
+          
+          {/* Vibe */}
+          {profileData.currentMoods && profileData.currentMoods.length > 0 && (
+            <div>
+              <p className="text-white/60 text-sm">Vibe</p>
+              <p className="text-white text-base mt-1">{profileData.currentMoods.join(', ')}</p>
+            </div>
+          )}
+          
+          {/* Intention */}
+          {profileData.intention && (
+            <div>
+              <p className="text-white/60 text-sm">Intention</p>
+              <p className="text-white text-base mt-1">
+                {Array.isArray(profileData.intention) 
+                  ? profileData.intention.join(', ') 
+                  : profileData.intention}
+              </p>
+            </div>
+          )}
+          
+          {/* Born */}
           {profileData.birthLocation && (
-            <p className="text-white text-base">
-              {language === 'es' ? 'Nacido en' : 'Born in'} {t(profileData.birthLocation)}
-            </p>
+            <div>
+              <p className="text-white/60 text-sm">Born</p>
+              <p className="text-white text-base mt-1">{t(profileData.birthLocation)}</p>
+            </div>
           )}
-          {profileData.location && (
-            <p className="text-white text-base">
-              {language === 'es' ? 'Vive en' : 'Lives in'} {t(profileData.location)}
-            </p>
+          
+          {/* Lived */}
+          {profileData.livedLocation && (
+            <div>
+              <p className="text-white/60 text-sm">Lived</p>
+              <p className="text-white text-base mt-1">{t(profileData.livedLocation)}</p>
+            </div>
           )}
+          
+          {/* Upcoming */}
           {profileData.nextLocation && (
-            <p className="text-white text-base">
-              {language === 'es' ? 'Próximo destino' : 'Upcoming'} {t(profileData.nextLocation)}
-            </p>
+            <div>
+              <p className="text-white/60 text-sm">Upcoming</p>
+              <p className="text-white text-base mt-1">{t(profileData.nextLocation)}</p>
+            </div>
           )}
         </div>
         
@@ -538,7 +584,7 @@ export default function ProfilePage() {
                 <Button 
                   onClick={() => createConnectionMutation.mutate(profileData.id)}
                   disabled={createConnectionMutation.isPending}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-full border-0"
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
                 >
                   {createConnectionMutation.isPending ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
