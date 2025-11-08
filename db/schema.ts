@@ -68,6 +68,7 @@ export const events = pgTable("events", {
   tags: jsonb("tags").$type<string[]>().default([]),
   attendingCount: integer("attending_count").default(0),
   interestedCount: integer("interested_count").default(0),
+  viewCount: integer("view_count").default(0),
   timeFrame: text("time_frame"), // Today, This Week, This Weekend, This Month, Next Month
   stripeProductId: text("stripe_product_id"), // For payment integration
   stripePriceId: text("stripe_price_id"), // For payment integration

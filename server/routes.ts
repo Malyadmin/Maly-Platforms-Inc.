@@ -1490,8 +1490,33 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log('[CREATOR_DASHBOARD] Found', userEvents.length, 'events for user', userId);
 
+      // Fetch analytics for each event
+      const eventsWithAnalytics = await Promise.all(userEvents.map(async (event) => {
+        // Get all participants for this event
+        const participants = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.eventId, event.id));
+
+        const interestedCount = participants.filter(p => p.status === 'interested').length;
+        const attendingCount = participants.filter(p => p.status === 'attending' || p.status === 'approved').length;
+        const pendingCount = participants.filter(p => p.status === 'pending_approval' || p.status === 'pending_access').length;
+
+        // Get view count for this event
+        const viewCount = event.viewCount || 0;
+
+        return {
+          ...event,
+          analytics: {
+            interestedCount,
+            attendingCount,
+            pendingCount,
+            totalViews: viewCount
+          }
+        };
+      }));
+
       return res.json({
-        events: userEvents,
+        events: eventsWithAnalytics,
         pendingRSVPs: [],
         totalEvents: userEvents.length,
         totalPendingRSVPs: 0
@@ -1523,6 +1548,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       if (dbEvent && dbEvent.length > 0) {
         const event = dbEvent[0];
+        
+        // Increment view count
+        await db.update(events)
+          .set({ viewCount: (event.viewCount || 0) + 1 })
+          .where(eq(events.id, eventId));
         
         // Get both attending and interested participants for this event
         const eventParticipantsList = await db.select({
