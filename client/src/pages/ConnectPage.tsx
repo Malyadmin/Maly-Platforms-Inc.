@@ -266,9 +266,9 @@ export function ConnectPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white">
-      {/* Header Section - Match Discover Page Style */}
-      <header className="bg-black text-white sticky top-0 z-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+      {/* Header Section - Fixed at top */}
+      <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 

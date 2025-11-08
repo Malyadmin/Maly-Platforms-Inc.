@@ -363,9 +363,9 @@ export default function ProfilePage() {
   }
 
   return (
-<div className="min-h-screen bg-black pb-24">
-  {/* Header - Sticky */}
-  <header className="bg-black text-white sticky top-0 z-50">
+<div className="h-screen flex flex-col overflow-hidden bg-black">
+  {/* Header - Fixed at top */}
+  <header className="bg-black text-white shrink-0 z-50">
     {/* Top bar with MÁLY logo */}
     <div className="flex items-center justify-between px-5 pt-3 pb-2">
       <img 
@@ -390,8 +390,10 @@ export default function ProfilePage() {
     </div>
   </header>
 
-  {/* Fullscreen Profile Image with Name Overlay on Left */}
-  <div className="relative w-full h-screen">
+  {/* Scrollable content area */}
+  <div className="flex-1 overflow-y-auto">
+    {/* Fullscreen Profile Image with Name Overlay on Left */}
+    <div className="relative w-full h-screen">
     {profileData.profileImage ? (
       <div className="absolute inset-0">
         <img 
@@ -621,6 +623,8 @@ export default function ProfilePage() {
       </div>
     </div>
   </div>
+  </div>
+  {/* Scrollable content area end */}
 
   {/* Premium Paywall for Messaging */}
   <PremiumPaywall

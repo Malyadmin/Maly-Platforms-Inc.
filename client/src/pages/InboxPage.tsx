@@ -258,9 +258,9 @@ export default function InboxPage() {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="bg-black text-white sticky top-0 z-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+      {/* Header - Fixed at top */}
+      <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo on left and plus icon on right */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -335,21 +335,23 @@ export default function InboxPage() {
         </div>
       </header>
 
-      {loading ? (
-        <div className="space-y-4 p-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex items-center space-x-3">
-              <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-4 w-[150px] bg-gray-700" />
-                <Skeleton className="h-3 w-[100px] bg-gray-700" />
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="space-y-4 p-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center space-x-3">
+                <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-[150px] bg-gray-700" />
+                  <Skeleton className="h-3 w-[100px] bg-gray-700" />
+                </div>
+                <Skeleton className="h-4 w-4 bg-gray-700" />
               </div>
-              <Skeleton className="h-4 w-4 bg-gray-700" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="pb-20" data-testid="inbox-content">
+            ))}
+          </div>
+        ) : (
+          <div className="pb-20" data-testid="inbox-content">
           {/* All Filter - Show All Messages in a Simple List */}
           {activeFilter === 'all' && (
             <div>
@@ -504,6 +506,8 @@ export default function InboxPage() {
           )}
         </div>
       )}
+      </div>
+      {/* Scrollable content area end */}
       
       {/* Bottom Navigation */}
       <BottomNav />

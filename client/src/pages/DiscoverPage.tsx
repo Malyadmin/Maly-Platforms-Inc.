@@ -291,14 +291,14 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       <FirstEventModal 
         cityName={selectedCity} 
         open={showFirstEventModal} 
         onClose={handleModalClose} 
       />
-      {/* iOS-style Header */}
-      <div className="bg-black text-white sticky top-0 z-50">
+      {/* iOS-style Header - Fixed at top */}
+      <div className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 

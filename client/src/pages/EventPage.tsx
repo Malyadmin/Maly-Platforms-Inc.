@@ -278,9 +278,9 @@ export default function EventPage() {
   const displayEvent = translatedEvent || event;
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      {/* Header - Sticky */}
-      <header className="bg-black text-white sticky top-0 z-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+      {/* Header - Fixed at top */}
+      <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -305,8 +305,10 @@ export default function EventPage() {
         </div>
       </header>
 
-      {/* Large Event Image */}
-      {event.image && (
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto pb-24">
+        {/* Large Event Image */}
+        {event.image && (
         <div className="relative h-96 overflow-hidden">
           <img
             src={event.image}
@@ -649,6 +651,8 @@ export default function EventPage() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
+      {/* Scrollable content area end */}
     </div>
   );
 }
