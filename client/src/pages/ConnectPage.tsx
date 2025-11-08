@@ -9,7 +9,7 @@ import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -283,7 +283,7 @@ export function ConnectPage() {
       filters.push({ type: "vibe", label: selectedVibe, value: selectedVibe });
     }
     if (selectedIntention !== "all") {
-      filters.push({ type: "intention", label: selectedIntention.charAt(0).toUpperCase() + selectedIntention.slice(1), value: selectedIntention });
+      filters.push({ type: "intention", label: formatIntentionLabel(selectedIntention), value: selectedIntention });
     }
     return filters;
   };
@@ -587,12 +587,8 @@ export function ConnectPage() {
                   ? user.currentMoods.split(',')[0].trim()
                   : null;
                 
-                // Get intention as comma-separated string (could be array or string)
-                const userIntention = Array.isArray(user.intention) && user.intention.length > 0
-                  ? user.intention.join(', ')
-                  : typeof user.intention === 'string'
-                  ? user.intention
-                  : null;
+                // Get intention formatted for display
+                const userIntention = formatIntentionLabel(user.intention);
 
                 return (
                   <div 

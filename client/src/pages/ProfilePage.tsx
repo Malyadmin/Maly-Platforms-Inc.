@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 
 // Mood badge styles configuration
@@ -469,9 +469,7 @@ export default function ProfilePage() {
             <div>
               <p className="text-white/60 text-sm">Intention</p>
               <p className="text-white text-base mt-1">
-                {Array.isArray(profileData.intention) 
-                  ? profileData.intention.join(', ') 
-                  : profileData.intention}
+                {formatIntentionLabel(profileData.intention)}
               </p>
             </div>
           )}

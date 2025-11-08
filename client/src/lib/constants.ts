@@ -203,13 +203,31 @@ export const VIBE_AND_MOOD_TAGS = [
 export const INTEREST_TAGS = VIBE_AND_MOOD_TAGS;
 export const MOOD_TAGS = VIBE_AND_MOOD_TAGS;
 
-// User intentions (capitalized)
-export const INTENTIONS = [
-  "Dating",
-  "Social",
-  "Networking",
-  "Friends"
-];
+// Helper function to format intention values for display
+export function formatIntentionLabel(intention: string | string[] | null | undefined): string {
+  if (!intention) return "";
+  
+  // Handle array of intentions
+  if (Array.isArray(intention)) {
+    return intention.map(i => formatSingleIntention(i)).join(", ");
+  }
+  
+  // Handle single intention
+  return formatSingleIntention(intention);
+}
+
+// Format a single intention value to its display label
+function formatSingleIntention(value: string): string {
+  const intentionMap: Record<string, string> = {
+    "dating": "Dating",
+    "social": "Social",
+    "networking": "Networking",
+    "friends": "Friends"
+  };
+  
+  // Return mapped value or capitalize first letter as fallback
+  return intentionMap[value.toLowerCase()] || value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
 
 export const MOCK_USER_PROFILES = {
   member: {
