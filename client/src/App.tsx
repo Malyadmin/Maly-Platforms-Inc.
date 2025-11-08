@@ -81,8 +81,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, CreateEventFlowPage, and SignupFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/create');
+  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, and SignupFlowPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create');
 
   return (
     <>
@@ -134,6 +134,12 @@ function AppContent() {
           <Route path="/profile/:username" component={ProfilePage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
+          <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
+          <Route path="/event/:id/tickets" component={EventTicketsPage} />
+          <Route path="/event/:id/invite" component={SelectPeopleToInvitePage} />
+          <Route path="/event/:id" component={EventPage} />
+          <Route path="/edit-event/:id" component={EditEventPage} />
+          <Route path="/share-event-members" component={ShareEventMembersPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/signup" component={SignupFlowPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
