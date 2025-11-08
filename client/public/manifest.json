@@ -1,0 +1,27 @@
+{
+  "name": "Maly",
+  "short_name": "Maly",
+  "description": "Discover and promote vibe-aligned events, people, and places worldwide",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "lifestyle", "entertainment"],
+  "scope": "/",
+  "prefer_related_applications": false
+}

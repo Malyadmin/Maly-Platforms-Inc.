@@ -34,7 +34,7 @@ export function BottomNav() {
   return (
     <>
       {/* Mobile Bottom Navigation - iOS Style */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-black border-t border-gray-800 shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-black border-t border-gray-800 shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="flex justify-around items-center h-20 px-2">
           {mainNavItems.map(({ icon: Icon, label, href }) => {
             const isActive = location === href;

@@ -73,6 +73,12 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* PWA iOS Safe Area Support - Applied to root container */
+  #root {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 
   /* Enhanced Typography Scale */
   h1 {
