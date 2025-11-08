@@ -34,6 +34,7 @@ interface ConnectUser {
   intention?: string | string[] | null;
   createdAt?: Date | string | null;
   tags?: string[];
+  isPremium?: boolean;
 }
 
 interface ConnectionStatus {
@@ -583,10 +584,17 @@ export function ConnectPage() {
                     <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
                       {/* Name - aligned to top */}
                       <h3 
-                        className="text-lg font-medium text-white leading-tight truncate cursor-pointer hover:text-purple-400"
+                        className="text-lg font-medium text-white leading-tight truncate cursor-pointer hover:text-purple-400 flex items-center gap-2"
                         onClick={() => handleUserClick(user)}
                       >
-                        {user.fullName || user.username}
+                        <span className="truncate">{user.fullName || user.username}</span>
+                        {user.isPremium && (
+                          <img 
+                            src="/attached_assets/IMG_0425_1762623366264.jpeg" 
+                            alt="Premium" 
+                            className="w-4 h-4 flex-shrink-0"
+                          />
+                        )}
                       </h3>
                       
                       {/* Middle elements - evenly spaced */}

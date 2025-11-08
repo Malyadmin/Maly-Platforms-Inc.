@@ -63,6 +63,7 @@ interface ProfileData {
   gender: string | null;
   sexualOrientation: string | null;
   intention: string | string[] | null;
+  isPremium?: boolean;
 }
 
 interface ConnectionStatus {
@@ -414,8 +415,15 @@ export default function ProfilePage() {
     {/* Name and Location overlay - absolute positioned at bottom */}
     <div className="absolute bottom-6 left-0 right-0 px-6 z-10">
       <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          {profileData.fullName || profileData.username}
+        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex items-center gap-3">
+          <span>{profileData.fullName || profileData.username}</span>
+          {profileData.isPremium && (
+            <img 
+              src="/attached_assets/IMG_0425_1762623366264.jpeg" 
+              alt="Premium" 
+              className="w-6 h-6 flex-shrink-0"
+            />
+          )}
         </h1>
         
         {profileData.location && (

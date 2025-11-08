@@ -42,12 +42,26 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 - Consistent, accessible design using Tailwind CSS and Shadcn/UI.
+- Premium verification badge displayed next to user names in Connect view and Profile view for premium users.
 
 ### System Design Choices
 - Modular architecture with clear separation of concerns (e.g., Stripe Connect functionality in `server/stripeConnect.ts`).
 - Robust error handling with proper fallbacks and user feedback.
 - Comprehensive input validation using Zod schemas.
 - Performance optimization includes fixing N+1 query problems, pagination, and database indexing.
+
+## Recent Changes (November 2025)
+
+### Premium Verification Badge (November 8, 2025)
+- **Visual Premium Indicator**: Premium users now display a custom verification badge (Maly logo) next to their names
+- **Connect Page Integration**: Badge appears in user cards next to full name in the main user grid
+- **Profile Page Integration**: Badge appears next to name overlay on profile images
+- **Type Safety**: Added `isPremium` field to ConnectUser and ProfileData interfaces
+
+### PWA Layout Improvements (November 8, 2025)
+- **Fixed Header Scrolling**: All main pages (Inbox, Events, Profile, Connect) now have fixed headers with only content scrolling
+- **iOS Status Bar**: Changed to black style to better hide time/battery indicators in PWA mode
+- **Premium User Status**: All existing users upgraded to premium status
 
 ## Recent Changes (January 2025)
 
