@@ -1,94 +1,110 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { useUser } from "@/hooks/use-user";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Upload } from "lucide-react";
-import { members } from "@/lib/members-data";
-import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
-import { useLocation } from "wouter"; // Replace next/router with wouter
+import { Pencil, Loader2, X, Check, Upload } from "lucide-react";
+import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 
-const profileSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  age: z.number().min(18, "Must be at least 18 years old"),
-  bio: z.string().min(10, "Bio must be at least 10 characters"),
-  profession: z.string().min(2, "Profession is required"),
-  location: z.string(),
-  interests: z.array(z.string()).min(1, "Select at least one interest"),
-  currentMoods: z.array(z.enum(["Dating", "Networking", "Parties", "Adventure", "Dining Out"])).optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-const interests = [
-  "Digital Marketing",
-  "Software Development",
-  "Content Creation",
-  "Photography",
-  "Entrepreneurship",
-  "Remote Work",
-  "Travel",
-  "Fitness",
-  "Languages",
-  "Art & Design",
-  "Music",
-  "Food & Cuisine",
-];
-
-const moods = ["Dating", "Networking", "Parties", "Adventure", "Dining Out"] as const;
-
-// Mood badge styles configuration
 const moodStyles = {
-  "Dating": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
-  "Networking": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Parties": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
-  "Adventure": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
-  "Dining Out": "bg-green-500/20 text-green-500 hover:bg-green-500/30"
+  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30 border-purple-500/30",
+  "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30 border-pink-500/30",
+  "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/30",
+  "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/30",
+  "Outdoor & Nature": "bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 border-emerald-500/30",
+  "Wellness & Fitness": "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30 border-teal-500/30",
+  "Creative & Artsy": "bg-violet-500/20 text-violet-500 hover:bg-violet-500/30 border-violet-500/30",
+  "Single & Social": "bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 border-rose-500/30",
+  "Chill & Recharge": "bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30 border-cyan-500/30",
+  "Adventure & Exploring": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30 border-orange-500/30",
+  "Spiritual & Intentional": "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border-amber-500/30",
 } as const;
 
+interface ProfileData {
+  fullName: string;
+  location: string;
+  profession: string;
+  bio: string;
+  currentMoods: string[];
+  birthLocation: string;
+  livedLocation: string;
+  nextLocation: string;
+  age: number | null;
+  profileImage: string | null;
+}
+
 export default function EditProfilePage() {
+  const [, setLocation] = useLocation();
+  const { user, refetchUser } = useUser();
   const { toast } = useToast();
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  
+  const [profileData, setProfileData] = useState<ProfileData>({
+    fullName: "",
+    location: "",
+    profession: "",
+    bio: "",
+    currentMoods: [],
+    birthLocation: "",
+    livedLocation: "",
+    nextLocation: "",
+    age: null,
+    profileImage: null,
+  });
+  
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<any>("");
+  const [tempMoods, setTempMoods] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
-  const [, navigate] = useLocation(); // Use wouter's useLocation for navigation
 
-  // For demo, use first member as current user
-  const currentUser = members[0];
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        fullName: user.fullName || "",
+        location: user.location || "",
+        profession: user.profession || "",
+        bio: user.bio || "",
+        currentMoods: user.currentMoods || [],
+        birthLocation: user.birthLocation || "",
+        livedLocation: user.livedLocation || "",
+        nextLocation: user.nextLocation || "",
+        age: user.age,
+        profileImage: user.profileImage || null,
+      });
+      setImagePreview(user.profileImage || null);
+    }
+  }, [user]);
 
-  // Handle back navigation
-  const handleBack = () => {
-    navigate('/profile'); // Navigate to profile page
+  const handleEditClick = (field: string, currentValue: any) => {
+    setEditingField(field);
+    if (field === "currentMoods") {
+      setTempMoods(currentValue || []);
+    } else {
+      setTempValue(currentValue || "");
+    }
   };
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      fullName: currentUser.name,
-      age: currentUser.age,
-      bio: currentUser.bio,
-      profession: currentUser.occupation,
-      location: currentUser.location,
-      interests: currentUser.interests,
-      currentMoods: (currentUser.currentMoods && currentUser.currentMoods.length > 0) 
-        ? currentUser.currentMoods 
-        : ["Networking"], // Default to Networking if no mood is set
-    },
-  });
+  const handleCancelEdit = () => {
+    setEditingField(null);
+    setTempValue("");
+    setTempMoods([]);
+  };
+
+  const handleSaveField = (field: string) => {
+    setProfileData({
+      ...profileData,
+      [field]: field === "currentMoods" ? tempMoods : tempValue,
+    });
+    setEditingField(null);
+    setTempValue("");
+    setTempMoods([]);
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -101,40 +117,27 @@ export default function EditProfilePage() {
     }
   };
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    setIsLoading(true);
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
     try {
-      // Create headers object
-      const headers = new Headers({
-        'Content-Type': 'application/json'
-      });
-      
-      // Add session ID if it exists
-      const sessionId = localStorage.getItem('maly_session_id');
-      if (sessionId) {
-        headers.append('X-Session-ID', sessionId);
-      }
-      
       const response = await fetch('/api/profile', {
         method: 'POST',
-        headers,
-        credentials: 'include', // Important for auth
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
       });
 
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
 
-      const result = await response.json();
-      
       toast({
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
       });
-      
-      // Refresh the page to show updated data
-      window.location.reload();
+
+      await refetchUser();
+      setLocation(`/profile/${user?.username}`);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -142,260 +145,273 @@ export default function EditProfilePage() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#121212] text-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 gradient-text">Edit Profile</h1>
+  const toggleMood = (mood: string) => {
+    setTempMoods(prev =>
+      prev.includes(mood) ? prev.filter(m => m !== mood) : [...prev, mood]
+    );
+  };
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Profile Image Section */}
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <Avatar className="h-24 w-24 ring-2 ring-primary/10">
-                  <AvatarImage 
-                    src={imagePreview || currentUser.image} 
-                    alt="Profile picture"
-                  />
-                  <AvatarFallback>
-                    {currentUser.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <label 
-                  htmlFor="profile-image" 
-                  className="absolute -bottom-2 -right-2 p-1.5 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  <Upload className="h-4 w-4" />
-                  <input
-                    id="profile-image"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">Profile Picture</h2>
-                <p className="text-sm text-muted-foreground">
-                  Upload a photo that best represents you
-                </p>
-              </div>
-            </div>
+  const renderEditableField = (
+    label: string,
+    field: keyof ProfileData,
+    multiline: boolean = false
+  ) => {
+    const value = profileData[field];
+    const isEditing = editingField === field;
 
-            {/* Current Mood - Primary CTA */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-primary/30 shadow-lg">
-              <h2 className="text-2xl font-bold gradient-text">How are you feeling today?</h2>
-              
-              <div className="w-full">
-                <div className="flex flex-wrap gap-3 mt-2">
-                  {moods.map(mood => (
-                    <div
-                      key={mood}
-                      className={`cursor-pointer flex-grow text-center py-3 px-4 rounded-lg transition-all ${
-                        (form.watch("currentMoods") || []).includes(mood)
-                          ? `${moodStyles[mood]} border-2 border-white/20 shadow-md transform scale-105` 
-                          : "bg-white/5 hover:bg-white/10"
-                      }`}
-                      onClick={async () => {
-                        // Get current moods
-                        const currentMoods = form.watch("currentMoods") || [];
-                        
-                        // Toggle the selected mood (add if not present, remove if present)
-                        const updatedMoods = currentMoods.includes(mood) 
-                          ? currentMoods.filter(m => m !== mood)
-                          : [...currentMoods, mood];
-                        
-                        // Update form value
-                        form.setValue("currentMoods", updatedMoods);
-                        
-                        // Save immediately via POST request
-                        try {
-                          // Create headers object
-                          const headers = new Headers({
-                            'Content-Type': 'application/json'
-                          });
-                          
-                          // Add session ID if it exists
-                          const sessionId = localStorage.getItem('maly_session_id');
-                          if (sessionId) {
-                            headers.append('X-Session-ID', sessionId);
-                          }
-                          
-                          const response = await fetch('/api/profile', {
-                            method: 'POST',
-                            headers,
-                            credentials: 'include',
-                            body: JSON.stringify({ currentMoods: updatedMoods })
-                          });
-                          
-                          if (!response.ok) {
-                            throw new Error('Failed to update mood');
-                          }
-                          
-                          toast({
-                            title: "Mood Updated",
-                            description: "Your mood has been updated!",
-                          });
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: "Failed to update your mood. Please try again.",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    >
-                      {mood}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Basic Information */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your name" {...field} className="bg-white/5 border-white/10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-white/60 text-sm">{label}</p>
+          {!isEditing && (
+            <button
+              onClick={() => handleEditClick(field, value)}
+              className="text-purple-400 hover:text-purple-300 transition-colors"
+              data-testid={`button-edit-${field}`}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        
+        {isEditing ? (
+          <div className="mt-2 space-y-2">
+            {multiline ? (
+              <Textarea
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="bg-gray-900/50 border-purple-500/30 text-white min-h-[100px]"
+                autoFocus
+                data-testid={`input-${field}`}
               />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          className="bg-white/5 border-white/10"
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Location</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            {...field} 
-                            className="pl-9 bg-white/5 border-white/10" 
-                            placeholder="Where are you based?"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Bio & Profession */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <FormField
-                control={form.control}
-                name="profession"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Profession</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="What do you do?" 
-                        {...field}
-                        className="bg-white/5 border-white/10"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            ) : (
+              <Input
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="bg-gray-900/50 border-purple-500/30 text-white"
+                autoFocus
+                data-testid={`input-${field}`}
               />
-
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Tell us about yourself..."
-                        className="min-h-[100px] bg-white/5 border-white/10"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-white/60">
-                      Share your story and what brings you here
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Interests */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <div>
-                <FormLabel>Interests</FormLabel>
-                <FormDescription className="text-white/60">Select your interests and expertise areas</FormDescription>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {interests.map(interest => (
-                    <Badge
-                      key={interest}
-                      variant={selectedInterests.includes(interest) ? "default" : "outline"}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => {
-                        const newInterests = selectedInterests.includes(interest)
-                          ? selectedInterests.filter(i => i !== interest)
-                          : [...selectedInterests, interest];
-                        setSelectedInterests(newInterests);
-                        form.setValue("interests", newInterests);
-                      }}
-                    >
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-                <FormMessage>{form.formState.errors.interests?.message}</FormMessage>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <Button type="submit" size="lg" className="interactive-hover" disabled={isLoading}> {/* Disable button while loading */}
-                {isLoading ? "Saving..." : "Save Changes"} {/* Show loading indicator */}
+            )}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleSaveField(field)}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid={`button-save-${field}`}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Save
               </Button>
-              <Button type="button" variant="outline" size="lg" className="glass-hover" onClick={handleBack}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="border-gray-600"
+                data-testid={`button-cancel-${field}`}
+              >
+                <X className="h-4 w-4 mr-1" />
                 Cancel
               </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        ) : (
+          <p className="text-white text-base mt-1">
+            {value || <span className="text-gray-500">Not set</span>}
+          </p>
+        )}
       </div>
+    );
+  };
+
+  const renderVibeField = () => {
+    const isEditing = editingField === "currentMoods";
+
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-white/60 text-sm">Vibe</p>
+          {!isEditing && (
+            <button
+              onClick={() => handleEditClick("currentMoods", profileData.currentMoods)}
+              className="text-purple-400 hover:text-purple-300 transition-colors"
+              data-testid="button-edit-currentMoods"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {isEditing ? (
+          <div className="mt-2 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              {VIBE_AND_MOOD_TAGS.map((mood) => (
+                <button
+                  key={mood}
+                  onClick={() => toggleMood(mood)}
+                  className={`py-2 px-3 rounded-lg text-sm transition-all border ${
+                    tempMoods.includes(mood)
+                      ? `${moodStyles[mood as keyof typeof moodStyles]} border-current`
+                      : "bg-gray-900/50 text-gray-400 border-gray-700 hover:border-gray-600"
+                  }`}
+                  data-testid={`vibe-option-${mood}`}
+                >
+                  {mood}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleSaveField("currentMoods")}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="button-save-currentMoods"
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="border-gray-600"
+                data-testid="button-cancel-currentMoods"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-white text-base mt-1">
+            {profileData.currentMoods.length > 0 ? (
+              <span>{profileData.currentMoods.join(", ")}</span>
+            ) : (
+              <span className="text-gray-500">No vibes selected</span>
+            )}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen flex flex-col overflow-hidden bg-black">
+      {/* Header */}
+      <header className="bg-black text-white shrink-0 z-50">
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto"
+          />
+          <HamburgerMenu />
+        </div>
+        
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLocation(`/profile/${user?.username}`)}
+              className="text-white/80 hover:text-white transition-colors text-sm"
+              data-testid="button-back-to-profile"
+            >
+              Back
+            </button>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              Edit Profile
+            </h2>
+          </div>
+        </div>
+      </header>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+        {/* Profile Image Section */}
+        <div className="relative w-full h-[50vh] mb-6">
+          {imagePreview || profileData.profileImage ? (
+            <div className="absolute inset-0">
+              <img 
+                src={imagePreview || profileData.profileImage || undefined}
+                alt="Profile"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+              <div className="text-9xl font-bold text-white/20">
+                {user.username[0].toUpperCase()}
+              </div>
+            </div>
+          )}
+          
+          {/* Upload button */}
+          <label className="absolute bottom-4 right-4 p-3 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
+            <Upload className="h-5 w-5 text-white" />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+              data-testid="input-profile-image"
+            />
+          </label>
+
+          {/* Name overlay */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              {profileData.fullName || user.username}
+            </h1>
+          </div>
+        </div>
+
+        {/* Editable Fields */}
+        <div className="container mx-auto px-6 space-y-6">
+          <div className="max-w-2xl mx-auto space-y-4">
+            {renderEditableField("Full Name", "fullName")}
+            {renderEditableField("Location", "location")}
+            {renderEditableField("Occupation", "profession")}
+            {renderEditableField("Bio", "bio", true)}
+            {renderVibeField()}
+            {renderEditableField("Born", "birthLocation")}
+            {renderEditableField("Lived", "livedLocation")}
+            {renderEditableField("Upcoming", "nextLocation")}
+          </div>
+
+          {/* Save Button */}
+          <div className="max-w-2xl mx-auto pt-6 pb-8">
+            <Button
+              onClick={handleSaveProfile}
+              disabled={isSaving}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full py-6 text-lg"
+              data-testid="button-save-profile"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Profile"
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }
