@@ -104,9 +104,9 @@ export function ConnectPage() {
   });
 
 
-  // Fetch connection statuses for all users
+  // Fetch contact statuses for all users
   useEffect(() => {
-    const fetchConnectionStatuses = async () => {
+    const fetchContactStatuses = async () => {
       if (!users || !currentUser) return;
       
       const statuses: Record<number, ConnectionStatus> = {};
@@ -116,12 +116,16 @@ export function ConnectPage() {
           if (user.id === currentUser.id) return;
           
           try {
-            const response = await fetch(`/api/connections/status/${user.id}`);
+            const response = await fetch(`/api/contacts/check/${user.id}`);
             if (response.ok) {
-              statuses[user.id] = await response.json();
+              const { isContact } = await response.json();
+              statuses[user.id] = {
+                outgoing: isContact ? { status: 'accepted', date: new Date().toISOString() } : null,
+                incoming: null
+              };
             }
           } catch (error) {
-            console.error(`Failed to fetch connection status for user ${user.id}:`, error);
+            console.error(`Failed to fetch contact status for user ${user.id}:`, error);
           }
         })
       );
@@ -129,36 +133,36 @@ export function ConnectPage() {
       setConnectionStatuses(statuses);
     };
     
-    fetchConnectionStatuses();
+    fetchContactStatuses();
   }, [users, currentUser]);
 
-  // Create a connection request
+  // Add contact (one-way, no approval needed)
   const createConnectionMutation = useMutation({
     mutationFn: async (targetUserId: number) => {
-      const response = await fetch('/api/connections/request', {
+      const response = await fetch('/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetUserId }),
+        body: JSON.stringify({ contactUserId: targetUserId }),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send connection request');
+        throw new Error(errorData.error || 'Failed to add contact');
       }
       
       return response.json();
     },
     onSuccess: (_, targetUserId) => {
       toast({
-        title: 'Connection request sent',
-        description: 'Your connection request has been sent successfully.',
+        title: 'Contact added',
+        description: 'User has been added to your contacts.',
       });
       
-      // Optimistically update connection status
+      // Optimistically update contact status
       setConnectionStatuses(prev => ({
         ...prev,
         [targetUserId]: {
-          outgoing: { status: 'pending', date: new Date().toISOString() },
+          outgoing: { status: 'accepted', date: new Date().toISOString() },
           incoming: null
         }
       }));
@@ -167,46 +171,13 @@ export function ConnectPage() {
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error sending request',
+        title: 'Error adding contact',
         description: error.message,
         variant: 'destructive',
       });
     },
   });
 
-  // Accept a connection request
-  const respondToConnectionMutation = useMutation({
-    mutationFn: async ({ userId, status }: { userId: number, status: 'accepted' | 'declined' }) => {
-      const response = await fetch(`/api/connections/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to ${status} connection request`);
-      }
-      
-      return response.json();
-    },
-    onSuccess: (_, variables) => {
-      toast({
-        title: variables.status === 'accepted' ? 'Connection accepted' : 'Connection declined',
-        description: variables.status === 'accepted' 
-          ? 'You are now connected with this user.' 
-          : 'You have declined this connection request.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Error updating request',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-  });
 
   // Create or find a conversation with another user
   const createConversationMutation = useMutation({

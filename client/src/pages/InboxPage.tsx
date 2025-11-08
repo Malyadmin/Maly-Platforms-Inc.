@@ -56,16 +56,7 @@ export default function InboxPage() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
-  // Fetch connection requests
-  const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
-    queryKey: ['/api/connections/pending'],
-    queryFn: async () => {
-      const response = await fetch('/api/connections/pending');
-      if (!response.ok) throw new Error('Failed to fetch pending connection requests');
-      return response.json();
-    },
-    enabled: !!user?.id,
-  });
+  // No more connection requests - contacts are added instantly
 
 
   // Fetch RSVP requests (for events the user created)
@@ -114,16 +105,16 @@ export default function InboxPage() {
     },
   });
 
-  // Fetch connections (users who are connected with the current user)
+  // Fetch contacts (users in the current user's contacts list)
   const {
     data: connections = [],
     isLoading: connectionsLoading,
     error: connectionsError
   } = useQuery<ConnectionUser[]>({
-    queryKey: ["connections"],
+    queryKey: ["contacts"],
     queryFn: async () => {
-      const response = await fetch("/api/connections");
-      if (!response.ok) throw new Error("Failed to fetch connections");
+      const response = await fetch("/api/contacts");
+      if (!response.ok) throw new Error("Failed to fetch contacts");
       return response.json();
     },
     enabled: !!user,
@@ -187,7 +178,7 @@ export default function InboxPage() {
     }
   };
 
-  const loading = conversationsLoading || connectionRequestsLoading || rsvpRequestsLoading || connectionsLoading;
+  const loading = conversationsLoading || rsvpRequestsLoading || connectionsLoading;
 
   if (!user) {
     return (
@@ -453,34 +444,15 @@ export default function InboxPage() {
             </div>
           )}
 
-          {/* Requests Filter - Show Only Requests */}
+          {/* Requests Filter - Show Only RSVP Requests */}
           {activeFilter === 'requests' && (
             <div className="space-y-2">
-              {connectionRequests.length === 0 && rsvpRequests.length === 0 ? (
+              {rsvpRequests.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   <p className="text-gray-400 text-sm">No pending requests</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {connectionRequests.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="px-4">
-                        <h4 className="text-gray-300 font-medium text-sm">Connection Requests</h4>
-                      </div>
-                      <div>
-                        {connectionRequests.map((request) => 
-                          renderInboxItem({
-                            title: request.fullName || request.username || 'Unknown User',
-                            subtitle: 'Wants to connect',
-                            avatar: request.profileImage,
-                            onPress: () => setLocation(`/profile/${request.username || request.id}`),
-                            testId: `connection-request-${request.id}`
-                          })
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
                   {rsvpRequests.length > 0 && (
                     <div className="space-y-2">
                       <div className="px-4">
