@@ -1491,54 +1491,67 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         .where(eq(events.creatorId, userId))
         .orderBy(desc(events.createdAt));
 
-      // For each event, get analytics and ticket sales
+      // For each event, get analytics with participant details
       const eventsWithAnalytics = await Promise.all(userEvents.map(async (event) => {
-        // Get all participants for this event
-        const participants = await db.select()
-          .from(eventParticipants)
-          .where(eq(eventParticipants.eventId, event.id));
-
-        const interestedCount = participants.filter(p => p.status === 'interested').length;
-        const attendingCount = participants.filter(p => p.status === 'attending' || p.status === 'approved').length;
-        const pendingCount = participants.filter(p => p.status === 'pending_approval' || p.status === 'pending_access').length;
-
-        // Get ticket sales (paid tickets)
-        const ticketSales = await db.select({
+        // Get all participants with user details
+        const participantsWithUsers = await db.select({
           participant: eventParticipants,
-          payment: payments,
           user: users
         })
         .from(eventParticipants)
-        .leftJoin(payments, eq(eventParticipants.stripeCheckoutSessionId, payments.stripeCheckoutSessionId))
         .leftJoin(users, eq(eventParticipants.userId, users.id))
-        .where(
-          and(
-            eq(eventParticipants.eventId, event.id),
-            eq(eventParticipants.paymentStatus, 'completed')
-          )
-        );
+        .where(eq(eventParticipants.eventId, event.id));
 
-        return {
-          ...event,
-          date: event.startTime || event.date, // Normalize date field for frontend
-          analytics: {
-            interestedCount,
-            attendingCount,
-            pendingCount,
-            totalViews: 0 // Placeholder - can be implemented later
-          },
-          ticketSales: ticketSales.map(sale => ({
-            id: sale.participant.id,
-            buyerName: sale.user?.fullName || sale.user?.username || 'Unknown',
-            buyerEmail: sale.user?.email,
-            buyerImage: sale.user?.profileImage,
-            ticketQuantity: sale.participant.ticketQuantity,
-            amount: sale.payment?.amount || 0,
-            currency: sale.payment?.currency || 'usd',
-            purchaseDate: sale.participant.purchaseDate || sale.participant.createdAt || new Date().toISOString(),
-            status: sale.payment?.status || 'unknown'
-          }))
+        // Separate participants by status
+        const interestedUsers = participantsWithUsers
+          .filter(p => p.participant.status === 'interested')
+          .map(p => ({
+            id: p.user?.id,
+            username: p.user?.username,
+            fullName: p.user?.fullName,
+            profileImage: p.user?.profileImage,
+            email: p.user?.email
+          }));
+
+        const attendingUsers = participantsWithUsers
+          .filter(p => p.participant.status === 'attending' || p.participant.status === 'approved')
+          .map(p => ({
+            id: p.user?.id || 0,
+            username: p.user?.username || '',
+            fullName: p.user?.fullName || '',
+            profileImage: p.user?.profileImage || null,
+            email: p.user?.email || ''
+          }));
+
+        // Normalize event data for IOSEventCard compatibility
+        const normalizedEvent = {
+          id: event.id,
+          title: event.title || 'Untitled Event',
+          image: event.image || undefined,
+          date: (event.startTime || event.date || new Date().toISOString()).toString(),
+          location: (event.location || '').toString(),
+          price: (event.price || '0').toString(),
+          ticketType: (event.ticketType || 'free').toString(),
+          interestedUsers: interestedUsers.map(u => ({
+            id: u.id || 0,
+            username: u.username || '',
+            fullName: u.fullName || '',
+            profileImage: u.profileImage || null,
+            email: u.email || ''
+          })),
+          attendingUsers: attendingUsers.map(u => ({
+            id: u.id || 0,
+            username: u.username || '',
+            fullName: u.fullName || '',
+            profileImage: u.profileImage || null,
+            email: u.email || ''
+          })),
+          interestedCount: interestedUsers.length,
+          attendingCount: attendingUsers.length,
+          totalViews: 0
         };
+
+        return normalizedEvent;
       }));
 
       // Get all pending RSVPs across all events
@@ -1577,15 +1590,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       console.log('[CREATOR_DASHBOARD] Returning data:', {
-        eventCount: eventsWithAnalytics.length,
-        rsvpCount: pendingRSVPs.length
+        eventCount: eventsWithAnalytics.length
       });
 
       return res.json({
         events: eventsWithAnalytics,
-        pendingRSVPs,
-        totalEvents: userEvents.length,
-        totalPendingRSVPs: pendingRSVPs.length
+        totalEvents: userEvents.length
       });
     } catch (error) {
       console.error("[CREATOR_DASHBOARD] Error fetching creator dashboard:", error);
