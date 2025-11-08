@@ -84,7 +84,8 @@ export default function CreatorDashboardPage() {
     enabled: !!user?.id,
   });
 
-  console.log('[CREATOR_DASHBOARD] Query state:', { isLoading, error: error?.toString(), hasData: !!data, userId: user?.id, errorMessage: error instanceof Error ? error.message : null });
+  console.log('[CREATOR_DASHBOARD] User state:', { user, userId: user?.id, isEnabled: !!user?.id });
+  console.log('[CREATOR_DASHBOARD] Query state:', { isLoading, error: error?.toString(), hasData: !!data, errorMessage: error instanceof Error ? error.message : null });
 
   // Handle RSVP approval/rejection
   const handleRSVPMutation = useMutation({
@@ -222,7 +223,14 @@ export default function CreatorDashboardPage() {
   );
 
   if (!user) {
-    return <div className="h-screen bg-black text-white flex items-center justify-center">Please log in</div>;
+    return (
+      <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+        <p>Please log in to view your creator dashboard</p>
+        <Button onClick={() => setLocation('/auth')} className="bg-purple-600 hover:bg-purple-700">
+          Go to Login
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -307,7 +315,11 @@ export default function CreatorDashboardPage() {
           </div>
         ) : error ? (
           <div className="p-4">
-            <p className="text-red-400">Failed to load dashboard data</p>
+            <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
+              <p className="text-red-400 font-medium">Failed to load dashboard data</p>
+              <p className="text-red-300 text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
+              <p className="text-gray-400 text-xs mt-2">User ID: {user?.id || 'Not found'}</p>
+            </div>
           </div>
         ) : (
           <div className="pb-20 px-4">
