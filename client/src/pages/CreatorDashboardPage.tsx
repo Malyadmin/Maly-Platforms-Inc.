@@ -76,6 +76,8 @@ export default function CreatorDashboardPage() {
     enabled: !!user?.id,
   });
 
+  console.log('[CREATOR_DASHBOARD] Query state:', { isLoading, error: error?.toString(), hasData: !!data, userId: user?.id, errorMessage: error instanceof Error ? error.message : null });
+
   // Handle RSVP approval/rejection
   const handleRSVPMutation = useMutation({
     mutationFn: async ({ eventId, userId, action }: { eventId: number; userId: number; action: 'approved' | 'rejected' }) => {

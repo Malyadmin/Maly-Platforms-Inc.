@@ -1473,13 +1473,17 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   // GET /api/creator/dashboard - Comprehensive creator dashboard data
   app.get('/api/creator/dashboard', requireAuth, async (req, res) => {
     try {
+      console.log('[CREATOR_DASHBOARD] Request received');
       const currentUser = req.user as any;
+      console.log('[CREATOR_DASHBOARD] Current user:', currentUser?.id, currentUser?.username);
       
       if (!currentUser || !currentUser.id) {
+        console.log('[CREATOR_DASHBOARD] Authentication failed - no user');
         return res.status(401).json({ error: "Authentication required" });
       }
 
       const userId = parseInt(currentUser.id);
+      console.log('[CREATOR_DASHBOARD] Fetching dashboard for userId:', userId);
       
       // Fetch all events created by the user
       const userEvents = await db.select()
@@ -1572,6 +1576,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         }));
       }
 
+      console.log('[CREATOR_DASHBOARD] Returning data:', {
+        eventCount: eventsWithAnalytics.length,
+        rsvpCount: pendingRSVPs.length
+      });
+
       return res.json({
         events: eventsWithAnalytics,
         pendingRSVPs,
@@ -1579,7 +1588,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         totalPendingRSVPs: pendingRSVPs.length
       });
     } catch (error) {
-      console.error("Error fetching creator dashboard:", error);
+      console.error("[CREATOR_DASHBOARD] Error fetching creator dashboard:", error);
       res.status(500).json({ error: "Failed to fetch creator dashboard data" });
     }
   });
