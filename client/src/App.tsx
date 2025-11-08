@@ -133,6 +133,7 @@ function AppContent() {
           <Route path="/connect" component={ConnectPage} />
           <Route path="/inbox" component={InboxPage} />
           <Route path="/profile" component={ProfilePage} />
+          <Route path="/profile-edit" component={EditProfilePage} />
           <Route path="/profile/:username" component={ProfilePage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
