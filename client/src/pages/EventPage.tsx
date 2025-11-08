@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X, Bookmark, ChevronRight } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -278,18 +278,26 @@ export default function EventPage() {
   const displayEvent = translatedEvent || event;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* iOS-style Header with Close */}
-      <div className="absolute top-0 left-0 right-0 z-50 p-4 pt-12">
-        <div className="flex items-center justify-between">
-          <button 
+    <div className="min-h-screen bg-black text-white pb-24">
+      {/* Header - Sticky */}
+      <header className="bg-black text-white sticky top-0 z-50">
+        {/* Top bar with Back button, MALY logo, and DISCOVER title */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-3">
+          <button
             onClick={() => setLocation('/discover')}
-            className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm"
+            className="text-white/80 hover:text-white transition-colors text-sm"
+            data-testid="button-back-to-discover"
           >
-            Close
+            Back
           </button>
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto"
+          />
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
         </div>
-      </div>
+      </header>
 
       {/* Large Event Image */}
       {event.image && (
