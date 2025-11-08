@@ -74,20 +74,14 @@ function createMalyIcon(size, outputPath) {
   // Draw macron (horizontal line)
   fillRect(macronLeft, macronY, macronWidth, macronHeight);
   
-  // Draw A letter
-  // Left stroke of A
+  // Draw triangle (inverted V shape - two diagonal strokes, no crossbar)
+  // Left stroke
   const leftX = centerX - aWidth / 2;
   drawLine(leftX, aBottom, centerX, aTop, strokeWidth);
   
-  // Right stroke of A
+  // Right stroke
   const rightX = centerX + aWidth / 2;
   drawLine(centerX, aTop, rightX, aBottom, strokeWidth);
-  
-  // Horizontal bar of A
-  const barY = Math.round(centerY + 20 * scale);
-  const barLeft = Math.round(centerX - aWidth / 2 + strokeWidth);
-  const barRight = Math.round(centerX + aWidth / 2 - strokeWidth);
-  fillRect(barLeft, barY, barRight - barLeft, strokeWidth);
   
   png.pack().pipe(fs.createWriteStream(outputPath));
   console.log(`Generated ${outputPath}`);
