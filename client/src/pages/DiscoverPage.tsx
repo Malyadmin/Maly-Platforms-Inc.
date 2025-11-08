@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, Inbox, ChevronDown } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -299,22 +299,13 @@ export default function DiscoverPage() {
       />
       {/* iOS-style Header */}
       <div className="bg-black text-white sticky top-0 z-50">
-        {/* Top bar with MÁLY logo on left and inbox icon on right */}
+        {/* Top bar with MÁLY logo */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white p-2 hover:bg-white/10"
-            onClick={() => setLocation("/inbox")}
-            data-testid="button-inbox-header"
-          >
-            <Inbox className="h-7 w-7" />
-          </Button>
         </div>
         
         {/* Controls section */}

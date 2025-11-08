@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown, Inbox } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown } from "lucide-react";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
 import PremiumPaywall from "@/components/PremiumPaywall";
@@ -366,22 +366,13 @@ export default function ProfilePage() {
 <div className="min-h-screen bg-black pb-24">
   {/* Header - Sticky */}
   <header className="bg-black text-white sticky top-0 z-50">
-    {/* Top bar with MÁLY logo on left and inbox icon on right */}
+    {/* Top bar with MÁLY logo */}
     <div className="flex items-center justify-between px-5 pt-3 pb-2">
       <img 
         src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
         alt="MÁLY" 
         className="h-14 w-auto"
       />
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-white p-2 hover:bg-white/10"
-        onClick={() => setLocation("/inbox")}
-        data-testid="button-inbox-header"
-      >
-        <Inbox className="h-7 w-7" />
-      </Button>
     </div>
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}

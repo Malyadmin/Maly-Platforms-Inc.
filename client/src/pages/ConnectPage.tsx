@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Filter, X, Inbox, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
+import { Filter, X, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { useUser } from "@/hooks/use-user";
@@ -298,22 +298,13 @@ export function ConnectPage() {
     <div className="flex flex-col min-h-screen bg-black text-white">
       {/* Header Section - Match Discover Page Style */}
       <header className="bg-black text-white sticky top-0 z-50">
-        {/* Top bar with MÁLY logo on left and inbox icon on right */}
+        {/* Top bar with MÁLY logo */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white p-2 hover:bg-white/10"
-            onClick={() => setLocation("/inbox")}
-            data-testid="button-inbox-header"
-          >
-            <Inbox className="h-7 w-7" />
-          </Button>
         </div>
         
         {/* Controls section */}
