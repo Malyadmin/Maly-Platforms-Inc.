@@ -81,6 +81,17 @@ export default function CreatorDashboardPage() {
     totalPendingRSVPs: number;
   }>({
     queryKey: ['/api/creator/dashboard'],
+    queryFn: async () => {
+      const response = await fetch('/api/creator/dashboard', {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${await response.text()}`);
+      }
+      
+      return response.json();
+    },
     enabled: !!user?.id,
   });
 
