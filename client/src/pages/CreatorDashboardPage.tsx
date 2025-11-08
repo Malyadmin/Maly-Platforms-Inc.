@@ -33,13 +33,13 @@ interface DashboardEvent {
   isRsvp: boolean | null;
   requireApproval: boolean | null;
   ticketTiers?: { price: string }[];
-  analytics: {
+  analytics?: {
     interestedCount: number;
     attendingCount: number;
     pendingCount: number;
     totalViews: number;
   };
-  ticketSales: TicketSale[];
+  ticketSales?: TicketSale[];
 }
 
 interface TicketSale {
@@ -145,7 +145,7 @@ export default function CreatorDashboardPage() {
             <Eye className="h-4 w-4 text-blue-400" />
             <span className="text-xs text-gray-400">Views</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics.totalViews}</p>
+          <p className="text-white text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
         </div>
         
         <div className="bg-gray-800/50 rounded-lg p-3">
@@ -153,7 +153,7 @@ export default function CreatorDashboardPage() {
             <UserCheck className="h-4 w-4 text-green-400" />
             <span className="text-xs text-gray-400">Attending</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics.attendingCount}</p>
+          <p className="text-white text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
         </div>
         
         <div className="bg-gray-800/50 rounded-lg p-3">
@@ -161,7 +161,7 @@ export default function CreatorDashboardPage() {
             <Users className="h-4 w-4 text-purple-400" />
             <span className="text-xs text-gray-400">Interested</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics.interestedCount}</p>
+          <p className="text-white text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
         </div>
         
         <div className="bg-gray-800/50 rounded-lg p-3">
@@ -169,7 +169,7 @@ export default function CreatorDashboardPage() {
             <TrendingUp className="h-4 w-4 text-orange-400" />
             <span className="text-xs text-gray-400">Pending</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics.pendingCount}</p>
+          <p className="text-white text-xl font-semibold">{event.analytics?.pendingCount || 0}</p>
         </div>
       </div>
     </div>
@@ -359,7 +359,7 @@ export default function CreatorDashboardPage() {
                           location: event.location ?? undefined,
                           price: event.price ?? undefined,
                           image: event.image ?? undefined,
-                          interestedCount: event.analytics.interestedCount,
+                          interestedCount: event.analytics?.interestedCount || 0,
                           isRsvp: event.isRsvp ?? undefined,
                           requireApproval: event.requireApproval ?? undefined,
                           ticketType: event.ticketType ?? undefined,
@@ -390,21 +390,21 @@ export default function CreatorDashboardPage() {
             {/* Ticket Sales Filter */}
             {activeFilter === 'sales' && (
               <div>
-                {!data?.events || data.events.every(e => e.ticketSales.length === 0) ? (
+                {!data?.events || data.events.every(e => (e.ticketSales?.length || 0) === 0) ? (
                   <div className="py-8 text-center">
                     <p className="text-gray-400 text-sm">No ticket sales yet</p>
                   </div>
                 ) : (
                   <div className="mt-4">
                     {data.events.map(event => (
-                      event.ticketSales.length > 0 && (
+                      (event.ticketSales?.length || 0) > 0 && (
                         <div key={event.id} className="mb-6">
                           <div className="flex items-center gap-2 mb-3">
                             <DollarSign className="h-4 w-4 text-green-400" />
                             <h3 className="text-white font-medium text-sm">{event.title}</h3>
                           </div>
                           <div className="space-y-2">
-                            {event.ticketSales.map(renderTicketSale)}
+                            {event.ticketSales?.map(renderTicketSale)}
                           </div>
                         </div>
                       )
