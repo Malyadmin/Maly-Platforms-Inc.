@@ -706,12 +706,11 @@ export default function DiscoverPage() {
           </div>
         </div>
       </main>
+      </div>
+      {/* Scrollable content area end */}
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-        <BottomNav />
-      </div>
-    </div>
+      <BottomNav />
     </div>
   );
 }
