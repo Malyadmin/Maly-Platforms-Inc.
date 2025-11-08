@@ -361,11 +361,6 @@ export default function ProfilePage() {
   if (!profileData) {
     return <div>Profile not found</div>;
   }
-  
-  // Handle back button click
-  const handleBack = () => {
-    window.history.back();
-  };
 
   return (
 <div className="min-h-screen bg-black pb-24">
@@ -391,7 +386,16 @@ export default function ProfilePage() {
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}
     <div className="px-5 pb-3">
-      <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setLocation("/discover")}
+          className="text-white/80 hover:text-white transition-colors text-sm"
+          data-testid="button-back-to-discover"
+        >
+          Back
+        </button>
+        <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+      </div>
     </div>
   </header>
 
