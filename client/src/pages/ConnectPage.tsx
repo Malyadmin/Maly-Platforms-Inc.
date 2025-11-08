@@ -584,10 +584,10 @@ export function ConnectPage() {
                     <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
                       {/* Name - aligned to top */}
                       <h3 
-                        className="text-lg font-medium text-white leading-tight truncate cursor-pointer hover:text-purple-400 flex items-center gap-2"
+                        className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-white leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
                         onClick={() => handleUserClick(user)}
                       >
-                        <span className="truncate">{user.fullName || user.username}</span>
+                        <span className="overflow-hidden">{user.fullName || user.username}</span>
                         {user.isPremium && (
                           <img 
                             src="/attached_assets/IMG_0425_1762623366264.jpeg" 
