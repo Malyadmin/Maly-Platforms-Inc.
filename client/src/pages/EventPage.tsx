@@ -282,7 +282,7 @@ export default function EventPage() {
       {/* Header - Sticky */}
       <header className="bg-black text-white sticky top-0 z-50">
         {/* Top bar with MÁLY logo */}
-        <div className="flex items-center justify-center px-5 pt-3 pb-2">
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
