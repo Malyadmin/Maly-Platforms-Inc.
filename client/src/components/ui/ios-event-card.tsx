@@ -71,9 +71,9 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
       </div>
       
       {/* Event Details - Simplified with vertical alignment */}
-      <div className="flex-1 flex flex-col justify-between pr-2">
+      <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
         {/* Title - aligned to top */}
-        <h3 className="text-lg font-medium text-white leading-tight truncate">
+        <h3 className="text-lg font-medium text-white leading-tight truncate whitespace-nowrap overflow-hidden text-ellipsis">
           {event.title}
         </h3>
         
