@@ -472,7 +472,7 @@ export default function DiscoverPage() {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         <main className="bg-black text-white pb-24">
           <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}

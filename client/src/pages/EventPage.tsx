@@ -306,7 +306,7 @@ export default function EventPage() {
       </header>
 
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {/* Large Event Image */}
         {event.image && (
         <div className="relative h-96 overflow-hidden">

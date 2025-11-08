@@ -527,7 +527,7 @@ export function ConnectPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pb-24">
+      <main className="flex-1 overflow-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {isLoading ? (
           <div className="text-center py-8">
             <span className="text-gray-400">Loading users...</span>

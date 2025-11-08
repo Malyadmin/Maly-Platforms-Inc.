@@ -392,7 +392,7 @@ export default function ProfilePage() {
   </header>
 
   {/* Scrollable content area */}
-  <div className="flex-1 overflow-y-auto">
+  <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
     {/* Fullscreen Profile Image with Name Overlay on Left */}
     <div className="relative w-full h-screen">
     {profileData.profileImage ? (
