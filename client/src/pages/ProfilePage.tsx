@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 
 // Mood badge styles configuration
 const moodStyles = {
@@ -325,13 +326,14 @@ export default function ProfilePage() {
 <div className="h-screen flex flex-col overflow-hidden bg-black">
   {/* Header - Fixed at top */}
   <header className="bg-black text-white shrink-0 z-50">
-    {/* Top bar with MÁLY logo */}
+    {/* Top bar with MÁLY logo and hamburger menu */}
     <div className="flex items-center justify-between px-5 pt-3 pb-2">
       <img 
         src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
         alt="MÁLY" 
         className="h-14 w-auto"
       />
+      <HamburgerMenu />
     </div>
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}

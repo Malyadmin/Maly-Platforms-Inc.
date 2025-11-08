@@ -17,6 +17,7 @@ import { FirstEventModal } from "@/components/FirstEventModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { IOSEventCard } from "@/components/ui/ios-event-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -299,13 +300,14 @@ export default function DiscoverPage() {
       />
       {/* iOS-style Header - Fixed at top */}
       <div className="bg-black text-white shrink-0 z-50">
-        {/* Top bar with MÁLY logo */}
+        {/* Top bar with MÁLY logo and hamburger menu */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
+          <HamburgerMenu />
         </div>
         
         {/* Controls section */}

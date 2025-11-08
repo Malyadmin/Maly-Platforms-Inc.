@@ -5,6 +5,7 @@ import { useLocation, Link } from "wouter";
 import { Filter, X, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -270,13 +271,14 @@ export function ConnectPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
       {/* Header Section - Fixed at top */}
       <header className="bg-black text-white shrink-0 z-50">
-        {/* Top bar with MÁLY logo */}
+        {/* Top bar with MÁLY logo and hamburger menu */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
+          <HamburgerMenu />
         </div>
         
         {/* Controls section */}

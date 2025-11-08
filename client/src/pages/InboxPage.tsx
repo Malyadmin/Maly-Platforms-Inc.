@@ -11,6 +11,7 @@ import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/lib/translations';
 import { BottomNav } from '@/components/ui/bottom-nav';
+import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 
 interface ConnectionRequest {
   id: number;
@@ -261,22 +262,14 @@ export default function InboxPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
       {/* Header - Fixed at top */}
       <header className="bg-black text-white shrink-0 z-50">
-        {/* Top bar with MÁLY logo on left and plus icon on right */}
+        {/* Top bar with MÁLY logo on left and hamburger menu on right */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white p-2 hover:bg-white/10"
-            onClick={() => {}}
-            data-testid="button-plus-header"
-          >
-            <Plus className="h-7 w-7" />
-          </Button>
+          <HamburgerMenu />
         </div>
         
         {/* Inbox title with gradient */}
