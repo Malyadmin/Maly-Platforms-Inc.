@@ -1470,6 +1470,120 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // GET /api/creator/dashboard - Comprehensive creator dashboard data
+  app.get('/api/creator/dashboard', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      
+      if (!currentUser || !currentUser.id) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userId = parseInt(currentUser.id);
+      
+      // Fetch all events created by the user
+      const userEvents = await db.select()
+        .from(events)
+        .where(eq(events.creatorId, userId))
+        .orderBy(desc(events.createdAt));
+
+      // For each event, get analytics and ticket sales
+      const eventsWithAnalytics = await Promise.all(userEvents.map(async (event) => {
+        // Get all participants for this event
+        const participants = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.eventId, event.id));
+
+        const interestedCount = participants.filter(p => p.status === 'interested').length;
+        const attendingCount = participants.filter(p => p.status === 'attending' || p.status === 'approved').length;
+        const pendingCount = participants.filter(p => p.status === 'pending_approval' || p.status === 'pending_access').length;
+
+        // Get ticket sales (paid tickets)
+        const ticketSales = await db.select({
+          participant: eventParticipants,
+          payment: payments,
+          user: users
+        })
+        .from(eventParticipants)
+        .leftJoin(payments, eq(eventParticipants.stripeCheckoutSessionId, payments.stripeCheckoutSessionId))
+        .leftJoin(users, eq(eventParticipants.userId, users.id))
+        .where(
+          and(
+            eq(eventParticipants.eventId, event.id),
+            eq(eventParticipants.paymentStatus, 'completed')
+          )
+        );
+
+        return {
+          ...event,
+          date: event.startTime || event.date, // Normalize date field for frontend
+          analytics: {
+            interestedCount,
+            attendingCount,
+            pendingCount,
+            totalViews: 0 // Placeholder - can be implemented later
+          },
+          ticketSales: ticketSales.map(sale => ({
+            id: sale.participant.id,
+            buyerName: sale.user?.fullName || sale.user?.username || 'Unknown',
+            buyerEmail: sale.user?.email,
+            buyerImage: sale.user?.profileImage,
+            ticketQuantity: sale.participant.ticketQuantity,
+            amount: sale.payment?.amount || 0,
+            currency: sale.payment?.currency || 'usd',
+            purchaseDate: sale.participant.purchaseDate || sale.participant.createdAt || new Date().toISOString(),
+            status: sale.payment?.status || 'unknown'
+          }))
+        };
+      }));
+
+      // Get all pending RSVPs across all events
+      const eventIds = userEvents.map(e => e.id);
+      let pendingRSVPs = [];
+      
+      if (eventIds.length > 0) {
+        const pendingApplications = await db.select()
+          .from(eventParticipants)
+          .where(
+            and(
+              inArray(eventParticipants.eventId, eventIds),
+              inArray(eventParticipants.status, ['pending_approval', 'pending_access'])
+            )
+          )
+          .orderBy(desc(eventParticipants.createdAt));
+
+        // Get user and event details for each RSVP
+        pendingRSVPs = await Promise.all(pendingApplications.map(async (app) => {
+          const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+          const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+          
+          return {
+            id: app.id,
+            eventId: app.eventId,
+            userId: app.userId,
+            status: app.status,
+            createdAt: app.createdAt,
+            userName: userResult[0]?.fullName || userResult[0]?.username,
+            userImage: userResult[0]?.profileImage,
+            userEmail: userResult[0]?.email,
+            eventTitle: eventResult[0]?.title,
+            eventImage: eventResult[0]?.image
+          };
+        }));
+      }
+
+      return res.json({
+        events: eventsWithAnalytics,
+        pendingRSVPs,
+        totalEvents: userEvents.length,
+        totalPendingRSVPs: pendingRSVPs.length
+      });
+    } catch (error) {
+      console.error("Error fetching creator dashboard:", error);
+      res.status(500).json({ error: "Failed to fetch creator dashboard data" });
+    }
+  });
+
   // Get a specific event by ID
   app.get("/api/events/:id", async (req, res) => {
     try {

@@ -27,6 +27,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import CreatorDashboardPage from "./pages/CreatorDashboardPage";
 import AiEventDemoPage from "./pages/AiEventDemoPage.jsx";
 import AuthPage from "./pages/AuthPage";
 import SignupFlowPage from "./pages/SignupFlowPage";
@@ -81,8 +82,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, and SignupFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create');
+  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, CreatorDashboardPage, and SignupFlowPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator');
 
   return (
     <>
@@ -118,6 +119,7 @@ function AppContent() {
             <Route path="/ai-events" component={AiEventDemoPage} />
             <Route path="/admin" component={AdminDashboardPage} />
             <Route path="/admin/payments" component={AdminPaymentsPage} />
+            <Route path="/creator/dashboard" component={CreatorDashboardPage} />
             <Route path="/stripe/connect" component={StripeConnectPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
@@ -144,6 +146,7 @@ function AppContent() {
           <Route path="/signup" component={SignupFlowPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
+          <Route path="/creator/dashboard" component={CreatorDashboardPage} />
           <Route path="/stripe/connect" component={StripeConnectPage} />
           <Route path="/stripe/connect/success" component={StripeConnectSuccessPage} />
           <Route path="/stripe/connect/reauth" component={StripeConnectReauthPage} />

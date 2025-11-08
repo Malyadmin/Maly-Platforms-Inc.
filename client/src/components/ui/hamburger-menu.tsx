@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Menu, X, ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ const menuSections: MenuSection[] = [
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [, setLocation] = useLocation();
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev =>
@@ -50,6 +52,24 @@ export function HamburgerMenu() {
         ? prev.filter(s => s !== sectionTitle)
         : [...prev, sectionTitle]
     );
+  };
+
+  const handleMenuItemClick = (item: string) => {
+    setOpen(false);
+    
+    // Map menu items to routes
+    const routeMap: Record<string, string> = {
+      "Creator Dashboard": "/creator/dashboard",
+      "Edit Profile": "/profile-edit",
+      // Add more routes as needed
+    };
+    
+    const route = routeMap[item];
+    if (route) {
+      setLocation(route);
+    } else {
+      console.log(`Navigate to: ${item} (not yet implemented)`);
+    }
   };
 
   const handleLogout = async () => {
@@ -105,11 +125,7 @@ export function HamburgerMenu() {
                       key={item}
                       className="w-full text-left px-8 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
                       data-testid={`menu-item-${item.toLowerCase().replace(/\s+/g, '-')}`}
-                      onClick={() => {
-                        // Placeholder - will implement navigation later
-                        console.log(`Navigate to: ${item}`);
-                        setOpen(false);
-                      }}
+                      onClick={() => handleMenuItemClick(item)}
                     >
                       {item}
                     </button>
