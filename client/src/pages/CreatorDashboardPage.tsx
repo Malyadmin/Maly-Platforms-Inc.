@@ -139,7 +139,7 @@ export default function CreatorDashboardPage() {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div className="bg-gray-800/50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
             <Eye className="h-4 w-4 text-blue-400" />
@@ -162,14 +162,6 @@ export default function CreatorDashboardPage() {
             <span className="text-xs text-gray-400">Interested</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
-        </div>
-        
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="h-4 w-4 text-orange-400" />
-            <span className="text-xs text-gray-400">Pending</span>
-          </div>
-          <p className="text-white text-xl font-semibold">{event.analytics?.pendingCount || 0}</p>
         </div>
       </div>
     </div>
