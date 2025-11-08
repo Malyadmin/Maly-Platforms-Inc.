@@ -17,7 +17,7 @@ import ChatConversationPage from "./pages/ChatConversationPage";
 import PremiumPage from "./pages/PremiumPage";
 import PremiumSuccessPage from "./pages/PremiumSuccessPage";
 import InboxPage from "./pages/InboxPage";
-import ProfileEditPage from "./pages/ProfileEditPage";
+import EditProfilePage from "./pages/EditProfilePage";
 import TranslatorPage from "./pages/TranslatorPage";
 import OndaLindaFestivalPage from "./pages/OndaLindaFestivalPage";
 import ProfileGeneratorPage from "./pages/ProfileGeneratorPage";
@@ -112,7 +112,7 @@ function AppContent() {
             <Route path="/premium" component={PremiumPage} />
             <Route path="/premium-success" component={PremiumSuccessPage} />
             <Route path="/inbox" component={InboxPage} />
-            <Route path="/profile-edit" component={ProfileEditPage} />
+            <Route path="/profile-edit" component={EditProfilePage} />
             <Route path="/translator" component={TranslatorPage} />
             <Route path="/profile-setup" component={ProfileGeneratorPage} />
             <Route path="/replit-profile" component={ReplitProfilePage} />
