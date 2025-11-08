@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
+import { IOSEventCard } from '@/components/ui/ios-event-card';
 import { 
   Calendar, 
   Users, 
@@ -25,6 +26,13 @@ interface DashboardEvent {
   title: string;
   image: string | null;
   date: string;
+  location: string | null;
+  city: string | null;
+  price: string | null;
+  ticketType: string | null;
+  isRsvp: boolean | null;
+  requireApproval: boolean | null;
+  ticketTiers?: { price: string }[];
   analytics: {
     interestedCount: number;
     attendingCount: number;
@@ -100,42 +108,6 @@ export default function CreatorDashboardPage() {
     },
   });
 
-  const renderEventCard = (event: DashboardEvent) => (
-    <button
-      key={event.id}
-      onClick={() => setLocation(`/event/${event.id}`)}
-      className="w-full bg-gray-900/50 hover:bg-gray-800/50 rounded-lg p-4 transition-colors"
-      data-testid={`event-card-${event.id}`}
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-800 shrink-0">
-          {event.image ? (
-            <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-gray-500" />
-            </div>
-          )}
-        </div>
-        <div className="flex-1 text-left">
-          <p className="text-white font-medium text-sm sm:text-base">{event.title}</p>
-          <p className="text-gray-400 text-xs mt-1">
-            {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
-          </p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-xs text-gray-400">
-              <Users className="h-3 w-3 inline mr-1" />
-              {event.analytics.attendingCount} attending
-            </span>
-            <span className="text-xs text-purple-400">
-              {event.analytics.interestedCount} interested
-            </span>
-          </div>
-        </div>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
-      </div>
-    </button>
-  );
 
   const renderAnalyticsSection = (event: DashboardEvent) => (
     <div key={event.id} className="bg-gray-900/50 rounded-lg p-4 mb-3">
@@ -353,8 +325,25 @@ export default function CreatorDashboardPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3 mt-4">
-                    {data.events.map(renderEventCard)}
+                  <div className="space-y-4 mt-4">
+                    {data.events.map((event) => (
+                      <IOSEventCard 
+                        key={event.id} 
+                        event={{
+                          id: event.id,
+                          title: event.title,
+                          date: event.date,
+                          location: event.location ?? undefined,
+                          price: event.price ?? undefined,
+                          image: event.image ?? undefined,
+                          interestedCount: event.analytics.interestedCount,
+                          isRsvp: event.isRsvp ?? undefined,
+                          requireApproval: event.requireApproval ?? undefined,
+                          ticketType: event.ticketType ?? undefined,
+                          ticketTiers: event.ticketTiers
+                        }} 
+                      />
+                    ))}
                   </div>
                 )}
               </div>
