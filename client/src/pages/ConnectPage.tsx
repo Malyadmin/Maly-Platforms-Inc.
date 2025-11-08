@@ -317,8 +317,8 @@ export function ConnectPage() {
         </div>
         
         {/* Controls section */}
-        <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
+        <div className="px-5">
+          <div className="flex items-center justify-between pb-3">
             {/* Connect title with gradient - uppercase with extra letter spacing */}
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Connect</h2>
             
@@ -336,7 +336,7 @@ export function ConnectPage() {
           
           {/* Show profile count here when filter bar is hidden */}
           {!showFiltersBar && (
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground py-3">
               {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
             </p>
           )}
