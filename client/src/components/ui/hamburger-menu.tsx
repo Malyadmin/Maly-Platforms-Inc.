@@ -55,6 +55,7 @@ export function HamburgerMenu() {
   };
 
   const handleMenuItemClick = (item: string) => {
+    console.log('[HAMBURGER MENU] Clicked menu item:', item);
     setOpen(false);
     
     // Map menu items to routes
@@ -65,7 +66,9 @@ export function HamburgerMenu() {
     };
     
     const route = routeMap[item];
+    console.log('[HAMBURGER MENU] Mapped route:', route);
     if (route) {
+      console.log('[HAMBURGER MENU] Navigating to:', route);
       setLocation(route);
     } else {
       console.log(`Navigate to: ${item} (not yet implemented)`);
