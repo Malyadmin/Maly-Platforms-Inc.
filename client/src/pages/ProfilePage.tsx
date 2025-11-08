@@ -66,16 +66,6 @@ interface ProfileData {
   isPremium?: boolean;
 }
 
-interface ConnectionStatus {
-  outgoing: {
-    status: string;
-    date: string;
-  } | null;
-  incoming: {
-    status: string;
-    date: string;
-  } | null;
-}
 
 export default function ProfilePage() {
   const [, setLocation] = useLocation();
@@ -101,88 +91,56 @@ export default function ProfilePage() {
     }
   }, [username, currentUser, setLocation]);
 
-  // Get the connection status between current user and profile user
+  // Check if user is in contacts (one-way check)
   const {
-    data: connectionStatus,
+    data: isContact,
     isLoading: connectionLoading,
-  } = useQuery<ConnectionStatus>({
-    queryKey: ['connection-status', profileData?.id, currentUser?.id],
+  } = useQuery<boolean>({
+    queryKey: ['contact-check', profileData?.id, currentUser?.id],
     queryFn: async () => {
       if (!profileData?.id || !currentUser?.id) {
-        return { outgoing: null, incoming: null };
+        return false;
       }
-      const response = await fetch(`/api/connections/status/${profileData.id}`);
-      if (!response.ok) throw new Error('Failed to fetch connection status');
-      return response.json();
+      const response = await fetch(`/api/contacts/check/${profileData.id}`);
+      if (!response.ok) return false;
+      const data = await response.json();
+      return data.isContact || false;
     },
     enabled: !!profileData?.id && !!currentUser?.id,
   });
 
-  // Create a connection request
+  // Add contact (one-way, instant, no approval needed)
   const createConnectionMutation = useMutation({
     mutationFn: async (targetUserId: number) => {
-      const response = await fetch('/api/connections/request', {
+      const response = await fetch('/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetUserId }),
+        body: JSON.stringify({ contactUserId: targetUserId }),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send connection request');
+        throw new Error(errorData.error || 'Failed to add contact');
       }
       
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: 'Connection request sent',
-        description: 'Your connection request has been sent successfully.',
+        title: 'Contact added',
+        description: "They've been added to your contacts.",
       });
-      queryClient.invalidateQueries({ queryKey: ['connection-status', profileData?.id, currentUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ['contact-check', profileData?.id, currentUser?.id] });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error sending request',
+        title: 'Error adding contact',
         description: error.message,
         variant: 'destructive',
       });
     },
   });
 
-  // Accept a connection request
-  const respondToConnectionMutation = useMutation({
-    mutationFn: async ({ userId, status }: { userId: number, status: 'accepted' | 'declined' }) => {
-      const response = await fetch(`/api/connections/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to ${status} connection request`);
-      }
-      
-      return response.json();
-    },
-    onSuccess: (_, variables) => {
-      toast({
-        title: variables.status === 'accepted' ? 'Connection accepted' : 'Connection declined',
-        description: variables.status === 'accepted' 
-          ? 'You are now connected with this user.' 
-          : 'You have declined this connection request.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['connection-status', profileData?.id, currentUser?.id] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Error updating request',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-  });
 
   // Handle message button click - check premium status first
   const handleMessageClick = () => {
@@ -526,53 +484,24 @@ export default function ProfilePage() {
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Loading
                 </Button>
-              ) : connectionStatus?.outgoing?.status === 'accepted' || connectionStatus?.incoming?.status === 'accepted' ? (
+              ) : isContact ? (
                 <Button className="flex-1 bg-green-600 text-white rounded-full border-0" disabled>
                   <UserCheck className="h-4 w-4 mr-2" />
-                  Connected
+                  In Contacts
                 </Button>
-              ) : connectionStatus?.outgoing?.status === 'pending' ? (
-                <Button className="flex-1 bg-yellow-600 text-white rounded-full border-0" disabled>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Pending
-                </Button>
-              ) : connectionStatus?.incoming?.status === 'pending' ? (
-                <>
-                  <Button 
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full border-0"
-                    onClick={() => respondToConnectionMutation.mutate({ 
-                      userId: profileData.id, 
-                      status: 'accepted' 
-                    })}
-                    disabled={respondToConnectionMutation.isPending}
-                  >
-                    <Check className="h-4 w-4 mr-2" />
-                    Accept
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-full border-0"
-                    onClick={() => respondToConnectionMutation.mutate({ 
-                      userId: profileData.id, 
-                      status: 'declined' 
-                    })}
-                    disabled={respondToConnectionMutation.isPending}
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Decline
-                  </Button>
-                </>
               ) : (
                 <Button 
                   onClick={() => createConnectionMutation.mutate(profileData.id)}
                   disabled={createConnectionMutation.isPending}
                   className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
+                  data-testid="button-add-contact"
                 >
                   {createConnectionMutation.isPending ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
                     <UserPlus className="h-4 w-4 mr-2" />
                   )}
-                  {t('connectProfile')}
+                  Add to Contacts
                 </Button>
               )}
               
