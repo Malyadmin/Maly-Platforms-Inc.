@@ -203,6 +203,14 @@ export const VIBE_AND_MOOD_TAGS = [
 export const INTEREST_TAGS = VIBE_AND_MOOD_TAGS;
 export const MOOD_TAGS = VIBE_AND_MOOD_TAGS;
 
+// User intentions (capitalized)
+export const INTENTIONS = [
+  "Dating",
+  "Social",
+  "Networking",
+  "Friends"
+];
+
 export const MOCK_USER_PROFILES = {
   member: {
     profileType: "member",

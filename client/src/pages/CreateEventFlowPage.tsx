@@ -51,31 +51,18 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="flex items-center text-white"
-                  data-testid="button-back"
-                >
-                  <ChevronLeft className="w-5 h-5 mr-1" />
-                  Back
-                </button>
-              )}
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Next button on right */}
-            <button
-              type="submit"
-              form="step1-form"
-              className="text-white font-medium"
-              data-testid="button-next"
-            >
-              Next
-            </button>
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center text-white"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="w-5 h-5 mr-1" />
+                Back
+              </button>
+            )}
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -135,7 +122,19 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         </form>
 
         {/* Bottom spacing for mobile */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          type="submit"
+          form="step1-form"
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -251,28 +250,16 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="flex items-center text-white"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
-              </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Next button on right */}
+          <div className="flex items-center gap-4">
             <button
-              onClick={onSubmit}
-              className="text-white font-medium"
-              data-testid="button-next"
+              onClick={onBack}
+              className="flex items-center text-white"
+              data-testid="button-back"
             >
-              Next
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
             </button>
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -377,7 +364,18 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         </div>
 
         {/* Bottom spacing for mobile */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          onClick={onSubmit}
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -472,29 +470,16 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="flex items-center text-white"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
-              </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Next button on right */}
+          <div className="flex items-center gap-4">
             <button
-              type="submit"
-              form="step3-form"
-              className="text-white font-medium"
-              data-testid="button-next"
+              onClick={onBack}
+              className="flex items-center text-white"
+              data-testid="button-back"
             >
-              Next
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
             </button>
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -696,7 +681,19 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          type="submit"
+          form="step3-form"
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -752,29 +749,16 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="flex items-center text-white"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
-              </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Next button on right */}
+          <div className="flex items-center gap-4">
             <button
-              type="submit"
-              form="step4-form"
-              className="text-white font-medium"
-              data-testid="button-next"
+              onClick={onBack}
+              className="flex items-center text-white"
+              data-testid="button-back"
             >
-              Next
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
             </button>
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -854,7 +838,19 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          type="submit"
+          form="step4-form"
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -929,29 +925,16 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="flex items-center text-white"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
-              </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Next button on right */}
+          <div className="flex items-center gap-4">
             <button
-              type="submit"
-              form="step5-form"
-              className="text-white font-medium"
-              data-testid="button-next"
+              onClick={onBack}
+              className="flex items-center text-white"
+              data-testid="button-back"
             >
-              Next
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
             </button>
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -1115,7 +1098,19 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          type="submit"
+          form="step5-form"
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-next"
+        >
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -1184,29 +1179,16 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         
         {/* Controls section */}
         <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="flex items-center text-white"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
-              </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
-            </div>
-            
-            {/* Create button on right */}
+          <div className="flex items-center gap-4">
             <button
-              type="submit"
-              form="step6-form"
-              className="text-white font-medium"
-              data-testid="button-create"
+              onClick={onBack}
+              className="flex items-center text-white"
+              data-testid="button-back"
             >
-              Create
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
             </button>
+            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
       </div>
@@ -1371,7 +1353,19 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Create Button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+        <button
+          type="submit"
+          form="step6-form"
+          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          data-testid="button-create"
+        >
+          Create
+        </button>
       </div>
       
       {/* Bottom Navigation */}
