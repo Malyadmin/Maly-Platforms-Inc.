@@ -10,7 +10,7 @@ import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
+import { userCities, users, events, userContacts, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe';
 import Stripe from 'stripe';
@@ -2914,229 +2914,123 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  // Connection related endpoints
+  // Contacts related endpoints - simplified from connection requests
 
-  // Send a connection request
-  app.post('/api/connections/request', isAuthenticated, async (req: Request, res: Response) => {
+  // Add a contact (one-way, no approval needed)
+  app.post('/api/contacts', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
+      const { contactUserId } = req.body;
 
-      const { targetUserId } = req.body;
-
-      if (!targetUserId) {
-        return res.status(400).json({ error: 'Target user ID is required' });
+      if (!contactUserId) {
+        return res.status(400).json({ error: 'Contact user ID is required' });
       }
 
-      // Check if request already exists
-      const existingConnection = await db.query.userConnections.findFirst({
+      // Check if contact already exists
+      const existingContact = await db.query.userContacts.findFirst({
         where: and(
-          eq(userConnections.followerId, currentUser.id),
-          eq(userConnections.followingId, targetUserId)
+          eq(userContacts.ownerId, currentUser.id),
+          eq(userContacts.contactId, contactUserId)
         )
       });
 
-      if (existingConnection) {
-        return res.status(400).json({ 
-          error: 'Connection request already exists', 
-          status: existingConnection.status 
+      if (existingContact) {
+        return res.status(200).json({ 
+          message: 'Contact already added',
+          contact: existingContact 
         });
       }
 
-      // Create new connection request
-      const newConnection = await db.insert(userConnections).values({
-        followerId: currentUser.id,
-        followingId: targetUserId,
-        status: 'pending',
+      // Add contact immediately
+      const newContact = await db.insert(userContacts).values({
+        ownerId: currentUser.id,
+        contactId: contactUserId,
         createdAt: new Date()
       }).returning();
 
       res.status(201).json({
-        message: 'Connection request sent successfully',
-        connection: newConnection[0]
+        message: 'Contact added successfully',
+        contact: newContact[0]
       });
     } catch (error) {
-      console.error('Error sending connection request:', error);
-      res.status(500).json({ error: 'Failed to send connection request' });
+      console.error('Error adding contact:', error);
+      res.status(500).json({ error: 'Failed to add contact' });
     }
   });
 
-  // Get pending connection requests (received by current user)
-  app.get('/api/connections/pending', isAuthenticated, async (req: Request, res: Response) => {
+  // Get all contacts for current user
+  app.get('/api/contacts', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
 
-      // Get all pending requests where the current user is the target
-      const pendingRequests = await db.query.userConnections.findMany({
-        where: and(
-          eq(userConnections.followingId, currentUser.id),
-          eq(userConnections.status, 'pending')
-        ),
+      const contacts = await db.query.userContacts.findMany({
+        where: eq(userContacts.ownerId, currentUser.id),
         with: {
-          follower: true
+          contact: true
         }
       });
 
-      // Format the response
-      const formattedRequests = pendingRequests.map(request => {
-        if (!request.follower) {
-          console.error('Missing follower data in connection request:', request);
+      const formattedContacts = contacts.map(contact => {
+        if (!contact.contact) {
+          console.error('Missing contact user data:', contact);
           return null;
         }
 
         return {
-          id: request.follower.id,
-          username: request.follower.username,
-          fullName: request.follower.fullName,
-          profileImage: request.follower.profileImage,
-          requestDate: request.createdAt,
-          status: request.status
+          id: contact.contact.id,
+          username: contact.contact.username,
+          fullName: contact.contact.fullName,
+          profileImage: contact.contact.profileImage,
+          addedDate: contact.createdAt
         };
-      }).filter(Boolean) as Array<{
-        id: number;
-        username: string;
-        fullName: string | null;
-        profileImage: string | null;
-        requestDate: Date | null;
-        status: string;
-      }>;
+      }).filter(Boolean);
 
-      res.json(formattedRequests);
+      res.json(formattedContacts);
     } catch (error) {
-      console.error('Error fetching pending connection requests:', error);
-      res.status(500).json({ error: 'Failed to fetch pending connection requests' });
+      console.error('Error fetching contacts:', error);
+      res.status(500).json({ error: 'Failed to fetch contacts' });
     }
   });
 
-  // Accept or decline a connection request
-  app.put('/api/connections/:userId', isAuthenticated, async (req: Request, res: Response) => {
+  // Remove a contact
+  app.delete('/api/contacts/:contactId', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
+      const { contactId } = req.params;
 
-      const { userId } = req.params;
-      const { status } = req.body;
-
-      if (!status || (status !== 'accepted' && status !== 'declined')) {
-        return res.status(400).json({ error: 'Valid status (accepted or declined) is required' });
-      }
-
-      // Update the connection status
-      const updatedConnection = await db
-        .update(userConnections)
-        .set({ status })
+      await db
+        .delete(userContacts)
         .where(
           and(
-            eq(userConnections.followerId, parseInt(userId)),
-            eq(userConnections.followingId, currentUser.id),
-            eq(userConnections.status, 'pending')
+            eq(userContacts.ownerId, currentUser.id),
+            eq(userContacts.contactId, parseInt(contactId))
           )
-        )
-        .returning();
+        );
 
-      if (!updatedConnection || updatedConnection.length === 0) {
-        return res.status(404).json({ error: 'Connection request not found' });
-      }
-
-      res.json({
-        message: `Connection request ${status}`,
-        connection: updatedConnection[0]
-      });
+      res.json({ message: 'Contact removed successfully' });
     } catch (error) {
-      console.error('Error updating connection request:', error);
-      res.status(500).json({ error: 'Failed to update connection request' });
+      console.error('Error removing contact:', error);
+      res.status(500).json({ error: 'Failed to remove contact' });
     }
   });
 
-  // Get all connections (accepted only)
-  app.get('/api/connections', isAuthenticated, async (req: Request, res: Response) => {
+  // Check if user is in contacts
+  app.get('/api/contacts/check/:userId', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
-
-      // Get connections where current user is either follower or following
-      const connections = await db.query.userConnections.findMany({
-        where: and(
-          or(
-            eq(userConnections.followerId, currentUser.id),
-            eq(userConnections.followingId, currentUser.id)
-          ),
-          eq(userConnections.status, 'accepted')
-        ),
-        with: {
-          follower: true,
-          following: true
-        }
-      });
-
-      // Format the response to show the other user in each connection
-      const formattedConnections = connections.map(connection => {
-        const isFollower = connection.followerId === currentUser.id;
-        const otherUser = isFollower ? connection.following : connection.follower;
-
-        if (!otherUser) {
-          console.error('Missing related user data in connection:', connection);
-          return null;
-        }
-
-        return {
-          id: otherUser.id,
-          username: otherUser.username,
-          fullName: otherUser.fullName,
-          profileImage: otherUser.profileImage,
-          connectionDate: connection.createdAt,
-          connectionType: isFollower ? 'following' : 'follower'
-        };
-      }).filter(Boolean) as Array<{
-        id: number;
-        username: string;
-        fullName: string | null;
-        profileImage: string | null;
-        connectionDate: Date | null;
-        connectionType: string;
-      }>;
-
-      res.json(formattedConnections);
-    } catch (error) {
-      console.error('Error fetching connections:', error);
-      res.status(500).json({ error: 'Failed to fetch connections' });
-    }
-  });
-
-  // Check connection status between current user and another user
-  app.get('/api/connections/status/:userId', isAuthenticated, async (req: Request, res: Response) => {
-    try {
-      const currentUser = req.user as Express.User;
-
       const { userId } = req.params;
-      const targetUserId = parseInt(userId);
 
-      // Check outgoing connection (current user -> target user)
-      const outgoingConnection = await db.query.userConnections.findFirst({
+      const contact = await db.query.userContacts.findFirst({
         where: and(
-          eq(userConnections.followerId, currentUser.id),
-          eq(userConnections.followingId, targetUserId)
+          eq(userContacts.ownerId, currentUser.id),
+          eq(userContacts.contactId, parseInt(userId))
         )
       });
 
-      // Check incoming connection (target user -> current user)
-      const incomingConnection = await db.query.userConnections.findFirst({
-        where: and(
-          eq(userConnections.followerId, targetUserId),
-          eq(userConnections.followingId, currentUser.id)
-        )
-      });
-
-      res.json({
-        outgoing: outgoingConnection ? {
-          status: outgoingConnection.status,
-          date: outgoingConnection.createdAt
-        } : null,
-        incoming: incomingConnection ? {
-          status: incomingConnection.status,
-          date: incomingConnection.createdAt
-        } : null
-      });
+      res.json({ isContact: !!contact });
     } catch (error) {
-      console.error('Error checking connection status:', error);
-      res.status(500).json({ error: 'Failed to check connection status' });
+      console.error('Error checking contact status:', error);
+      res.status(500).json({ error: 'Failed to check contact status' });
     }
   });
 

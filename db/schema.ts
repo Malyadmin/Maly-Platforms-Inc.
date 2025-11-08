@@ -139,15 +139,14 @@ export const messages = pgTable("messages", {
   language: text("language").default("en"), // For message translation
 });
 
-// New table for user connections/follows
-export const userConnections = pgTable("user_connections", {
-  followerId: integer("follower_id").references(() => users.id),
-  followingId: integer("following_id").references(() => users.id),
-  status: text("status").default("pending"), // pending, accepted, declined
+// Simple contacts table - one-way relationship for building contact lists
+export const userContacts = pgTable("user_contacts", {
+  ownerId: integer("owner_id").references(() => users.id),
+  contactId: integer("contact_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
-    pk: primaryKey({ columns: [table.followerId, table.followingId] }),
+    pk: primaryKey({ columns: [table.ownerId, table.contactId] }),
   };
 });
 
@@ -245,8 +244,7 @@ export const userRelations = relations(users, ({ many, one }) => ({
   receivedMessages: many(messages, { relationName: "receivedMessages" }),
   createdConversations: many(conversations),
   conversationParticipations: many(conversationParticipants),
-  followers: many(userConnections, { relationName: "followers" }),
-  following: many(userConnections, { relationName: "following" }),
+  contacts: many(userContacts, { relationName: "contacts" }),
   sentInvitations: many(invitations, { relationName: "sentInvitations" }),
   referredBy: one(users, {
     fields: [users.referredBy],
@@ -335,16 +333,15 @@ export const conversationParticipantsRelations = relations(conversationParticipa
   }),
 }));
 
-export const userConnectionsRelations = relations(userConnections, ({ one }) => ({
-  follower: one(users, {
-    fields: [userConnections.followerId],
+export const userContactsRelations = relations(userContacts, ({ one }) => ({
+  owner: one(users, {
+    fields: [userContacts.ownerId],
     references: [users.id],
-    relationName: "following",
+    relationName: "contacts",
   }),
-  following: one(users, {
-    fields: [userConnections.followingId],
+  contact: one(users, {
+    fields: [userContacts.contactId],
     references: [users.id],
-    relationName: "followers",
   }),
 }));
 
@@ -438,10 +435,10 @@ export const selectTicketTierSchema = createSelectSchema(ticketTiers);
 export type TicketTier = typeof ticketTiers.$inferSelect;
 export type NewTicketTier = typeof ticketTiers.$inferInsert;
 
-export const insertUserConnectionSchema = createInsertSchema(userConnections);
-export const selectUserConnectionSchema = createSelectSchema(userConnections);
-export type UserConnection = typeof userConnections.$inferSelect;
-export type NewUserConnection = typeof userConnections.$inferInsert;
+export const insertUserContactSchema = createInsertSchema(userContacts);
+export const selectUserContactSchema = createSelectSchema(userContacts);
+export type UserContact = typeof userContacts.$inferSelect;
+export type NewUserContact = typeof userContacts.$inferInsert;
 
 export const insertInvitationSchema = createInsertSchema(invitations);
 export const selectInvitationSchema = createSelectSchema(invitations);
