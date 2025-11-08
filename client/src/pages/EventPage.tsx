@@ -281,21 +281,27 @@ export default function EventPage() {
     <div className="min-h-screen bg-black text-white pb-24">
       {/* Header - Sticky */}
       <header className="bg-black text-white sticky top-0 z-50">
-        {/* Top bar with Back button, MALY logo, and DISCOVER title */}
-        <div className="flex items-center justify-between px-5 pt-3 pb-3">
-          <button
-            onClick={() => setLocation('/discover')}
-            className="text-white/80 hover:text-white transition-colors text-sm"
-            data-testid="button-back-to-discover"
-          >
-            Back
-          </button>
+        {/* Top bar with MÁLY logo */}
+        <div className="flex items-center justify-center px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
             className="h-14 w-auto"
           />
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+        </div>
+        
+        {/* Bottom bar with Back button and Discover title */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLocation('/discover')}
+              className="text-white/80 hover:text-white transition-colors text-sm"
+              data-testid="button-back-to-discover"
+            >
+              Back
+            </button>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+          </div>
         </div>
       </header>
 
