@@ -52,6 +52,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (November 2025)
 
+### Push Notification System (November 9, 2025)
+- **Complete Push Notification Infrastructure**: Implemented comprehensive web push notification system with:
+  - Database schema: `notification_preferences` and `push_subscriptions` tables
+  - Push notification service using web-push library with VAPID keys
+  - Service worker for handling notifications when app is closed
+- **Notification Preferences Page**: User-facing UI at `/notification-preferences` with toggles for in-app and push notifications
+- **Message Notifications**: Integrated into sendMessageToConversation() - sends push notifications to all conversation participants
+- **RSVP Notifications**: Integrated into application approval/decline flow - notifies applicants of status changes
+- **Ticket Purchase Notifications**: Integrated into Stripe webhook - confirms ticket purchases with push notifications
+- **Event Matching Notifications**: Integrated into event creation - notifies users in same city with matching vibes when new events are created
+- **Documentation**: Complete setup guide in NOTIFICATION_SETUP.md with VAPID key generation and deployment instructions
+
+## Recent Changes (November 2025)
+
 ### Premium Verification Badge (November 8, 2025)
 - **Visual Premium Indicator**: Premium users now display a custom verification badge (Maly logo) next to their names
 - **Connect Page Integration**: Badge appears in user cards next to full name in the main user grid
