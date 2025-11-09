@@ -373,8 +373,8 @@ export default function ProfilePage() {
       </div>
     )}
     
-    {/* Name and Location overlay - absolute positioned at bottom */}
-    <div className="absolute bottom-6 left-0 right-0 px-6 z-10">
+    {/* Name and Location overlay - absolute positioned at bottom with more space */}
+    <div className="absolute bottom-20 left-0 right-0 px-6 z-10">
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex items-center gap-3">
           <span>{profileData.fullName || profileData.username}</span>
@@ -471,7 +471,7 @@ export default function ProfilePage() {
         
         {/* Action Buttons */}
         {currentUser && profileData.id !== currentUser.id && (
-          <div className="space-y-3 pt-6">
+          <div className="space-y-3 pt-6 pb-24">
             {/* Message Button - Always shown */}
             <Button 
               onClick={handleMessageClick}
