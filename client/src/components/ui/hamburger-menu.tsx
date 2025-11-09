@@ -35,8 +35,7 @@ const menuSections: MenuSection[] = [
     items: [
       "About Maly",
       "Terms & Conditions",
-      "Privacy Policy",
-      "System"
+      "Privacy Policy"
     ]
   }
 ];
@@ -62,6 +61,9 @@ export function HamburgerMenu() {
     const routeMap: Record<string, string> = {
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
+      "About Maly": "/about",
+      "Terms & Conditions": "/terms",
+      "Privacy Policy": "/privacy",
       // Add more routes as needed
     };
     

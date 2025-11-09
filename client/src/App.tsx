@@ -36,6 +36,9 @@ import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
 import StripeConnectReauthPage from "./pages/StripeConnectReauthPage";
 import ShareEventMembersPage from "./pages/ShareEventMembersPage";
 import SelectPeopleToInvitePage from "./pages/SelectPeopleToInvitePage";
+import AboutMalyPage from "./pages/AboutMalyPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -121,6 +124,9 @@ function AppContent() {
             <Route path="/admin/payments" component={AdminPaymentsPage} />
             <Route path="/creator/dashboard" component={CreatorDashboardPage} />
             <Route path="/stripe/connect" component={StripeConnectPage} />
+            <Route path="/about" component={AboutMalyPage} />
+            <Route path="/terms" component={TermsPage} />
+            <Route path="/privacy" component={PrivacyPolicyPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -135,6 +141,9 @@ function AppContent() {
           <Route path="/profile" component={ProfilePage} />
           <Route path="/profile-edit" component={EditProfilePage} />
           <Route path="/profile/:username" component={ProfilePage} />
+          <Route path="/about" component={AboutMalyPage} />
+          <Route path="/terms" component={TermsPage} />
+          <Route path="/privacy" component={PrivacyPolicyPage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
