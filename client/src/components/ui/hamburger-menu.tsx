@@ -77,12 +77,21 @@ export function HamburgerMenu() {
 
   const handleLogout = async () => {
     try {
+      console.log('[HAMBURGER MENU] Logout button clicked');
       const response = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      console.log('[HAMBURGER MENU] Logout response:', response.status);
+      
       if (response.ok) {
-        window.location.href = '/';
+        // Clear all local storage
+        localStorage.clear();
+        
+        // Redirect to auth page
+        window.location.href = '/auth';
+      } else {
+        console.error('[HAMBURGER MENU] Logout failed with status:', response.status);
       }
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('[HAMBURGER MENU] Logout error:', error);
     }
   };
 

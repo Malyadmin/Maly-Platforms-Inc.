@@ -77,6 +77,7 @@ export default function ProfilePage() {
   const [isUpdatingMood, setIsUpdatingMood] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
+  const [showFullBio, setShowFullBio] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
@@ -411,9 +412,17 @@ export default function ProfilePage() {
           
           {/* Bio */}
           {profileData.bio && (
-            <div>
+            <div className="space-y-2">
               <p className="text-white/60 text-sm">Bio</p>
-              <p className="text-white text-base mt-1 line-clamp-2">{profileData.bio}</p>
+              <p className={`text-white text-base mt-1 ${showFullBio ? '' : 'line-clamp-2'}`}>{profileData.bio}</p>
+              {profileData.bio.length > 100 && (
+                <button
+                  onClick={() => setShowFullBio(!showFullBio)}
+                  className="text-sm text-purple-400 hover:underline"
+                >
+                  {showFullBio ? 'View Less' : 'View More'}
+                </button>
+              )}
             </div>
           )}
           
