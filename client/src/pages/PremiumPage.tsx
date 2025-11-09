@@ -87,7 +87,10 @@ export default function PremiumPage() {
   }, []);
 
   const handleSubscribe = async () => {
+    console.log('[PREMIUM] Get Premium Now button clicked', { user, subscriptionType });
+    
     if (!user) {
+      console.log('[PREMIUM] No user found, redirecting to auth');
       toast({
         title: "Please log in",
         description: "You must be logged in to subscribe",
@@ -97,10 +100,12 @@ export default function PremiumPage() {
       return;
     }
 
+    console.log('[PREMIUM] Starting checkout process for user:', user.username);
     setLoading(true);
     try {
       // Get session ID from localStorage if available
       const sessionId = localStorage.getItem('maly_session_id');
+      console.log('[PREMIUM] Session ID from localStorage:', sessionId ? 'present' : 'missing');
       
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
@@ -122,9 +127,16 @@ export default function PremiumPage() {
       }
       
       const { url } = await response.json();
+      console.log('[PREMIUM] Checkout URL received:', url);
       
       // Redirect to Stripe Checkout
-      window.location.href = url;
+      if (url) {
+        console.log('[PREMIUM] Redirecting to Stripe checkout...');
+        window.location.href = url;
+      } else {
+        console.error('[PREMIUM] No checkout URL received');
+        throw new Error('No checkout URL received');
+      }
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({
@@ -332,6 +344,7 @@ export default function PremiumPage() {
                   disabled={loading}
                   className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-white border-0 px-8"
                   onClick={handleSubscribe}
+                  data-testid="button-get-premium"
                 >
                   {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                   Get Premium Now
