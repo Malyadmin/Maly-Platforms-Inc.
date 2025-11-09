@@ -72,3 +72,57 @@ self.addEventListener('activate', (event) => {
   );
   return self.clients.claim();
 });
+
+// CRITICAL: Push event handler for iOS PWA notifications
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push received:', event);
+  
+  const data = event.data ? event.data.json() : {};
+  console.log('[Service Worker] Push data:', data);
+  
+  const title = data.title || 'Notification';
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
+    data: data.data || data,
+    tag: data.tag || 'maly-notification',
+    requireInteraction: false,
+  };
+  
+  // Add URL if present
+  if (data.url) {
+    options.data = { ...options.data, url: data.url };
+  }
+  
+  console.log('[Service Worker] Showing notification:', title, options);
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// CRITICAL: Handle notification click for iOS
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notification clicked:', event.notification);
+  
+  event.notification.close();
+  
+  const urlToOpen = event.notification.data?.url || '/inbox';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if there's already a window open
+        for (const client of clientList) {
+          if (client.url.includes(urlToOpen) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If no window is open, open a new one
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});

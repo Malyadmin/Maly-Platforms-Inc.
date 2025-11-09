@@ -84,9 +84,14 @@ export async function sendPushNotification(
           },
         };
 
+        // iOS requires TTL and urgency for APNs
         await webpush.sendNotification(
           pushSubscription,
-          JSON.stringify(payload)
+          JSON.stringify(payload),
+          {
+            TTL: 3600, // 1 hour
+            urgency: 'high',
+          }
         );
 
         console.log(`[PUSH] ✓ Push notification sent successfully to user ${userId}, subscription ${sub.id}`);

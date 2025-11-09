@@ -72,6 +72,17 @@ export default function NotificationPreferencesPage() {
       return false;
     }
 
+    // iOS requires subscription from standalone PWA, not Safari tab
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (!isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      toast({
+        title: "Install App First",
+        description: "On iOS, please add Maly to your home screen first, then enable notifications from the installed app.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     if (pushPermission === 'granted') {
       return true;
     }
@@ -108,26 +119,41 @@ export default function NotificationPreferencesPage() {
 
   const subscribeToPush = async () => {
     try {
+      console.log('[PUSH] Starting push subscription...');
       const registration = await navigator.serviceWorker.ready;
+      console.log('[PUSH] Service worker ready');
       
       // Get the VAPID public key from the server
       const vapidResponse = await fetch('/api/notifications/vapid-key');
       const { publicKey } = await vapidResponse.json();
+      console.log('[PUSH] Got VAPID key');
 
+      // Required for iOS: userVisibleOnly must be true
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicKey),
       });
 
+      console.log('[PUSH] Subscription created:', {
+        endpoint: subscription.endpoint.substring(0, 50) + '...',
+        isApple: subscription.endpoint.includes('apple.com')
+      });
+
       // Send subscription to server
-      await fetch('/api/notifications/subscribe', {
+      const response = await fetch('/api/notifications/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(subscription),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to save subscription to server');
+      }
+
+      console.log('[PUSH] Subscription saved to server');
     } catch (error) {
-      console.error('Error subscribing to push:', error);
+      console.error('[PUSH] Error subscribing to push:', error);
       throw error;
     }
   };
