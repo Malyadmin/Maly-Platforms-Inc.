@@ -554,7 +554,7 @@ export default function CreatorDashboardPage() {
                 ) : (
                   <>
                     {/* Pending/Completed Toggle */}
-                    <div className="flex gap-8 mb-6 mt-4 border-b border-gray-800">
+                    <div className="flex justify-between mb-6 mt-4 border-b border-gray-800">
                       <button
                         onClick={() => setRsvpSection('pending')}
                         className={`pb-3 transition-all ${
