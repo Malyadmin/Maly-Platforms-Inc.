@@ -33,7 +33,6 @@ import {
   XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { apiRequest } from '@/lib/queryClient';
 
 interface DashboardEvent {
   id: number;
@@ -165,10 +164,20 @@ export default function CreatorDashboardPage() {
   // Handle RSVP approval/rejection
   const handleRSVPMutation = useMutation({
     mutationFn: async ({ eventId, userId, action }: { eventId: number; userId: number; action: 'approved' | 'rejected' }) => {
-      return await apiRequest(`/api/events/${eventId}/applications/${userId}`, {
+      const response = await fetch(`/api/events/${eventId}/applications/${userId}`, {
         method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ status: action }),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update RSVP request');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/creator/dashboard'] });
