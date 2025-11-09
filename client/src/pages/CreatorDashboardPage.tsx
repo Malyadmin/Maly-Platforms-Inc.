@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 import { IOSEventCard } from '@/components/ui/ios-event-card';
+import { UserListModal } from '@/components/UserListModal';
 import { 
   Calendar, 
   Users, 
@@ -72,6 +73,17 @@ export default function CreatorDashboardPage() {
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [activeFilter, setActiveFilter] = useState<'events' | 'analytics' | 'sales' | 'rsvps'>('events');
+  const [userListModal, setUserListModal] = useState<{
+    isOpen: boolean;
+    eventId: number | null;
+    type: 'attending' | 'interested' | 'views';
+    count: number;
+  }>({
+    isOpen: false,
+    eventId: null,
+    type: 'attending',
+    count: 0,
+  });
 
   // Fetch dashboard data
   const { data, isLoading, error } = useQuery<{
@@ -140,29 +152,56 @@ export default function CreatorDashboardPage() {
       </div>
       
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <button
+          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          onClick={() => setUserListModal({
+            isOpen: true,
+            eventId: event.id,
+            type: 'views',
+            count: event.analytics?.totalViews || 0,
+          })}
+          data-testid={`views-button-${event.id}`}
+        >
           <div className="flex items-center gap-2 mb-1">
             <Eye className="h-4 w-4 text-blue-400" />
             <span className="text-xs text-gray-400">Views</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
-        </div>
+        </button>
         
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <button
+          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          onClick={() => setUserListModal({
+            isOpen: true,
+            eventId: event.id,
+            type: 'attending',
+            count: event.analytics?.attendingCount || 0,
+          })}
+          data-testid={`attending-button-${event.id}`}
+        >
           <div className="flex items-center gap-2 mb-1">
             <UserCheck className="h-4 w-4 text-green-400" />
             <span className="text-xs text-gray-400">Attending</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
-        </div>
+        </button>
         
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <button
+          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          onClick={() => setUserListModal({
+            isOpen: true,
+            eventId: event.id,
+            type: 'interested',
+            count: event.analytics?.interestedCount || 0,
+          })}
+          data-testid={`interested-button-${event.id}`}
+        >
           <div className="flex items-center gap-2 mb-1">
             <Users className="h-4 w-4 text-purple-400" />
             <span className="text-xs text-gray-400">Interested</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
-        </div>
+        </button>
       </div>
     </div>
   );
@@ -425,6 +464,17 @@ export default function CreatorDashboardPage() {
       </div>
 
       <BottomNav />
+
+      {/* User List Modal */}
+      {userListModal.eventId && (
+        <UserListModal
+          isOpen={userListModal.isOpen}
+          onClose={() => setUserListModal({ ...userListModal, isOpen: false })}
+          eventId={userListModal.eventId}
+          type={userListModal.type}
+          count={userListModal.count}
+        />
+      )}
     </div>
   );
 }

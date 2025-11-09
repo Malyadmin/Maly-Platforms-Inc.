@@ -1658,6 +1658,99 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // Get list of users who are attending an event
+  app.get('/api/events/:eventId/participants/attending', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      const { eventId } = req.params;
+      const eventIdNum = parseInt(eventId);
+
+      // Verify the event exists and user is the creator
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view participant lists' });
+      }
+
+      // Fetch attending participants with user details
+      const participants = await db.select({
+        userId: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        status: eventParticipants.status
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .where(
+        and(
+          eq(eventParticipants.eventId, eventIdNum),
+          or(
+            eq(eventParticipants.status, 'attending'),
+            eq(eventParticipants.status, 'approved')
+          )
+        )
+      );
+
+      return res.json({ participants });
+    } catch (error) {
+      console.error('Error fetching attending participants:', error);
+      res.status(500).json({ error: 'Failed to fetch attending participants' });
+    }
+  });
+
+  // Get list of users who are interested in an event
+  app.get('/api/events/:eventId/participants/interested', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      const { eventId } = req.params;
+      const eventIdNum = parseInt(eventId);
+
+      // Verify the event exists and user is the creator
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view participant lists' });
+      }
+
+      // Fetch interested participants with user details
+      const participants = await db.select({
+        userId: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        status: eventParticipants.status
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .where(
+        and(
+          eq(eventParticipants.eventId, eventIdNum),
+          eq(eventParticipants.status, 'interested')
+        )
+      );
+
+      return res.json({ participants });
+    } catch (error) {
+      console.error('Error fetching interested participants:', error);
+      res.status(500).json({ error: 'Failed to fetch interested participants' });
+    }
+  });
+
   // Get a specific event by ID
   app.get("/api/events/:id", async (req, res) => {
     try {
