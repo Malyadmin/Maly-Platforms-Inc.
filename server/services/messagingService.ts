@@ -14,6 +14,7 @@ import {
   NewConversationParticipant
 } from "../../db/schema";
 import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
+import { sendMessageNotification } from './pushNotificationService';
 
 // Extended conversation type that matches iOS Conversation model exactly
 interface ExtendedConversation {
@@ -619,6 +620,26 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
       profileImage: true
     }
   });
+
+  // Send push notifications to other conversation participants
+  try {
+    const participants = await db.query.conversationParticipants.findMany({
+      where: and(
+        eq(conversationParticipants.conversationId, conversationId),
+        ne(conversationParticipants.userId, senderId) // Exclude sender
+      )
+    });
+
+    const senderName = sender?.fullName || 'Someone';
+    const messagePreview = content.length > 50 ? content.substring(0, 50) + '...' : content;
+
+    for (const participant of participants) {
+      await sendMessageNotification(participant.userId, senderName, messagePreview);
+    }
+  } catch (error) {
+    console.error('Error sending push notifications for message:', error);
+    // Don't fail the message send if push notifications fail
+  }
 
   // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {

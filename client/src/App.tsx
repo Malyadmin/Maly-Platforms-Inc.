@@ -39,6 +39,7 @@ import SelectPeopleToInvitePage from "./pages/SelectPeopleToInvitePage";
 import AboutMalyPage from "./pages/AboutMalyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -127,6 +128,7 @@ function AppContent() {
             <Route path="/about" component={AboutMalyPage} />
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPolicyPage} />
+            <Route path="/notification-preferences" component={NotificationPreferencesPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -144,6 +146,7 @@ function AppContent() {
           <Route path="/about" component={AboutMalyPage} />
           <Route path="/terms" component={TermsPage} />
           <Route path="/privacy" component={PrivacyPolicyPage} />
+          <Route path="/notification-preferences" component={NotificationPreferencesPage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
