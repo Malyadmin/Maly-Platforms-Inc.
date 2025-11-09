@@ -453,46 +453,6 @@ export default function StripeConnectPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Deployment Information for Development */}
-          {window.location.hostname.includes('replit') && (
-            <Card className="mt-6 bg-blue-950 border-blue-800">
-              <CardHeader>
-                <CardTitle className="text-blue-100">Deployment Requirements</CardTitle>
-                <CardDescription className="text-blue-200">
-                  For production deployment with full Stripe Connect functionality
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-blue-200">
-                <div className="space-y-3 text-sm">
-                  <div className="space-y-2">
-                    <p className="font-medium">Required Stripe Configuration:</p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                      <li>Stripe Connect application with approved domain</li>
-                      <li>Webhook endpoint configured for payment events</li>
-                      <li>Return URLs set to your deployed domain</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <p className="font-medium">Environment Variables (Already Set):</p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                      <li>STRIPE_SECRET_KEY ✓</li>
-                      <li>STRIPE_PUBLISHABLE_KEY ✓</li>
-                      <li>STRIPE_WEBHOOK_SECRET ✓</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-3 bg-blue-900/50 rounded-lg mt-4">
-                    <p className="text-xs">
-                      The payment system is fully implemented and tested. Once deployed to a live domain 
-                      with proper Stripe Connect configuration, all payment flows will work seamlessly.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
