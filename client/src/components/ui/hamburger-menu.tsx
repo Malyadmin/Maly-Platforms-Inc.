@@ -81,23 +81,41 @@ export function HamburgerMenu() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       console.log('[HAMBURGER MENU] Logout button clicked');
-      const response = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      
+      // Don't close menu yet - keep it open while logging out
+      const response = await fetch('/api/logout', { 
+        method: 'POST', 
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
       console.log('[HAMBURGER MENU] Logout response:', response.status);
       
       if (response.ok) {
+        console.log('[HAMBURGER MENU] Logout successful, clearing data and redirecting');
         // Clear all local storage
         localStorage.clear();
         
-        // Redirect to auth page
+        // Clear session storage too
+        sessionStorage.clear();
+        
+        // Force redirect to auth page
         window.location.href = '/auth';
       } else {
         console.error('[HAMBURGER MENU] Logout failed with status:', response.status);
+        alert('Logout failed. Please try again.');
       }
     } catch (error) {
       console.error('[HAMBURGER MENU] Logout error:', error);
+      alert('Logout error. Please try again.');
     }
   };
 
@@ -156,9 +174,10 @@ export function HamburgerMenu() {
           {/* Logout section */}
           <div className="border-t border-gray-800">
             <button
-              onClick={handleLogout}
+              onClick={(e) => handleLogout(e)}
               className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-500/10 transition-colors text-red-400"
               data-testid="menu-logout"
+              type="button"
             >
               <LogOut className="h-4 w-4" />
               <span className="text-sm font-semibold tracking-wider">LOGOUT</span>
