@@ -634,7 +634,9 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
     const messagePreview = content.length > 50 ? content.substring(0, 50) + '...' : content;
 
     for (const participant of participants) {
-      await sendMessageNotification(participant.userId, senderName, messagePreview);
+      if (participant.userId) {
+        await sendMessageNotification(participant.userId, senderName, messagePreview);
+      }
     }
   } catch (error) {
     console.error('Error sending push notifications for message:', error);
