@@ -40,6 +40,7 @@ import AboutMalyPage from "./pages/AboutMalyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+import PaymentMethodsPage from "./pages/PaymentMethodsPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -86,8 +87,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, CreatorDashboardPage, and SignupFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator');
+  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, CreatorDashboardPage, PaymentMethodsPage, and SignupFlowPage from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && location !== '/payment-methods' && location !== '/notification-preferences';
 
   return (
     <>
@@ -129,6 +130,7 @@ function AppContent() {
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPolicyPage} />
             <Route path="/notification-preferences" component={NotificationPreferencesPage} />
+            <Route path="/payment-methods" component={PaymentMethodsPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -147,6 +149,7 @@ function AppContent() {
           <Route path="/terms" component={TermsPage} />
           <Route path="/privacy" component={PrivacyPolicyPage} />
           <Route path="/notification-preferences" component={NotificationPreferencesPage} />
+          <Route path="/payment-methods" component={PaymentMethodsPage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />

@@ -4755,6 +4755,41 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       return res.status(500).json({ error: 'Failed to get payment history' });
     }
   });
+
+  // Get user's ticket purchase history
+  app.get('/api/user/payment-history', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+      
+      // Fetch ticket payments with event details
+      const ticketPayments = await db
+        .select({
+          id: payments.id,
+          amount: payments.amount,
+          currency: payments.currency,
+          status: payments.status,
+          purchaseDate: payments.createdAt,
+          eventParticipantId: payments.eventParticipantId,
+          eventTitle: events.title,
+          eventDate: events.date,
+          ticketQuantity: eventParticipants.ticketQuantity,
+        })
+        .from(payments)
+        .leftJoin(eventParticipants, eq(payments.eventParticipantId, eventParticipants.id))
+        .leftJoin(events, eq(eventParticipants.eventId, events.id))
+        .where(eq(payments.userId, userId))
+        .orderBy(desc(payments.createdAt));
+      
+      return res.json(ticketPayments);
+    } catch (error) {
+      console.error('Error getting ticket payment history:', error);
+      return res.status(500).json({ error: 'Failed to get payment history' });
+    }
+  });
   
   // Get details for a specific subscription including payment history
   app.get('/api/me/subscriptions/:id', requireAuth, async (req, res) => {
