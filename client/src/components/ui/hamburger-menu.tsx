@@ -61,6 +61,7 @@ export function HamburgerMenu() {
     const routeMap: Record<string, string> = {
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
+      "Manage Subscriptions": "/premium",
       "Notification Preferences": "/notification-preferences",
       "Stripe Connect": "/stripe/connect",
       "About Maly": "/about",
