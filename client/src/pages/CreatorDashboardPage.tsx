@@ -554,13 +554,13 @@ export default function CreatorDashboardPage() {
                 ) : (
                   <>
                     {/* Pending/Completed Toggle */}
-                    <div className="flex gap-2 mb-4 mt-4">
+                    <div className="flex gap-8 mb-6 mt-4 border-b border-gray-800">
                       <button
                         onClick={() => setRsvpSection('pending')}
-                        className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                        className={`pb-3 transition-all ${
                           rsvpSection === 'pending'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            ? 'gradient-text border-b-2 border-purple-500'
+                            : 'text-gray-400 hover:text-gray-300'
                         }`}
                         data-testid="tab-pending-rsvps"
                       >
@@ -568,10 +568,10 @@ export default function CreatorDashboardPage() {
                       </button>
                       <button
                         onClick={() => setRsvpSection('completed')}
-                        className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                        className={`pb-3 transition-all ${
                           rsvpSection === 'completed'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            ? 'gradient-text border-b-2 border-purple-500'
+                            : 'text-gray-400 hover:text-gray-300'
                         }`}
                         data-testid="tab-completed-rsvps"
                       >
