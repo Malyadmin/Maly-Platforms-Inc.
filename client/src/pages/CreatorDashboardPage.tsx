@@ -137,7 +137,7 @@ export default function CreatorDashboardPage() {
   });
 
   // Fetch RSVP applications (pending and completed)
-  const { data: applicationsData, isLoading: applicationsLoading } = useQuery<{
+  const { data: applicationsData, isLoading: applicationsLoading, error: applicationsError } = useQuery<{
     pending: PendingRSVP[];
     completed: PendingRSVP[];
     totalPending: number;
@@ -544,68 +544,79 @@ export default function CreatorDashboardPage() {
             {/* RSVPs Filter */}
             {activeFilter === 'rsvps' && (
               <div>
-                {/* Pending/Completed Toggle */}
-                <div className="flex gap-2 mb-4 mt-4">
-                  <button
-                    onClick={() => setRsvpSection('pending')}
-                    className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                      rsvpSection === 'pending'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                    }`}
-                    data-testid="tab-pending-rsvps"
-                  >
-                    Pending ({applicationsData?.totalPending || 0})
-                  </button>
-                  <button
-                    onClick={() => setRsvpSection('completed')}
-                    className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                      rsvpSection === 'completed'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                    }`}
-                    data-testid="tab-completed-rsvps"
-                  >
-                    Completed ({applicationsData?.totalCompleted || 0})
-                  </button>
-                </div>
-
-                {applicationsLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-24 w-full bg-gray-700 rounded-lg" />
-                    ))}
+                {applicationsError ? (
+                  <div className="p-4">
+                    <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
+                      <p className="text-red-400 font-medium">Failed to load RSVP applications</p>
+                      <p className="text-red-300 text-sm mt-2">{applicationsError instanceof Error ? applicationsError.message : 'Unknown error'}</p>
+                    </div>
                   </div>
                 ) : (
                   <>
-                    {/* Pending Section */}
-                    {rsvpSection === 'pending' && (
-                      <div>
-                        {!applicationsData?.pending || applicationsData.pending.length === 0 ? (
-                          <div className="py-8 text-center">
-                            <p className="text-gray-400 text-sm">No pending RSVP requests</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            {applicationsData.pending.map(renderPendingRSVP)}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {/* Pending/Completed Toggle */}
+                    <div className="flex gap-2 mb-4 mt-4">
+                      <button
+                        onClick={() => setRsvpSection('pending')}
+                        className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                          rsvpSection === 'pending'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        }`}
+                        data-testid="tab-pending-rsvps"
+                      >
+                        Pending ({applicationsData?.totalPending || 0})
+                      </button>
+                      <button
+                        onClick={() => setRsvpSection('completed')}
+                        className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                          rsvpSection === 'completed'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        }`}
+                        data-testid="tab-completed-rsvps"
+                      >
+                        Completed ({applicationsData?.totalCompleted || 0})
+                      </button>
+                    </div>
 
-                    {/* Completed Section */}
-                    {rsvpSection === 'completed' && (
-                      <div>
-                        {!applicationsData?.completed || applicationsData.completed.length === 0 ? (
-                          <div className="py-8 text-center">
-                            <p className="text-gray-400 text-sm">No completed RSVP requests (last 30 days)</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            {applicationsData.completed.map(renderCompletedRSVP)}
+                    {applicationsLoading ? (
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                          <Skeleton key={i} className="h-24 w-full bg-gray-700 rounded-lg" />
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        {/* Pending Section */}
+                        {rsvpSection === 'pending' && (
+                          <div>
+                            {!applicationsData?.pending || applicationsData.pending.length === 0 ? (
+                              <div className="py-8 text-center">
+                                <p className="text-gray-400 text-sm">No pending RSVP requests</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {applicationsData.pending.map(renderPendingRSVP)}
+                              </div>
+                            )}
                           </div>
                         )}
-                      </div>
+
+                        {/* Completed Section */}
+                        {rsvpSection === 'completed' && (
+                          <div>
+                            {!applicationsData?.completed || applicationsData.completed.length === 0 ? (
+                              <div className="py-8 text-center">
+                                <p className="text-gray-400 text-sm">No completed RSVP requests (last 30 days)</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {applicationsData.completed.map(renderCompletedRSVP)}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}
