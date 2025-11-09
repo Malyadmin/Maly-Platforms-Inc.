@@ -1589,27 +1589,33 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const user = userResult[0];
         const event = eventResult[0];
         
-        pendingWithDetails.push({
-          id: app.id,
-          eventId: app.eventId,
-          userId: app.userId,
-          status: app.status,
-          ticketQuantity: app.ticketQuantity,
-          purchaseDate: app.purchaseDate,
-          createdAt: app.createdAt,
-          updatedAt: app.updatedAt,
-          username: user?.username,
-          fullName: user?.fullName,
-          profileImage: user?.profileImage,
-          email: user?.email,
-          bio: user?.bio,
-          location: user?.location,
-          eventTitle: event?.title,
-          eventImage: event?.image
-        });
+        // Only include if event requires RSVP approval
+        if (event && (event.isRsvp || event.requireApproval)) {
+          pendingWithDetails.push({
+            id: app.id,
+            eventId: app.eventId,
+            userId: app.userId,
+            status: app.status,
+            ticketQuantity: app.ticketQuantity,
+            purchaseDate: app.purchaseDate,
+            createdAt: app.createdAt,
+            updatedAt: app.updatedAt,
+            username: user?.username,
+            fullName: user?.fullName,
+            userName: user?.fullName || user?.username || 'Unknown User',
+            userImage: user?.profileImage,
+            userEmail: user?.email,
+            profileImage: user?.profileImage,
+            email: user?.email,
+            bio: user?.bio,
+            location: user?.location,
+            eventTitle: event?.title,
+            eventImage: event?.image
+          });
+        }
       }
 
-      // Get details for completed applications
+      // Get details for completed applications (only show rejected or recently updated RSVP events)
       const completedWithDetails = [];
       for (const app of completedApplications) {
         const userResult = await db.select().from(users).where(eq(users.id, app.userId));
@@ -1617,24 +1623,37 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const user = userResult[0];
         const event = eventResult[0];
         
-        completedWithDetails.push({
-          id: app.id,
-          eventId: app.eventId,
-          userId: app.userId,
-          status: app.status,
-          ticketQuantity: app.ticketQuantity,
-          purchaseDate: app.purchaseDate,
-          createdAt: app.createdAt,
-          updatedAt: app.updatedAt,
-          username: user?.username,
-          fullName: user?.fullName,
-          profileImage: user?.profileImage,
-          email: user?.email,
-          bio: user?.bio,
-          location: user?.location,
-          eventTitle: event?.title,
-          eventImage: event?.image
-        });
+        // Only include if:
+        // 1. Event requires RSVP approval AND
+        // 2. Status is 'rejected' OR the record was updated (meaning it was approved from pending)
+        if (event && (event.isRsvp || event.requireApproval)) {
+          const wasApproved = app.updatedAt && app.createdAt && 
+            new Date(app.updatedAt).getTime() > new Date(app.createdAt).getTime();
+          
+          if (app.status === 'rejected' || wasApproved) {
+            completedWithDetails.push({
+              id: app.id,
+              eventId: app.eventId,
+              userId: app.userId,
+              status: app.status,
+              ticketQuantity: app.ticketQuantity,
+              purchaseDate: app.purchaseDate,
+              createdAt: app.createdAt,
+              updatedAt: app.updatedAt,
+              username: user?.username,
+              fullName: user?.fullName,
+              userName: user?.fullName || user?.username || 'Unknown User',
+              userImage: user?.profileImage,
+              userEmail: user?.email,
+              profileImage: user?.profileImage,
+              email: user?.email,
+              bio: user?.bio,
+              location: user?.location,
+              eventTitle: event?.title,
+              eventImage: event?.image
+            });
+          }
+        }
       }
 
       return res.json({
