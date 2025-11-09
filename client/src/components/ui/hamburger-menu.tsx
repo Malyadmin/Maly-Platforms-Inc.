@@ -108,10 +108,10 @@ export function HamburgerMenu() {
             <div key={section.title} className={idx > 0 ? "border-t border-gray-800" : ""}>
               <button
                 onClick={() => toggleSection(section.title)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors"
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors group"
                 data-testid={`menu-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                <span className="gradient-text text-xs font-semibold tracking-wider">
+                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.title) ? 'gradient-text' : 'text-gray-300 group-hover:gradient-text'}`}>
                   {section.title}
                 </span>
                 {expandedSections.includes(section.title) ? (

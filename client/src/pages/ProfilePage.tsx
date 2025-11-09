@@ -521,44 +521,6 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
-        
-        {/* Edit Profile buttons for own profile */}
-        {currentUser && profileData.id === currentUser.id && (
-          <div className="space-y-3 pt-6">
-            <Button 
-              className="w-full bg-white/20 hover:bg-white/30 text-white rounded-full border-0"
-              onClick={() => setLocation('/profile-edit')}
-            >
-              <Edit3 className="h-4 w-4 mr-2" />
-              {t('editProfile')}
-            </Button>
-            <Button 
-              className="w-full bg-white/20 hover:bg-white/30 text-white rounded-full border-0"
-              onClick={() => setLocation('/stripe/connect')}
-            >
-              <Briefcase className="h-4 w-4 mr-2" />
-              Payment Settings
-            </Button>
-            <Button 
-              className="w-full bg-transparent hover:bg-white/10 text-white/60 hover:text-white rounded-full border-0 text-sm py-2"
-              onClick={async () => {
-                try {
-                  await logout();
-                } catch (error) {
-                  console.error('Logout error:', error);
-                  toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to sign out. Please try again."
-                  });
-                }
-              }}
-              data-testid="button-sign-out"
-            >
-              Sign Out
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   </div>
