@@ -36,21 +36,26 @@ export async function sendPushNotification(
   notificationType: 'messages' | 'events' | 'rsvp' | 'tickets'
 ): Promise<void> {
   try {
+    console.log(`[PUSH] Attempting to send ${notificationType} notification to user ${userId}`);
+    console.log(`[PUSH] Payload:`, JSON.stringify(payload));
+    
     // Check if user has push notifications enabled for this type
     const prefs = await db.query.notificationPreferences.findFirst({
       where: eq(notificationPreferences.userId, userId),
     });
 
     if (!prefs) {
-      console.log(`No notification preferences found for user ${userId}`);
+      console.log(`[PUSH] No notification preferences found for user ${userId}`);
       return;
     }
+
+    console.log(`[PUSH] User ${userId} notification preferences:`, prefs);
 
     // Map notification type to preference field
     const prefKey = `push${notificationType.charAt(0).toUpperCase() + notificationType.slice(1)}` as keyof typeof prefs;
     
     if (!prefs[prefKey]) {
-      console.log(`User ${userId} has disabled push notifications for ${notificationType}`);
+      console.log(`[PUSH] User ${userId} has disabled push notifications for ${notificationType}`);
       return;
     }
 
@@ -59,14 +64,18 @@ export async function sendPushNotification(
       where: eq(pushSubscriptions.userId, userId),
     });
 
+    console.log(`[PUSH] Found ${subscriptions.length} subscriptions for user ${userId}`);
+
     if (subscriptions.length === 0) {
-      console.log(`No push subscriptions found for user ${userId}`);
+      console.log(`[PUSH] No push subscriptions found for user ${userId}`);
       return;
     }
 
     // Send notification to all devices
     const promises = subscriptions.map(async (sub) => {
       try {
+        console.log(`[PUSH] Sending to subscription ${sub.id}, endpoint: ${sub.endpoint.substring(0, 50)}...`);
+        
         const pushSubscription = {
           endpoint: sub.endpoint,
           keys: {
@@ -80,13 +89,18 @@ export async function sendPushNotification(
           JSON.stringify(payload)
         );
 
-        console.log(`✓ Push notification sent to user ${userId}`);
+        console.log(`[PUSH] ✓ Push notification sent successfully to user ${userId}, subscription ${sub.id}`);
       } catch (error: any) {
-        console.error(`Error sending push notification to subscription ${sub.id}:`, error);
+        console.error(`[PUSH] ✗ Error sending push notification to subscription ${sub.id}:`, error);
+        console.error(`[PUSH] Error details:`, {
+          statusCode: error.statusCode,
+          message: error.message,
+          body: error.body
+        });
         
         // If subscription is invalid, remove it
         if (error.statusCode === 410) {
-          console.log(`Removing invalid subscription ${sub.id}`);
+          console.log(`[PUSH] Removing invalid subscription ${sub.id}`);
           await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, sub.id));
         }
       }
@@ -94,7 +108,7 @@ export async function sendPushNotification(
 
     await Promise.all(promises);
   } catch (error) {
-    console.error(`Error in sendPushNotification for user ${userId}:`, error);
+    console.error(`[PUSH] Error in sendPushNotification for user ${userId}:`, error);
   }
 }
 
