@@ -1576,7 +1576,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           and(
             inArray(eventParticipants.eventId, eventIds),
             inArray(eventParticipants.status, ['attending', 'interested', 'rejected']),
-            sql`${eventParticipants.updatedAt} >= ${thirtyDaysAgo}`
+            gte(eventParticipants.updatedAt, thirtyDaysAgo)
           )
         )
         .orderBy(desc(eventParticipants.updatedAt));

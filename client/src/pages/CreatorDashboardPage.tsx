@@ -9,6 +9,16 @@ import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 import { IOSEventCard } from '@/components/ui/ios-event-card';
 import { UserListModal } from '@/components/UserListModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Calendar, 
   Users, 
@@ -18,9 +28,12 @@ import {
   Eye, 
   ChevronRight,
   Check,
-  X
+  X,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { apiRequest } from '@/lib/queryClient';
 
 interface DashboardEvent {
   id: number;
@@ -61,6 +74,7 @@ interface PendingRSVP {
   userId: number;
   status: string;
   createdAt: string;
+  updatedAt?: string;
   userName: string;
   userImage: string | null;
   userEmail: string;
@@ -68,11 +82,27 @@ interface PendingRSVP {
   eventImage: string | null;
 }
 
+interface RSVPConfirmation {
+  isOpen: boolean;
+  type: 'accept' | 'decline' | null;
+  userName: string;
+  eventId: number;
+  userId: number;
+}
+
 export default function CreatorDashboardPage() {
   const [, setLocation] = useLocation();
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [activeFilter, setActiveFilter] = useState<'events' | 'analytics' | 'sales' | 'rsvps'>('events');
+  const [rsvpSection, setRsvpSection] = useState<'pending' | 'completed'>('pending');
+  const [confirmDialog, setConfirmDialog] = useState<RSVPConfirmation>({
+    isOpen: false,
+    type: null,
+    userName: '',
+    eventId: 0,
+    userId: 0,
+  });
   const [userListModal, setUserListModal] = useState<{
     isOpen: boolean;
     eventId: number | null;
@@ -107,28 +137,43 @@ export default function CreatorDashboardPage() {
     enabled: !!user?.id,
   });
 
+  // Fetch RSVP applications (pending and completed)
+  const { data: applicationsData, isLoading: applicationsLoading } = useQuery<{
+    pending: PendingRSVP[];
+    completed: PendingRSVP[];
+    totalPending: number;
+    totalCompleted: number;
+  }>({
+    queryKey: ['/api/events/applications'],
+    queryFn: async () => {
+      const response = await fetch('/api/events/applications', {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
+      }
+      
+      return response.json();
+    },
+    enabled: !!user?.id,
+  });
+
   console.log('[CREATOR_DASHBOARD] User state:', { user, userId: user?.id, isEnabled: !!user?.id });
   console.log('[CREATOR_DASHBOARD] Query state:', { isLoading, error: error?.toString(), hasData: !!data, errorMessage: error instanceof Error ? error.message : null });
 
   // Handle RSVP approval/rejection
   const handleRSVPMutation = useMutation({
     mutationFn: async ({ eventId, userId, action }: { eventId: number; userId: number; action: 'approved' | 'rejected' }) => {
-      const response = await fetch(`/api/events/${eventId}/applications/${userId}`, {
+      return await apiRequest(`/api/events/${eventId}/applications/${userId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ status: action }),
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update RSVP request');
-      }
-      
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/creator/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events/applications'] });
+      setConfirmDialog({ isOpen: false, type: null, userName: '', eventId: 0, userId: 0 });
     },
   });
 
@@ -225,37 +270,49 @@ export default function CreatorDashboardPage() {
     </div>
   );
 
-  const renderRSVPRequest = (rsvp: PendingRSVP) => (
-    <div key={rsvp.id} className="bg-gray-900/50 rounded-lg p-4">
+  const renderPendingRSVP = (rsvp: PendingRSVP) => (
+    <div key={rsvp.id} className="bg-gray-900/50 rounded-lg p-4" data-testid={`pending-rsvp-${rsvp.id}`}>
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={rsvp.userImage || undefined} />
           <AvatarFallback>{rsvp.userName.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <p className="text-white font-medium text-sm">{rsvp.userName}</p>
+          <p className="text-white font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName}</p>
           <p className="text-gray-400 text-xs">{rsvp.userEmail}</p>
-          <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle}</p>
+          <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle}</p>
         </div>
       </div>
       
       <div className="flex gap-2">
         <Button
-          onClick={() => handleRSVPMutation.mutate({ eventId: rsvp.eventId, userId: rsvp.userId, action: 'approved' })}
+          onClick={() => setConfirmDialog({
+            isOpen: true,
+            type: 'accept',
+            userName: rsvp.userName,
+            eventId: rsvp.eventId,
+            userId: rsvp.userId,
+          })}
           disabled={handleRSVPMutation.isPending}
           className="flex-1 bg-green-600 hover:bg-green-700 text-white"
           size="sm"
           data-testid={`approve-rsvp-${rsvp.id}`}
         >
           <Check className="h-4 w-4 mr-1" />
-          Approve
+          Accept
         </Button>
         <Button
-          onClick={() => handleRSVPMutation.mutate({ eventId: rsvp.eventId, userId: rsvp.userId, action: 'rejected' })}
+          onClick={() => setConfirmDialog({
+            isOpen: true,
+            type: 'decline',
+            userName: rsvp.userName,
+            eventId: rsvp.eventId,
+            userId: rsvp.userId,
+          })}
           disabled={handleRSVPMutation.isPending}
           className="flex-1 bg-red-600 hover:bg-red-700 text-white"
           size="sm"
-          data-testid={`reject-rsvp-${rsvp.id}`}
+          data-testid={`decline-rsvp-${rsvp.id}`}
         >
           <X className="h-4 w-4 mr-1" />
           Decline
@@ -263,6 +320,36 @@ export default function CreatorDashboardPage() {
       </div>
     </div>
   );
+
+  const renderCompletedRSVP = (rsvp: PendingRSVP) => {
+    const isApproved = rsvp.status === 'attending' || rsvp.status === 'interested';
+    const statusText = isApproved ? 'Accepted' : 'Declined';
+    const statusColor = isApproved ? 'text-green-400' : 'text-red-400';
+    const StatusIcon = isApproved ? CheckCircle2 : XCircle;
+
+    return (
+      <div key={rsvp.id} className="bg-gray-900/50 rounded-lg p-4" data-testid={`completed-rsvp-${rsvp.id}`}>
+        <div className="flex items-center gap-3">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={rsvp.userImage || undefined} />
+            <AvatarFallback>{rsvp.userName.charAt(0).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <p className="text-white font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName}</p>
+            <p className="text-gray-400 text-xs">{rsvp.userEmail}</p>
+            <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle}</p>
+            <p className="text-gray-500 text-xs mt-1">
+              {rsvp.updatedAt ? format(new Date(rsvp.updatedAt), 'MMM d, yyyy') : ''}
+            </p>
+          </div>
+          <div className={`flex items-center gap-1 ${statusColor}`}>
+            <StatusIcon className="h-5 w-5" />
+            <span className="text-sm font-medium" data-testid={`completed-rsvp-status-${rsvp.id}`}>{statusText}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (!user) {
     return (
@@ -448,14 +535,70 @@ export default function CreatorDashboardPage() {
             {/* RSVPs Filter */}
             {activeFilter === 'rsvps' && (
               <div>
-                {!data?.pendingRSVPs || data.pendingRSVPs.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-400 text-sm">No pending RSVP requests</p>
+                {/* Pending/Completed Toggle */}
+                <div className="flex gap-2 mb-4 mt-4">
+                  <button
+                    onClick={() => setRsvpSection('pending')}
+                    className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                      rsvpSection === 'pending'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    }`}
+                    data-testid="tab-pending-rsvps"
+                  >
+                    Pending ({applicationsData?.totalPending || 0})
+                  </button>
+                  <button
+                    onClick={() => setRsvpSection('completed')}
+                    className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                      rsvpSection === 'completed'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    }`}
+                    data-testid="tab-completed-rsvps"
+                  >
+                    Completed ({applicationsData?.totalCompleted || 0})
+                  </button>
+                </div>
+
+                {applicationsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-24 w-full bg-gray-700 rounded-lg" />
+                    ))}
                   </div>
                 ) : (
-                  <div className="space-y-3 mt-4">
-                    {data.pendingRSVPs.map(renderRSVPRequest)}
-                  </div>
+                  <>
+                    {/* Pending Section */}
+                    {rsvpSection === 'pending' && (
+                      <div>
+                        {!applicationsData?.pending || applicationsData.pending.length === 0 ? (
+                          <div className="py-8 text-center">
+                            <p className="text-gray-400 text-sm">No pending RSVP requests</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {applicationsData.pending.map(renderPendingRSVP)}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Completed Section */}
+                    {rsvpSection === 'completed' && (
+                      <div>
+                        {!applicationsData?.completed || applicationsData.completed.length === 0 ? (
+                          <div className="py-8 text-center">
+                            <p className="text-gray-400 text-sm">No completed RSVP requests (last 30 days)</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {applicationsData.completed.map(renderCompletedRSVP)}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -475,6 +618,53 @@ export default function CreatorDashboardPage() {
           count={userListModal.count}
         />
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.isOpen} onOpenChange={(open) => {
+        if (!open) {
+          setConfirmDialog({ isOpen: false, type: null, userName: '', eventId: 0, userId: 0 });
+        }
+      }}>
+        <AlertDialogContent className="bg-gray-900 border-gray-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              {confirmDialog.type === 'accept' ? 'Accept RSVP Request?' : 'Decline RSVP Request?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {confirmDialog.type === 'accept' 
+                ? `Are you sure you want to accept ${confirmDialog.userName}'s RSVP request? They will be added to the event group chat and receive a notification.`
+                : `Are you sure you want to decline ${confirmDialog.userName}'s RSVP request? They will receive a notification.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className="bg-gray-800 text-white hover:bg-gray-700"
+              data-testid="confirm-dialog-cancel"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmDialog.type) {
+                  handleRSVPMutation.mutate({
+                    eventId: confirmDialog.eventId,
+                    userId: confirmDialog.userId,
+                    action: confirmDialog.type === 'accept' ? 'approved' : 'rejected',
+                  });
+                }
+              }}
+              className={confirmDialog.type === 'accept' 
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-red-600 hover:bg-red-700 text-white'
+              }
+              data-testid="confirm-dialog-confirm"
+            >
+              {confirmDialog.type === 'accept' ? 'Yes, Accept' : 'Yes, Decline'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
