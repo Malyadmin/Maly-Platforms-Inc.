@@ -3455,6 +3455,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         createdAt: new Date()
       }).returning();
 
+      // Send push notification to event host
+      try {
+        await sendRSVPNotification(event.creatorId, event.title, 'sent');
+      } catch (error) {
+        console.warn('Error sending RSVP notification to host:', error);
+        // Don't fail the request if notification fails
+      }
+
       res.status(201).json({
         message: 'Access request sent successfully',
         request: newRequest[0]

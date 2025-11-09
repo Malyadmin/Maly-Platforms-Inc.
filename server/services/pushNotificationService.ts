@@ -153,13 +153,13 @@ export async function sendRSVPNotification(
   status: 'sent' | 'approved' | 'declined'
 ): Promise<void> {
   const titles = {
-    sent: 'RSVP Sent',
+    sent: 'New RSVP Request',
     approved: 'RSVP Approved!',
     declined: 'RSVP Declined',
   };
 
   const bodies = {
-    sent: `Your RSVP for ${eventTitle} has been sent`,
+    sent: `Someone requested to join ${eventTitle}`,
     approved: `You're approved for ${eventTitle}!`,
     declined: `Your RSVP for ${eventTitle} was declined`,
   };
@@ -169,8 +169,8 @@ export async function sendRSVPNotification(
     body: bodies[status],
     icon: '/icon-192.png',
     badge: '/badge-72.png',
-    data: { type: 'rsvp', url: '/inbox' },
-    url: '/inbox',
+    data: { type: 'rsvp', url: status === 'sent' ? '/creator/dashboard' : '/inbox' },
+    url: status === 'sent' ? '/creator/dashboard' : '/inbox',
   }, 'rsvp');
 }
 
