@@ -398,7 +398,7 @@ export default function ProfilePage() {
 
   {/* Scrollable Content Section */}
   <div className="bg-black">
-    <div className="container mx-auto px-6 py-6">
+    <div className="container mx-auto px-6 py-6 pb-24">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* User Info - Labeled Fields */}
         <div className="space-y-4">
