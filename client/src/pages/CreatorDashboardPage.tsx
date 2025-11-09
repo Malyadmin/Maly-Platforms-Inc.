@@ -284,12 +284,12 @@ export default function CreatorDashboardPage() {
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={rsvp.userImage || undefined} />
-          <AvatarFallback>{rsvp.userName.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{(rsvp.userName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <p className="text-white font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName}</p>
-          <p className="text-gray-400 text-xs">{rsvp.userEmail}</p>
-          <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle}</p>
+          <p className="text-white font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
+          <p className="text-gray-400 text-xs">{rsvp.userEmail || 'No email'}</p>
+          <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle || 'Unknown Event'}</p>
         </div>
       </div>
       
@@ -341,12 +341,12 @@ export default function CreatorDashboardPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12">
             <AvatarImage src={rsvp.userImage || undefined} />
-            <AvatarFallback>{rsvp.userName.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{(rsvp.userName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <p className="text-white font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName}</p>
-            <p className="text-gray-400 text-xs">{rsvp.userEmail}</p>
-            <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle}</p>
+            <p className="text-white font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
+            <p className="text-gray-400 text-xs">{rsvp.userEmail || 'No email'}</p>
+            <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle || 'Unknown Event'}</p>
             <p className="text-gray-500 text-xs mt-1">
               {rsvp.updatedAt ? format(new Date(rsvp.updatedAt), 'MMM d, yyyy') : ''}
             </p>
