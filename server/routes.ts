@@ -5149,13 +5149,17 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         });
       }
 
-      // Update the application status based on original request type
+      // Update the application status based on original request type and event settings
       let finalStatus = 'rejected';
       if (status === 'approved') {
-        if (application.status === 'pending_approval') {
+        // For RSVP events, all approvals should be "attending"
+        // For private (non-RSVP) events, approvals can be "interested"
+        if (existingEvent.isRsvp || existingEvent.requireApproval) {
           finalStatus = 'attending'; // RSVP approval → attending
         } else if (application.status === 'pending_access') {
-          finalStatus = 'interested'; // Access approval → interested (can upgrade to attending later)
+          finalStatus = 'interested'; // Access approval for non-RSVP private events → interested
+        } else {
+          finalStatus = 'attending'; // Default to attending
         }
       }
       
