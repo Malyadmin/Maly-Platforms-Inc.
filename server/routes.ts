@@ -10,7 +10,7 @@ import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, userContacts, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
+import { userCities, users, events, userContacts, eventParticipants, payments, subscriptions, ticketTiers, notificationPreferences, pushSubscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe';
 import Stripe from 'stripe';
@@ -850,6 +850,135 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   app.get('/api/stripe/connect/account-status', checkAuthentication, getAccountStatus);
   app.post('/api/stripe/connect/verify-account', checkAuthentication, verifyAccount);
   app.post('/api/webhooks/stripe/connect', express.raw({ type: 'application/json' }), handleConnectWebhook);
+
+  // Notification preferences routes
+  app.get('/api/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      
+      let prefs = await db.query.notificationPreferences.findFirst({
+        where: eq(notificationPreferences.userId, userId),
+      });
+
+      // Create default preferences if they don't exist
+      if (!prefs) {
+        const [newPrefs] = await db.insert(notificationPreferences)
+          .values({
+            userId,
+            inAppMessages: true,
+            inAppEvents: true,
+            inAppRsvp: true,
+            inAppTickets: true,
+            pushMessages: false,
+            pushEvents: false,
+            pushRsvp: false,
+            pushTickets: false,
+          })
+          .returning();
+        prefs = newPrefs;
+      }
+
+      res.json(prefs);
+    } catch (error) {
+      console.error('Error getting notification preferences:', error);
+      res.status(500).json({ error: 'Failed to get notification preferences' });
+    }
+  });
+
+  app.put('/api/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      const {
+        inAppMessages,
+        inAppEvents,
+        inAppRsvp,
+        inAppTickets,
+        pushMessages,
+        pushEvents,
+        pushRsvp,
+        pushTickets,
+      } = req.body;
+
+      // Check if preferences exist
+      const existing = await db.query.notificationPreferences.findFirst({
+        where: eq(notificationPreferences.userId, userId),
+      });
+
+      let updated;
+      if (existing) {
+        [updated] = await db.update(notificationPreferences)
+          .set({
+            inAppMessages,
+            inAppEvents,
+            inAppRsvp,
+            inAppTickets,
+            pushMessages,
+            pushEvents,
+            pushRsvp,
+            pushTickets,
+            updatedAt: new Date(),
+          })
+          .where(eq(notificationPreferences.userId, userId))
+          .returning();
+      } else {
+        [updated] = await db.insert(notificationPreferences)
+          .values({
+            userId,
+            inAppMessages,
+            inAppEvents,
+            inAppRsvp,
+            inAppTickets,
+            pushMessages,
+            pushEvents,
+            pushRsvp,
+            pushTickets,
+          })
+          .returning();
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+      res.status(500).json({ error: 'Failed to update notification preferences' });
+    }
+  });
+
+  app.get('/api/notifications/vapid-key', (req, res) => {
+    const { getVapidPublicKey } = require('./services/pushNotificationService');
+    res.json({ publicKey: getVapidPublicKey() });
+  });
+
+  app.post('/api/notifications/subscribe', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      const { endpoint, keys } = req.body;
+
+      // Check if subscription already exists
+      const existing = await db.query.pushSubscriptions.findFirst({
+        where: and(
+          eq(pushSubscriptions.userId, userId),
+          eq(pushSubscriptions.endpoint, endpoint)
+        ),
+      });
+
+      if (existing) {
+        return res.json({ message: 'Already subscribed' });
+      }
+
+      // Save subscription
+      await db.insert(pushSubscriptions).values({
+        userId,
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      });
+
+      res.json({ message: 'Subscribed successfully' });
+    } catch (error) {
+      console.error('Error saving push subscription:', error);
+      res.status(500).json({ error: 'Failed to subscribe' });
+    }
+  });
 
   // Referral endpoints
   // Get user's referral code
