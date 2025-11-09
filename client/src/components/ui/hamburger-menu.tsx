@@ -21,7 +21,7 @@ const menuSections: MenuSection[] = [
       "Payment Methods",
       "Manage Subscriptions",
       "Notification Preferences",
-      "Privacy & Visibility"
+      "Stripe Connect"
     ]
   },
   {
@@ -61,6 +61,7 @@ export function HamburgerMenu() {
     const routeMap: Record<string, string> = {
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
+      "Stripe Connect": "/stripe/connect",
       "About Maly": "/about",
       "Terms & Conditions": "/terms",
       "Privacy Policy": "/privacy",
