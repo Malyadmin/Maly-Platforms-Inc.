@@ -1525,7 +1525,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // RSVP Management Endpoints - Must come before parameterized routes
-  // GET /api/events/applications - Fetch all pending applications across all events for current user
+  // GET /api/events/applications - Fetch all applications (pending and completed) across all events for current user
   app.get('/api/events/applications', requireAuth, async (req, res) => {
     try {
       const currentUser = req.user as any;
@@ -1539,7 +1539,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         return res.status(401).json({ error: "Invalid user ID" });
       }
 
-      // Fetch all pending applications for events created by the current user
+      // Fetch all events created by the current user
       const userEvents = await db.select({ id: events.id })
         .from(events)
         .where(eq(events.creatorId, userId));
@@ -1548,12 +1548,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       if (eventIds.length === 0) {
         return res.json({
-          applications: [],
-          totalPending: 0
+          pending: [],
+          completed: [],
+          totalPending: 0,
+          totalCompleted: 0
         });
       }
 
-      // Get pending applications for these events
+      // Get pending applications
       const pendingApplications = await db.select()
         .from(eventParticipants)
         .where(
@@ -1564,15 +1566,30 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         )
         .orderBy(desc(eventParticipants.createdAt));
 
-      // Get additional details for each application
-      const applications = [];
+      // Get completed applications (recently approved/rejected in last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const completedApplications = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            inArray(eventParticipants.eventId, eventIds),
+            inArray(eventParticipants.status, ['attending', 'interested', 'rejected']),
+            sql`${eventParticipants.updatedAt} >= ${thirtyDaysAgo}`
+          )
+        )
+        .orderBy(desc(eventParticipants.updatedAt));
+
+      // Get details for pending applications
+      const pendingWithDetails = [];
       for (const app of pendingApplications) {
         const userResult = await db.select().from(users).where(eq(users.id, app.userId));
         const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
         const user = userResult[0];
         const event = eventResult[0];
         
-        applications.push({
+        pendingWithDetails.push({
           id: app.id,
           eventId: app.eventId,
           userId: app.userId,
@@ -1580,6 +1597,35 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           ticketQuantity: app.ticketQuantity,
           purchaseDate: app.purchaseDate,
           createdAt: app.createdAt,
+          updatedAt: app.updatedAt,
+          username: user?.username,
+          fullName: user?.fullName,
+          profileImage: user?.profileImage,
+          email: user?.email,
+          bio: user?.bio,
+          location: user?.location,
+          eventTitle: event?.title,
+          eventImage: event?.image
+        });
+      }
+
+      // Get details for completed applications
+      const completedWithDetails = [];
+      for (const app of completedApplications) {
+        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+        const user = userResult[0];
+        const event = eventResult[0];
+        
+        completedWithDetails.push({
+          id: app.id,
+          eventId: app.eventId,
+          userId: app.userId,
+          status: app.status,
+          ticketQuantity: app.ticketQuantity,
+          purchaseDate: app.purchaseDate,
+          createdAt: app.createdAt,
+          updatedAt: app.updatedAt,
           username: user?.username,
           fullName: user?.fullName,
           profileImage: user?.profileImage,
@@ -1592,8 +1638,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       }
 
       return res.json({
-        applications,
-        totalPending: applications.length
+        pending: pendingWithDetails,
+        completed: completedWithDetails,
+        totalPending: pendingWithDetails.length,
+        totalCompleted: completedWithDetails.length
       });
     } catch (error) {
       console.error("Error fetching all applications:", error);
