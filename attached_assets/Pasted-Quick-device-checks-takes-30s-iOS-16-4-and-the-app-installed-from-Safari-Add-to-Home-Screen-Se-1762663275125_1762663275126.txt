@@ -1,0 +1,68 @@
+Quick device checks (takes 30s)
+iOS 16.4+ and the app installed from Safari (Add to Home Screen).
+Settings → Notifications → your web app → Allow Notifications = On, Delivery = Immediate (not in Scheduled Summary).
+No Focus mode active / Low Power Mode off.
+The 5 things that usually break it
+Subscribed in the wrong context
+You must subscribe from the standalone PWA, not from Safari tab.
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  // subscribe here
+}
+Re-open the Home-Screen app and re-subscribe; tokens from a browser tab won’t receive push.
+Service worker missing a push handler that calls showNotification
+iOS will not show anything unless your SW displays it explicitly.
+self.addEventListener('push', event => {
+  const data = event.data ? event.data.json() : {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Notification', {
+      body: data.body || '',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/badge-72.png',
+      data,
+    })
+  );
+});
+Also add:
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow(e.notification.data?.url || '/'));
+});
+Didn’t request with userVisibleOnly: true (required on iOS)
+const reg = await navigator.serviceWorker.ready;
+const sub = await reg.pushManager.subscribe({
+  userVisibleOnly: true,
+  applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+});
+Sending invalid / mismatched subscription
+Make sure you’re sending the exact subscription object obtained in standalone mode (endpoint should be Apple’s, usually starting with https://updates.push.apple.com/... on iOS).
+If you store subscriptions, delete old ones and resubscribe after reinstalling.
+Payload / headers not APNs-friendly
+When using web-push (Node) or equivalent:
+Payload size < 4KB.
+Include a TTL (e.g., TTL: 2419200) and consider urgency: 'high'.
+Use VAPID (p256dh/auth from the subscription).
+Example (Node):
+const webpush = require('web-push');
+webpush.setVapidDetails('mailto:you@domain.com', VAPID_PUBLIC, VAPID_PRIVATE);
+
+await webpush.sendNotification(subscription, JSON.stringify({
+  title: 'Test from server',
+  body: 'If you see this, iOS PWA push works.',
+  url: 'https://your.app/path'
+}), {
+  TTL: 3600,
+  urgency: 'high'
+});
+Quick debug steps that pinpoint the issue
+Remote-inspect the PWA: on a Mac, Safari → Develop → your iPhone → your web app → Service Workers. Watch the console when you send a push—do you see the push event log?
+If yes but no banner: your SW isn’t calling showNotification correctly.
+If no: the subscription is wrong/expired or the server send failed (check server logs for non-2xx responses from the endpoint).
+Log the subscription in the PWA:
+console.log(JSON.stringify(await reg.pushManager.getSubscription()));
+Confirm the endpoint domain and keys match what your backend is using.
+Recreate everything cleanly
+Delete the PWA, reinstall from Safari, hard refresh, re-subscribe, send a minimal test payload (as above).
+iOS-specific quirks to be aware of
+If the app is open in the foreground, iOS may still show the banner, but many teams choose to handle it in-app; either way, you must call showNotification to surface anything.
+If the user put your app into Scheduled Summary or disabled sounds/badges, banners won’t appear.
+Chrome/Firefox on iOS can install web apps but push still goes through WebKit; always install from Safari to be safe.
