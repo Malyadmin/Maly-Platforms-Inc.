@@ -7,7 +7,7 @@ interface MalyLogoProps {
 
 export const MalyLogo: React.FC<MalyLogoProps> = ({ className = "", color = "currentColor" }) => {
   return (
-    <div className={className} style={{ transform: 'scale(2)', transformOrigin: 'left center' }}>
+    <div className={className} style={{ transform: 'scale(2)', transformOrigin: 'center center' }}>
       <img 
         src="/attached_assets/53d65bf9-c361-49a1-86ea-7341b9288320-removebg-preview.png" 
         alt="Maly Logo" 
