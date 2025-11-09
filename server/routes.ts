@@ -46,6 +46,8 @@ import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 import { requireAdmin } from './middleware/adminAuth';
 // Import validation schemas
 import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema } from './validation/schemas';
+// Import push notification service
+import { sendRSVPNotification, sendTicketConfirmation, sendEventNotification } from './services/pushNotificationService';
 
 const categories = [
   "Retail",
@@ -2215,6 +2217,25 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const eventId = createdEvent.id; // Capture the event ID explicitly
       console.log(`Event successfully saved to database with ID: ${eventId}`);
 
+      // Send push notifications to users with matching city/vibes
+      try {
+        const matchedUsers = await findMatches({
+          city: createdEvent.city,
+          vibes: createdEvent.tags || [],
+        });
+        await Promise.all(
+          matchedUsers.map(async (match) => {
+            try {
+              await sendEventNotification(match.userId, createdEvent.title, createdEvent.city);
+            } catch (notifyError) {
+              console.warn('Push notify failed for user', match.userId, notifyError);
+            }
+          })
+        );
+      } catch (error) {
+        console.warn('Error sending event matching notifications:', error);
+      }
+
       // Create Stripe Products and Prices for each ticket tier
       const stripeTiers = [];
       
@@ -3664,6 +3685,18 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
              }
              console.log(`Successfully processed checkout for session: ${stripeCheckoutSessionId}, Ticket ID: ${ticketIdentifier}`);
 
+            // Send ticket confirmation push notification
+            try {
+              const [eventInfo] = await db.select({ title: events.title }).from(events).where(eq(events.id, eventId));
+              if (eventInfo) {
+                const ticketQuantity = participant.ticketQuantity ?? quantity;
+                await sendTicketConfirmation(userId, eventInfo.title, ticketQuantity);
+              }
+            } catch (notifError) {
+              console.warn('Error sending ticket confirmation notification:', notifError);
+              // Don't fail webhook if notification fails
+            }
+
         } catch (dbError) { // Keep simple catch, handle error below
             console.error(`Database error processing webhook for session ${stripeCheckoutSessionId}:`);
              if (dbError instanceof Error) {
@@ -5005,6 +5038,15 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           console.error("Error adding user to event group chat:", error);
           // Don't fail the approval if group chat fails
         }
+      }
+
+      // Send push notification to applicant
+      try {
+        const notificationStatus = status === 'approved' ? 'approved' : 'declined';
+        await sendRSVPNotification(userIdNum, existingEvent.title, notificationStatus as 'approved' | 'declined');
+      } catch (error) {
+        console.warn('Error sending RSVP notification:', error);
+        // Don't fail the application update if notification fails
       }
 
       // Get user details for response
