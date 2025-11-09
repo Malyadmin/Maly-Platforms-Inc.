@@ -49,8 +49,7 @@ export default function InboxPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
-  const [requestsExpanded, setRequestsExpanded] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'groups' | 'contacts' | 'requests'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'groups' | 'contacts'>('all');
   const { user } = useUser();
   const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
@@ -313,17 +312,6 @@ export default function InboxPage() {
             >
               Contacts
             </button>
-            <button
-              onClick={() => setActiveFilter('requests')}
-              className={`text-sm transition-colors ${
-                activeFilter === 'requests' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
-              }`}
-              data-testid="filter-requests"
-            >
-              Requests
-            </button>
           </div>
         </div>
       </header>
@@ -434,65 +422,6 @@ export default function InboxPage() {
                       testId: `connection-${connection.id}`
                     });
                   })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Requests Filter - Show Only RSVP Requests */}
-          {activeFilter === 'requests' && (
-            <div className="space-y-2">
-              {rsvpRequests.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <p className="text-gray-400 text-sm">No pending requests</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {rsvpRequests.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="px-4">
-                        <h4 className="text-gray-300 font-medium text-sm">RSVP Requests</h4>
-                      </div>
-                      <div>
-                        {rsvpRequests.map((request) => (
-                          <div key={request.id} className="w-full flex items-center px-4 py-3 border-b border-gray-800 last:border-b-0" data-testid={`rsvp-request-${request.id}`}>
-                            <Avatar className="h-10 w-10 mr-3">
-                              <AvatarImage src={request.userImage} alt={request.userName} />
-                              <AvatarFallback className="bg-gray-700 text-gray-300">
-                                <UserPlus className="h-5 w-5" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <h4 className="text-white font-medium text-sm">{request.userName}</h4>
-                              <p className="text-gray-400 text-xs">Wants to join {request.eventTitle}</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                                onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'approved' })}
-                                disabled={handleRSVPMutation.isPending}
-                                data-testid={`accept-rsvp-${request.id}`}
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                                onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'rejected' })}
-                                disabled={handleRSVPMutation.isPending}
-                                data-testid={`decline-rsvp-${request.id}`}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
