@@ -225,35 +225,35 @@ export default function InboxPage() {
   }) => (
     <button
       onClick={onPress}
-      className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+      className="w-full flex items-center px-4 py-3 hover:bg-black/40 active:bg-black/60 transition-colors"
       data-testid={testId}
     >
-      <Avatar className="h-10 w-10 mr-3">
+      <Avatar className="h-8 w-8 mr-3">
         <AvatarImage src={avatar} alt={title} />
-        <AvatarFallback className="bg-gray-700 text-gray-300">
-          <UserPlus className="h-5 w-5" />
+        <AvatarFallback className="bg-black border border-gray-800 text-gray-300">
+          <UserPlus className="h-4 w-4" />
         </AvatarFallback>
       </Avatar>
       <div className="flex-1 text-left">
-        <h4 className="text-white font-medium text-sm">{title}</h4>
-        <p className="text-gray-400 text-xs">{subtitle}</p>
+        <h4 className="text-white font-medium text-xs">{title}</h4>
+        <p className="text-gray-400 text-[11px]">{subtitle}</p>
       </div>
-      {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
+      {showChevron && <ChevronRight className="h-3 w-3 text-gray-400" />}
     </button>
   );
 
   // Helper function to render section headers
   const renderSectionHeader = (title: string, count: number) => (
     <div className="flex items-center justify-between px-4 py-2">
-      <h3 className="text-white font-medium text-base">{title}</h3>
-      <span className="text-white font-medium text-base">{count}</span>
+      <h3 className="text-white font-medium text-sm">{title}</h3>
+      <span className="text-white font-medium text-sm">{count}</span>
     </div>
   );
 
   // Helper function to render empty state
   const renderEmptyState = (message: string) => (
     <div className="px-4 py-2">
-      <p className="text-gray-400 text-sm">{message}</p>
+      <p className="text-gray-400 text-xs">{message}</p>
     </div>
   );
 
