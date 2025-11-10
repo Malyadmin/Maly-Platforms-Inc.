@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share, ChevronDown } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
 import PremiumPaywall from "@/components/PremiumPaywall";
@@ -52,6 +52,7 @@ interface ProfileData {
   email: string;
   fullName: string | null;
   profileImage: string | null;
+  profileImages?: string[];
   bio: string | null;
   location: string | null;
   birthLocation: string | null;
@@ -82,6 +83,7 @@ export default function ProfilePage() {
   const [showFullBio, setShowFullBio] = useState(false);
   const [shareClicked, setShareClicked] = useState(false);
   const [messageClicked, setMessageClicked] = useState(false);
+  const [currentProfileImageIndex, setCurrentProfileImageIndex] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
@@ -345,6 +347,10 @@ export default function ProfilePage() {
     }
   }, [username, currentUser]);
 
+  useEffect(() => {
+    setCurrentProfileImageIndex(0);
+  }, [profileData?.id]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -434,22 +440,58 @@ export default function ProfilePage() {
   <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
     {/* Fullscreen Profile Image with Name Overlay on Left */}
     <div className="relative w-full h-screen">
-    {profileData.profileImage ? (
-      <div className="absolute inset-0">
-        <img 
-          src={profileData.profileImage} 
-          alt={profileData.fullName || profileData.username}
-          className="w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
-      </div>
-    ) : (
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-        <div className="text-9xl font-bold text-white/20">
-          {profileData.username[0].toUpperCase()}
+    {(() => {
+      const profileImages = profileData.profileImages?.length > 0 
+        ? profileData.profileImages 
+        : profileData.profileImage 
+        ? [profileData.profileImage] 
+        : [];
+      
+      const currentImage = profileImages[currentProfileImageIndex];
+      
+      return currentImage ? (
+        <div className="absolute inset-0">
+          <img 
+            src={currentImage} 
+            alt={profileData.fullName || profileData.username}
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+          
+          {profileImages.length > 1 && (
+            <>
+              <button
+                onClick={() => setCurrentProfileImageIndex((prev) => 
+                  prev > 0 ? prev - 1 : profileImages.length - 1
+                )}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                data-testid="button-profile-image-prev"
+              >
+                <ChevronLeft className="h-6 w-6 text-white" />
+              </button>
+              <button
+                onClick={() => setCurrentProfileImageIndex((prev) => 
+                  prev < profileImages.length - 1 ? prev + 1 : 0
+                )}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                data-testid="button-profile-image-next"
+              >
+                <ChevronRight className="h-6 w-6 text-white" />
+              </button>
+              <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm" data-testid="image-counter">
+                {currentProfileImageIndex + 1} / {profileImages.length}
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    )}
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+          <div className="text-9xl font-bold text-white/20">
+            {profileData.username[0].toUpperCase()}
+          </div>
+        </div>
+      );
+    })()}
     
     {/* Name and Location overlay - absolute positioned at bottom with more space */}
     <div className="absolute bottom-32 left-0 right-0 px-6 z-10">

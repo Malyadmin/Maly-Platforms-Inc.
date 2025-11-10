@@ -3159,6 +3159,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       if (safeFields.currentMoods && Array.isArray(safeFields.currentMoods)) {
         safeFields.currentMoods = safeFields.currentMoods.length > 0 ? safeFields.currentMoods : [];
       }
+
+      if (safeFields.profileImages && Array.isArray(safeFields.profileImages)) {
+        safeFields.profileImages = safeFields.profileImages.length > 0 ? safeFields.profileImages : [];
+      }
       
       // Handle location fields specifically
       if (safeFields.currentLocation) {
@@ -3206,6 +3210,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           username: true,
           fullName: true,
           profileImage: true,
+          profileImages: true,
           bio: true,
           location: true,
           birthLocation: true,

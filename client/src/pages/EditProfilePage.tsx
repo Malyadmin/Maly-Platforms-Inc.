@@ -37,6 +37,7 @@ interface ProfileData {
   nextLocation: string;
   age: number | null;
   profileImage: string | null;
+  profileImages?: string[];
 }
 
 export default function EditProfilePage() {
@@ -78,8 +79,16 @@ export default function EditProfilePage() {
         nextLocation: user.nextLocation || "",
         age: user.age,
         profileImage: user.profileImage || null,
+        profileImages: user.profileImages || [],
       });
-      setImagePreviews(user.profileImage ? [user.profileImage] : []);
+      
+      const images = user.profileImages && user.profileImages.length > 0 
+        ? user.profileImages 
+        : user.profileImage 
+        ? [user.profileImage] 
+        : [];
+      
+      setImagePreviews(images);
       setCurrentImageIndex(0);
       setHasNewImages(false);
     }
@@ -205,7 +214,8 @@ export default function EditProfilePage() {
     try {
       const updatedData = {
         ...profileData,
-        profileImage: imagePreviews[currentImageIndex] || imagePreviews[0],
+        profileImage: imagePreviews[0] ?? null,
+        profileImages: imagePreviews.slice(),
       };
       
       localStorage.removeItem('maly_user_data');
@@ -214,8 +224,8 @@ export default function EditProfilePage() {
       await updateProfile(updatedData);
 
       toast({
-        title: "Profile Image Updated",
-        description: "Your profile image has been successfully updated.",
+        title: "Profile Images Updated",
+        description: `${imagePreviews.length} image(s) saved successfully.`,
       });
 
       await refreshUser();
