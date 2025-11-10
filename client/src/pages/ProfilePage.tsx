@@ -145,6 +145,36 @@ export default function ProfilePage() {
     },
   });
 
+  // Remove contact
+  const removeConnectionMutation = useMutation({
+    mutationFn: async (targetUserId: number) => {
+      const response = await fetch(`/api/contacts/${targetUserId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to remove contact');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Contact removed',
+        description: "They've been removed from your contacts.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['contact-check', profileData?.id, currentUser?.id] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error removing contact',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
 
   // Handle message button click - check premium status first
   const handleMessageClick = () => {
@@ -366,10 +396,29 @@ export default function ProfilePage() {
             contentId={profileData.username || profileData.id}
             title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
             text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
-            className={`p-2 rounded-lg transition-colors ${shareClicked ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-gray-400 hover:text-gray-300'}`}
+            className="transition-colors"
             onClick={() => setShareClicked(true)}
           >
-            <Share className="h-5 w-5" />
+            <Share 
+              className="h-6 w-6" 
+              strokeWidth={2.5}
+              style={{
+                stroke: shareClicked 
+                  ? 'url(#gradient)' 
+                  : undefined
+              }}
+              color={shareClicked ? undefined : '#9ca3af'}
+            />
+            {shareClicked && (
+              <svg width="0" height="0">
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#9333ea" />
+                    <stop offset="100%" stopColor="#ec4899" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            )}
           </ReferralShareButton>
         )}
       </div>
@@ -526,10 +575,16 @@ export default function ProfilePage() {
               </button>
             ) : isContact ? (
               <button 
-                disabled 
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0"
+                onClick={() => removeConnectionMutation.mutate(profileData.id)}
+                disabled={removeConnectionMutation.isPending}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 transition-all disabled:opacity-50"
+                data-testid="button-remove-contact"
               >
-                <UserCheck className="h-4 w-4 mr-2" />
+                {removeConnectionMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <UserCheck className="h-4 w-4 mr-2" />
+                )}
                 In Contacts
               </button>
             ) : (
