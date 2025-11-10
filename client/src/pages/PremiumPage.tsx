@@ -216,7 +216,7 @@ export default function PremiumPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-black/40 backdrop-blur-sm border-b border-white/10">
+      <header className="sticky top-0 z-10 bg-background/40 backdrop-blur-sm border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Button
@@ -342,7 +342,7 @@ export default function PremiumPage() {
                 <Button 
                   size="lg"
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-white border-0 px-8"
+                  className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-foreground border-0 px-8"
                   onClick={handleSubscribe}
                   data-testid="button-get-premium"
                 >

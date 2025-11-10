@@ -212,7 +212,7 @@ export default function StripeConnectPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Receive payments directly to your bank account within 2-7 business days
                 </p>
               </CardContent>
@@ -226,7 +226,7 @@ export default function StripeConnectPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Professional checkout experience powered by Stripe for your attendees
                 </p>
               </CardContent>
@@ -240,7 +240,7 @@ export default function StripeConnectPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Bank-level security and PCI compliance handled automatically
                 </p>
               </CardContent>
@@ -251,14 +251,14 @@ export default function StripeConnectPage() {
           <Card className="mb-6 bg-gray-900 border-gray-800">
             <CardHeader>
               <CardTitle className="text-white">Account Status</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 Your current payment setup status
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {!status?.hasAccount ? (
                 <>
-                  <Alert className="bg-gray-800 border-gray-700">
+                  <Alert className="bg-background border-border">
                     <AlertCircle className="h-4 w-4 text-yellow-500" />
                     <AlertDescription className="text-gray-300">
                       You need to set up a payment account to receive payouts from ticket sales.
@@ -381,7 +381,7 @@ export default function StripeConnectPage() {
 
                   {!status.onboardingComplete && (
                     <div className="pt-4">
-                      <Alert className="mb-4 bg-gray-800 border-gray-700">
+                      <Alert className="mb-4 bg-background border-border">
                         <AlertCircle className="h-4 w-4 text-yellow-500" />
                         <AlertDescription className="text-gray-300">
                           Complete your onboarding to start receiving payments from ticket sales.
@@ -427,7 +427,7 @@ export default function StripeConnectPage() {
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader>
               <CardTitle className="text-white">Fees & Payouts</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 How payments work on Maly
               </CardDescription>
             </CardHeader>
@@ -443,11 +443,11 @@ export default function StripeConnectPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-300">Payout Schedule</span>
-                  <span className="text-sm text-gray-400">2-7 business days</span>
+                  <span className="text-sm text-muted-foreground">2-7 business days</span>
                 </div>
               </div>
               <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-gray-700">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Example: For a $100 ticket, you receive $97 and Maly collects $3 as a platform fee.
                 </p>
               </div>

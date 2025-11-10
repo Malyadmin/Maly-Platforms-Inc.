@@ -30,7 +30,7 @@ export default function TermsPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
-          <p className="text-sm text-gray-400">Last updated: November 2024</p>
+          <p className="text-sm text-muted-foreground">Last updated: November 2024</p>
 
           <section>
             <h2 className="text-xl font-bold mb-3 text-white">1. Acceptance of Terms</h2>

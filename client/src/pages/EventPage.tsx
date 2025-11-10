@@ -600,7 +600,7 @@ export default function EventPage() {
                       <div className="text-right">
                         <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
                         {tier.quantity && (
-                          <div className="text-gray-400 text-xs">{tier.quantity} available</div>
+                          <div className="text-muted-foreground text-xs">{tier.quantity} available</div>
                         )}
                       </div>
                     </div>

@@ -77,7 +77,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
             <div className="bg-gray-900 rounded-lg p-4 mb-4">
               <FeatureIcon className="h-12 w-12 text-purple-500 mx-auto mb-3" />
               <h3 className="text-lg font-medium mb-2">{config.title}</h3>
-              <p className="text-gray-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {config.description}
               </p>
             </div>
@@ -98,8 +98,8 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
 
           {/* Pricing */}
           <div className="bg-purple-900/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold">$29<span className="text-lg font-normal text-gray-400">/month</span></div>
-            <p className="text-sm text-gray-400 mt-1">Cancel anytime</p>
+            <div className="text-2xl font-bold">$29<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+            <p className="text-sm text-muted-foreground mt-1">Cancel anytime</p>
           </div>
 
           {/* Action buttons */}
@@ -115,7 +115,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
             
             <Button
               variant="outline"
-              className="w-full border-gray-600 text-gray-400 hover:bg-gray-800"
+              className="w-full border-gray-600 text-muted-foreground hover:bg-gray-800"
               onClick={onClose}
               data-testid="maybe-later-button"
             >

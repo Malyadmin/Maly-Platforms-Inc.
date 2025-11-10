@@ -167,7 +167,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
         </h3>
         {user.location && (
           <div className="flex items-center gap-1 mt-1">
-            <MapPin className="h-3 w-3 text-gray-400" />
+            <MapPin className="h-3 w-3 text-muted-foreground" />
             <span className="text-gray-300 text-sm truncate">
               {user.location}
             </span>

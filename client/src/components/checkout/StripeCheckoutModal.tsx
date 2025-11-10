@@ -256,10 +256,10 @@ export function StripeCheckoutModal({ isOpen, onClose, event, onSuccess }: Strip
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto bg-gray-900 border-gray-700">
+      <DialogContent className="max-w-md mx-auto bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-white">Complete Your Purchase</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Secure your spot at this event with our secure payment system.
           </DialogDescription>
         </DialogHeader>

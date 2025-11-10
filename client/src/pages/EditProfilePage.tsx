@@ -291,7 +291,7 @@ export default function EditProfilePage() {
     return (
       <div>
         <div className="flex items-center justify-between">
-          <p className="text-white/60 text-sm">{label}</p>
+          <p className="text-foreground/60 text-sm">{label}</p>
           {!isEditing && (
             <button
               onClick={() => handleEditClick(field, value)}
@@ -309,7 +309,7 @@ export default function EditProfilePage() {
               <Textarea
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
-                className="bg-gray-900/50 border-purple-500/30 text-white min-h-[100px]"
+                className="bg-gray-900/50 border-purple-500/30 text-foreground min-h-[100px]"
                 autoFocus
                 data-testid={`input-${field}`}
               />
@@ -317,7 +317,7 @@ export default function EditProfilePage() {
               <Input
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
-                className="bg-gray-900/50 border-purple-500/30 text-white"
+                className="bg-gray-900/50 border-purple-500/30 text-foreground"
                 autoFocus
                 data-testid={`input-${field}`}
               />
@@ -345,7 +345,7 @@ export default function EditProfilePage() {
             </div>
           </div>
         ) : (
-          <p className="text-white text-base mt-1">
+          <p className="text-foreground text-base mt-1">
             {value || <span className="text-gray-500">Not set</span>}
           </p>
         )}
@@ -359,7 +359,7 @@ export default function EditProfilePage() {
     return (
       <div>
         <div className="flex items-center justify-between">
-          <p className="text-white/60 text-sm">Vibe</p>
+          <p className="text-foreground/60 text-sm">Vibe</p>
           {!isEditing && (
             <button
               onClick={() => handleEditClick("currentMoods", profileData.currentMoods)}
@@ -381,7 +381,7 @@ export default function EditProfilePage() {
                   className={`py-2 px-3 rounded-lg text-sm transition-all border ${
                     tempMoods.includes(mood)
                       ? `${moodStyles[mood as keyof typeof moodStyles]} border-current`
-                      : "bg-gray-900/50 text-gray-400 border-gray-700 hover:border-gray-600"
+                      : "bg-gray-900/50 text-muted-foreground border-gray-700 hover:border-gray-600"
                   }`}
                   data-testid={`vibe-option-${mood}`}
                 >
@@ -412,7 +412,7 @@ export default function EditProfilePage() {
             </div>
           </div>
         ) : (
-          <p className="text-white text-base mt-1">
+          <p className="text-foreground text-base mt-1">
             {profileData.currentMoods.length > 0 ? (
               <span>{profileData.currentMoods.join(", ")}</span>
             ) : (
@@ -426,16 +426,16 @@ export default function EditProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black">
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
       {/* Header */}
-      <header className="bg-black text-white shrink-0 z-50">
+      <header className="bg-background text-foreground shrink-0 z-50">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -449,7 +449,7 @@ export default function EditProfilePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLocation(`/profile/${user?.username}`)}
-              className="text-white/80 hover:text-white transition-colors text-sm"
+              className="text-foreground/80 hover:text-foreground transition-colors text-sm"
               data-testid="button-back-to-profile"
             >
               Back
@@ -476,7 +476,7 @@ export default function EditProfilePage() {
             </div>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-              <div className="text-9xl font-bold text-white/20">
+              <div className="text-9xl font-bold text-foreground/20">
                 {user.username[0].toUpperCase()}
               </div>
             </div>
@@ -489,7 +489,7 @@ export default function EditProfilePage() {
               className="absolute top-4 right-4 p-2 bg-red-600 hover:bg-red-700 rounded-full transition-colors shadow-lg z-10"
               data-testid="button-remove-image"
             >
-              <X className="h-5 w-5 text-white" />
+              <X className="h-5 w-5 text-foreground" />
             </button>
           )}
           
@@ -498,20 +498,20 @@ export default function EditProfilePage() {
             <>
               <button
                 onClick={handlePreviousImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-previous-image"
               >
-                <ChevronLeft className="h-6 w-6 text-white" />
+                <ChevronLeft className="h-6 w-6 text-foreground" />
               </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-next-image"
               >
-                <ChevronRight className="h-6 w-6 text-white" />
+                <ChevronRight className="h-6 w-6 text-foreground" />
               </button>
               {/* Image counter */}
-              <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm">
+              <div className="absolute top-4 left-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm">
                 {currentImageIndex + 1} / {imagePreviews.length}
               </div>
             </>
@@ -521,11 +521,11 @@ export default function EditProfilePage() {
           <div className="absolute bottom-6 left-6 right-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                   {profileData.fullName || user.username}
                 </h1>
                 <label className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
-                  <Pencil className="h-4 w-4 text-white" />
+                  <Pencil className="h-4 w-4 text-foreground" />
                   <input
                     type="file"
                     accept="image/*"
@@ -541,7 +541,7 @@ export default function EditProfilePage() {
                 <Button
                   onClick={handleSaveImages}
                   disabled={isSaving}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-green-600 hover:bg-green-700 text-foreground"
                   data-testid="button-save-images"
                 >
                   {isSaving ? (

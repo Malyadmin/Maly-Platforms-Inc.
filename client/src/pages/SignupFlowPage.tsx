@@ -174,7 +174,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">Create your account</h2>
-          <p className="text-gray-400 text-sm">Let's get started with the basics</p>
+          <p className="text-muted-foreground text-sm">Let's get started with the basics</p>
         </div>
 
         <form 
@@ -245,7 +245,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-gray-300"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -268,7 +268,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-gray-300"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -341,7 +341,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">Tell us about yourself</h2>
-          <p className="text-gray-400 text-sm">This helps us connect you with the right people</p>
+          <p className="text-muted-foreground text-sm">This helps us connect you with the right people</p>
         </div>
 
         <form 
@@ -350,7 +350,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-white font-medium">Age <span className="text-xs text-gray-400">(will not be displayed)</span></label>
+            <label className="text-white font-medium">Age <span className="text-xs text-muted-foreground">(will not be displayed)</span></label>
             <Input
               {...form.register("age")}
               type="number"
@@ -458,7 +458,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">Where are you?</h2>
-          <p className="text-gray-400 text-sm">Help others find you and connect based on location</p>
+          <p className="text-muted-foreground text-sm">Help others find you and connect based on location</p>
         </div>
 
         <form 
@@ -580,7 +580,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">What brings you here?</h2>
-          <p className="text-gray-400 text-sm">Tell us your interests and intentions</p>
+          <p className="text-muted-foreground text-sm">Tell us your interests and intentions</p>
         </div>
 
         <form 
@@ -598,7 +598,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
                 return (
                   <Badge
                     key={vibe}
-                    className={`cursor-pointer transition-all ${isSelected ? vibeStyle + ' font-medium' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                    className={`cursor-pointer transition-all ${isSelected ? vibeStyle + ' font-medium' : 'bg-gray-800 text-muted-foreground hover:bg-gray-700'}`}
                     onClick={() => handleVibeToggle(vibe)}
                     data-testid={`badge-vibe-${vibe.replace(/\s+/g, '-')}`}
                   >
@@ -719,7 +719,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">Complete your profile</h2>
-          <p className="text-gray-400 text-sm">Add a photo and bio to stand out</p>
+          <p className="text-muted-foreground text-sm">Add a photo and bio to stand out</p>
         </div>
 
         <form 
@@ -751,8 +751,8 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer hover:border-gray-600 bg-black">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-400">Click to upload profile picture</p>
+                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Click to upload profile picture</p>
                 </div>
                 <input
                   type="file"
@@ -800,7 +800,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                     <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-black text-white border-gray-800">
                       <DialogHeader>
                         <DialogTitle>Maly Platforms Inc. DBA Maly – Terms and Conditions</DialogTitle>
-                        <DialogDescription className="text-gray-400">Effective Date: May 17, 2025</DialogDescription>
+                        <DialogDescription className="text-muted-foreground">Effective Date: May 17, 2025</DialogDescription>
                       </DialogHeader>
                       <div className="text-sm space-y-4 mt-4 text-gray-300">
                         <p>Welcome to Maly Platforms Inc. ("Maly"). These Terms and Conditions govern your use of our mobile application and website platform. By accessing or using Maly, you agree to be bound by these terms.</p>
@@ -850,7 +850,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                     <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-black text-white border-gray-800">
                       <DialogHeader>
                         <DialogTitle>Maly Platforms Inc. DBA Maly – Privacy Policy</DialogTitle>
-                        <DialogDescription className="text-gray-400">Effective Date: May 17, 2025</DialogDescription>
+                        <DialogDescription className="text-muted-foreground">Effective Date: May 17, 2025</DialogDescription>
                       </DialogHeader>
                       <div className="text-sm space-y-4 mt-4 text-gray-300">
                         <p>Your privacy is important to us at Maly. This Privacy Policy explains how we collect, use, and protect your information when you use our platform.</p>

@@ -55,8 +55,8 @@ export function ProfileGallery({
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium text-white mb-2">Build your profile gallery</h3>
-        <p className="text-gray-400 text-sm mb-1">Add high resolution photos to your profile</p>
-        <p className="text-gray-400 text-sm">First picture will be your main profile photo</p>
+        <p className="text-muted-foreground text-sm mb-1">Add high resolution photos to your profile</p>
+        <p className="text-muted-foreground text-sm">First picture will be your main profile photo</p>
       </div>
 
       {/* Main Image Upload Area */}
@@ -87,7 +87,7 @@ export function ProfileGallery({
             htmlFor="main-image-upload"
           >
             <div className="bg-gray-800 rounded-lg p-4 mb-4">
-              <ImageIcon className="w-8 h-8 text-gray-400" />
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
             </div>
             <input
               id="main-image-upload"
@@ -130,7 +130,7 @@ export function ProfileGallery({
                   className={`w-full h-full border-2 border-dashed ${isFirst ? 'border-blue-400' : 'border-gray-600'} rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors`}
                   htmlFor={`image-upload-${index}`}
                 >
-                  <Plus className={`w-4 h-4 ${isFirst ? 'text-blue-400' : 'text-gray-400'}`} />
+                  <Plus className={`w-4 h-4 ${isFirst ? 'text-blue-400' : 'text-muted-foreground'}`} />
                   <input
                     id={`image-upload-${index}`}
                     type="file"
@@ -148,7 +148,7 @@ export function ProfileGallery({
       </div>
 
       {/* Requirements */}
-      <div className="space-y-1 text-xs text-gray-400">
+      <div className="space-y-1 text-xs text-muted-foreground">
         <p>• Up to {maxImages} pictures</p>
         <p>• Recommended high resolution</p>
         <p>• First image becomes your main profile photo</p>

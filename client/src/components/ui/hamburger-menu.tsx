@@ -149,9 +149,9 @@ export function HamburgerMenu() {
                   {section.title}
                 </span>
                 {expandedSections.includes(section.title) ? (
-                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
               

@@ -94,7 +94,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           />
         ) : (
           <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-            <div className="text-6xl font-bold text-gray-400">
+            <div className="text-6xl font-bold text-muted-foreground">
               {displayName?.charAt(0)?.toUpperCase() || '?'}
             </div>
           </div>

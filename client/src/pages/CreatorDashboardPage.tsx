@@ -199,7 +199,7 @@ export default function CreatorDashboardPage() {
         </div>
         <div>
           <p className="text-white font-medium text-sm">{event.title}</p>
-          <p className="text-gray-400 text-xs">
+          <p className="text-muted-foreground text-xs">
             {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
           </p>
         </div>
@@ -218,7 +218,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <Eye className="h-4 w-4 text-blue-400" />
-            <span className="text-xs text-gray-400">Views</span>
+            <span className="text-xs text-muted-foreground">Views</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
         </button>
@@ -235,7 +235,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <UserCheck className="h-4 w-4 text-green-400" />
-            <span className="text-xs text-gray-400">Attending</span>
+            <span className="text-xs text-muted-foreground">Attending</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
         </button>
@@ -252,7 +252,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <Users className="h-4 w-4 text-purple-400" />
-            <span className="text-xs text-gray-400">Interested</span>
+            <span className="text-xs text-muted-foreground">Interested</span>
           </div>
           <p className="text-white text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
         </button>
@@ -268,7 +268,7 @@ export default function CreatorDashboardPage() {
       </Avatar>
       <div className="flex-1">
         <p className="text-white text-sm font-medium">{sale.buyerName}</p>
-        <p className="text-gray-400 text-xs">
+        <p className="text-muted-foreground text-xs">
           {sale.ticketQuantity} ticket{sale.ticketQuantity > 1 ? 's' : ''} • {sale.purchaseDate ? format(new Date(sale.purchaseDate), 'MMM d, yyyy') : 'N/A'}
         </p>
       </div>
@@ -288,7 +288,7 @@ export default function CreatorDashboardPage() {
         </Avatar>
         <div className="flex-1">
           <p className="text-white font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
-          <p className="text-gray-400 text-xs">{rsvp.userEmail || 'No email'}</p>
+          <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
           <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle || 'Unknown Event'}</p>
         </div>
       </div>
@@ -345,7 +345,7 @@ export default function CreatorDashboardPage() {
           </Avatar>
           <div className="flex-1">
             <p className="text-white font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
-            <p className="text-gray-400 text-xs">{rsvp.userEmail || 'No email'}</p>
+            <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
             <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle || 'Unknown Event'}</p>
             <p className="text-gray-500 text-xs mt-1">
               {rsvp.updatedAt ? format(new Date(rsvp.updatedAt), 'MMM d, yyyy') : ''}
@@ -456,7 +456,7 @@ export default function CreatorDashboardPage() {
             <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
               <p className="text-red-400 font-medium">Failed to load dashboard data</p>
               <p className="text-red-300 text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
-              <p className="text-gray-400 text-xs mt-2">User ID: {user?.id || 'Not found'}</p>
+              <p className="text-muted-foreground text-xs mt-2">User ID: {user?.id || 'Not found'}</p>
             </div>
           </div>
         ) : (
@@ -466,7 +466,7 @@ export default function CreatorDashboardPage() {
               <div>
                 {!data?.events || data.events.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p className="text-gray-400 text-sm">No events created yet</p>
+                    <p className="text-muted-foreground text-sm">No events created yet</p>
                     <Button
                       onClick={() => setLocation('/create-event')}
                       className="mt-4 bg-purple-600 hover:bg-purple-700"
@@ -504,7 +504,7 @@ export default function CreatorDashboardPage() {
               <div>
                 {!data?.events || data.events.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p className="text-gray-400 text-sm">No analytics available</p>
+                    <p className="text-muted-foreground text-sm">No analytics available</p>
                   </div>
                 ) : (
                   <div className="mt-4">
@@ -519,7 +519,7 @@ export default function CreatorDashboardPage() {
               <div>
                 {!data?.events || data.events.every(e => (e.ticketSales?.length || 0) === 0) ? (
                   <div className="py-8 text-center">
-                    <p className="text-gray-400 text-sm">No ticket sales yet</p>
+                    <p className="text-muted-foreground text-sm">No ticket sales yet</p>
                   </div>
                 ) : (
                   <div className="mt-4">
@@ -560,7 +560,7 @@ export default function CreatorDashboardPage() {
                         className={`pb-3 transition-all ${
                           rsvpSection === 'pending'
                             ? 'gradient-text border-b-2 border-purple-500'
-                            : 'text-gray-400 hover:text-gray-300'
+                            : 'text-muted-foreground hover:text-gray-300'
                         }`}
                         data-testid="tab-pending-rsvps"
                       >
@@ -571,7 +571,7 @@ export default function CreatorDashboardPage() {
                         className={`pb-3 transition-all ${
                           rsvpSection === 'completed'
                             ? 'gradient-text border-b-2 border-purple-500'
-                            : 'text-gray-400 hover:text-gray-300'
+                            : 'text-muted-foreground hover:text-gray-300'
                         }`}
                         data-testid="tab-completed-rsvps"
                       >
@@ -592,7 +592,7 @@ export default function CreatorDashboardPage() {
                           <div>
                             {!applicationsData?.pending || applicationsData.pending.length === 0 ? (
                               <div className="py-8 text-center">
-                                <p className="text-gray-400 text-sm">No pending RSVP requests</p>
+                                <p className="text-muted-foreground text-sm">No pending RSVP requests</p>
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -607,7 +607,7 @@ export default function CreatorDashboardPage() {
                           <div>
                             {!applicationsData?.completed || applicationsData.completed.length === 0 ? (
                               <div className="py-8 text-center">
-                                <p className="text-gray-400 text-sm">No completed RSVP requests (last 30 days)</p>
+                                <p className="text-muted-foreground text-sm">No completed RSVP requests (last 30 days)</p>
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -650,7 +650,7 @@ export default function CreatorDashboardPage() {
             <AlertDialogTitle className="text-white">
               {confirmDialog.type === 'accept' ? 'Accept RSVP Request?' : 'Decline RSVP Request?'}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               {confirmDialog.type === 'accept' 
                 ? `Are you sure you want to accept ${confirmDialog.userName}'s RSVP request? They will be added to the event group chat and receive a notification.`
                 : `Are you sure you want to decline ${confirmDialog.userName}'s RSVP request? They will receive a notification.`

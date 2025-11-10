@@ -38,7 +38,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -54,7 +54,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             {onBack && (
-              <BackButton onClick={onBack} className="text-white" />
+              <BackButton onClick={onBack} className="text-foreground" />
             )}
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -68,7 +68,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">Create your event</h2>
-          <p className="text-gray-400 text-sm">Promote or share remarkable experiences</p>
+          <p className="text-muted-foreground text-sm">Promote or share remarkable experiences</p>
         </div>
 
 
@@ -78,11 +78,11 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           className="space-y-8"
         >
           <div className="space-y-2">
-            <label className="text-white font-medium">Event Title</label>
+            <label className="text-foreground font-medium">Event Title</label>
             <Input
               {...form.register("title")}
               placeholder="Concise and engaging"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
               data-testid="input-title"
             />
             {form.formState.errors.title && (
@@ -91,22 +91,22 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Event Tagline (optional)</label>
+            <label className="text-foreground font-medium">Event Tagline (optional)</label>
             <Input
               {...form.register("tagline")}
               placeholder="Short and catchy"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
               data-testid="input-tagline"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Event Summary / Invitation</label>
+            <label className="text-foreground font-medium">Event Summary / Invitation</label>
             <Textarea
               {...form.register("summary")}
               placeholder="A brief overview of your event. Use ChatGPT or similar if you need assistance."
               rows={5}
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
               data-testid="textarea-summary"
             />
             {form.formState.errors.summary && (
@@ -124,7 +124,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -230,7 +230,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -245,7 +245,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-white" />
+            <BackButton onClick={onBack} className="text-foreground" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -258,8 +258,8 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Build your event gallery</h2>
-          <p className="text-gray-400 text-sm mb-1">Add high resolution photos or flyer to your event</p>
-          <p className="text-gray-400 text-sm">First picture will be your event flyer</p>
+          <p className="text-muted-foreground text-sm mb-1">Add high resolution photos or flyer to your event</p>
+          <p className="text-muted-foreground text-sm">First picture will be your event flyer</p>
         </div>
 
         {/* Main Image Upload Area */}
@@ -273,7 +273,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
               />
               <button
                 onClick={() => removeImage(0)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                className="absolute top-2 right-2 bg-red-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs"
               >
                 ×
               </button>
@@ -284,7 +284,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
               htmlFor="main-image-upload"
             >
               <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                <ImageIcon className="w-8 h-8 text-gray-400" />
+                <ImageIcon className="w-8 h-8 text-muted-foreground" />
               </div>
               <input
                 id="main-image-upload"
@@ -316,7 +316,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
                     />
                     <button
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                      className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
                     >
                       ×
                     </button>
@@ -326,7 +326,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
                     className={`w-full h-full border-2 border-dashed ${isFirst ? 'border-yellow-400' : 'border-gray-600'} rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors`}
                     htmlFor={`image-upload-${index}`}
                   >
-                    <Plus className={`w-4 h-4 ${isFirst ? 'text-yellow-400' : 'text-gray-400'}`} />
+                    <Plus className={`w-4 h-4 ${isFirst ? 'text-yellow-400' : 'text-muted-foreground'}`} />
                     <input
                       id={`image-upload-${index}`}
                       type="file"
@@ -343,7 +343,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         </div>
 
         {/* Requirements */}
-        <div className="space-y-1 text-xs text-gray-400">
+        <div className="space-y-1 text-xs text-muted-foreground">
           <p>• Up to 6 pictures, 1 mandatory</p>
           <p>• 1 video up to (file size)</p>
           <p>• Recommended (image size)</p>
@@ -358,7 +358,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           onClick={onSubmit}
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -508,7 +508,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -523,7 +523,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-white" />
+            <BackButton onClick={onBack} className="text-foreground" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -536,7 +536,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Event details</h2>
-          <p className="text-gray-400 text-sm">Set your event location and schedule</p>
+          <p className="text-muted-foreground text-sm">Set your event location and schedule</p>
         </div>
 
         <Form {...form}>
@@ -548,8 +548,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Online Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Online Event</label>
-              <p className="text-gray-400 text-sm">Event will be hosted virtually</p>
+              <label className="text-foreground font-medium">Online Event</label>
+              <p className="text-muted-foreground text-sm">Event will be hosted virtually</p>
             </div>
             <Switch
               checked={isOnlineEvent}
@@ -564,10 +564,10 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             name="eventVisibility"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-white font-medium">Event Visibility</FormLabel>
+                <FormLabel className="text-foreground font-medium">Event Visibility</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-visibility">
+                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-visibility">
                       <SelectValue placeholder="Select visibility" />
                     </SelectTrigger>
                   </FormControl>
@@ -588,7 +588,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {!isOnlineEvent && (
             <>
               <div className="space-y-2 relative">
-                <label className="text-white font-medium flex items-center">
+                <label className="text-foreground font-medium flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
                   City
                 </label>
@@ -598,7 +598,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
                   onFocus={() => cityQuery.length >= 2 && citySuggestions.length > 0 && setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Start typing city name..."
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-city"
                   autoComplete="off"
                 />
@@ -611,10 +611,10 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
                         className="px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0"
                         data-testid={`city-suggestion-${index}`}
                       >
-                        <div className="text-white text-sm">
+                        <div className="text-foreground text-sm">
                           {city.city || city.name}
                         </div>
-                        <div className="text-gray-400 text-xs">
+                        <div className="text-muted-foreground text-xs">
                           {city.country}
                         </div>
                       </div>
@@ -627,22 +627,22 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Address / Venue</label>
+                <label className="text-foreground font-medium">Address / Venue</label>
                 <Input
                   {...form.register("addressLine1")}
                   placeholder="Enter venue or address"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-address"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Additional Location Info</label>
+                <label className="text-foreground font-medium">Additional Location Info</label>
                 <Textarea
                   {...form.register("additionalInfo")}
                   placeholder="Floor, room number, landmark, etc."
                   rows={3}
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                   data-testid="textarea-additional-info"
                 />
               </div>
@@ -652,14 +652,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Date and Time */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-white font-medium flex items-center">
+              <label className="text-foreground font-medium flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
                 Start Date & Time
               </label>
               <Input
                 {...form.register("startDate")}
                 type="datetime-local"
-                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                className="bg-background border-gray-700 text-foreground focus:border-gray-500"
                 data-testid="input-start-date"
               />
               {form.formState.errors.startDate && (
@@ -668,14 +668,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-white font-medium flex items-center">
+              <label className="text-foreground font-medium flex items-center">
                 <Clock className="w-4 h-4 mr-2" />
                 End Date & Time
               </label>
               <Input
                 {...form.register("endDate")}
                 type="datetime-local"
-                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                className="bg-background border-gray-700 text-foreground focus:border-gray-500"
                 data-testid="input-end-date"
               />
               {form.formState.errors.endDate && (
@@ -687,8 +687,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Activity Schedule Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Add Activity Schedule</label>
-              <p className="text-gray-400 text-sm">Create a detailed agenda for your event</p>
+              <label className="text-foreground font-medium">Add Activity Schedule</label>
+              <p className="text-muted-foreground text-sm">Create a detailed agenda for your event</p>
             </div>
             <Switch
               checked={addActivitySchedule}
@@ -700,12 +700,12 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Agenda Items */}
           {addActivitySchedule && (
             <div className="space-y-4">
-              <label className="text-white font-medium">Event Agenda</label>
+              <label className="text-foreground font-medium">Event Agenda</label>
               
               {agendaItems.map((item, index) => (
                 <div key={index} className="p-4 border border-gray-700 rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Activity {index + 1}</span>
+                    <span className="text-sm text-muted-foreground">Activity {index + 1}</span>
                     <button
                       type="button"
                       onClick={() => removeAgendaItem(index)}
@@ -720,14 +720,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
                       placeholder="Time (e.g., 7:00 PM)"
                       value={item.time}
                       onChange={(e) => updateAgendaItem(index, "time", e.target.value)}
-                      className="bg-black border-gray-600 text-white placeholder-gray-500"
+                      className="bg-background border-gray-600 text-foreground placeholder-gray-500"
                       data-testid={`input-agenda-time-${index}`}
                     />
                     <Input
                       placeholder="Activity description"
                       value={item.description}
                       onChange={(e) => updateAgendaItem(index, "description", e.target.value)}
-                      className="bg-black border-gray-600 text-white placeholder-gray-500"
+                      className="bg-background border-gray-600 text-foreground placeholder-gray-500"
                       data-testid={`input-agenda-description-${index}`}
                     />
                   </div>
@@ -737,7 +737,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
               <button
                 type="button"
                 onClick={addAgendaItem}
-                className="w-full border-2 border-dashed border-gray-600 rounded-lg p-4 text-center text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                className="w-full border-2 border-dashed border-gray-600 rounded-lg p-4 text-center text-muted-foreground hover:border-gray-500 hover:text-gray-300 transition-colors"
                 data-testid="button-add-agenda"
               >
                 <Plus className="w-5 h-5 mx-auto mb-2" />
@@ -757,7 +757,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -803,7 +803,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -818,7 +818,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-white" />
+            <BackButton onClick={onBack} className="text-foreground" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -831,7 +831,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Event specifics</h2>
-          <p className="text-gray-400 text-sm">Add lineup and dress code details</p>
+          <p className="text-muted-foreground text-sm">Add lineup and dress code details</p>
         </div>
 
         <Form {...form}>
@@ -843,8 +843,8 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           {/* Event Lineup Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Add Event Lineup</label>
-              <p className="text-gray-400 text-sm">Feature hosts, performers, or speakers</p>
+              <label className="text-foreground font-medium">Add Event Lineup</label>
+              <p className="text-muted-foreground text-sm">Feature hosts, performers, or speakers</p>
             </div>
             <Switch
               checked={addEventLineup}
@@ -856,9 +856,9 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           {/* Event Lineup Details */}
           {addEventLineup && (
             <div className="space-y-4">
-              <label className="text-white font-medium">Event Lineup</label>
+              <label className="text-foreground font-medium">Event Lineup</label>
               <div className="p-4 border border-gray-700 rounded-lg">
-                <p className="text-gray-400 text-sm mb-4">
+                <p className="text-muted-foreground text-sm mb-4">
                   Event lineup feature will allow you to showcase featured guests, performers, or speakers at your event.
                 </p>
                 <div className="text-center py-8 border-2 border-dashed border-gray-600 rounded-lg">
@@ -872,8 +872,8 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           {/* Dress Code Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Dress Code</label>
-              <p className="text-gray-400 text-sm">Set specific attire requirements</p>
+              <label className="text-foreground font-medium">Dress Code</label>
+              <p className="text-muted-foreground text-sm">Set specific attire requirements</p>
             </div>
             <Switch
               checked={dressCode}
@@ -885,12 +885,12 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           {/* Dress Code Details */}
           {dressCode && (
             <div className="space-y-2">
-              <label className="text-white font-medium">Dress Code Details</label>
+              <label className="text-foreground font-medium">Dress Code Details</label>
               <Textarea
                 {...form.register("dressCodeDetails")}
                 placeholder="Describe the dress code (e.g., Cocktail attire, Business casual, Themed costume, etc.)"
                 rows={3}
-                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                 data-testid="textarea-dress-code"
               />
             </div>
@@ -907,7 +907,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -972,7 +972,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -987,7 +987,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-white" />
+            <BackButton onClick={onBack} className="text-foreground" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -1000,7 +1000,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Pricing & audience</h2>
-          <p className="text-gray-400 text-sm">Set pricing and define your target audience</p>
+          <p className="text-muted-foreground text-sm">Set pricing and define your target audience</p>
         </div>
 
         <Form {...form}>
@@ -1012,8 +1012,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {/* Paid Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Paid Event</label>
-              <p className="text-gray-400 text-sm">Charge admission for your event</p>
+              <label className="text-foreground font-medium">Paid Event</label>
+              <p className="text-muted-foreground text-sm">Charge admission for your event</p>
             </div>
             <Switch
               checked={isPaidEvent}
@@ -1026,11 +1026,11 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {isPaidEvent && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">Ticket Tiers</label>
+                <label className="text-foreground font-medium">Ticket Tiers</label>
                 <Button
                   type="button"
                   onClick={addTier}
-                  className="bg-gray-800 hover:bg-gray-700 text-white"
+                  className="bg-gray-800 hover:bg-gray-700 text-foreground"
                   data-testid="button-add-tier"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -1039,7 +1039,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
               </div>
               
               {fields.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   <p>No ticket tiers yet. Add a tier to get started.</p>
                 </div>
               )}
@@ -1047,7 +1047,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
               {fields.map((field, index) => (
                 <div key={field.id} className="p-4 border border-gray-700 rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-white font-medium">Tier {index + 1}</h4>
+                    <h4 className="text-foreground font-medium">Tier {index + 1}</h4>
                     <Button
                       type="button"
                       onClick={() => remove(index)}
@@ -1061,48 +1061,48 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <label className="text-white text-sm">Name</label>
+                      <label className="text-foreground text-sm">Name</label>
                       <Input
                         {...form.register(`ticketTiers.${index}.name`)}
                         placeholder="e.g., Early Bird, VIP"
-                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                         data-testid={`input-tier-name-${index}`}
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-white text-sm">Price</label>
+                      <label className="text-foreground text-sm">Price</label>
                       <Input
                         {...form.register(`ticketTiers.${index}.price`)}
                         type="number"
                         min="0"
                         step="0.01"
                         placeholder="0.00"
-                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                         data-testid={`input-tier-price-${index}`}
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-white text-sm">Description (optional)</label>
+                    <label className="text-foreground text-sm">Description (optional)</label>
                     <Textarea
                       {...form.register(`ticketTiers.${index}.description`)}
                       placeholder="What's included in this tier?"
                       rows={2}
-                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                      className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                       data-testid={`textarea-tier-description-${index}`}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-white text-sm">Quantity (optional)</label>
+                    <label className="text-foreground text-sm">Quantity (optional)</label>
                     <Input
                       {...form.register(`ticketTiers.${index}.quantity`)}
                       type="number"
                       min="1"
                       placeholder="Leave empty for unlimited"
-                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                      className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                       data-testid={`input-tier-quantity-${index}`}
                     />
                   </div>
@@ -1117,10 +1117,10 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             name="eventPrivacy"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-white font-medium">Event Privacy</FormLabel>
+                <FormLabel className="text-foreground font-medium">Event Privacy</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-privacy">
+                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-privacy">
                       <SelectValue placeholder="Select privacy level" />
                     </SelectTrigger>
                   </FormControl>
@@ -1139,12 +1139,12 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
 
           {/* Who Should Attend */}
           <div className="space-y-2">
-            <label className="text-white font-medium">Who Should Attend?</label>
+            <label className="text-foreground font-medium">Who Should Attend?</label>
             <Textarea
               {...form.register("whoShouldAttend")}
               placeholder="Describe your ideal attendees (e.g., Digital nomads, entrepreneurs, creative professionals, etc.)"
               rows={4}
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
               data-testid="textarea-who-should-attend"
             />
           </div>
@@ -1160,7 +1160,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -1219,7 +1219,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-gray-800">
         {/* MALY logo on left */}
@@ -1234,7 +1234,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-white" />
+            <BackButton onClick={onBack} className="text-foreground" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -1247,7 +1247,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Audience targeting</h2>
-          <p className="text-gray-400 text-sm">Fine-tune who can discover and attend your event</p>
+          <p className="text-muted-foreground text-sm">Fine-tune who can discover and attend your event</p>
         </div>
 
         <Form {...form}>
@@ -1258,22 +1258,22 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           >
           {/* Available Spots */}
           <div className="space-y-2">
-            <label className="text-white font-medium">Available Spots</label>
+            <label className="text-foreground font-medium">Available Spots</label>
             <Input
               {...form.register("spotsAvailable")}
               placeholder="e.g., 50 or unlimited"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
               data-testid="input-spots-available"
             />
           </div>
 
           {/* Access Restrictions */}
           <div className="space-y-4">
-            <label className="text-white font-medium">Access Restrictions</label>
+            <label className="text-foreground font-medium">Access Restrictions</label>
             
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-white">Promotion Only</span>
+                <span className="text-foreground">Promotion Only</span>
                 <Switch
                   {...form.register("promotionOnly")}
                   data-testid="switch-promotion-only"
@@ -1281,7 +1281,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-white">Contacts Only</span>
+                <span className="text-foreground">Contacts Only</span>
                 <Switch
                   {...form.register("contactsOnly")}
                   data-testid="switch-contacts-only"
@@ -1289,7 +1289,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-white">Invitation Only</span>
+                <span className="text-foreground">Invitation Only</span>
                 <Switch
                   {...form.register("invitationOnly")}
                   data-testid="switch-invitation-only"
@@ -1297,7 +1297,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-white">Require Approval</span>
+                <span className="text-foreground">Require Approval</span>
                 <Switch
                   {...form.register("requireApproval")}
                   data-testid="switch-require-approval"
@@ -1312,10 +1312,10 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             name="genderExclusive"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-white font-medium">Gender Restriction</FormLabel>
+                <FormLabel className="text-foreground font-medium">Gender Restriction</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-gender">
+                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-gender">
                       <SelectValue placeholder="Select gender preference" />
                     </SelectTrigger>
                   </FormControl>
@@ -1334,25 +1334,25 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
 
           {/* Age Restrictions */}
           <div className="space-y-4">
-            <label className="text-white font-medium">Age Restrictions</label>
+            <label className="text-foreground font-medium">Age Restrictions</label>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Minimum Age</label>
+                <label className="text-sm text-muted-foreground">Minimum Age</label>
                 <Input
                   {...form.register("ageExclusiveMin", { valueAsNumber: true })}
                   type="number"
                   placeholder="18"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-min-age"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Maximum Age</label>
+                <label className="text-sm text-muted-foreground">Maximum Age</label>
                 <Input
                   {...form.register("ageExclusiveMax", { valueAsNumber: true })}
                   type="number"
                   placeholder="35"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-max-age"
                 />
               </div>
@@ -1361,8 +1361,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
 
           {/* Vibe Selection */}
           <div className="space-y-4">
-            <label className="text-white font-medium">Event Vibes</label>
-            <p className="text-xs text-gray-400">Select the vibes that best match your event (multiple selection allowed)</p>
+            <label className="text-foreground font-medium">Event Vibes</label>
+            <p className="text-xs text-muted-foreground">Select the vibes that best match your event (multiple selection allowed)</p>
             <div className="grid grid-cols-2 gap-3">
               {VIBE_OPTIONS.map((vibe) => (
                 <div
@@ -1375,7 +1375,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
                   onClick={() => toggleVibe(vibe.value)}
                   data-testid={`vibe-option-${vibe.value}`}
                 >
-                  <div className={`${selectedVibes.includes(vibe.value) ? 'bg-black rounded-md p-3 -m-[2px]' : ''}`}>
+                  <div className={`${selectedVibes.includes(vibe.value) ? 'bg-background rounded-md p-3 -m-[2px]' : ''}`}>
                     <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'gradient-text' : 'text-gray-300'}`}>
                       {vibe.label}
                     </div>
@@ -1384,7 +1384,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               ))}
             </div>
             {selectedVibes.length > 0 && (
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-muted-foreground">
                 Selected: {selectedVibes.length} vibe{selectedVibes.length !== 1 ? 's' : ''}
               </div>
             )}
@@ -1401,7 +1401,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
           data-testid="button-create"
         >
           Create
@@ -1627,7 +1627,7 @@ export default function CreateEventFlowPage() {
       
       default:
         return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-xl mb-4">Step {currentStep} - Coming Soon</h2>
               <Button onClick={handleBack} className="bg-white text-black">

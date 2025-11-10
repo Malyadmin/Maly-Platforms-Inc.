@@ -697,7 +697,7 @@ export function ConnectPage() {
       <main className="flex-1 overflow-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {isLoading ? (
           <div className="text-center py-8">
-            <span className="text-gray-400">Loading users...</span>
+            <span className="text-muted-foreground">Loading users...</span>
           </div>
         ) : (
           /* List View - Similar to Discover Page */
@@ -839,7 +839,7 @@ export function ConnectPage() {
               
               {(!users || users.length === 0) && (
                 <div className="text-center py-8">
-                  <span className="text-gray-400">No users found</span>
+                  <span className="text-muted-foreground">No users found</span>
                 </div>
               )}
             </div>

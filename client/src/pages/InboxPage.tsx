@@ -184,7 +184,7 @@ export default function InboxPage() {
     return (
       <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-center justify-center py-12">
-          <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
+          <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium text-white">You need to sign in</h3>
           <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
           <Button
@@ -257,9 +257,9 @@ export default function InboxPage() {
       <button onClick={onPress} className="flex-1 text-left flex items-center">
         <div className="flex-1">
           <h4 className="text-white font-medium text-sm">{title}</h4>
-          <p className="text-gray-400 text-xs">{subtitle}</p>
+          <p className="text-muted-foreground text-xs">{subtitle}</p>
         </div>
-        {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
+        {showChevron && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
       </button>
     </div>
   );
@@ -275,7 +275,7 @@ export default function InboxPage() {
   // Helper function to render empty state
   const renderEmptyState = (message: string) => (
     <div className="px-4 py-2">
-      <p className="text-gray-400 text-sm">{message}</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
     </div>
   );
 
@@ -360,7 +360,7 @@ export default function InboxPage() {
             <div>
               {filteredConversations.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-gray-400 text-sm">No messages yet</p>
+                  <p className="text-muted-foreground text-sm">No messages yet</p>
                 </div>
               ) : (
                 <div>
@@ -405,7 +405,7 @@ export default function InboxPage() {
             <div className="space-y-2">
               {groupChats.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-gray-400 text-sm">No group chats yet</p>
+                  <p className="text-muted-foreground text-sm">No group chats yet</p>
                 </div>
               ) : (
                 <div>
@@ -436,7 +436,7 @@ export default function InboxPage() {
             <div className="space-y-2">
               {connections.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-gray-400 text-sm">No connections yet</p>
+                  <p className="text-muted-foreground text-sm">No connections yet</p>
                 </div>
               ) : (
                 <div>

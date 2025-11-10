@@ -226,12 +226,12 @@ export default function NotificationPreferencesPage() {
     inAppKey: keyof NotificationSettings;
     pushKey: keyof NotificationSettings;
   }) => (
-    <div className="space-y-3 p-4 bg-black/30 rounded-lg border border-gray-800">
+    <div className="space-y-3 p-4 bg-background/30 rounded-lg border border-gray-800">
       <div className="flex items-start space-x-3">
         <Icon className="h-4 w-4 text-purple-400 mt-0.5" />
         <div className="flex-1">
-          <h3 className="text-white text-sm font-medium">{title}</h3>
-          <p className="text-xs text-gray-400">{description}</p>
+          <h3 className="text-foreground text-sm font-medium">{title}</h3>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </div>
       </div>
       
@@ -261,25 +261,25 @@ export default function NotificationPreferencesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-gray-400">Loading preferences...</p>
+          <p className="mt-4 text-muted-foreground">Loading preferences...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-black border-b border-gray-800">
+      <header className="sticky top-0 z-40 bg-background border-b border-gray-800">
         <div className="flex items-center justify-between px-5 py-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-white p-2 hover:bg-white/10"
+            className="text-foreground p-2 hover:bg-white/10"
             data-testid="button-back"
           >
             <ArrowLeft className="h-6 w-6" />
@@ -338,10 +338,10 @@ export default function NotificationPreferencesPage() {
           )}
 
           {/* Notification Categories */}
-          <Card className="bg-black/40 border-gray-800">
+          <Card className="bg-background/40 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-white text-base">Notification Preferences</CardTitle>
-              <CardDescription className="text-gray-400 text-xs">
+              <CardTitle className="text-foreground text-base">Notification Preferences</CardTitle>
+              <CardDescription className="text-muted-foreground text-xs">
                 Choose how you want to be notified about different activities
               </CardDescription>
             </CardHeader>
@@ -381,14 +381,14 @@ export default function NotificationPreferencesPage() {
           </Card>
 
           {/* Info Card */}
-          <Card className="bg-black/40 border-gray-800">
+          <Card className="bg-background/40 border-gray-800">
             <CardContent className="pt-6">
-              <div className="space-y-2 text-xs text-gray-400">
+              <div className="space-y-2 text-xs text-muted-foreground">
                 <p>
-                  <strong className="text-white">In-App:</strong> Notifications appear within the Maly app
+                  <strong className="text-foreground">In-App:</strong> Notifications appear within the Maly app
                 </p>
                 <p>
-                  <strong className="text-white">Push:</strong> Notifications appear on your device even when the app is closed
+                  <strong className="text-foreground">Push:</strong> Notifications appear on your device even when the app is closed
                 </p>
               </div>
             </CardContent>

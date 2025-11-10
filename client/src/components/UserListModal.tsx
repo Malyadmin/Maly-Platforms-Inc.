@@ -75,7 +75,7 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
 
         <div className="space-y-3 mt-4">
           {type === 'views' ? (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
               <Eye className="h-12 w-12 mx-auto mb-3 text-blue-400/50" />
               <p>View tracking shows total event page views.</p>
               <p className="text-sm mt-2">Individual viewer details are not stored for privacy.</p>
@@ -105,12 +105,12 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
                 </Avatar>
                 <div className="flex-1">
                   <p className="text-white font-medium text-sm">{participant.fullName || participant.username}</p>
-                  <p className="text-gray-400 text-xs">@{participant.username}</p>
+                  <p className="text-muted-foreground text-xs">@{participant.username}</p>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-3 text-gray-600" />
               <p>No {type} users yet</p>
             </div>

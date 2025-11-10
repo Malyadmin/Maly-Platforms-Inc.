@@ -65,7 +65,7 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
           />
         ) : (
           <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-            <span className="text-gray-400 text-lg font-light tracking-wider">MÁLY</span>
+            <span className="text-muted-foreground text-lg font-light tracking-wider">MÁLY</span>
           </div>
         )}
       </div>
