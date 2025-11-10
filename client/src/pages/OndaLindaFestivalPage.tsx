@@ -3,11 +3,12 @@ import { useLocation } from "wouter";
 import { format } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { useTranslation } from "@/lib/translations";
-import { ChevronLeft, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Timeline } from "@/components/ui/timeline";
 
 interface EventUser {
@@ -131,16 +132,10 @@ export default function OndaLindaFestivalPage() {
     <div className="min-h-screen bg-black text-white">
       <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
+          <BackButton 
             className="text-white hover:bg-white/10"
             onClick={() => setLocation("/")}
-            aria-label="Go back"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="sr-only">Back</span>
-          </Button>
+          />
         </div>
       </header>
 

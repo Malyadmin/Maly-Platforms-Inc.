@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/ui/back-button';
 import { useLocation } from 'wouter';
 import { useState } from 'react';
 import { useUser } from '@/hooks/use-user';
@@ -140,7 +141,7 @@ export function FirstEventModal({ cityName, open, onClose }: FirstEventModalProp
             </div>
             
             <DialogFooter className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowInviteOptions(false)}>Back</Button>
+              <BackButton variant="outline" onClick={() => setShowInviteOptions(false)} />
               <Button variant="default" onClick={onClose}>Done</Button>
             </DialogFooter>
           </>

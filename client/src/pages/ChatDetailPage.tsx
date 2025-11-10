@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, Send } from "lucide-react";
+import { Send } from "lucide-react";
 
 export default function ChatDetailPage() {
   const { id } = useParams();
@@ -44,14 +45,7 @@ export default function ChatDetailPage() {
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/chat")}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
+            <BackButton onClick={() => setLocation("/chat")} />
             <Avatar className="h-8 w-8">
               <AvatarImage src={chat.user.image} alt={chat.user.name} />
               <AvatarFallback>{chat.user.name[0]}</AvatarFallback>

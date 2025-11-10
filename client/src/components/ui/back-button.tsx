@@ -1,7 +1,5 @@
-import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
 
 interface BackButtonProps {
   className?: string;
@@ -42,11 +40,12 @@ export function BackButton({
     <Button
       variant={variant}
       size="icon"
-      className={`text-white hover:bg-white/10 ${className}`}
+      className={`group relative overflow-hidden transition-all duration-200 active:scale-95 hover:shadow-lg before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/30 before:via-primary/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity ${className}`}
       onClick={handleBack}
       aria-label="Go back"
+      data-testid="button-back"
     >
-      <ChevronLeft className="h-5 w-5" />
+      <span aria-hidden="true" className="text-2xl font-semibold leading-none tracking-tight relative z-10">&lt;</span>
       <span className="sr-only">Back</span>
     </Button>
   );

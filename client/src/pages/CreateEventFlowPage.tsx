@@ -4,12 +4,13 @@ import { useLocation } from "wouter";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
+import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -53,15 +54,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             {onBack && (
-              <button
-                onClick={onBack}
-                className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-                data-testid="button-back"
-                aria-label="Go back"
-              >
-                <ChevronLeft className="w-5 h-5" />
-                <span className="sr-only">Back</span>
-              </button>
+              <BackButton onClick={onBack} className="text-white" />
             )}
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -252,15 +245,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-              data-testid="button-back"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="sr-only">Back</span>
-            </button>
+            <BackButton onClick={onBack} className="text-white" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -538,15 +523,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-              data-testid="button-back"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="sr-only">Back</span>
-            </button>
+            <BackButton onClick={onBack} className="text-white" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -841,15 +818,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-              data-testid="button-back"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="sr-only">Back</span>
-            </button>
+            <BackButton onClick={onBack} className="text-white" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -1018,15 +987,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-              data-testid="button-back"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="sr-only">Back</span>
-            </button>
+            <BackButton onClick={onBack} className="text-white" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>
@@ -1273,15 +1234,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         {/* Controls section */}
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
-              data-testid="button-back"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="sr-only">Back</span>
-            </button>
+            <BackButton onClick={onBack} className="text-white" />
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
         </div>

@@ -13,11 +13,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Upload, ChevronLeft } from "lucide-react";
+import { MapPin, Upload } from "lucide-react";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 
 const profileSchema = z.object({
@@ -330,17 +331,11 @@ export default function ProfileSetupPage() {
               </div>
 
               <div className="flex gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon" 
+                <BackButton 
+                  variant="outline"
                   className="glass-hover"
                   onClick={() => setCurrentStep(1)}
-                  aria-label="Go back"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                  <span className="sr-only">Back</span>
-                </Button>
+                />
                 <Button type="submit" size="lg" className="flex-1 interactive-hover">
                   Complete Profile
                 </Button>
