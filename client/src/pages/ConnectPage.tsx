@@ -164,7 +164,52 @@ export function ConnectPage() {
         description: 'User has been added to your contacts.',
       });
       
-      // Optimistically update contact status
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error: Error, targetUserId) => {
+      // Rollback optimistic update
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [targetUserId]: {
+          outgoing: null,
+          incoming: null
+        }
+      }));
+      
+      toast({
+        title: 'Error adding contact',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Remove contact
+  const removeConnectionMutation = useMutation({
+    mutationFn: async (targetUserId: number) => {
+      const response = await fetch(`/api/contacts/${targetUserId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to remove contact');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (_, targetUserId) => {
+      toast({
+        title: 'Contact removed',
+        description: 'User has been removed from your contacts.',
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error: Error, targetUserId) => {
+      // Rollback optimistic update
       setConnectionStatuses(prev => ({
         ...prev,
         [targetUserId]: {
@@ -173,16 +218,40 @@ export function ConnectPage() {
         }
       }));
       
-      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
-    },
-    onError: (error: Error) => {
       toast({
-        title: 'Error adding contact',
+        title: 'Error removing contact',
         description: error.message,
         variant: 'destructive',
       });
     },
   });
+
+  // Toggle connection handler
+  const handleToggleConnection = (userId: number) => {
+    const isCurrentlyConnected = connectionStatuses[userId]?.outgoing?.status === 'accepted';
+    
+    if (isCurrentlyConnected) {
+      // Optimistically update to disconnected
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [userId]: {
+          outgoing: null,
+          incoming: null
+        }
+      }));
+      removeConnectionMutation.mutate(userId);
+    } else {
+      // Optimistically update to connected
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [userId]: {
+          outgoing: { status: 'accepted', date: new Date().toISOString() },
+          incoming: null
+        }
+      }));
+      createConnectionMutation.mutate(userId);
+    }
+  };
 
 
   // Create or find a conversation with another user
@@ -695,19 +764,20 @@ export function ConnectPage() {
                         <Button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!isConnected && !isPending) {
-                              createConnectionMutation.mutate(user.id);
+                            const isProcessing = createConnectionMutation.isPending || removeConnectionMutation.isPending;
+                            if (!isProcessing) {
+                              handleToggleConnection(user.id);
                             }
                           }}
-                          disabled={createConnectionMutation.isPending || isConnected}
+                          disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
                             isConnected || isPending
                               ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
-                              : "bg-transparent border border-purple-500 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:border-transparent text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
+                              : "bg-gray-800 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
                           }
                           data-testid={`connect-button-${user.id}`}
                         >
-                          {createConnectionMutation.isPending ? (
+                          {(createConnectionMutation.isPending || removeConnectionMutation.isPending) ? (
                             <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                           ) : isConnected ? (
                             <>
