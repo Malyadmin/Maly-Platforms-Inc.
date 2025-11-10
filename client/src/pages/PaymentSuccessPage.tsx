@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, ChevronLeft } from 'lucide-react';
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,7 +15,7 @@ interface TempTicketData {
 
 const PaymentSuccessPage: React.FC = () => {
     const [location] = useLocation();
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
 
     const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
@@ -137,13 +137,16 @@ const PaymentSuccessPage: React.FC = () => {
                  <p className="text-red-500 my-4">Could not generate QR code. Please contact support.</p>
             )}
 
-            <div className="mt-6">
+            <div className="mt-6 flex gap-4">
                 <Link href="/">
                     <Button variant="outline">Go to Home</Button>
                 </Link>
                 {ticketData?.eventId && ticketData.eventId > 0 && (
-                    <Link href={`/event/${ticketData.eventId}`} className="ml-4">
-                        <Button variant="outline">Back to Event</Button>
+                    <Link href={`/event/${ticketData.eventId}`}>
+                        <Button variant="outline" size="icon" aria-label="Back to event">
+                            <ChevronLeft className="h-5 w-5" />
+                            <span className="sr-only">Back to Event</span>
+                        </Button>
                     </Link>
                 )}
             </div>

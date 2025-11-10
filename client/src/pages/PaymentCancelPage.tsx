@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ChevronLeft, Home } from 'lucide-react';
 
 const PaymentCancelPage: React.FC = () => {
   const [location] = useLocation();
@@ -29,9 +29,9 @@ const PaymentCancelPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {eventId && (
             <Link href={`/event/${eventId}`}>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Event
+              <Button variant="outline" size="icon" aria-label="Back to event">
+                <ChevronLeft className="h-5 w-5" />
+                <span className="sr-only">Back to Event</span>
               </Button>
             </Link>
           )}

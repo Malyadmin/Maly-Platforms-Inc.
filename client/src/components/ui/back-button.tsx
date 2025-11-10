@@ -1,35 +1,39 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 interface BackButtonProps {
   className?: string;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   fallbackPath?: string;
-  forceUsePathFallback?: boolean; // New prop to force using the fallback path
+  forceUsePathFallback?: boolean;
+  onClick?: () => void;
 }
 
 export function BackButton({ 
   className = "", 
   variant = "ghost", 
   fallbackPath = "/discover",
-  forceUsePathFallback = false
+  forceUsePathFallback = false,
+  onClick
 }: BackButtonProps) {
   const [, setLocation] = useLocation();
 
   const handleBack = () => {
-    // If forceUsePathFallback is true, always use the fallback path
+    if (onClick) {
+      onClick();
+      return;
+    }
+
     if (forceUsePathFallback) {
       setLocation(fallbackPath);
       return;
     }
     
-    // If history is empty (direct link), use the fallback path
     if (window.history.length <= 1) {
       setLocation(fallbackPath);
     } else {
-      // Otherwise use browser history
       window.history.back();
     }
   };
@@ -38,11 +42,12 @@ export function BackButton({
     <Button
       variant={variant}
       size="icon"
-      className={`text-white/60 hover:text-white ${className}`}
+      className={`text-white hover:bg-white/10 ${className}`}
       onClick={handleBack}
       aria-label="Go back"
     >
-      <ArrowLeft className="h-5 w-5" />
+      <ChevronLeft className="h-5 w-5" />
+      <span className="sr-only">Back</span>
     </Button>
   );
 }

@@ -134,12 +134,13 @@ export default function OndaLindaFestivalPage() {
           <Button
             variant="ghost"
             size="icon"
-            className="text-white/60"
+            className="text-white hover:bg-white/10"
             onClick={() => setLocation("/")}
+            aria-label="Go back"
           >
             <ChevronLeft className="w-5 h-5" />
+            <span className="sr-only">Back</span>
           </Button>
-          <h1 className="text-sm font-medium">Back</h1>
         </div>
       </header>
 

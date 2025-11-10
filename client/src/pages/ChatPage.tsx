@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { ArrowLeft, SendIcon, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, ChevronLeft } from 'lucide-react';
 
 export default function ChatPage() {
   const [match, params] = useRoute('/chat/:id');
@@ -283,10 +283,12 @@ export default function ChatPage() {
                   </Button>
                   <Button
                     variant="outline"
+                    size="icon"
                     onClick={() => setLocation('/inbox')}
-                    className="flex-1"
+                    aria-label="Back to inbox"
                   >
-                    Back to Inbox
+                    <ChevronLeft className="h-5 w-5" />
+                    <span className="sr-only">Back to Inbox</span>
                   </Button>
                 </div>
               </div>

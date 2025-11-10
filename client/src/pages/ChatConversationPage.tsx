@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users } from 'lucide-react';
+import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users, ChevronLeft } from 'lucide-react';
 import { ConversationMessage } from '@/types/inbox';
 
 interface ConversationInfo {
@@ -184,10 +184,14 @@ export default function ChatConversationPage() {
               <h3 className="text-lg font-medium">Invalid Conversation</h3>
               <p className="text-sm text-gray-500 mt-2">The conversation could not be found</p>
               <Button
+                variant="outline"
+                size="icon"
                 className="mt-4"
                 onClick={() => setLocation('/inbox')}
+                aria-label="Back to inbox"
               >
-                Back to Inbox
+                <ChevronLeft className="h-5 w-5" />
+                <span className="sr-only">Back to Inbox</span>
               </Button>
             </div>
           </CardContent>

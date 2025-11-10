@@ -55,11 +55,12 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <button
                 onClick={onBack}
-                className="flex items-center text-white"
+                className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
                 data-testid="button-back"
+                aria-label="Go back"
               >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Back
+                <ChevronLeft className="w-5 h-5" />
+                <span className="sr-only">Back</span>
               </button>
             )}
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
@@ -253,11 +254,12 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="flex items-center text-white"
+              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
               data-testid="button-back"
+              aria-label="Go back"
             >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
+              <ChevronLeft className="w-5 h-5" />
+              <span className="sr-only">Back</span>
             </button>
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -538,11 +540,12 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="flex items-center text-white"
+              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
               data-testid="button-back"
+              aria-label="Go back"
             >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
+              <ChevronLeft className="w-5 h-5" />
+              <span className="sr-only">Back</span>
             </button>
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -840,11 +843,12 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="flex items-center text-white"
+              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
               data-testid="button-back"
+              aria-label="Go back"
             >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
+              <ChevronLeft className="w-5 h-5" />
+              <span className="sr-only">Back</span>
             </button>
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -1016,11 +1020,12 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="flex items-center text-white"
+              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
               data-testid="button-back"
+              aria-label="Go back"
             >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
+              <ChevronLeft className="w-5 h-5" />
+              <span className="sr-only">Back</span>
             </button>
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
@@ -1270,11 +1275,12 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="flex items-center text-white"
+              className="flex items-center justify-center text-white hover:bg-white/10 rounded-full p-2"
               data-testid="button-back"
+              aria-label="Go back"
             >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
+              <ChevronLeft className="w-5 h-5" />
+              <span className="sr-only">Back</span>
             </button>
             <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
           </div>
