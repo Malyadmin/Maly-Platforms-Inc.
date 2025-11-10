@@ -45,7 +45,7 @@ export function BackButton({
       aria-label="Go back"
       data-testid="button-back"
     >
-      <span aria-hidden="true" className="text-2xl font-semibold leading-none tracking-tight relative z-10">&lt;</span>
+      <span aria-hidden="true" className="text-2xl font-semibold leading-none tracking-tight relative z-10">{"<"}</span>
       <span className="sr-only">Back</span>
     </Button>
   );
