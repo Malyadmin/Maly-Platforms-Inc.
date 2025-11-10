@@ -440,7 +440,9 @@ export function ConnectPage() {
                 className="h-7 w-7"
               >
                 <line x1="4" y1="9" x2="20" y2="9" />
+                <circle cx="9" cy="9" r="2" />
                 <line x1="4" y1="15" x2="20" y2="15" />
+                <circle cx="14" cy="15" r="2" />
               </svg>
             </Button>
           </div>

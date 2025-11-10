@@ -391,35 +391,36 @@ export default function ProfilePage() {
           </h2>
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (
-          <ReferralShareButton
-            contentType="profile"
-            contentId={profileData.username || profileData.id}
-            title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
-            text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
-            className="transition-colors"
-            onClick={() => setShareClicked(true)}
+          <button
+            onClick={async () => {
+              setShareClicked(true);
+              const shareUrl = `${window.location.origin}/profile/${profileData.username || profileData.id}`;
+              if (navigator.share) {
+                try {
+                  await navigator.share({
+                    title: `Check out ${profileData.fullName || profileData.username}'s profile on Maly`,
+                    text: `${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`,
+                    url: shareUrl,
+                  });
+                } catch (err) {
+                  console.error('Share failed:', err);
+                }
+              } else {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({
+                  title: 'Link copied',
+                  description: 'Profile link copied to clipboard',
+                });
+              }
+            }}
+            className="p-0 bg-transparent border-0 transition-colors hover:opacity-80"
           >
             <Share 
               className="h-6 w-6" 
               strokeWidth={2.5}
-              style={{
-                stroke: shareClicked 
-                  ? 'url(#gradient)' 
-                  : undefined
-              }}
-              color={shareClicked ? undefined : '#9ca3af'}
+              color={shareClicked ? '#9333ea' : '#9ca3af'}
             />
-            {shareClicked && (
-              <svg width="0" height="0">
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#9333ea" />
-                    <stop offset="100%" stopColor="#ec4899" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            )}
-          </ReferralShareButton>
+          </button>
         )}
       </div>
     </div>
