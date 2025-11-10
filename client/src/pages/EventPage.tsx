@@ -269,7 +269,7 @@ export default function EventPage() {
 
   if (isLoading || !event) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white/60">
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         {t('loading')}
       </div>
     );
@@ -278,7 +278,7 @@ export default function EventPage() {
   const displayEvent = translatedEvent || event;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Header - Fixed at top */}
       <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo */}
@@ -571,7 +571,7 @@ export default function EventPage() {
 
       {/* Ticket Selection Modal */}
       <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+        <DialogContent className="bg-card border-border text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-white">Select Your Ticket</DialogTitle>
           </DialogHeader>

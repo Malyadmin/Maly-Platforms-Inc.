@@ -182,7 +182,7 @@ export default function InboxPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white px-4 py-8">
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-center justify-center py-12">
           <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-white">You need to sign in</h3>
@@ -226,7 +226,7 @@ export default function InboxPage() {
     profileLink?: string;
   }) => (
     <div
-      className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+      className="w-full flex items-center px-4 py-3 hover:bg-accent active:bg-accent/80 transition-colors"
       data-testid={testId}
     >
       {profileLink ? (
@@ -280,7 +280,7 @@ export default function InboxPage() {
   );
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Header - Fixed at top */}
       <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo on left and hamburger menu on right */}
@@ -299,7 +299,7 @@ export default function InboxPage() {
         </div>
 
         {/* Filter Bar - Always Present */}
-        <div className="bg-black border-b border-gray-800">
+        <div className="bg-black border-b border-border">
           <div className="px-5 py-3 flex items-center justify-between">
             <button
               onClick={() => setActiveFilter('all')}

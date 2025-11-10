@@ -371,12 +371,12 @@ export function ConnectPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Add City Dialog */}
       <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white">Add Custom City</DialogTitle>
+            <DialogTitle className="text-foreground">Add Custom City</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <input
@@ -384,7 +384,7 @@ export function ConnectPage() {
               value={newCityInput}
               onChange={(e) => setNewCityInput(e.target.value)}
               placeholder="Enter city name"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
               data-testid="input-custom-city"
             />
@@ -474,31 +474,31 @@ export function ConnectPage() {
               
               {/* Gender Dropdown */}
               {activeDropdown === 'gender' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[120px]">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[120px]">
                   <button
                     onClick={() => { setSelectedGender('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg"
                     data-testid="gender-option-all"
                   >
                     All
                   </button>
                   <button
                     onClick={() => { setSelectedGender('male'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="gender-option-male"
                   >
                     Male
                   </button>
                   <button
                     onClick={() => { setSelectedGender('female'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="gender-option-female"
                   >
                     Female
                   </button>
                   <button
                     onClick={() => { setSelectedGender('other'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 last:rounded-b-lg"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
                     data-testid="gender-option-other"
                   >
                     Other
@@ -520,10 +520,10 @@ export function ConnectPage() {
               
               {/* City Dropdown */}
               {activeDropdown === 'location' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover border-b border-border"
                     data-testid="location-option-all"
                   >
                     All Cities
@@ -542,7 +542,7 @@ export function ConnectPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                       data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -550,7 +550,7 @@ export function ConnectPage() {
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800 last:rounded-b-lg border-t border-gray-700 sticky bottom-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-accent last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="location-option-add"
                   >
                     + Add City
@@ -572,10 +572,10 @@ export function ConnectPage() {
               
               {/* Vibe Dropdown */}
               {activeDropdown === 'vibe' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedVibe('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover"
                     data-testid="vibe-option-all"
                   >
                     All Vibes
@@ -584,7 +584,7 @@ export function ConnectPage() {
                     <button
                       key={vibe}
                       onClick={() => { setSelectedVibe(vibe); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                       data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {vibe}
@@ -610,35 +610,35 @@ export function ConnectPage() {
                 <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[150px]">
                   <button
                     onClick={() => { setSelectedIntention('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover"
                     data-testid="intention-option-all"
                   >
                     All
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('dating'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-dating"
                   >
                     Dating
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('social'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-social"
                   >
                     Social
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('networking'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-networking"
                   >
                     Networking
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('friends'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 last:rounded-b-lg"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
                     data-testid="intention-option-friends"
                   >
                     Friends

@@ -282,9 +282,9 @@ export default function DiscoverPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Add City Dialog */}
       <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white">Add Custom City</DialogTitle>
+            <DialogTitle className="text-foreground">Add Custom City</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <input
@@ -292,7 +292,7 @@ export default function DiscoverPage() {
               value={newCityInput}
               onChange={(e) => setNewCityInput(e.target.value)}
               placeholder="Enter city name"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
               data-testid="input-custom-city"
             />
@@ -505,7 +505,7 @@ export default function DiscoverPage() {
                   <Badge
                     key={type}
                     variant="secondary"
-                    className="bg-gray-800 text-white flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
+                    className="bg-muted text-foreground flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                   >
                     <span className="truncate">{type}</span>
                     <button
@@ -524,7 +524,7 @@ export default function DiscoverPage() {
       </div>
 
       <div className="flex-1 overflow-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-        <main className="bg-black text-white pb-24">
+        <main className="bg-background text-foreground pb-24">
           <div className="px-4 py-3">
             {/* Event Grid with Date Categories */}
             <div className="space-y-3">
