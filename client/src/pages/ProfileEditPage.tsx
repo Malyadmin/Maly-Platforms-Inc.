@@ -67,6 +67,7 @@ export default function ProfileEditPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const { t } = useTranslation();
   
   const genderOptions = [
@@ -561,15 +562,23 @@ export default function ProfileEditPage() {
                 <Button 
                   variant="outline" 
                   onClick={() => setLocation(`/profile/${user?.username}`)}
+                  className="text-sm"
                 >
                   {t("cancel")}
                 </Button>
-                <Button 
+                <button
                   type="submit" 
                   disabled={isLoading}
+                  onClick={() => setSaveButtonClicked(true)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    saveButtonClicked 
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600' 
+                      : 'bg-gray-600 text-white hover:bg-gray-700'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  data-testid="button-save-profile"
                 >
                   {isLoading ? t("saving") : t("saveChanges")}
-                </Button>
+                </button>
               </div>
             </form>
           </Form>
