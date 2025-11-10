@@ -294,9 +294,15 @@ export default function EventPage() {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setLocation('/discover')}
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  setLocation('/discover');
+                }
+              }}
               className="text-white/80 hover:text-white transition-colors text-sm"
-              data-testid="button-back-to-discover"
+              data-testid="button-back"
             >
               Back
             </button>

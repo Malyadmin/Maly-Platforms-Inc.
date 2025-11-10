@@ -341,13 +341,21 @@ export default function ProfilePage() {
     <div className="px-5 pb-3">
       <div className="flex items-center gap-3">
         <button
-          onClick={() => setLocation("/discover")}
+          onClick={() => {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              setLocation("/discover");
+            }
+          }}
           className="text-white/80 hover:text-white transition-colors text-sm"
-          data-testid="button-back-to-discover"
+          data-testid="button-back"
         >
           Back
         </button>
-        <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Profile</h2>
+        <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
+        </h2>
       </div>
     </div>
   </header>

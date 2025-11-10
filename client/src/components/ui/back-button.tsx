@@ -25,14 +25,11 @@ export function BackButton({
       return;
     }
     
-    // Check if we're on a profile page where back functionality may be problematic
-    const isProfilePage = window.location.pathname.startsWith('/profile/');
-    
-    // For profile pages or if history is empty, use the fallback path
-    if (isProfilePage || window.history.length <= 1) {
+    // If history is empty (direct link), use the fallback path
+    if (window.history.length <= 1) {
       setLocation(fallbackPath);
     } else {
-      // Otherwise try to use browser history
+      // Otherwise use browser history
       window.history.back();
     }
   };
