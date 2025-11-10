@@ -136,26 +136,59 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      const newImagePreviews: string[] = [];
-      let loadedCount = 0;
-      
+    if (!files || files.length === 0) return;
+    
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
       Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newImagePreviews.push(reader.result as string);
-          loadedCount++;
-          
-          if (loadedCount === files.length) {
-            setImagePreviews(prev => [...prev, ...newImagePreviews]);
-            setCurrentImageIndex(imagePreviews.length);
-            setHasNewImages(true);
-          }
-        };
-        reader.readAsDataURL(file);
+        formData.append('images', file);
       });
+      
+      const response = await fetch('/api/upload-profile-images', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.imageUrls) {
+        setImagePreviews(prev => [...prev, ...data.imageUrls]);
+        setCurrentImageIndex(imagePreviews.length);
+        setHasNewImages(true);
+        
+        toast({
+          title: "Images Uploaded",
+          description: `${data.imageUrls.length} image(s) uploaded successfully.`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Upload Error",
+        description: error.message || "Failed to upload images",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+    
+    if (currentImageIndex >= imagePreviews.length - 1) {
+      setCurrentImageIndex(Math.max(0, imagePreviews.length - 2));
+    }
+    
+    if (imagePreviews.length <= 1) {
+      setHasNewImages(false);
     }
   };
 
@@ -439,6 +472,17 @@ export default function EditProfilePage() {
             </div>
           )}
           
+          {/* Remove image button */}
+          {imagePreviews.length > 0 && (
+            <button
+              onClick={() => handleRemoveImage(currentImageIndex)}
+              className="absolute top-4 right-4 p-2 bg-red-600 hover:bg-red-700 rounded-full transition-colors shadow-lg z-10"
+              data-testid="button-remove-image"
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+          )}
+          
           {/* Navigation buttons for multiple images */}
           {imagePreviews.length > 1 && (
             <>
@@ -457,7 +501,7 @@ export default function EditProfilePage() {
                 <ChevronRight className="h-6 w-6 text-white" />
               </button>
               {/* Image counter */}
-              <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm">
+              <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm">
                 {currentImageIndex + 1} / {imagePreviews.length}
               </div>
             </>
