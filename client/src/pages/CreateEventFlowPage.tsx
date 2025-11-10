@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { useLocation } from "wouter";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -426,6 +426,71 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
   const [agendaItems, setAgendaItems] = useState(data.agendaItems || []);
   const [isOnlineEvent, setIsOnlineEvent] = useState(data.isOnlineEvent);
   const [addActivitySchedule, setAddActivitySchedule] = useState(data.addActivitySchedule);
+  const [cityQuery, setCityQuery] = useState(data.city || "");
+  const [citySuggestions, setCitySuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const searchCities = async (query: string) => {
+    if (query.length < 2) {
+      setCitySuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const apiKey = import.meta.env.VITE_GEOAPIFY_API_KEY;
+    if (!apiKey) {
+      console.error("Geoapify API key not configured");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&type=city&format=json&apiKey=${apiKey}`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        setCitySuggestions(data.results);
+        setShowSuggestions(true);
+      } else {
+        setCitySuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error("Error fetching city suggestions:", error);
+      setCitySuggestions([]);
+    }
+  };
+
+  const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCityQuery(value);
+    form.setValue("city", value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      searchCities(value);
+    }, 300);
+  };
+
+  const selectCity = (city: any) => {
+    const cityName = city.city || city.name || city.formatted;
+    setCityQuery(cityName);
+    form.setValue("city", cityName);
+    setShowSuggestions(false);
+    setCitySuggestions([]);
+  };
 
   const addAgendaItem = () => {
     const newItem = { time: "", description: "" };
@@ -542,17 +607,40 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Location Fields */}
           {!isOnlineEvent && (
             <>
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-white font-medium flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
                   City
                 </label>
                 <Input
-                  {...form.register("city")}
-                  placeholder="Enter city name"
+                  value={cityQuery}
+                  onChange={handleCityInputChange}
+                  onFocus={() => cityQuery.length >= 2 && citySuggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder="Start typing city name..."
                   className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-city"
+                  autoComplete="off"
                 />
+                {showSuggestions && citySuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {citySuggestions.map((city, index) => (
+                      <div
+                        key={index}
+                        onClick={() => selectCity(city)}
+                        className="px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0"
+                        data-testid={`city-suggestion-${index}`}
+                      >
+                        <div className="text-white text-sm">
+                          {city.city || city.name}
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          {city.country}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {form.formState.errors.city && (
                   <p className="text-red-500 text-sm">{form.formState.errors.city.message}</p>
                 )}
