@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Filter, MapPin, Heart, Mail } from "lucide-react";
+import { Crown, SlidersHorizontal, MapPin, Heart, Mail } from "lucide-react";
 
 interface PremiumPaywallProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
 
   const featureConfig = {
     filtering: {
-      icon: Filter,
+      icon: SlidersHorizontal,
       title: 'Advanced Filtering',
       description: 'Filter by gender and location to find exactly who you\'re looking for',
       features: [

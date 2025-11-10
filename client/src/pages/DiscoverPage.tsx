@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, Filter, ChevronDown } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -324,7 +324,7 @@ export default function DiscoverPage() {
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
-              <Filter className="h-7 w-7" />
+              <SlidersHorizontal className="h-7 w-7" />
             </Button>
           </div>
           

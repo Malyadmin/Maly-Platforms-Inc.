@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
-import { Filter, X, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
+import { SlidersHorizontal, X, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
@@ -295,7 +295,7 @@ export function ConnectPage() {
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
-              <Filter className="h-7 w-7" />
+              <SlidersHorizontal className="h-7 w-7" />
             </Button>
           </div>
           
