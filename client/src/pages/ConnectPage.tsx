@@ -781,7 +781,7 @@ export function ConnectPage() {
                     {/* Connect Button */}
                     {currentUser && user.id !== currentUser.id && (
                       <div className="flex items-center ml-1 sm:ml-2">
-                        <Button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             const isProcessing = createConnectionMutation.isPending || removeConnectionMutation.isPending;
@@ -792,8 +792,8 @@ export function ConnectPage() {
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
                             isConnected
-                              ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
-                              : "bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
+                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              : "inline-flex items-center justify-center gap-2 rounded-md bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}
                         >
@@ -815,7 +815,7 @@ export function ConnectPage() {
                               <span className="hidden sm:inline">Connect</span>
                             </>
                           )}
-                        </Button>
+                        </button>
                       </div>
                     )}
                   </div>
