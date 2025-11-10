@@ -41,7 +41,7 @@ interface ProfileData {
 
 export default function EditProfilePage() {
   const [, setLocation] = useLocation();
-  const { user, refetchUser } = useUser();
+  const { user, updateProfile, refreshUser } = useUser();
   const { toast } = useToast();
   
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -111,23 +111,17 @@ export default function EditProfilePage() {
     setIsSaving(true);
     
     try {
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
+      localStorage.removeItem('maly_user_data');
+      localStorage.removeItem('maly_user_verified_at');
+      
+      await updateProfile(updatedData);
 
       toast({
         title: "Profile Updated",
         description: `Your ${field} has been successfully updated.`,
       });
 
-      await refetchUser();
+      await refreshUser();
       setEditingField(null);
       setTempValue("");
       setTempMoods([]);
@@ -181,23 +175,17 @@ export default function EditProfilePage() {
         profileImage: imagePreviews[currentImageIndex] || imagePreviews[0],
       };
       
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile images');
-      }
+      localStorage.removeItem('maly_user_data');
+      localStorage.removeItem('maly_user_verified_at');
+      
+      await updateProfile(updatedData);
 
       toast({
         title: "Profile Image Updated",
         description: "Your profile image has been successfully updated.",
       });
 
-      await refetchUser();
+      await refreshUser();
       setProfileData(updatedData);
       setHasNewImages(false);
     } catch (error: any) {
@@ -230,7 +218,7 @@ export default function EditProfilePage() {
         description: "Your profile has been successfully updated.",
       });
 
-      await refetchUser();
+      await refreshUser();
       setLocation(`/profile/${user?.username}`);
     } catch (error: any) {
       toast({
