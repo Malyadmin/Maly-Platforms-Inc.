@@ -354,7 +354,7 @@ export default function DiscoverPage() {
               
               {activeDropdown === 'when' && (
                 <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[140px]">
-                  {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
+                  {['Anytime', 'Today', 'This Week', 'This Weekend', 'Next Week', 'Next Month'].map((time) => (
                     <button
                       key={time}
                       onClick={() => { setSelectedTimeFilter(time); setActiveDropdown(null); }}

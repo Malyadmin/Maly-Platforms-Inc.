@@ -195,7 +195,8 @@ export const VIBE_AND_MOOD_TAGS = [
   "Single & Social",
   "Chill & Recharge",
   "Adventure & Exploring",
-  "Spiritual & Intentional"
+  "Spiritual & Intentional",
+  "Dancing & Music"
 ];
 
 // For backward compatibility, keeping INTEREST_TAGS and MOOD_TAGS
