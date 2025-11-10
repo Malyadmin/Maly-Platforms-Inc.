@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share2, ChevronDown } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Mail, Briefcase, Calendar, UserPlus, Check, X, UserCheck, Smile, Heart, Edit3, UserCircle, Share, ChevronDown } from "lucide-react";
 import { ReferralShareButton } from "@/components/ReferralShareButton";
 import { useTranslation } from "@/lib/translations";
 import PremiumPaywall from "@/components/PremiumPaywall";
@@ -78,6 +78,8 @@ export default function ProfilePage() {
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
+  const [shareClicked, setShareClicked] = useState(false);
+  const [messageClicked, setMessageClicked] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
@@ -339,23 +341,37 @@ export default function ProfilePage() {
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}
     <div className="px-5 pb-3">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => {
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              setLocation("/discover");
-            }
-          }}
-          className="text-white/80 hover:text-white transition-colors text-sm"
-          data-testid="button-back"
-        >
-          Back
-        </button>
-        <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-          {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
-        </h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                setLocation("/discover");
+              }
+            }}
+            className="text-white/80 hover:text-white transition-colors text-sm"
+            data-testid="button-back"
+          >
+            Back
+          </button>
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
+          </h2>
+        </div>
+        {currentUser && profileData?.id !== currentUser?.id && (
+          <ReferralShareButton
+            contentType="profile"
+            contentId={profileData.username || profileData.id}
+            title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
+            text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
+            className={`p-2 rounded-lg transition-colors ${shareClicked ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-gray-400 hover:text-gray-300'}`}
+            onClick={() => setShareClicked(true)}
+          >
+            <Share className="h-5 w-5" />
+          </ReferralShareButton>
+        )}
       </div>
     </div>
   </header>
@@ -481,10 +497,17 @@ export default function ProfilePage() {
         {currentUser && profileData.id !== currentUser.id && (
           <div className="space-y-3 pt-6 pb-24">
             {/* Message Button - Always shown */}
-            <Button 
-              onClick={handleMessageClick}
+            <button
+              onClick={() => {
+                setMessageClicked(true);
+                handleMessageClick();
+              }}
               disabled={createConversationMutation.isPending}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full border-0"
+              className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
+                messageClicked 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0'
+                  : 'bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700'
+              }`}
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (
@@ -493,49 +516,34 @@ export default function ProfilePage() {
                 <Mail className="h-4 w-4 mr-2" />
               )}
               Message
-            </Button>
+            </button>
             
-            {/* Connect and Share Row */}
-            <div className="flex gap-3">
-              {/* Connect Button */}
-              {connectionLoading ? (
-                <Button disabled className="flex-1 bg-gray-700 text-white rounded-full border-0">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Loading
-                </Button>
-              ) : isContact ? (
-                <Button className="flex-1 bg-green-600 text-white rounded-full border-0" disabled>
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  In Contacts
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => createConnectionMutation.mutate(profileData.id)}
-                  disabled={createConnectionMutation.isPending}
-                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
-                  data-testid="button-add-contact"
-                >
-                  {createConnectionMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <UserPlus className="h-4 w-4 mr-2" />
-                  )}
-                  Add to Contacts
-                </Button>
-              )}
-              
-              {/* Share Button */}
-              <ReferralShareButton
-                contentType="profile"
-                contentId={profileData.username || profileData.id}
-                title={`Check out ${profileData.fullName || profileData.username}'s profile on Maly`}
-                text={`${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`}
-                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
+            {/* Connect Button */}
+            {connectionLoading ? (
+              <Button disabled className="w-full bg-gray-700 text-white rounded-full border-0">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Loading
+              </Button>
+            ) : isContact ? (
+              <Button className="w-full bg-green-600 text-white rounded-full border-0" disabled>
+                <UserCheck className="h-4 w-4 mr-2" />
+                In Contacts
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => createConnectionMutation.mutate(profileData.id)}
+                disabled={createConnectionMutation.isPending}
+                className="w-full bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
+                data-testid="button-add-contact"
               >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </ReferralShareButton>
-            </div>
+                {createConnectionMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4 mr-2" />
+                )}
+                Add to Contacts
+              </Button>
+            )}
           </div>
         )}
       </div>
