@@ -360,9 +360,21 @@ export default function EditProfilePage() {
 
           {/* Name overlay */}
           <div className="absolute bottom-6 left-6 right-6">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-              {profileData.fullName || user.username}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                {profileData.fullName || user.username}
+              </h1>
+              <label className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
+                <Pencil className="h-4 w-4 text-white" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                  data-testid="input-profile-image"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
