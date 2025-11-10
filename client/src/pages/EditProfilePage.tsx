@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Loader2, X, Check } from "lucide-react";
+import { Pencil, Loader2, X, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
@@ -61,7 +61,9 @@ export default function EditProfilePage() {
   const [tempValue, setTempValue] = useState<any>("");
   const [tempMoods, setTempMoods] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hasNewImages, setHasNewImages] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -77,7 +79,9 @@ export default function EditProfilePage() {
         age: user.age,
         profileImage: user.profileImage || null,
       });
-      setImagePreview(user.profileImage || null);
+      setImagePreviews(user.profileImage ? [user.profileImage] : []);
+      setCurrentImageIndex(0);
+      setHasNewImages(false);
     }
   }, [user]);
 
@@ -107,13 +111,68 @@ export default function EditProfilePage() {
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const newImagePreviews: string[] = [];
+      let loadedCount = 0;
+      
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newImagePreviews.push(reader.result as string);
+          loadedCount++;
+          
+          if (loadedCount === files.length) {
+            setImagePreviews(prev => [...prev, ...newImagePreviews]);
+            setCurrentImageIndex(imagePreviews.length);
+            setHasNewImages(true);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : imagePreviews.length - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev < imagePreviews.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleSaveImages = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...profileData,
+          profileImage: imagePreviews[0],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile images');
+      }
+
+      toast({
+        title: "Images Updated",
+        description: "Your profile images have been successfully updated.",
+      });
+
+      await refetchUser();
+      setHasNewImages(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -340,10 +399,10 @@ export default function EditProfilePage() {
       <div className="flex-1 overflow-y-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {/* Profile Image Section */}
         <div className="relative w-full h-[50vh] mb-6">
-          {imagePreview || profileData.profileImage ? (
+          {imagePreviews.length > 0 ? (
             <div className="absolute inset-0">
               <img 
-                src={imagePreview || profileData.profileImage || undefined}
+                src={imagePreviews[currentImageIndex]}
                 alt="Profile"
                 className="w-full h-full object-cover object-center"
               />
@@ -357,23 +416,70 @@ export default function EditProfilePage() {
             </div>
           )}
           
+          {/* Navigation buttons for multiple images */}
+          {imagePreviews.length > 1 && (
+            <>
+              <button
+                onClick={handlePreviousImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                data-testid="button-previous-image"
+              >
+                <ChevronLeft className="h-6 w-6 text-white" />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                data-testid="button-next-image"
+              >
+                <ChevronRight className="h-6 w-6 text-white" />
+              </button>
+              {/* Image counter */}
+              <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm">
+                {currentImageIndex + 1} / {imagePreviews.length}
+              </div>
+            </>
+          )}
 
           {/* Name overlay */}
           <div className="absolute bottom-6 left-6 right-6">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                {profileData.fullName || user.username}
-              </h1>
-              <label className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
-                <Pencil className="h-4 w-4 text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                  data-testid="input-profile-image"
-                />
-              </label>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                  {profileData.fullName || user.username}
+                </h1>
+                <label className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
+                  <Pencil className="h-4 w-4 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageChange}
+                    data-testid="input-profile-image"
+                  />
+                </label>
+              </div>
+              {/* Save button for new images */}
+              {hasNewImages && (
+                <Button
+                  onClick={handleSaveImages}
+                  disabled={isSaving}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-save-images"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Save Images
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>
