@@ -520,20 +520,23 @@ export default function ProfilePage() {
             
             {/* Connect Button */}
             {connectionLoading ? (
-              <Button disabled className="w-full bg-gray-700 text-white rounded-full border-0">
+              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gray-600 text-gray-200 border border-gray-700 opacity-50">
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Loading
-              </Button>
+              </button>
             ) : isContact ? (
-              <Button className="w-full bg-green-600 text-white rounded-full border-0" disabled>
+              <button 
+                disabled 
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0"
+              >
                 <UserCheck className="h-4 w-4 mr-2" />
                 In Contacts
-              </Button>
+              </button>
             ) : (
-              <Button 
+              <button
                 onClick={() => createConnectionMutation.mutate(profileData.id)}
                 disabled={createConnectionMutation.isPending}
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white rounded-full border-0"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700"
                 data-testid="button-add-contact"
               >
                 {createConnectionMutation.isPending ? (
@@ -542,7 +545,7 @@ export default function ProfilePage() {
                   <UserPlus className="h-4 w-4 mr-2" />
                 )}
                 Add to Contacts
-              </Button>
+              </button>
             )}
           </div>
         )}
