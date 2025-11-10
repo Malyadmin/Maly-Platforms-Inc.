@@ -18,8 +18,10 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
               {/* Step indicator */}
               <div
                 className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-                  isCompleted || isCurrent
+                  isCompleted
                     ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500'
+                    : isCurrent
+                    ? 'bg-white'
                     : 'bg-gray-600'
                 }`}
               />
