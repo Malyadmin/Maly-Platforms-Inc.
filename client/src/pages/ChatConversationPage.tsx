@@ -223,7 +223,12 @@ export default function ChatConversationPage() {
               {!isGroupChat && conversation.otherParticipant ? (
                 <button
                   type="button"
-                  onClick={() => setLocation(`/profile/${conversation.otherParticipant?.username || conversation.otherParticipant?.id}?from=/chat/conversation/${conversationId}`)}
+                  onClick={() => {
+                    const profileIdentifier = conversation.otherParticipant?.username || String(conversation.otherParticipant?.id || '');
+                    if (profileIdentifier) {
+                      setLocation(`/profile/${profileIdentifier}?from=/chat/conversation/${conversationId}`);
+                    }
+                  }}
                   className="relative"
                   data-testid="conversation-avatar-button"
                 >
@@ -336,7 +341,12 @@ export default function ChatConversationPage() {
                           {!isCurrentUser && message.sender && (
                             <button
                               type="button"
-                              onClick={() => setLocation(`/profile/${message.sender?.username || message.sender?.id}?from=/chat/conversation/${conversationId}`)}
+                              onClick={() => {
+                                const profileIdentifier = message.sender?.username || String(message.sender?.id || '');
+                                if (profileIdentifier) {
+                                  setLocation(`/profile/${profileIdentifier}?from=/chat/conversation/${conversationId}`);
+                                }
+                              }}
                               data-testid={`message-avatar-${message.id}`}
                             >
                               <Avatar className="h-8 w-8">
