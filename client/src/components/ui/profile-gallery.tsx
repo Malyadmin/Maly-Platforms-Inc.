@@ -71,20 +71,6 @@ export function ProfileGallery({
               />
             </div>
             <div className="absolute top-2 right-2 flex gap-2">
-              <label 
-                htmlFor="main-image-change"
-                className="bg-gray-800/90 text-white rounded-full w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/90 transition-colors"
-                data-testid="edit-main-image"
-              >
-                <Edit3 className="w-4 h-4" />
-                <input
-                  id="main-image-change"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
               <button
                 type="button"
                 onClick={() => removeImage(0)}
