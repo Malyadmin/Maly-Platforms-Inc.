@@ -41,6 +41,7 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 import PaymentMethodsPage from "./pages/PaymentMethodsPage";
+import AppearancePage from "./pages/AppearancePage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -88,7 +89,7 @@ function AppContent() {
 
   // Determine if we should show the layout based on the current route
   // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, CreatorDashboardPage, PaymentMethodsPage, and SignupFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && location !== '/payment-methods' && location !== '/notification-preferences';
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && location !== '/payment-methods' && location !== '/notification-preferences' && location !== '/appearance';
 
   return (
     <>
@@ -131,6 +132,7 @@ function AppContent() {
             <Route path="/privacy" component={PrivacyPolicyPage} />
             <Route path="/notification-preferences" component={NotificationPreferencesPage} />
             <Route path="/payment-methods" component={PaymentMethodsPage} />
+            <Route path="/appearance" component={AppearancePage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>

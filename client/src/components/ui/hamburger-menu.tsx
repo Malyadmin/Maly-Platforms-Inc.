@@ -18,6 +18,7 @@ const menuSections: MenuSection[] = [
     title: "ACCOUNT AND PROFILE",
     items: [
       "Edit Profile",
+      "Appearance",
       "Payment Methods",
       "Notification Preferences"
     ]
@@ -60,6 +61,7 @@ export function HamburgerMenu() {
     const routeMap: Record<string, string> = {
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
+      "Appearance": "/appearance",
       "Payment Methods": "/payment-methods",
       "Manage Subscriptions": "/premium",
       "Notification Preferences": "/notification-preferences",
