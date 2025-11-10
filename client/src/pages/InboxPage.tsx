@@ -214,7 +214,8 @@ export default function InboxPage() {
     avatar, 
     onPress, 
     showChevron = true,
-    testId
+    testId,
+    profileLink
   }: {
     title: string;
     subtitle: string;
@@ -222,24 +223,45 @@ export default function InboxPage() {
     onPress: () => void;
     showChevron?: boolean;
     testId?: string;
+    profileLink?: string;
   }) => (
-    <button
-      onClick={onPress}
+    <div
       className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
       data-testid={testId}
     >
-      <Avatar className="h-10 w-10 mr-3">
-        <AvatarImage src={avatar} alt={title} />
-        <AvatarFallback className="bg-gray-700 text-gray-300">
-          <UserPlus className="h-5 w-5" />
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 text-left">
-        <h4 className="text-white font-medium text-sm">{title}</h4>
-        <p className="text-gray-400 text-xs">{subtitle}</p>
-      </div>
-      {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
-    </button>
+      {profileLink ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setLocation(profileLink);
+          }}
+          className="mr-3"
+          data-testid={`${testId}-avatar`}
+        >
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={avatar} alt={title} />
+            <AvatarFallback className="bg-gray-700 text-gray-300">
+              <UserPlus className="h-5 w-5" />
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      ) : (
+        <Avatar className="h-10 w-10 mr-3">
+          <AvatarImage src={avatar} alt={title} />
+          <AvatarFallback className="bg-gray-700 text-gray-300">
+            <UserPlus className="h-5 w-5" />
+          </AvatarFallback>
+        </Avatar>
+      )}
+      <button onClick={onPress} className="flex-1 text-left flex items-center">
+        <div className="flex-1">
+          <h4 className="text-white font-medium text-sm">{title}</h4>
+          <p className="text-gray-400 text-xs">{subtitle}</p>
+        </div>
+        {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
+      </button>
+    </div>
   );
 
   // Helper function to render section headers
@@ -360,12 +382,17 @@ export default function InboxPage() {
                       ? conversation.otherParticipant?.profileImage
                       : undefined;
                     
+                    const profileLink = conversation.type === 'direct' && conversation.otherParticipant
+                      ? `/profile/${conversation.otherParticipant.username || conversation.otherParticipant.id}?from=/inbox`
+                      : undefined;
+                    
                     return renderInboxItem({
                       title: displayName,
                       subtitle: displaySubtitle,
                       avatar: avatarUrl,
                       onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                      testId: `conversation-${conversation.id}`
+                      testId: `conversation-${conversation.id}`,
+                      profileLink
                     });
                   })}
                 </div>
@@ -418,8 +445,9 @@ export default function InboxPage() {
                       title: connection.fullName || connection.username,
                       subtitle: 'Connected',
                       avatar: connection.profileImage || undefined,
-                      onPress: () => setLocation(`/profile/${connection.username}`),
-                      testId: `connection-${connection.id}`
+                      onPress: () => setLocation(`/profile/${connection.username || connection.id}`),
+                      testId: `connection-${connection.id}`,
+                      profileLink: `/profile/${connection.username || connection.id}?from=/inbox`
                     });
                   })}
                 </div>

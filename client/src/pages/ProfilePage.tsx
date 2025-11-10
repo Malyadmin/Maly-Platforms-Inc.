@@ -69,9 +69,11 @@ interface ProfileData {
 
 
 export default function ProfilePage() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { username } = useParams();
   const { user: currentUser, logout } = useUser();
+  const searchParams = new URLSearchParams(location.split('?')[1]);
+  const fromUrl = searchParams.get('from');
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdatingMood, setIsUpdatingMood] = useState(false);
@@ -375,7 +377,9 @@ export default function ProfilePage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
-              if (window.history.length > 1) {
+              if (fromUrl) {
+                setLocation(fromUrl);
+              } else if (window.history.length > 1) {
                 window.history.back();
               } else {
                 setLocation("/discover");

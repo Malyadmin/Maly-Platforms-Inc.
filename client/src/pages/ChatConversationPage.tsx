@@ -220,28 +220,37 @@ export default function ChatConversationPage() {
             </div>
           ) : conversation ? (
             <div className="flex items-center">
-              <div className="relative">
-                <Avatar className="h-10 w-10">
-                  {!isGroupChat && conversation.otherParticipant?.profileImage && (
-                    <AvatarImage 
-                      src={conversation.otherParticipant.profileImage} 
-                      alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
-                    />
-                  )}
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {isGroupChat ? (
-                      <Users className="h-5 w-5" />
-                    ) : (
-                      conversation.title.substring(0, 2).toUpperCase()
+              {!isGroupChat && conversation.otherParticipant ? (
+                <button
+                  type="button"
+                  onClick={() => setLocation(`/profile/${conversation.otherParticipant?.username || conversation.otherParticipant?.id}?from=/chat/conversation/${conversationId}`)}
+                  className="relative"
+                  data-testid="conversation-avatar-button"
+                >
+                  <Avatar className="h-10 w-10">
+                    {conversation.otherParticipant?.profileImage && (
+                      <AvatarImage 
+                        src={conversation.otherParticipant.profileImage} 
+                        alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
+                      />
                     )}
-                  </AvatarFallback>
-                </Avatar>
-                {isGroupChat && (
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {conversation.title.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              ) : (
+                <div className="relative">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      <Users className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
                     <Users className="h-3 w-3 text-white" />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               <div className="ml-3">
                 <CardTitle className="text-base" data-testid="conversation-title">
                   {conversation.title}
@@ -324,13 +333,19 @@ export default function ChatConversationPage() {
                       )}
                       <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
                         <div className={`flex gap-3 max-w-[80%] ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                          {!isCurrentUser && (
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={message.sender?.profileImage || undefined} alt={message.sender?.fullName || 'User'} />
-                              <AvatarFallback>
-                                {message.sender?.fullName?.substring(0, 2).toUpperCase() || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
+                          {!isCurrentUser && message.sender && (
+                            <button
+                              type="button"
+                              onClick={() => setLocation(`/profile/${message.sender?.username || message.sender?.id}?from=/chat/conversation/${conversationId}`)}
+                              data-testid={`message-avatar-${message.id}`}
+                            >
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={message.sender?.profileImage || undefined} alt={message.sender?.fullName || 'User'} />
+                                <AvatarFallback>
+                                  {message.sender?.fullName?.substring(0, 2).toUpperCase() || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                            </button>
                           )}
                           <div>
                             <div className={`px-4 py-2 rounded-lg ${isCurrentUser 
