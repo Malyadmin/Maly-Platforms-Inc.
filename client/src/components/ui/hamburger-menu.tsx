@@ -126,7 +126,7 @@ export function HamburgerMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="text-foreground p-2 hover:bg-accent/10"
+          className="text-foreground p-2 hover:bg-foreground/5"
           data-testid="hamburger-menu-button"
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -160,7 +160,7 @@ export function HamburgerMenu() {
                   {section.items.map((item) => (
                     <button
                       key={item}
-                      className="w-full text-left px-8 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                      className="w-full text-left px-8 py-2.5 text-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground transition-colors"
                       data-testid={`menu-item-${item.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => handleMenuItemClick(item)}
                     >

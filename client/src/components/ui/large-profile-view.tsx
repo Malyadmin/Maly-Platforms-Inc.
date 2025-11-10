@@ -81,7 +81,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
 
   return (
     <div 
-      className={`relative bg-gray-900 overflow-hidden aspect-square w-full max-h-[calc(100vh-8rem)] ${className}`}
+      className={`relative bg-black overflow-hidden aspect-square w-full max-h-[calc(100vh-8rem)] ${className}`}
       data-testid={`large-profile-view-${user.id}`}
     >
       {/* Main Image */}
@@ -105,14 +105,14 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           <>
             <button
               onClick={handlePreviousImage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
               data-testid={`large-prev-image-${user.id}`}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={handleNextImage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
               data-testid={`large-next-image-${user.id}`}
             >
               <ChevronRight className="w-5 h-5" />

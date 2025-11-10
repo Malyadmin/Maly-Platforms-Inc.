@@ -294,7 +294,7 @@ export default function HomePage() {
                       </SelectItem>
                     ))}
                     <div 
-                      className="cursor-pointer flex items-center gap-2 p-2 hover:bg-accent text-primary"
+                      className="cursor-pointer flex items-center gap-2 p-2 hover:bg-foreground/10 text-primary"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -442,7 +442,7 @@ export default function HomePage() {
                   RECOMMENDED
                 </h2>
                 <Card
-                  className="bg-card border-border hover:bg-accent/50 transition-colors cursor-pointer overflow-hidden"
+                  className="bg-card border-border hover:bg-foreground/10/50 transition-colors cursor-pointer overflow-hidden"
                   onClick={() => setLocation(`/event/onda-linda-festival`)}
                 >
                   <CardContent className="p-0">
@@ -480,7 +480,7 @@ export default function HomePage() {
                             <Badge
                               key={tag}
                               variant="secondary"
-                              className="bg-white/10 text-white"
+                              className="bg-accent text-white"
                             >
                               {tag}
                             </Badge>
@@ -544,7 +544,7 @@ export default function HomePage() {
                   {groupedEvents.thisWeekend.map((event: any) => (
                     <Card
                       key={event.id}
-                      className="bg-card border-border hover:bg-accent/50 transition-colors cursor-pointer overflow-hidden"
+                      className="bg-card border-border hover:bg-foreground/10/50 transition-colors cursor-pointer overflow-hidden"
                       onClick={() => {
                         if (event.id) {
                           setLocation(`/event/${event.id}`);
@@ -677,7 +677,7 @@ export default function HomePage() {
                   {groupedEvents.nextWeek.map((event: any) => (
                     <Card
                       key={event.id}
-                      className="bg-card border-border hover:bg-accent/50 transition-colors cursor-pointer overflow-hidden"
+                      className="bg-card border-border hover:bg-foreground/10/50 transition-colors cursor-pointer overflow-hidden"
                       onClick={() => {
                         if (event.id) {
                           setLocation(`/event/${event.id}`);

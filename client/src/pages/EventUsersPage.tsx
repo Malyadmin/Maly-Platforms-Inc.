@@ -32,7 +32,7 @@ export default function EventUsersPage() {
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent/5 cursor-pointer"
+              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-foreground/10/5 cursor-pointer"
               onClick={() => setLocation(`/profile/${user.username}`)}
             >
               <Avatar className="h-12 w-12">

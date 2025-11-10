@@ -58,7 +58,7 @@ export default function AppearancePage() {
                   }`}
                   data-testid={`theme-option-${option.value}`}
                 >
-                  <Card className={`p-4 cursor-pointer hover:bg-accent/50 transition-colors ${
+                  <Card className={`p-4 cursor-pointer hover:bg-foreground/10/50 transition-colors ${
                     isSelected ? "bg-accent" : ""
                   }`}>
                     <div className="flex items-center gap-4">

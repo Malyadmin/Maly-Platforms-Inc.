@@ -315,7 +315,7 @@ export default function EditEventPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/10 transition-colors">
+                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-foreground/10 transition-colors">
                     <div className="flex flex-col items-center gap-2">
                       <Plus className="w-8 h-8 text-white/60" />
                       <span className="text-sm text-white/60">
@@ -381,7 +381,7 @@ export default function EditEventPage() {
                     className={`h-auto min-h-8 px-3 py-1.5 text-sm whitespace-normal break-words ${
                       selectedTags.includes(tag)
                         ? ""
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        : "bg-white/5 border-white/10 hover:bg-foreground/10"
                     }`}
                     onClick={() => {
                       setSelectedTags((prev) =>
@@ -403,7 +403,7 @@ export default function EditEventPage() {
                 value={form.watch("location")}
                 onValueChange={(value) => form.setValue("location", value)}
               >
-                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10">
+                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10">
                   <SelectValue placeholder="Select a city" />
                 </SelectTrigger>
                 <SelectContent>
@@ -438,7 +438,7 @@ export default function EditEventPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 justify-start text-left font-normal"
+                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10 justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {form.watch("date") ? (

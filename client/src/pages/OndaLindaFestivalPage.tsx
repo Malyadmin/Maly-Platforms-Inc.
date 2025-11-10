@@ -133,7 +133,7 @@ export default function OndaLindaFestivalPage() {
       <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <BackButton 
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-foreground/10"
             onClick={() => setLocation("/")}
           />
         </div>

@@ -44,7 +44,7 @@ const ConversationCard = ({ conversation, onClick }: {
   onClick: () => void;
 }) => (
   <Card
-    className="hover:bg-accent/5 transition-colors cursor-pointer"
+    className="hover:bg-foreground/10/5 transition-colors cursor-pointer"
     onClick={onClick}
   >
     <div className="p-4 flex items-center gap-4">
@@ -100,7 +100,7 @@ export default function MessagesPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-white hover:bg-accent"
+              className="text-muted-foreground hover:text-white hover:bg-foreground/10"
               onClick={() => setLocation("/")}
             >
               <ChevronLeft className="w-5 h-5" />

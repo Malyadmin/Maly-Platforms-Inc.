@@ -69,7 +69,7 @@ export function RecommendedEventsCarousel() {
                               <Badge
                                 key={tag}
                                 variant="secondary"
-                                className="text-xs bg-white/10 text-foreground"
+                                className="text-xs bg-accent text-foreground"
                               >
                                 {tag}
                               </Badge>

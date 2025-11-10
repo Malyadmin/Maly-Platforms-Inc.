@@ -279,7 +279,7 @@ export default function NotificationPreferencesPage() {
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-foreground p-2 hover:bg-white/10"
+            className="text-foreground p-2 hover:bg-foreground/10"
             data-testid="button-back"
           >
             <ArrowLeft className="h-6 w-6" />

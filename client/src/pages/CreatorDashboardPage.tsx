@@ -188,7 +188,7 @@ export default function CreatorDashboardPage() {
 
 
   const renderAnalyticsSection = (event: DashboardEvent) => (
-    <div key={event.id} className="bg-gray-900/50 rounded-lg p-4 mb-3">
+    <div key={event.id} className="bg-card/50 rounded-lg p-4 mb-3">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-800 shrink-0">
           {event.image ? (
@@ -198,7 +198,7 @@ export default function CreatorDashboardPage() {
           )}
         </div>
         <div>
-          <p className="text-white font-medium text-sm">{event.title}</p>
+          <p className="text-foreground font-medium text-sm">{event.title}</p>
           <p className="text-muted-foreground text-xs">
             {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
           </p>
@@ -220,7 +220,7 @@ export default function CreatorDashboardPage() {
             <Eye className="h-4 w-4 text-blue-400" />
             <span className="text-xs text-muted-foreground">Views</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
+          <p className="text-foreground text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
         </button>
         
         <button
@@ -237,7 +237,7 @@ export default function CreatorDashboardPage() {
             <UserCheck className="h-4 w-4 text-green-400" />
             <span className="text-xs text-muted-foreground">Attending</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
+          <p className="text-foreground text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
         </button>
         
         <button
@@ -254,40 +254,40 @@ export default function CreatorDashboardPage() {
             <Users className="h-4 w-4 text-purple-400" />
             <span className="text-xs text-muted-foreground">Interested</span>
           </div>
-          <p className="text-white text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
+          <p className="text-foreground text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
         </button>
       </div>
     </div>
   );
 
   const renderTicketSale = (sale: TicketSale) => (
-    <div key={sale.id} className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg">
+    <div key={sale.id} className="flex items-center gap-3 p-3 bg-card/50 rounded-lg">
       <Avatar className="h-10 w-10">
         <AvatarImage src={sale.buyerImage || undefined} />
         <AvatarFallback>{sale.buyerName.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
-        <p className="text-white text-sm font-medium">{sale.buyerName}</p>
+        <p className="text-foreground text-sm font-medium">{sale.buyerName}</p>
         <p className="text-muted-foreground text-xs">
           {sale.ticketQuantity} ticket{sale.ticketQuantity > 1 ? 's' : ''} • {sale.purchaseDate ? format(new Date(sale.purchaseDate), 'MMM d, yyyy') : 'N/A'}
         </p>
       </div>
       <div className="text-right">
-        <p className="text-white font-semibold">${(sale.amount / 100).toFixed(2)}</p>
+        <p className="text-foreground font-semibold">${(sale.amount / 100).toFixed(2)}</p>
         <p className="text-xs text-green-400">{sale.status}</p>
       </div>
     </div>
   );
 
   const renderPendingRSVP = (rsvp: PendingRSVP) => (
-    <div key={rsvp.id} className="bg-gray-900/50 rounded-lg p-4" data-testid={`pending-rsvp-${rsvp.id}`}>
+    <div key={rsvp.id} className="bg-card/50 rounded-lg p-4" data-testid={`pending-rsvp-${rsvp.id}`}>
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={rsvp.userImage || undefined} />
           <AvatarFallback>{(rsvp.userName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <p className="text-white font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
+          <p className="text-foreground font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
           <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
           <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle || 'Unknown Event'}</p>
         </div>
@@ -303,7 +303,7 @@ export default function CreatorDashboardPage() {
             userId: rsvp.userId,
           })}
           disabled={handleRSVPMutation.isPending}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+          className="flex-1 bg-green-600 hover:bg-green-700 text-foreground"
           size="sm"
           data-testid={`approve-rsvp-${rsvp.id}`}
         >
@@ -319,7 +319,7 @@ export default function CreatorDashboardPage() {
             userId: rsvp.userId,
           })}
           disabled={handleRSVPMutation.isPending}
-          className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          className="flex-1 bg-red-600 hover:bg-red-700 text-foreground"
           size="sm"
           data-testid={`decline-rsvp-${rsvp.id}`}
         >
@@ -337,14 +337,14 @@ export default function CreatorDashboardPage() {
     const StatusIcon = isApproved ? CheckCircle2 : XCircle;
 
     return (
-      <div key={rsvp.id} className="bg-gray-900/50 rounded-lg p-4" data-testid={`completed-rsvp-${rsvp.id}`}>
+      <div key={rsvp.id} className="bg-card/50 rounded-lg p-4" data-testid={`completed-rsvp-${rsvp.id}`}>
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12">
             <AvatarImage src={rsvp.userImage || undefined} />
             <AvatarFallback>{(rsvp.userName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <p className="text-white font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
+            <p className="text-foreground font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
             <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
             <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle || 'Unknown Event'}</p>
             <p className="text-gray-500 text-xs mt-1">
@@ -362,7 +362,7 @@ export default function CreatorDashboardPage() {
 
   if (!user) {
     return (
-      <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+      <div className="h-screen bg-background dark:bg-black text-foreground flex flex-col items-center justify-center gap-4">
         <p>Please log in to view your creator dashboard</p>
         <Button onClick={() => setLocation('/auth')} className="bg-purple-600 hover:bg-purple-700">
           Go to Login
@@ -372,9 +372,9 @@ export default function CreatorDashboardPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-background dark:bg-black text-foreground">
       {/* Header - Fixed at top */}
-      <header className="bg-black text-white shrink-0 z-50">
+      <header className="bg-background dark:bg-black text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -393,14 +393,14 @@ export default function CreatorDashboardPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-black border-b border-gray-800">
+        <div className="bg-background dark:bg-black border-b border-border">
           <div className="px-5 py-3 flex items-center justify-between gap-4">
             <button
               onClick={() => setActiveFilter('events')}
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'events' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-events"
             >
@@ -411,7 +411,7 @@ export default function CreatorDashboardPage() {
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'analytics' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-analytics"
             >
@@ -422,7 +422,7 @@ export default function CreatorDashboardPage() {
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'sales' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-sales"
             >
@@ -433,7 +433,7 @@ export default function CreatorDashboardPage() {
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'rsvps' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-rsvps"
             >
@@ -528,7 +528,7 @@ export default function CreatorDashboardPage() {
                         <div key={event.id} className="mb-6">
                           <div className="flex items-center gap-2 mb-3">
                             <DollarSign className="h-4 w-4 text-green-400" />
-                            <h3 className="text-white font-medium text-sm">{event.title}</h3>
+                            <h3 className="text-foreground font-medium text-sm">{event.title}</h3>
                           </div>
                           <div className="space-y-2">
                             {event.ticketSales?.map(renderTicketSale)}
@@ -554,7 +554,7 @@ export default function CreatorDashboardPage() {
                 ) : (
                   <>
                     {/* Pending/Completed Toggle */}
-                    <div className="flex justify-between mb-6 mt-4 border-b border-gray-800">
+                    <div className="flex justify-between mb-6 mt-4 border-b border-border">
                       <button
                         onClick={() => setRsvpSection('pending')}
                         className={`pb-3 transition-all ${
@@ -645,9 +645,9 @@ export default function CreatorDashboardPage() {
           setConfirmDialog({ isOpen: false, type: null, userName: '', eventId: 0, userId: 0 });
         }
       }}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-foreground">
               {confirmDialog.type === 'accept' ? 'Accept RSVP Request?' : 'Decline RSVP Request?'}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
@@ -659,7 +659,7 @@ export default function CreatorDashboardPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel 
-              className="bg-gray-800 text-white hover:bg-gray-700"
+              className="bg-gray-800 text-foreground hover:bg-gray-700"
               data-testid="confirm-dialog-cancel"
             >
               Cancel
@@ -675,8 +675,8 @@ export default function CreatorDashboardPage() {
                 }
               }}
               className={confirmDialog.type === 'accept' 
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-red-600 hover:bg-red-700 text-white'
+                ? 'bg-green-600 hover:bg-green-700 text-foreground'
+                : 'bg-red-600 hover:bg-red-700 text-foreground'
               }
               data-testid="confirm-dialog-confirm"
             >

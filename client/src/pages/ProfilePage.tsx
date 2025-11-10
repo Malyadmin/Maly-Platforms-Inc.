@@ -464,7 +464,7 @@ export default function ProfilePage() {
                 onClick={() => setCurrentProfileImageIndex((prev) => 
                   prev > 0 ? prev - 1 : profileImages.length - 1
                 )}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-background/70 rounded-full transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-prev"
               >
                 <ChevronLeft className="h-6 w-6 text-foreground" />
@@ -473,7 +473,7 @@ export default function ProfilePage() {
                 onClick={() => setCurrentProfileImageIndex((prev) => 
                   prev < profileImages.length - 1 ? prev + 1 : 0
                 )}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-background/70 rounded-full transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-next"
               >
                 <ChevronRight className="h-6 w-6 text-foreground" />

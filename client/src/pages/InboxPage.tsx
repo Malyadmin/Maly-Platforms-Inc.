@@ -226,7 +226,7 @@ export default function InboxPage() {
     profileLink?: string;
   }) => (
     <div
-      className="w-full flex items-center px-4 py-3 hover:bg-accent active:bg-accent/80 transition-colors"
+      className="w-full flex items-center px-4 py-3 hover:bg-foreground/5 active:bg-foreground/10 transition-colors"
       data-testid={testId}
     >
       {profileLink ? (
@@ -299,7 +299,7 @@ export default function InboxPage() {
         </div>
 
         {/* Filter Bar - Always Present */}
-        <div className="bg-black border-b border-border">
+        <div className="bg-background dark:bg-black border-b border-border">
           <div className="px-5 py-3 flex items-center justify-between">
             <button
               onClick={() => setActiveFilter('all')}

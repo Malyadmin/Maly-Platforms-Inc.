@@ -143,7 +143,7 @@ export default function ChatbotPage() {
                   key={text}
                   variant="outline"
                   size="sm"
-                  className="border-white/10 hover:bg-white/5 glass-hover flex items-center gap-2 interactive-hover flex-1 min-w-fit"
+                  className="border-white/10 hover:bg-foreground/10 glass-hover flex items-center gap-2 interactive-hover flex-1 min-w-fit"
                   onClick={() => handleQuickPrompt(prompt, specializedPrompt)}
                   disabled={isLoading}
                   aria-label={ariaLabel}
@@ -169,7 +169,7 @@ export default function ChatbotPage() {
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.role === "assistant"
                         ? "bg-gradient-to-r from-purple-600 via-pink-600 to-red-500"
-                        : "bg-white/10"
+                        : "bg-accent"
                     }`}
                   >
                     {message.role === "assistant" ? (

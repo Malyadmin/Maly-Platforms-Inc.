@@ -111,7 +111,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
   // Default horizontal layout
   return (
     <div 
-      className={`flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer ${className}`}
+      className={`flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-foreground/10 transition-colors cursor-pointer ${className}`}
       onClick={onClick}
       data-testid={`user-card-${user.id}`}
     >

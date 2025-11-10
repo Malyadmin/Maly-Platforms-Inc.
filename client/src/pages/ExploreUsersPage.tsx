@@ -46,7 +46,7 @@ export default function ExploreUsersPage() {
           {filteredUsers.map((user) => (
             <Card
               key={user.id}
-              className="overflow-hidden hover:bg-accent/5 cursor-pointer"
+              className="overflow-hidden hover:bg-foreground/10/5 cursor-pointer"
               onClick={() => setLocation(`/profile/${user.username}`)}
             >
               <div className="aspect-square relative">

@@ -196,7 +196,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
             <h4 className="font-medium text-foreground">Payment Method</h4>
           </div>
           
-          <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+          <div className="p-3 bg-accent rounded-lg border border-white/20">
             <CardElement options={cardOptions} />
           </div>
 

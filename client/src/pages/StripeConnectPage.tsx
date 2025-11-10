@@ -132,14 +132,14 @@ export default function StripeConnectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col">
-        <header className="sticky top-0 z-40 bg-black border-b border-gray-800">
+      <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
+        <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
           <div className="flex items-center justify-between px-5 py-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => window.history.back()}
-              className="text-white p-2 hover:bg-white/10"
+              className="text-white p-2 hover:bg-foreground/10"
               data-testid="button-back"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -160,15 +160,15 @@ export default function StripeConnectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-black border-b border-gray-800">
+      <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
         <div className="flex items-center justify-between px-5 py-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-white p-2 hover:bg-white/10"
+            className="text-white p-2 hover:bg-foreground/10"
             data-testid="button-back"
           >
             <ArrowLeft className="h-6 w-6" />
@@ -204,7 +204,7 @@ export default function StripeConnectPage() {
 
           {/* Benefits Section */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <DollarSign className="h-5 w-5 text-green-500" />
@@ -218,7 +218,7 @@ export default function StripeConnectPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-5 w-5 text-blue-500" />
@@ -232,7 +232,7 @@ export default function StripeConnectPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <Shield className="h-5 w-5 text-purple-500" />
@@ -248,7 +248,7 @@ export default function StripeConnectPage() {
           </div>
 
           {/* Status Section */}
-          <Card className="mb-6 bg-gray-900 border-gray-800">
+          <Card className="mb-6 bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white">Account Status</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -294,7 +294,7 @@ export default function StripeConnectPage() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                          className="border-border text-gray-300 hover:bg-gray-800"
                           onClick={() => {
                             toast({
                               title: "Demo Mode",
@@ -424,7 +424,7 @@ export default function StripeConnectPage() {
           </Card>
 
           {/* Fee Information */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white">Fees & Payouts</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -435,7 +435,7 @@ export default function StripeConnectPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-300">Platform Fee</span>
-                  <Badge variant="outline" className="border-gray-700 text-gray-300">3%</Badge>
+                  <Badge variant="outline" className="border-border text-gray-300">3%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-300">You Receive</span>
@@ -446,7 +446,7 @@ export default function StripeConnectPage() {
                   <span className="text-sm text-muted-foreground">2-7 business days</span>
                 </div>
               </div>
-              <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-gray-700">
+              <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-border">
                 <p className="text-sm text-muted-foreground">
                   Example: For a $100 ticket, you receive $97 and Maly collects $3 as a platform fee.
                 </p>

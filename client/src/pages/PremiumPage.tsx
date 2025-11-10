@@ -222,7 +222,7 @@ export default function PremiumPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground hover:bg-accent"
+              className="text-muted-foreground hover:text-foreground hover:bg-foreground/10"
               onClick={() => setLocation("/")}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -285,7 +285,7 @@ export default function PremiumPage() {
 
               <div className="grid gap-6 md:grid-cols-2 mb-12">
                 {features.map((feature, index) => (
-                  <Card key={index} className="bg-card hover:bg-accent/5 transition-colors">
+                  <Card key={index} className="bg-card hover:bg-foreground/10/5 transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className="p-2 rounded-lg bg-accent/10">

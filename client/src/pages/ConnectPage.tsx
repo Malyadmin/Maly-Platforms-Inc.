@@ -424,7 +424,7 @@ export function ConnectPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white p-2 hover:bg-white/10"
+              className="text-white p-2 hover:bg-foreground/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -550,7 +550,7 @@ export function ConnectPage() {
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-accent last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
+                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-foreground/10 last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="location-option-add"
                   >
                     + Add City

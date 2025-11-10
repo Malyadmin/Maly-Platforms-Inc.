@@ -124,7 +124,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -358,7 +358,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           onClick={onSubmit}
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -757,7 +757,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -907,7 +907,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -1160,7 +1160,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next
@@ -1401,7 +1401,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
           data-testid="button-create"
         >
           Create

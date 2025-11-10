@@ -337,7 +337,7 @@ export default function DiscoverPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground p-2 hover:bg-white/10"
+              className="text-foreground p-2 hover:bg-foreground/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
