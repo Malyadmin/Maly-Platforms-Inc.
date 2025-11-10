@@ -226,18 +226,18 @@ export default function NotificationPreferencesPage() {
     inAppKey: keyof NotificationSettings;
     pushKey: keyof NotificationSettings;
   }) => (
-    <div className="space-y-4 p-4 bg-gray-800 rounded-lg border border-gray-700">
+    <div className="space-y-3 p-4 bg-black/30 rounded-lg border border-gray-800">
       <div className="flex items-start space-x-3">
-        <Icon className="h-5 w-5 text-purple-400 mt-1" />
+        <Icon className="h-4 w-4 text-purple-400 mt-0.5" />
         <div className="flex-1">
-          <h3 className="text-white font-medium">{title}</h3>
-          <p className="text-sm text-gray-400">{description}</p>
+          <h3 className="text-white text-sm font-medium">{title}</h3>
+          <p className="text-xs text-gray-400">{description}</p>
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4 pl-8">
+      <div className="grid grid-cols-2 gap-4 pl-7">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">In-App</span>
+          <span className="text-xs text-gray-300">In-App</span>
           <Switch
             checked={settings[inAppKey]}
             onCheckedChange={(checked) => handleToggle(inAppKey, checked)}
@@ -247,7 +247,7 @@ export default function NotificationPreferencesPage() {
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">Push</span>
+          <span className="text-xs text-gray-300">Push</span>
           <Switch
             checked={settings[pushKey]}
             onCheckedChange={(checked) => handleToggle(pushKey, checked)}
@@ -338,14 +338,14 @@ export default function NotificationPreferencesPage() {
           )}
 
           {/* Notification Categories */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-black/40 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-white">Notification Preferences</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardTitle className="text-white text-base">Notification Preferences</CardTitle>
+              <CardDescription className="text-gray-400 text-xs">
                 Choose how you want to be notified about different activities
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <NotificationRow
                 icon={MessageSquare}
                 title="Messages"
@@ -381,9 +381,9 @@ export default function NotificationPreferencesPage() {
           </Card>
 
           {/* Info Card */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-black/40 border-gray-800">
             <CardContent className="pt-6">
-              <div className="space-y-3 text-sm text-gray-400">
+              <div className="space-y-2 text-xs text-gray-400">
                 <p>
                   <strong className="text-white">In-App:</strong> Notifications appear within the Maly app
                 </p>
