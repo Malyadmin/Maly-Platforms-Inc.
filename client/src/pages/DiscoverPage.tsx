@@ -57,12 +57,12 @@ export default function DiscoverPage() {
   // Price display helper function for translation
   const renderPrice = (price: string) => {
     if (price === "0") {
-      return <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">{t('free')}</p>;
+      return <p className="font-semibold text-foreground text-xs sm:text-sm md:text-lg">{t('free')}</p>;
     } else {
       return (
         <>
-          <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${price}</p>
-          <p className="text-[8px] sm:text-xs md:text-sm text-white/60">{t('perPerson')}</p>
+          <p className="font-semibold text-foreground text-xs sm:text-sm md:text-lg">${price}</p>
+          <p className="text-[8px] sm:text-xs md:text-sm text-foreground/60">{t('perPerson')}</p>
         </>
       );
     }
@@ -314,7 +314,7 @@ export default function DiscoverPage() {
         onClose={handleModalClose} 
       />
       {/* iOS-style Header - Fixed at top */}
-      <div className="bg-black text-white shrink-0 z-50">
+      <div className="bg-black text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -337,7 +337,7 @@ export default function DiscoverPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white p-2 hover:bg-white/10"
+              className="text-foreground p-2 hover:bg-white/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -377,7 +377,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('when')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-when"
               >
                 When
@@ -390,7 +390,7 @@ export default function DiscoverPage() {
                     <button
                       key={time}
                       onClick={() => { setSelectedTimeFilter(time); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg"
                       data-testid={`when-option-${time.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {time}
@@ -404,7 +404,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('city')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-city"
               >
                 City
@@ -415,7 +415,7 @@ export default function DiscoverPage() {
                 <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
                     data-testid="city-option-all"
                   >
                     {t('allLocations')}
@@ -434,7 +434,7 @@ export default function DiscoverPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800"
                       data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -455,7 +455,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('vibes')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibes"
               >
                 Vibes
@@ -474,7 +474,7 @@ export default function DiscoverPage() {
                             : [...prev, vibe]
                         );
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 flex items-center gap-2"
                       data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {selectedEventTypes.includes(vibe) && <span className="text-purple-400">✓</span>}
@@ -489,7 +489,7 @@ export default function DiscoverPage() {
             {(selectedCity !== 'all' || selectedEventTypes.length > 0 || selectedTimeFilter !== 'Anytime') && (
               <button
                 onClick={clearAllFilters}
-                className="ml-auto text-white hover:text-purple-400 transition-colors"
+                className="ml-auto text-foreground hover:text-purple-400 transition-colors"
                 data-testid="clear-all-filters"
               >
                 <X className="h-5 w-5" />
@@ -577,7 +577,7 @@ export default function DiscoverPage() {
                     {groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">TODAY</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
@@ -591,7 +591,7 @@ export default function DiscoverPage() {
                     {groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEK</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
@@ -605,7 +605,7 @@ export default function DiscoverPage() {
                     {groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
@@ -619,7 +619,7 @@ export default function DiscoverPage() {
                     {groupedEvents.nextWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEK</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
@@ -633,7 +633,7 @@ export default function DiscoverPage() {
                     {groupedEvents.nextWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeekend.map((event: any) => (
@@ -647,7 +647,7 @@ export default function DiscoverPage() {
                     {groupedEvents.month.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS MONTH</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (
@@ -661,7 +661,7 @@ export default function DiscoverPage() {
                     {groupedEvents.upcoming.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">UPCOMING</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.upcoming.map((event: any) => (
@@ -677,7 +677,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">TODAY</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
@@ -690,7 +690,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEK</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
@@ -703,7 +703,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEKEND</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
@@ -716,7 +716,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Next Week' && groupedEvents.nextWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEK</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
@@ -729,7 +729,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Next Month' && groupedEvents.month.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT MONTH</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT MONTH</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (

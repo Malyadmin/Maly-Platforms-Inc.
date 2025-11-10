@@ -465,7 +465,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('gender')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-gender"
               >
                 Gender
@@ -511,7 +511,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('location')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-location"
               >
                 City
@@ -563,7 +563,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('vibe')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibe"
               >
                 Vibe
@@ -598,7 +598,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('intention')}
-                className="text-white text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-intention"
               >
                 Intention
@@ -651,7 +651,7 @@ export function ConnectPage() {
             {getActiveFilters().length > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="ml-auto text-white hover:text-purple-400 transition-colors"
+                className="ml-auto text-foreground hover:text-purple-400 transition-colors"
                 data-testid="clear-all-filters"
               >
                 <X className="h-5 w-5" />
@@ -667,7 +667,7 @@ export function ConnectPage() {
                   <Badge
                     key={`${filter.type}-${filter.value}`}
                     variant="secondary"
-                    className="bg-gray-800 text-white flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
+                    className="bg-gray-800 text-foreground flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                     data-testid={`filter-badge-${filter.type}`}
                   >
                     <span className="truncate">{filter.label}</span>
@@ -740,7 +740,7 @@ export function ConnectPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
-                          <span className="text-6xl font-bold text-white/40">
+                          <span className="text-6xl font-bold text-foreground/40">
                             {(user.fullName || user.username).charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -751,7 +751,7 @@ export function ConnectPage() {
                     <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
                       {/* Name - aligned to top */}
                       <h3 
-                        className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-white leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
+                        className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-foreground leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
                         onClick={() => handleUserClick(user)}
                       >
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
@@ -767,19 +767,19 @@ export function ConnectPage() {
                       {/* Middle elements - evenly spaced */}
                       <div className="flex-1 flex flex-col justify-evenly">
                         {user.profession && (
-                          <p className="text-sm text-white/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate">
                             {user.profession}
                           </p>
                         )}
                         
                         {user.location && (
-                          <p className="text-sm text-white/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate">
                             {user.location}
                           </p>
                         )}
                         
                         {userVibes && (
-                          <p className="text-sm text-white/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate">
                             {userVibes}
                           </p>
                         )}
@@ -787,7 +787,7 @@ export function ConnectPage() {
                       
                       {/* Intention - aligned to bottom */}
                       {userIntention && (
-                        <p className="text-sm text-white truncate">
+                        <p className="text-sm text-foreground truncate">
                           {userIntention}
                         </p>
                       )}
@@ -807,7 +807,7 @@ export function ConnectPage() {
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
                             isConnected
-                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                               : "inline-flex items-center justify-center gap-2 rounded-md bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}

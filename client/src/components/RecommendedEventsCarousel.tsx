@@ -23,7 +23,7 @@ export function RecommendedEventsCarousel() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">{t('recommendedForYou')}</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t('recommendedForYou')}</h2>
         <Carousel className="w-full">
           <CarouselContent>
             {[1, 2, 3].map((_, index) => (
@@ -45,7 +45,7 @@ export function RecommendedEventsCarousel() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-white">Recommended For You</h2>
+      <h2 className="text-xl font-semibold text-foreground">Recommended For You</h2>
       <Carousel className="w-full">
         <CarouselContent>
           {recommendedEvents.map((event: RecommendedEvent) => (
@@ -69,7 +69,7 @@ export function RecommendedEventsCarousel() {
                               <Badge
                                 key={tag}
                                 variant="secondary"
-                                className="text-xs bg-white/10 text-white"
+                                className="text-xs bg-white/10 text-foreground"
                               >
                                 {tag}
                               </Badge>
@@ -80,16 +80,16 @@ export function RecommendedEventsCarousel() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs text-foreground/60">
                             {format(new Date(event.date), "EEE, MMM d, h:mm a")}
                           </p>
-                          <h3 className="font-semibold text-white mt-1 line-clamp-2">
+                          <h3 className="font-semibold text-foreground mt-1 line-clamp-2">
                             {event.title}
                           </h3>
                           <div className="flex items-center justify-between mt-2">
                             <div className="flex items-center gap-1 min-w-0">
-                              <MapPin className="h-3 w-3 flex-shrink-0 text-white/60" />
-                              <span className="text-xs text-white/60 truncate">
+                              <MapPin className="h-3 w-3 flex-shrink-0 text-foreground/60" />
+                              <span className="text-xs text-foreground/60 truncate">
                                 {event.location}
                               </span>
                             </div>

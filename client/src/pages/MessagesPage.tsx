@@ -100,7 +100,7 @@ export default function MessagesPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground hover:bg-accent"
+              className="text-muted-foreground hover:text-white hover:bg-accent"
               onClick={() => setLocation("/")}
             >
               <ChevronLeft className="w-5 h-5" />

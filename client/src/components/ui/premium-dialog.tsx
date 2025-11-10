@@ -39,7 +39,7 @@ export function PremiumDialog({ children, userId, mood, interests, name, status,
     <div className="flex gap-2">
       <Button 
         variant="outline"
-        className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-white border-0"
+        className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-foreground border-0"
       >
         <Crown className="w-4 h-4 mr-2" />
         Premium
@@ -47,7 +47,7 @@ export function PremiumDialog({ children, userId, mood, interests, name, status,
       <Button
         variant="outline"
         onClick={handleMessageClick}
-        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
+        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-foreground border-0"
       >
         <MessageSquare className="w-4 h-4 mr-2" />
         Message

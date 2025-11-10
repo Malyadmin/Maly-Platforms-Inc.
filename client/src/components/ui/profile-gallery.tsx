@@ -54,7 +54,7 @@ export function ProfileGallery({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-white mb-2">Build your profile gallery</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">Build your profile gallery</h3>
         <p className="text-muted-foreground text-sm mb-1">Add high resolution photos to your profile</p>
         <p className="text-muted-foreground text-sm">First picture will be your main profile photo</p>
       </div>
@@ -74,7 +74,7 @@ export function ProfileGallery({
               <button
                 type="button"
                 onClick={() => removeImage(0)}
-                className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                className="bg-red-500 text-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
                 data-testid="remove-main-image"
               >
                 ×
@@ -119,7 +119,7 @@ export function ProfileGallery({
                   />
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                    className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
                     data-testid={`remove-image-${index}`}
                   >
                     ×

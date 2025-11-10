@@ -43,18 +43,18 @@ export function EventCard({
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-white/60">
+              <p className="text-sm font-medium text-foreground/60">
                 {format(date, "EEE, MMM d, h:mm a")}
               </p>
-              <h3 className="text-lg font-semibold text-white mt-1">{title}</h3>
+              <h3 className="text-lg font-semibold text-foreground mt-1">{title}</h3>
             </div>
-            <div className="text-right text-white z-10">
+            <div className="text-right text-foreground z-10">
               {price === "0" ? (
-                <p className="font-semibold text-white text-lg">{t('free')}</p>
+                <p className="font-semibold text-foreground text-lg">{t('free')}</p>
               ) : (
                 <>
-                  <p className="font-semibold text-white text-lg">${price}</p>
-                  <p className="text-sm text-white/60">{t('perPerson')}</p>
+                  <p className="font-semibold text-foreground text-lg">${price}</p>
+                  <p className="text-sm text-foreground/60">{t('perPerson')}</p>
                 </>
               )}
             </div>
@@ -80,7 +80,7 @@ export function EventCard({
               </div>
             )}
           </div>
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-foreground/60">
             {interestedCount} {t('interested')}
           </p>
         </div>

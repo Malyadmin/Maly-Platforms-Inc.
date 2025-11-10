@@ -123,7 +123,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border sticky top-0 z-50 bg-black text-white">
+      <header className="border-b border-border sticky top-0 z-50 bg-black text-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -153,7 +153,7 @@ export function Layout({ children }: LayoutProps) {
                   className="interactive-hover hidden md:flex items-center gap-2"
                   onClick={() => setLocation("/profile")}
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-foreground overflow-hidden">
                     {(userDisplayData || user)?.profileImage ? (
                       <img 
                         src={(userDisplayData || user)?.profileImage} 

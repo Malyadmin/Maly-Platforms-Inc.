@@ -98,7 +98,7 @@ export default function StripeConnectBanner({
 
             <div className="flex items-center space-x-2">
               <Link href="/stripe/connect">
-                <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-foreground">
                   <DollarSign className="w-4 h-4 mr-2" />
                   Set Up Payments
                   <ArrowRight className="w-4 h-4 ml-2" />

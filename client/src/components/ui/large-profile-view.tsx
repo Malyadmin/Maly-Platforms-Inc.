@@ -105,14 +105,14 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           <>
             <button
               onClick={handlePreviousImage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-10 h-10 flex items-center justify-center transition-colors"
               data-testid={`large-prev-image-${user.id}`}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={handleNextImage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-10 h-10 flex items-center justify-center transition-colors"
               data-testid={`large-next-image-${user.id}`}
             >
               <ChevronRight className="w-5 h-5" />
@@ -136,11 +136,11 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
         {/* Profile Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-6 text-foreground">
           {/* Main Profile Info */}
           <div className="mb-4">
             <h2 className="text-3xl font-bold mb-2">{displayName}</h2>
-            <div className="flex items-center gap-4 text-lg text-white/90">
+            <div className="flex items-center gap-4 text-lg text-foreground/90">
               {user.age && <span>{user.age}</span>}
               {user.location && (
                 <div className="flex items-center gap-1">
@@ -150,14 +150,14 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
               )}
             </div>
             {user.profession && (
-              <p className="text-white/80 mt-2">{user.profession}</p>
+              <p className="text-foreground/80 mt-2">{user.profession}</p>
             )}
           </div>
 
           {/* Connect Button */}
           <Button
             onClick={handleConnect}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl mb-4"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-foreground font-semibold py-3 rounded-xl mb-4"
             data-testid={`connect-button-${user.id}`}
           >
             <Heart className="w-5 h-5 mr-2" />
@@ -167,7 +167,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           {/* More Info Toggle */}
           <button
             onClick={toggleMoreInfo}
-            className="w-full flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors py-2"
+            className="w-full flex items-center justify-center gap-2 text-foreground/80 hover:text-foreground transition-colors py-2"
             data-testid={`more-info-toggle-${user.id}`}
           >
             <span>More info</span>
@@ -187,25 +187,25 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
         }`}
         data-testid={`more-info-section-${user.id}`}
       >
-          <div className="space-y-4 text-white">
+          <div className="space-y-4 text-foreground">
             {user.bio && (
               <div>
                 <h4 className="font-semibold mb-2">About</h4>
-                <p className="text-white/90 text-sm leading-relaxed">{user.bio}</p>
+                <p className="text-foreground/90 text-sm leading-relaxed">{user.bio}</p>
               </div>
             )}
             
             {user.interests && user.interests.length > 0 && (
               <div>
                 <h4 className="font-semibold mb-2">Interests</h4>
-                <p className="text-white/90 text-sm">{formatInterests(user.interests)}</p>
+                <p className="text-foreground/90 text-sm">{formatInterests(user.interests)}</p>
               </div>
             )}
 
             {user.currentMoods && (
               <div>
                 <h4 className="font-semibold mb-2">Current Vibes</h4>
-                <p className="text-white/90 text-sm">{formatMoods(user.currentMoods)}</p>
+                <p className="text-foreground/90 text-sm">{formatMoods(user.currentMoods)}</p>
               </div>
             )}
 
@@ -214,13 +214,13 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
                 {user.birthLocation && (
                   <div>
                     <h4 className="font-semibold mb-1">From</h4>
-                    <p className="text-white/90 text-sm">{user.birthLocation}</p>
+                    <p className="text-foreground/90 text-sm">{user.birthLocation}</p>
                   </div>
                 )}
                 {user.nextLocation && (
                   <div>
                     <h4 className="font-semibold mb-1">Next destination</h4>
-                    <p className="text-white/90 text-sm">{user.nextLocation}</p>
+                    <p className="text-foreground/90 text-sm">{user.nextLocation}</p>
                   </div>
                 )}
               </div>

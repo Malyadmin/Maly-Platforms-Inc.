@@ -65,7 +65,7 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-800 text-foreground max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getIcon()}
@@ -99,12 +99,12 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
               >
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={participant.profileImage || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-foreground">
                     {participant.fullName?.charAt(0)?.toUpperCase() || participant.username?.charAt(0)?.toUpperCase() || '?'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="text-white font-medium text-sm">{participant.fullName || participant.username}</p>
+                  <p className="text-foreground font-medium text-sm">{participant.fullName || participant.username}</p>
                   <p className="text-muted-foreground text-xs">@{participant.username}</p>
                 </div>
               </div>

@@ -63,9 +63,9 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black text-white border-gray-800 max-w-sm mx-auto">
+      <DialogContent className="bg-black text-foreground border-gray-800 max-w-sm mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-white text-xl font-semibold text-center flex items-center justify-center gap-2">
+          <DialogTitle className="text-foreground text-xl font-semibold text-center flex items-center justify-center gap-2">
             <Crown className="h-6 w-6 text-yellow-500" />
             Premium Feature
           </DialogTitle>
@@ -105,7 +105,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           {/* Action buttons */}
           <div className="space-y-3">
             <Button
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-foreground font-medium"
               onClick={handleUpgrade}
               disabled={isUpgrading}
               data-testid="upgrade-to-premium-button"

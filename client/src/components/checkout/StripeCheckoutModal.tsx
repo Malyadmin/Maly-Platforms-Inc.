@@ -155,12 +155,12 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
       <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
         <CardContent className="p-4">
           <div className="space-y-2">
-            <h3 className="font-semibold text-white">{event.title}</h3>
-            <p className="text-sm text-white/70">
+            <h3 className="font-semibold text-foreground">{event.title}</h3>
+            <p className="text-sm text-foreground/70">
               {new Date(event.date).toLocaleDateString()} • {event.location}
             </p>
             {event.creatorName && (
-              <p className="text-xs text-white/60">Hosted by {event.creatorName}</p>
+              <p className="text-xs text-foreground/60">Hosted by {event.creatorName}</p>
             )}
           </div>
         </CardContent>
@@ -169,20 +169,20 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
       {/* Payment Summary */}
       <Card className="bg-white/5 border-white/10">
         <CardContent className="p-4 space-y-3">
-          <h4 className="font-medium text-white">Payment Summary</h4>
+          <h4 className="font-medium text-foreground">Payment Summary</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-white/70">Ticket Price</span>
-              <span className="text-white">${eventPrice.toFixed(2)}</span>
+              <span className="text-foreground/70">Ticket Price</span>
+              <span className="text-foreground">${eventPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/70">Platform Fee (3%)</span>
-              <span className="text-white">${platformFee.toFixed(2)}</span>
+              <span className="text-foreground/70">Platform Fee (3%)</span>
+              <span className="text-foreground">${platformFee.toFixed(2)}</span>
             </div>
             <Separator className="bg-white/20" />
             <div className="flex justify-between font-medium">
-              <span className="text-white">Total</span>
-              <span className="text-white">${totalAmount.toFixed(2)}</span>
+              <span className="text-foreground">Total</span>
+              <span className="text-foreground">${totalAmount.toFixed(2)}</span>
             </div>
           </div>
         </CardContent>
@@ -193,7 +193,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-blue-400" />
-            <h4 className="font-medium text-white">Payment Method</h4>
+            <h4 className="font-medium text-foreground">Payment Method</h4>
           </div>
           
           <div className="p-3 bg-white/10 rounded-lg border border-white/20">
@@ -207,7 +207,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-white/60">
+          <div className="flex items-center gap-2 text-xs text-foreground/60">
             <Shield className="h-4 w-4" />
             <span>Your payment information is secure and encrypted</span>
           </div>
@@ -258,7 +258,7 @@ export function StripeCheckoutModal({ isOpen, onClose, event, onSuccess }: Strip
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-white">Complete Your Purchase</DialogTitle>
+          <DialogTitle className="text-foreground">Complete Your Purchase</DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Secure your spot at this event with our secure payment system.
           </DialogDescription>

@@ -185,7 +185,7 @@ export default function InboxPage() {
       <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-center justify-center py-12">
           <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-white">You need to sign in</h3>
+          <h3 className="text-lg font-medium text-foreground">You need to sign in</h3>
           <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
           <Button
             className="mt-4"
@@ -256,7 +256,7 @@ export default function InboxPage() {
       )}
       <button onClick={onPress} className="flex-1 text-left flex items-center">
         <div className="flex-1">
-          <h4 className="text-white font-medium text-sm">{title}</h4>
+          <h4 className="text-foreground font-medium text-sm">{title}</h4>
           <p className="text-muted-foreground text-xs">{subtitle}</p>
         </div>
         {showChevron && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
@@ -267,8 +267,8 @@ export default function InboxPage() {
   // Helper function to render section headers
   const renderSectionHeader = (title: string, count: number) => (
     <div className="flex items-center justify-between px-4 py-2">
-      <h3 className="text-white font-medium text-base">{title}</h3>
-      <span className="text-white font-medium text-base">{count}</span>
+      <h3 className="text-foreground font-medium text-base">{title}</h3>
+      <span className="text-foreground font-medium text-base">{count}</span>
     </div>
   );
 

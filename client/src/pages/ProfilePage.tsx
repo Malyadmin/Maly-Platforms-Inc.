@@ -464,21 +464,21 @@ export default function ProfilePage() {
                 onClick={() => setCurrentProfileImageIndex((prev) => 
                   prev > 0 ? prev - 1 : profileImages.length - 1
                 )}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-prev"
               >
-                <ChevronLeft className="h-6 w-6 text-white" />
+                <ChevronLeft className="h-6 w-6 text-foreground" />
               </button>
               <button
                 onClick={() => setCurrentProfileImageIndex((prev) => 
                   prev < profileImages.length - 1 ? prev + 1 : 0
                 )}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-next"
               >
-                <ChevronRight className="h-6 w-6 text-white" />
+                <ChevronRight className="h-6 w-6 text-foreground" />
               </button>
-              <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 rounded-full text-white text-sm" data-testid="image-counter">
+              <div className="absolute top-4 right-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm" data-testid="image-counter">
                 {currentProfileImageIndex + 1} / {profileImages.length}
               </div>
             </>
@@ -486,7 +486,7 @@ export default function ProfilePage() {
         </div>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-          <div className="text-9xl font-bold text-white/20">
+          <div className="text-9xl font-bold text-foreground/20">
             {profileData.username[0].toUpperCase()}
           </div>
         </div>
@@ -496,7 +496,7 @@ export default function ProfilePage() {
     {/* Name and Location overlay - absolute positioned at bottom with more space */}
     <div className="absolute bottom-32 left-0 right-0 px-6 z-10">
       <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex items-center gap-3">
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight flex items-center gap-3">
           <span>{profileData.fullName || profileData.username}</span>
           {profileData.isPremium && (
             <img 
@@ -508,7 +508,7 @@ export default function ProfilePage() {
         </h1>
         
         {profileData.location && (
-          <p className="text-white text-base">
+          <p className="text-foreground text-base">
             {t(profileData.location)}
           </p>
         )}
@@ -525,16 +525,16 @@ export default function ProfilePage() {
           {/* Occupation */}
           {profileData.profession && (
             <div>
-              <p className="text-white/60 text-sm">Occupation</p>
-              <p className="text-white text-base mt-1">{profileData.profession}</p>
+              <p className="text-foreground/60 text-sm">Occupation</p>
+              <p className="text-foreground text-base mt-1">{profileData.profession}</p>
             </div>
           )}
           
           {/* Bio */}
           {profileData.bio && (
             <div className="space-y-2">
-              <p className="text-white/60 text-sm">Bio</p>
-              <p className={`text-white text-base mt-1 ${showFullBio ? '' : 'line-clamp-2'}`}>{profileData.bio}</p>
+              <p className="text-foreground/60 text-sm">Bio</p>
+              <p className={`text-foreground text-base mt-1 ${showFullBio ? '' : 'line-clamp-2'}`}>{profileData.bio}</p>
               {profileData.bio.length > 100 && (
                 <button
                   onClick={() => setShowFullBio(!showFullBio)}
@@ -549,16 +549,16 @@ export default function ProfilePage() {
           {/* Vibe */}
           {profileData.currentMoods && profileData.currentMoods.length > 0 && (
             <div>
-              <p className="text-white/60 text-sm">Vibe</p>
-              <p className="text-white text-base mt-1">{profileData.currentMoods.join(', ')}</p>
+              <p className="text-foreground/60 text-sm">Vibe</p>
+              <p className="text-foreground text-base mt-1">{profileData.currentMoods.join(', ')}</p>
             </div>
           )}
           
           {/* Intention */}
           {profileData.intention && (
             <div>
-              <p className="text-white/60 text-sm">Intention</p>
-              <p className="text-white text-base mt-1">
+              <p className="text-foreground/60 text-sm">Intention</p>
+              <p className="text-foreground text-base mt-1">
                 {formatIntentionLabel(profileData.intention)}
               </p>
             </div>
@@ -567,24 +567,24 @@ export default function ProfilePage() {
           {/* Born */}
           {profileData.birthLocation && (
             <div>
-              <p className="text-white/60 text-sm">Born</p>
-              <p className="text-white text-base mt-1">{t(profileData.birthLocation)}</p>
+              <p className="text-foreground/60 text-sm">Born</p>
+              <p className="text-foreground text-base mt-1">{t(profileData.birthLocation)}</p>
             </div>
           )}
           
           {/* Lived */}
           {profileData.livedLocation && (
             <div>
-              <p className="text-white/60 text-sm">Lived</p>
-              <p className="text-white text-base mt-1">{t(profileData.livedLocation)}</p>
+              <p className="text-foreground/60 text-sm">Lived</p>
+              <p className="text-foreground text-base mt-1">{t(profileData.livedLocation)}</p>
             </div>
           )}
           
           {/* Upcoming */}
           {profileData.nextLocation && (
             <div>
-              <p className="text-white/60 text-sm">Upcoming</p>
-              <p className="text-white text-base mt-1">{t(profileData.nextLocation)}</p>
+              <p className="text-foreground/60 text-sm">Upcoming</p>
+              <p className="text-foreground text-base mt-1">{t(profileData.nextLocation)}</p>
             </div>
           )}
         </div>
@@ -601,7 +601,7 @@ export default function ProfilePage() {
               disabled={createConversationMutation.isPending}
               className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
                 messageClicked 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-foreground border-0'
                   : 'bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700'
               }`}
               data-testid="button-message"
@@ -624,7 +624,7 @@ export default function ProfilePage() {
               <button 
                 onClick={() => removeConnectionMutation.mutate(profileData.id)}
                 disabled={removeConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 transition-all disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 transition-all disabled:opacity-50"
                 data-testid="button-remove-contact"
               >
                 {removeConnectionMutation.isPending ? (

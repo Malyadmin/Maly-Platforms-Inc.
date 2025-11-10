@@ -327,7 +327,7 @@ export default function EventPage() {
       {/* Event Details */}
       <div className="px-5 py-4 space-y-4">
         {/* Event Title */}
-        <h1 className="text-xl font-semibold text-white">{event.title}</h1>
+        <h1 className="text-xl font-semibold text-foreground">{event.title}</h1>
         
         {/* Hosted by */}
         <button
@@ -343,19 +343,19 @@ export default function EventPage() {
             />
           ) : (
             <div className="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center">
-              <span className="text-white text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
+              <span className="text-foreground text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
             </div>
           )}
-          <span className="text-sm text-white/80">Hosted by {event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
+          <span className="text-sm text-foreground/80">Hosted by {event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
         </button>
 
         {/* Date, Time, Price, Address */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-white">{format(new Date(event.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
+            <p className="text-sm text-foreground">{format(new Date(event.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-white">
+            <p className="text-sm text-foreground">
               {(() => {
                 if (event.ticketTiers && event.ticketTiers.length > 0) {
                   const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
@@ -375,8 +375,8 @@ export default function EventPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-white/60" />
-            <p className="text-sm text-white/80">{event.address || event.location}</p>
+            <MapPin className="w-4 h-4 text-foreground/60" />
+            <p className="text-sm text-foreground/80">{event.address || event.location}</p>
           </div>
         </div>
 
@@ -388,7 +388,7 @@ export default function EventPage() {
           />
         ) : (
           <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-            <p className="text-sm text-white/60">Location coordinates not available</p>
+            <p className="text-sm text-foreground/60">Location coordinates not available</p>
           </div>
         )}
 
@@ -397,14 +397,14 @@ export default function EventPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               {(showAllVibes ? event.tags : event.tags.slice(0, 3)).map((tag, index) => (
-                <span key={index} className="bg-white/20 text-white px-3 py-1 rounded-full text-xs">
+                <span key={index} className="bg-white/20 text-foreground px-3 py-1 rounded-full text-xs">
                   {tag}
                 </span>
               ))}
               {event.tags.length > 3 && (
                 <button
                   onClick={() => setShowAllVibes(!showAllVibes)}
-                  className="flex items-center gap-1 text-white/80 hover:text-white text-xs"
+                  className="flex items-center gap-1 text-foreground/80 hover:text-foreground text-xs"
                 >
                   <ChevronRight className={`w-4 h-4 transition-transform ${showAllVibes ? 'rotate-90' : ''}`} />
                 </button>
@@ -418,26 +418,26 @@ export default function EventPage() {
           <div className="space-y-2">
             <button
               onClick={() => setShowDressCode(!showDressCode)}
-              className="flex items-center gap-2 text-white/80 hover:text-white text-sm"
+              className="flex items-center gap-2 text-foreground/80 hover:text-foreground text-sm"
             >
               <span>Dress Code</span>
               <ChevronRight className={`w-4 h-4 transition-transform ${showDressCode ? 'rotate-90' : ''}`} />
             </button>
             {showDressCode && (
-              <p className="text-sm text-white/80 pl-6">{event.dressCode}</p>
+              <p className="text-sm text-foreground/80 pl-6">{event.dressCode}</p>
             )}
           </div>
         )}
 
         {/* Description Preview */}
         <div className="space-y-2">
-          <p className={`text-sm text-white/80 leading-relaxed ${showFullDescription ? '' : 'line-clamp-3'}`}>
+          <p className={`text-sm text-foreground/80 leading-relaxed ${showFullDescription ? '' : 'line-clamp-3'}`}>
             {event.description}
           </p>
           {event.description && event.description.length > 150 && (
             <button
               onClick={() => setShowFullDescription(!showFullDescription)}
-              className="text-sm text-white hover:underline"
+              className="text-sm text-foreground hover:underline"
             >
               {showFullDescription ? 'View Less' : 'View More'}
             </button>
@@ -452,7 +452,7 @@ export default function EventPage() {
               {/* Ticket/Purchase Button */}
               {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm py-2 px-6"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground text-sm py-2 px-6"
                   onClick={() => setIsTicketModalOpen(true)}
                   data-testid="button-purchase-ticket"
                 >
@@ -461,7 +461,7 @@ export default function EventPage() {
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2 px-6"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
                   onClick={() => accessRequestMutation.mutate()}
                   disabled={accessRequestMutation.isPending}
                   data-testid="button-request-access"
@@ -480,7 +480,7 @@ export default function EventPage() {
                 </Button>
               ) : (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-sm py-2 px-6"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
                   onClick={() => participateMutation.mutate(
                     participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
                   )}
@@ -503,7 +503,7 @@ export default function EventPage() {
               {/* Share Button */}
               <Button 
                 variant="outline" 
-                className="border-gray-600 text-white hover:bg-gray-800 px-4"
+                className="border-gray-600 text-foreground hover:bg-gray-800 px-4"
                 onClick={async () => {
                   if (navigator.share) {
                     try {
@@ -541,7 +541,7 @@ export default function EventPage() {
                 className={`px-4 ${
                   participationStatus?.status === 'interested'
                     ? 'bg-purple-600/20 border-purple-600 text-purple-400 hover:bg-purple-600/30'
-                    : 'border-gray-600 text-white hover:bg-gray-800'
+                    : 'border-gray-600 text-foreground hover:bg-gray-800'
                 }`}
                 onClick={() => participateMutation.mutate(
                   participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
@@ -556,7 +556,7 @@ export default function EventPage() {
         )}
 
         {/* Counts - Attending (left) and Interested (right) */}
-        <div className="flex items-center justify-between text-white/60 text-xs pt-2">
+        <div className="flex items-center justify-between text-foreground/60 text-xs pt-2">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             <span>{event.attendingCount || 0} Attending</span>
@@ -571,9 +571,9 @@ export default function EventPage() {
 
       {/* Ticket Selection Modal */}
       <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
-        <DialogContent className="bg-card border-border text-white max-w-md">
+        <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Select Your Ticket</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-foreground">Select Your Ticket</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
@@ -592,13 +592,13 @@ export default function EventPage() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="text-white font-semibold text-lg">{tier.name}</h4>
+                        <h4 className="text-foreground font-semibold text-lg">{tier.name}</h4>
                         {tier.description && (
                           <p className="text-gray-300 text-sm mt-1">{tier.description}</p>
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
+                        <div className="text-foreground font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
                         {tier.quantity && (
                           <div className="text-muted-foreground text-xs">{tier.quantity} available</div>
                         )}
@@ -630,7 +630,7 @@ export default function EventPage() {
                       }
                     }}
                     disabled={!selectedTierId || purchaseTicketMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground disabled:opacity-50"
                     data-testid="button-confirm-purchase"
                   >
                     {purchaseTicketMutation.isPending ? (
