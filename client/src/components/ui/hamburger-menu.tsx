@@ -19,15 +19,14 @@ const menuSections: MenuSection[] = [
     items: [
       "Edit Profile",
       "Payment Methods",
-      "Manage Subscriptions",
-      "Notification Preferences",
-      "Stripe Connect"
+      "Notification Preferences"
     ]
   },
   {
     title: "CREATOR TOOLS",
     items: [
-      "Creator Dashboard"
+      "Creator Dashboard",
+      "Stripe Connect"
     ]
   },
   {

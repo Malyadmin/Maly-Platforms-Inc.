@@ -32,6 +32,7 @@ export const mainNavItems = [
 export function BottomNav() {
   const [location, setLocation] = useLocation();
   const { t } = useTranslation();
+  const { user } = useUser();
 
   return (
     <>
@@ -47,7 +48,16 @@ export function BottomNav() {
                 href={href}
                 className="relative flex flex-col items-center justify-center gap-1 py-2"
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-white/60'}`} />
+                {label === 'profile' && user ? (
+                  <Avatar className={`w-5 h-5 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                    <AvatarImage src={user.profileImage || ''} alt={user.fullName || user.username} />
+                    <AvatarFallback className="text-xs">
+                      {(user.fullName || user.username || 'U').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-white/60'}`} />
+                )}
                 <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-white/60'}`}>
                   {t(label)}
                 </span>
@@ -71,7 +81,16 @@ export function BottomNav() {
                   : "text-white/60 hover:text-white"
               }`}
             >
-              <Icon className="w-6 h-6 transition-transform" />
+              {label === 'profile' && user ? (
+                <Avatar className={`w-6 h-6 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                  <AvatarImage src={user.profileImage || ''} alt={user.fullName || user.username} />
+                  <AvatarFallback className="text-xs">
+                    {(user.fullName || user.username || 'U').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <Icon className="w-6 h-6 transition-transform" />
+              )}
               <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 absolute left-16 bg-black text-white px-2 py-1 rounded whitespace-nowrap border border-gray-800 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                 {t(label)}
               </span>
