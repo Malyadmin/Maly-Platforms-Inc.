@@ -99,7 +99,7 @@ export default function DiscoverPage() {
     return matchesSearch && matchesCategory && matchesEventTypes;
   });
 
-  // Date utilities for categorizing events
+  // Date utilities for categorizing events - using cascade approach to prevent overlaps
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   
@@ -111,115 +111,88 @@ export default function DiscoverPage() {
   const endOfToday = new Date(startOfToday);
   endOfToday.setHours(23, 59, 59, 999);
   
-  // Calculate THIS WEEK (Monday-Friday of current week)
-  // If today is a weekend day, thisWeek will be empty
-  const startOfThisWeek = new Date(startOfToday);
-  const endOfThisWeek = new Date(startOfToday);
+  // Calculate THIS WEEKEND (current Sat-Sun if we're before or on Sunday)
+  let startOfThisWeekend = new Date(startOfToday);
+  let endOfThisWeekend = new Date(startOfToday);
   
-  // Set to Monday of current week if we're before or on Friday
-  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-    // Only include days after today up to Friday
-    // End of this week is Friday of current week
-    const daysUntilFriday = 5 - dayOfWeek;
-    endOfThisWeek.setDate(startOfToday.getDate() + daysUntilFriday);
-    endOfThisWeek.setHours(23, 59, 59, 999);
-  } else {
-    // If today is weekend, thisWeek is empty (set end before start)
-    endOfThisWeek.setDate(startOfToday.getDate() - 1);
-  }
-  
-  // Calculate THIS WEEKEND (Saturday-Sunday of current week)
-  const startOfThisWeekend = new Date(startOfToday);
-  const endOfThisWeekend = new Date(startOfToday);
-  
-  if (dayOfWeek < 6) { // Before Saturday
-    // Start of this weekend is upcoming Saturday
-    startOfThisWeekend.setDate(startOfToday.getDate() + (6 - dayOfWeek));
-    startOfThisWeekend.setHours(0, 0, 0, 0);
-    
-    // End of this weekend is upcoming Sunday
-    endOfThisWeekend.setDate(startOfToday.getDate() + (7 - dayOfWeek));
+  if (dayOfWeek === 0) { // Today is Sunday - this weekend is just today
     endOfThisWeekend.setHours(23, 59, 59, 999);
-  } else if (dayOfWeek === 6) { // Today is Saturday
-    // Start of this weekend is today
-    // End of this weekend is tomorrow (Sunday)
+  } else if (dayOfWeek === 6) { // Today is Saturday - this weekend is Sat-Sun
     endOfThisWeekend.setDate(startOfToday.getDate() + 1);
     endOfThisWeekend.setHours(23, 59, 59, 999);
-  } else { // Today is Sunday
-    // Today is the last day of this weekend
+  } else { // Mon-Fri - this weekend is upcoming Sat-Sun
+    const daysUntilSaturday = 6 - dayOfWeek;
+    startOfThisWeekend.setDate(startOfToday.getDate() + daysUntilSaturday);
+    startOfThisWeekend.setHours(0, 0, 0, 0);
+    endOfThisWeekend.setDate(startOfThisWeekend.getDate() + 1); // Sunday
     endOfThisWeekend.setHours(23, 59, 59, 999);
   }
   
-  // Calculate NEXT WEEK (Monday-Friday of next week)
-  const startOfNextWeek = new Date(startOfToday);
-  const endOfNextWeek = new Date(startOfToday);
+  // Calculate THIS WEEK (Mon-Fri, only days after today and before this weekend)
+  let startOfThisWeek = new Date(endOfToday);
+  startOfThisWeek.setMilliseconds(startOfThisWeek.getMilliseconds() + 1); // Start right after today ends
   
-  // Find days until next Monday
-  let daysUntilNextMonday = (8 - dayOfWeek) % 7;
-  if (daysUntilNextMonday === 0) daysUntilNextMonday = 7; // If today is Monday, go to next Monday
+  let endOfThisWeek = new Date(startOfThisWeekend);
+  endOfThisWeek.setMilliseconds(endOfThisWeek.getMilliseconds() - 1); // End right before this weekend starts
   
-  // Start of next week is next Monday
-  startOfNextWeek.setDate(startOfToday.getDate() + daysUntilNextMonday);
-  startOfNextWeek.setHours(0, 0, 0, 0);
-  
-  // End of next week is next Friday
-  endOfNextWeek.setDate(startOfNextWeek.getDate() + 4); // Monday + 4 days = Friday
-  endOfNextWeek.setHours(23, 59, 59, 999);
-  
-  // Calculate NEXT WEEKEND (Saturday-Sunday of next week)
-  const startOfNextWeekend = new Date(endOfNextWeek);
-  startOfNextWeekend.setDate(endOfNextWeek.getDate() + 1); // Friday + 1 = Saturday
+  // Calculate NEXT WEEKEND (Sat-Sun of next week)
+  const startOfNextWeekend = new Date(endOfThisWeekend);
+  startOfNextWeekend.setDate(endOfThisWeekend.getDate() + 6); // Next Saturday (7 days after this Sunday, minus 1)
   startOfNextWeekend.setHours(0, 0, 0, 0);
   
   const endOfNextWeekend = new Date(startOfNextWeekend);
-  endOfNextWeekend.setDate(startOfNextWeekend.getDate() + 1); // Saturday + 1 = Sunday
+  endOfNextWeekend.setDate(startOfNextWeekend.getDate() + 1); // Next Sunday
   endOfNextWeekend.setHours(23, 59, 59, 999);
   
+  // Calculate NEXT WEEK (Mon-Fri between this weekend and next weekend)
+  let startOfNextWeek = new Date(endOfThisWeekend);
+  startOfNextWeek.setMilliseconds(startOfNextWeek.getMilliseconds() + 1); // Start right after this weekend
+  
+  let endOfNextWeek = new Date(startOfNextWeekend);
+  endOfNextWeek.setMilliseconds(endOfNextWeek.getMilliseconds() - 1); // End right before next weekend
+  
   // THIS MONTH is everything after next weekend up to 30 days from today
-  const startOfRestOfMonth = new Date(endOfNextWeekend);
-  startOfRestOfMonth.setDate(endOfNextWeekend.getDate() + 1);
-  startOfRestOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(endOfNextWeekend);
+  startOfMonth.setMilliseconds(startOfMonth.getMilliseconds() + 1);
   
   const endOfMonth = new Date(startOfToday);
   endOfMonth.setDate(startOfToday.getDate() + 30);
+  endOfMonth.setHours(23, 59, 59, 999);
 
-  // Group events by date categories
+  // Group events by date categories - using cascade to ensure no overlaps
+  const categorizedEvents = filteredEvents.map(event => ({
+    event,
+    date: new Date(event.date)
+  }));
+
   const groupedEvents = {
-    todayOnly: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "TODAY" - Events happening only today
-      return eventDate >= startOfToday && eventDate <= endOfToday;
-    }),
-    thisWeek: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS WEEK" - Weekdays (Mon-Fri) of current week, excluding today
-      return eventDate > endOfToday && eventDate <= endOfThisWeek;
-    }),
-    thisWeekend: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS WEEKEND" - Saturday and Sunday of current week
-      return eventDate >= startOfThisWeekend && eventDate <= endOfThisWeekend;
-    }),
-    nextWeek: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "NEXT WEEK" - Weekdays (Mon-Fri) of next week
-      return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
-    }),
-    nextWeekend: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "NEXT WEEKEND" - Saturday and Sunday of next week
-      return eventDate >= startOfNextWeekend && eventDate <= endOfNextWeekend;
-    }),
-    month: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS MONTH" - Events after next weekend but within 30 days
-      return eventDate > endOfNextWeekend && eventDate < endOfMonth;
-    }),
-    upcoming: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "UPCOMING" - Events more than 30 days from now
-      return eventDate >= endOfMonth;
-    })
+    todayOnly: categorizedEvents
+      .filter(({ date }) => date >= startOfToday && date <= endOfToday)
+      .map(({ event }) => event),
+    
+    thisWeek: categorizedEvents
+      .filter(({ date }) => date > endOfToday && date < startOfThisWeekend)
+      .map(({ event }) => event),
+    
+    thisWeekend: categorizedEvents
+      .filter(({ date }) => date >= startOfThisWeekend && date <= endOfThisWeekend)
+      .map(({ event }) => event),
+    
+    nextWeek: categorizedEvents
+      .filter(({ date }) => date > endOfThisWeekend && date < startOfNextWeekend)
+      .map(({ event }) => event),
+    
+    nextWeekend: categorizedEvents
+      .filter(({ date }) => date >= startOfNextWeekend && date <= endOfNextWeekend)
+      .map(({ event }) => event),
+    
+    month: categorizedEvents
+      .filter(({ date }) => date > endOfNextWeekend && date <= endOfMonth)
+      .map(({ event }) => event),
+    
+    upcoming: categorizedEvents
+      .filter(({ date }) => date > endOfMonth)
+      .map(({ event }) => event)
   };
 
   // Create a flattened list of all filtered events for display count

@@ -164,39 +164,34 @@ export default function HomePage() {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
   
-  // Calculate weekend boundaries (Friday, Saturday, Sunday)
   const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   
-  // Find the upcoming weekend (if today is part of the weekend, include it)
-  const endOfWeekend = new Date(startOfToday);
-  if (dayOfWeek === 0) { // Sunday - weekend ends today
-    // endOfWeekend is already today
-  } else if (dayOfWeek === 5 || dayOfWeek === 6) { // Friday or Saturday - weekend ends on Sunday
-    endOfWeekend.setDate(startOfToday.getDate() + (7 - dayOfWeek)); // Next Sunday
-  } else { // Monday to Thursday - weekend starts on Friday
-    endOfWeekend.setDate(startOfToday.getDate() + (5 - dayOfWeek) + 2); // Next Sunday (Friday + 2 days)
+  // Calculate THIS WEEKEND (current Sat-Sun)
+  let endOfThisWeekend = new Date(startOfToday);
+  
+  if (dayOfWeek === 0) { // Today is Sunday - this weekend ends today
+    endOfThisWeekend.setHours(23, 59, 59, 999);
+  } else if (dayOfWeek === 6) { // Today is Saturday - this weekend ends tomorrow (Sunday)
+    endOfThisWeekend.setDate(startOfToday.getDate() + 1);
+    endOfThisWeekend.setHours(23, 59, 59, 999);
+  } else { // Mon-Fri - this weekend is the upcoming Sat-Sun
+    const daysUntilSunday = 7 - dayOfWeek; // Days until next Sunday
+    endOfThisWeekend.setDate(startOfToday.getDate() + daysUntilSunday);
+    endOfThisWeekend.setHours(23, 59, 59, 999);
   }
-  endOfWeekend.setHours(23, 59, 59, 999);
   
-  // Next week starts after the weekend
-  const startOfNextWeek = new Date(endOfWeekend);
-  startOfNextWeek.setDate(endOfWeekend.getDate() + 1);
-  startOfNextWeek.setHours(0, 0, 0, 0);
-  
-  const endOfNextWeek = new Date(startOfNextWeek);
-  endOfNextWeek.setDate(startOfNextWeek.getDate() + 7);
+  // NEXT WEEK starts right after this weekend ends
+  const startOfNextWeek = new Date(endOfThisWeekend);
+  startOfNextWeek.setMilliseconds(startOfNextWeek.getMilliseconds() + 1);
   
   const groupedEvents = filteredEvents.reduce(
     (acc: { thisWeekend: any[]; nextWeek: any[] }, event) => {
       const eventDate = new Date(event.date);
-      if (eventDate <= endOfWeekend && eventDate >= startOfToday) {
-        // This Weekend - events from now through Sunday
+      if (eventDate >= startOfToday && eventDate <= endOfThisWeekend) {
+        // This Weekend - events from today through this Sunday
         acc.thisWeekend.push(event);
-      } else if (eventDate > endOfWeekend && eventDate <= endOfNextWeek) {
-        // Next Week - events after the weekend through the following week
-        acc.nextWeek.push(event);
-      } else {
-        // Events beyond next week - still add to nextWeek for display
+      } else if (eventDate > endOfThisWeekend) {
+        // Next Week - events after this weekend
         acc.nextWeek.push(event);
       }
       return acc;
