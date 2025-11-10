@@ -159,14 +159,14 @@ export default function EditProfilePage() {
       
       const data = await response.json();
       
-      if (data.success && data.imageUrls) {
-        setImagePreviews(prev => [...prev, ...data.imageUrls]);
+      if (data.success && data.profileImages) {
+        setImagePreviews(prev => [...prev, ...data.profileImages]);
         setCurrentImageIndex(imagePreviews.length);
         setHasNewImages(true);
         
         toast({
           title: "Images Uploaded",
-          description: `${data.imageUrls.length} image(s) uploaded successfully.`,
+          description: `${data.profileImages.length} image(s) uploaded successfully.`,
         });
       }
     } catch (error: any) {
