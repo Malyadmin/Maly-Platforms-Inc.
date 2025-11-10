@@ -74,8 +74,11 @@ export default function DiscoverPage() {
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
   const [showFiltersBar, setShowFiltersBar] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [customCities, setCustomCities] = useState<string[]>([]);
+  const [showAddCityDialog, setShowAddCityDialog] = useState(false);
+  const [newCityInput, setNewCityInput] = useState('');
   // Removed dateFilter state, as we'll always show all events organized by date
-  const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity);
+  const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity === 'all' ? undefined : selectedCity);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [displayCount, setDisplayCount] = useState(24); // Increased initial count to display more items
@@ -291,8 +294,47 @@ export default function DiscoverPage() {
     setSelectedTimeFilter('Anytime');
   };
 
+  // Handle adding custom city
+  const handleAddCity = () => {
+    const trimmedCity = newCityInput.trim();
+    if (trimmedCity && !customCities.includes(trimmedCity) && !DIGITAL_NOMAD_CITIES.includes(trimmedCity)) {
+      setCustomCities(prev => [trimmedCity, ...prev]);
+      setSelectedCity(trimmedCity);
+      setNewCityInput('');
+      setShowAddCityDialog(false);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Add City Dialog */}
+      <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Add Custom City</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={newCityInput}
+              onChange={(e) => setNewCityInput(e.target.value)}
+              placeholder="Enter city name"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
+              data-testid="input-custom-city"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setShowAddCityDialog(false); setNewCityInput(''); }} data-testid="button-cancel-add-city">
+                Cancel
+              </Button>
+              <Button onClick={handleAddCity} disabled={!newCityInput.trim()} data-testid="button-confirm-add-city">
+                Add
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <FirstEventModal 
         cityName={selectedCity} 
         open={showFirstEventModal} 
@@ -314,7 +356,9 @@ export default function DiscoverPage() {
         <div className="px-5">
           <div className="flex items-center justify-between pb-3">
             {/* Discover title with gradient - uppercase with extra letter spacing */}
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {selectedCity !== 'all' ? `D I S C O V E R | ${selectedCity}` : 'D I S C O V E R'}
+            </h2>
             
             {/* Filter icon */}
             <Button
@@ -383,11 +427,21 @@ export default function DiscoverPage() {
                 <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
                     data-testid="city-option-all"
                   >
                     {t('allLocations')}
                   </button>
+                  {customCities.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800"
+                      data-testid={`city-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
                   {DIGITAL_NOMAD_CITIES.map((city) => (
                     <button
                       key={city}
@@ -398,6 +452,13 @@ export default function DiscoverPage() {
                       {city}
                     </button>
                   ))}
+                  <button
+                    onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800 last:rounded-b-lg border-t border-gray-700 sticky bottom-0 bg-gray-900"
+                    data-testid="city-option-add"
+                  >
+                    + Add City
+                  </button>
                 </div>
               )}
             </div>
@@ -658,6 +719,32 @@ export default function DiscoverPage() {
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'Next Week' && groupedEvents.nextWeek.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                        </div>
+                        <div className="space-y-4">
+                          {groupedEvents.nextWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'Next Month' && groupedEvents.month.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT MONTH</h2>
+                        </div>
+                        <div className="space-y-4">
+                          {groupedEvents.month.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
                         </div>

@@ -10,6 +10,7 @@ import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 
 // User interface matching the existing ConnectPage User type
@@ -53,6 +54,9 @@ export function ConnectPage() {
   const [, setLocation] = useLocation();
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedGender, setSelectedGender] = useState<string>("all");
+  const [customCities, setCustomCities] = useState<string[]>([]);
+  const [showAddCityDialog, setShowAddCityDialog] = useState(false);
+  const [newCityInput, setNewCityInput] = useState('');
   const [selectedVibe, setSelectedVibe] = useState<string>("all");
   const [selectedIntention, setSelectedIntention] = useState<string>("all");
   const [showFiltersBar, setShowFiltersBar] = useState(false);
@@ -266,9 +270,47 @@ export function ConnectPage() {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
 
+  // Handle adding custom city
+  const handleAddCity = () => {
+    const trimmedCity = newCityInput.trim();
+    if (trimmedCity && !customCities.includes(trimmedCity) && !DIGITAL_NOMAD_CITIES.includes(trimmedCity)) {
+      setCustomCities(prev => [trimmedCity, ...prev]);
+      setSelectedCity(trimmedCity);
+      setNewCityInput('');
+      setShowAddCityDialog(false);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
+      {/* Add City Dialog */}
+      <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Add Custom City</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={newCityInput}
+              onChange={(e) => setNewCityInput(e.target.value)}
+              placeholder="Enter city name"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
+              data-testid="input-custom-city"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setShowAddCityDialog(false); setNewCityInput(''); }} data-testid="button-cancel-add-city">
+                Cancel
+              </Button>
+              <Button onClick={handleAddCity} disabled={!newCityInput.trim()} data-testid="button-confirm-add-city">
+                Add
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header Section - Fixed at top */}
       <header className="bg-black text-white shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu */}
@@ -285,7 +327,9 @@ export function ConnectPage() {
         <div className="px-5">
           <div className="flex items-center justify-between pb-3">
             {/* Connect title with gradient - uppercase with extra letter spacing */}
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Connect</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {selectedCity !== 'all' ? `C O N N E C T | ${selectedCity}` : 'C O N N E C T'}
+            </h2>
             
             {/* Filter icon */}
             <Button
@@ -375,11 +419,21 @@ export function ConnectPage() {
                 <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
                     data-testid="location-option-all"
                   >
                     All Cities
                   </button>
+                  {customCities.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800"
+                      data-testid={`location-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
                   {DIGITAL_NOMAD_CITIES.map((city) => (
                     <button
                       key={city}
@@ -390,6 +444,13 @@ export function ConnectPage() {
                       {city}
                     </button>
                   ))}
+                  <button
+                    onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800 last:rounded-b-lg border-t border-gray-700 sticky bottom-0 bg-gray-900"
+                    data-testid="location-option-add"
+                  >
+                    + Add City
+                  </button>
                 </div>
               )}
             </div>
