@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Loader2, X, Check, Upload } from "lucide-react";
+import { Pencil, Loader2, X, Check } from "lucide-react";
 import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
@@ -357,17 +357,6 @@ export default function EditProfilePage() {
             </div>
           )}
           
-          {/* Upload button */}
-          <label className="absolute bottom-4 right-4 p-3 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
-            <Upload className="h-5 w-5 text-white" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageChange}
-              data-testid="input-profile-image"
-            />
-          </label>
 
           {/* Name overlay */}
           <div className="absolute bottom-6 left-6 right-6">
@@ -390,24 +379,6 @@ export default function EditProfilePage() {
             {renderEditableField("Upcoming", "nextLocation")}
           </div>
 
-          {/* Save Button */}
-          <div className="max-w-2xl mx-auto pt-6 pb-8">
-            <Button
-              onClick={handleSaveProfile}
-              disabled={isSaving}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full py-6 text-lg"
-              data-testid="button-save-profile"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Profile"
-              )}
-            </Button>
-          </div>
         </div>
       </div>
 
