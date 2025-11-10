@@ -428,7 +428,20 @@ export function ConnectPage() {
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
-              <SlidersHorizontal className="h-7 w-7" />
+              <svg 
+                width="28" 
+                height="28" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-7 w-7"
+              >
+                <line x1="4" y1="9" x2="20" y2="9" />
+                <line x1="4" y1="15" x2="20" y2="15" />
+              </svg>
             </Button>
           </div>
           
