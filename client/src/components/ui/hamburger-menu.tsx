@@ -126,7 +126,7 @@ export function HamburgerMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="text-white p-2 hover:bg-white/10"
+          className="text-foreground p-2 hover:bg-accent/10"
           data-testid="hamburger-menu-button"
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -134,18 +134,18 @@ export function HamburgerMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-72 bg-black border-gray-800 text-white p-0 max-h-[80vh] overflow-y-auto"
+        className="w-72 bg-popover border-border text-foreground p-0 max-h-[80vh] overflow-y-auto"
         data-testid="hamburger-menu-content"
       >
         <div className="py-2">
           {menuSections.map((section, idx) => (
-            <div key={section.title} className={idx > 0 ? "border-t border-gray-800" : ""}>
+            <div key={section.title} className={idx > 0 ? "border-t border-border" : ""}>
               <button
                 onClick={() => toggleSection(section.title)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors group"
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
                 data-testid={`menu-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.title) ? 'gradient-text' : 'text-gray-300 group-hover:gradient-text'}`}>
+                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.title) ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
                   {section.title}
                 </span>
                 {expandedSections.includes(section.title) ? (
@@ -156,11 +156,11 @@ export function HamburgerMenu() {
               </button>
               
               {expandedSections.includes(section.title) && (
-                <div className="bg-gray-900/50">
+                <div className="bg-muted/50">
                   {section.items.map((item) => (
                     <button
                       key={item}
-                      className="w-full text-left px-8 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                      className="w-full text-left px-8 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                       data-testid={`menu-item-${item.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => handleMenuItemClick(item)}
                     >
@@ -173,7 +173,7 @@ export function HamburgerMenu() {
           ))}
           
           {/* Logout section */}
-          <div className="border-t border-gray-800">
+          <div className="border-t border-border">
             <button
               onClick={(e) => handleLogout(e)}
               className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-500/10 transition-colors text-red-400"

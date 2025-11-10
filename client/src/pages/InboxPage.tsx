@@ -282,7 +282,7 @@ export default function InboxPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Header - Fixed at top */}
-      <header className="bg-black text-white shrink-0 z-50">
+      <header className="bg-background text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo on left and hamburger menu on right */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 

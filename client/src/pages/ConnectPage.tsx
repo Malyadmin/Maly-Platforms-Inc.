@@ -401,7 +401,7 @@ export function ConnectPage() {
       </Dialog>
 
       {/* Header Section - Fixed at top */}
-      <header className="bg-black text-white shrink-0 z-50">
+      <header className="bg-background text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -458,7 +458,7 @@ export function ConnectPage() {
 
       {/* Filter Bar - Shows when filter icon is clicked */}
       {showFiltersBar && (
-        <div className="bg-black border-b border-gray-800">
+        <div className="bg-black border-b border-border">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* Gender */}
