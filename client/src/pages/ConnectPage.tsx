@@ -791,9 +791,9 @@ export function ConnectPage() {
                           }}
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
-                            isConnected || isPending
+                            isConnected
                               ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap"
-                              : "bg-gray-800 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
+                              : "bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap transition-all"
                           }
                           data-testid={`connect-button-${user.id}`}
                         >
