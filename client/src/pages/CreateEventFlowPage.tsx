@@ -126,7 +126,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           type="submit"
           form="step1-form"
@@ -368,7 +368,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           onClick={onSubmit}
           className="w-full py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
@@ -685,7 +685,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           type="submit"
           form="step3-form"
@@ -842,7 +842,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           type="submit"
           form="step4-form"
@@ -1102,7 +1102,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           type="submit"
           form="step5-form"
@@ -1357,7 +1357,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       </div>
 
       {/* Fixed Create Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 pb-6 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           type="submit"
           form="step6-form"
