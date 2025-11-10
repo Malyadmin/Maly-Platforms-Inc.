@@ -100,14 +100,46 @@ export default function EditProfilePage() {
     setTempMoods([]);
   };
 
-  const handleSaveField = (field: string) => {
-    setProfileData({
+  const handleSaveField = async (field: string) => {
+    const updatedValue = field === "currentMoods" ? tempMoods : tempValue;
+    const updatedData = {
       ...profileData,
-      [field]: field === "currentMoods" ? tempMoods : tempValue,
-    });
-    setEditingField(null);
-    setTempValue("");
-    setTempMoods([]);
+      [field]: updatedValue,
+    };
+    
+    setProfileData(updatedData);
+    setIsSaving(true);
+    
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      toast({
+        title: "Profile Updated",
+        description: `Your ${field} has been successfully updated.`,
+      });
+
+      await refetchUser();
+      setEditingField(null);
+      setTempValue("");
+      setTempMoods([]);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,14 +176,16 @@ export default function EditProfilePage() {
   const handleSaveImages = async () => {
     setIsSaving(true);
     try {
+      const updatedData = {
+        ...profileData,
+        profileImage: imagePreviews[currentImageIndex] || imagePreviews[0],
+      };
+      
       const response = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          ...profileData,
-          profileImage: imagePreviews[0],
-        }),
+        body: JSON.stringify(updatedData),
       });
 
       if (!response.ok) {
@@ -159,11 +193,12 @@ export default function EditProfilePage() {
       }
 
       toast({
-        title: "Images Updated",
-        description: "Your profile images have been successfully updated.",
+        title: "Profile Image Updated",
+        description: "Your profile image has been successfully updated.",
       });
 
       await refetchUser();
+      setProfileData(updatedData);
       setHasNewImages(false);
     } catch (error: any) {
       toast({
