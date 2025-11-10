@@ -1312,17 +1312,6 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             </div>
           </div>
 
-          {/* Mood Specific */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Mood Specific</label>
-            <Input
-              {...form.register("moodSpecific")}
-              placeholder="e.g., Adventurous, Social, Creative"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-mood-specific"
-            />
-          </div>
-
           {/* Vibe Selection */}
           <div className="space-y-4">
             <label className="text-white font-medium">Event Vibes</label>
@@ -1331,15 +1320,19 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               {VIBE_OPTIONS.map((vibe) => (
                 <div
                   key={vibe.value}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedVibes.includes(vibe.value)
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                      : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                      ? 'border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-[2px]'
+                      : 'border-gray-600 hover:border-gray-500'
                   }`}
                   onClick={() => toggleVibe(vibe.value)}
                   data-testid={`vibe-option-${vibe.value}`}
                 >
-                  <div className="text-sm font-medium">{vibe.label}</div>
+                  <div className={`${selectedVibes.includes(vibe.value) ? 'bg-black rounded-md p-3 -m-[2px]' : ''}`}>
+                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'gradient-text' : 'text-gray-300'}`}>
+                      {vibe.label}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1511,8 +1504,8 @@ export default function CreateEventFlowPage() {
       console.log("✅ Event created successfully:", createdEvent);
 
       toast({
-        title: "Event Created!",
-        description: `"${eventData.title}" has been created successfully.`
+        title: "Congratulations!",
+        description: "Your event was successfully posted and is now live!"
       });
 
       // Redirect to the created event or back to discover
