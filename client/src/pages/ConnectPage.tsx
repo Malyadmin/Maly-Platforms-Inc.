@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "@/lib/translations";
 import { useLocation, Link } from "wouter";
 import { SlidersHorizontal, X, UserPlus, Loader2, MapPin, ChevronDown, UserCheck, Clock } from "lucide-react";
@@ -62,6 +62,7 @@ export function ConnectPage() {
   const [showFiltersBar, setShowFiltersBar] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [connectionStatuses, setConnectionStatuses] = useState<Record<number, ConnectionStatus>>({});
+  const inFlightMutations = useRef<Set<number>>(new Set());
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -109,6 +110,11 @@ export function ConnectPage() {
     refetchOnWindowFocus: false
   });
 
+  // Memoize user IDs to detect when actual user set changes (not just array reference)
+  const userIds = useMemo(() => 
+    users?.map(u => u.id).sort((a, b) => a - b).join(',') || '', 
+    [users]
+  );
 
   // Fetch contact statuses for all users
   useEffect(() => {
@@ -136,15 +142,26 @@ export function ConnectPage() {
         })
       );
       
-      setConnectionStatuses(statuses);
+      // Preserve optimistic updates only for users with in-flight mutations
+      setConnectionStatuses(prev => {
+        const merged = { ...statuses };
+        // Keep optimistic status only if mutation is currently in progress
+        inFlightMutations.current.forEach(userId => {
+          if (prev[userId]) {
+            merged[userId] = prev[userId];
+          }
+        });
+        return merged;
+      });
     };
     
     fetchContactStatuses();
-  }, [users, currentUser]);
+  }, [userIds, currentUser?.id]);
 
   // Add contact (one-way, no approval needed)
   const createConnectionMutation = useMutation({
     mutationFn: async (targetUserId: number) => {
+      inFlightMutations.current.add(targetUserId);
       const response = await fetch('/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,6 +176,7 @@ export function ConnectPage() {
       return response.json();
     },
     onSuccess: (_, targetUserId) => {
+      inFlightMutations.current.delete(targetUserId);
       toast({
         title: 'Contact added',
         description: 'User has been added to your contacts.',
@@ -167,6 +185,7 @@ export function ConnectPage() {
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     },
     onError: (error: Error, targetUserId) => {
+      inFlightMutations.current.delete(targetUserId);
       // Rollback optimistic update
       setConnectionStatuses(prev => ({
         ...prev,
@@ -187,6 +206,7 @@ export function ConnectPage() {
   // Remove contact
   const removeConnectionMutation = useMutation({
     mutationFn: async (targetUserId: number) => {
+      inFlightMutations.current.add(targetUserId);
       const response = await fetch(`/api/contacts/${targetUserId}`, {
         method: 'DELETE',
       });
@@ -199,6 +219,7 @@ export function ConnectPage() {
       return response.json();
     },
     onSuccess: (_, targetUserId) => {
+      inFlightMutations.current.delete(targetUserId);
       toast({
         title: 'Contact removed',
         description: 'User has been removed from your contacts.',
@@ -207,6 +228,7 @@ export function ConnectPage() {
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     },
     onError: (error: Error, targetUserId) => {
+      inFlightMutations.current.delete(targetUserId);
       // Rollback optimistic update
       setConnectionStatuses(prev => ({
         ...prev,
