@@ -165,7 +165,6 @@ export function ConnectPage() {
       });
       
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error: Error, targetUserId) => {
       // Rollback optimistic update
@@ -206,7 +205,6 @@ export function ConnectPage() {
       });
       
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error: Error, targetUserId) => {
       // Rollback optimistic update
