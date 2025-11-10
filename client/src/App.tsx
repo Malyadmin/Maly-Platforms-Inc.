@@ -152,6 +152,7 @@ function AppContent() {
           <Route path="/privacy" component={PrivacyPolicyPage} />
           <Route path="/notification-preferences" component={NotificationPreferencesPage} />
           <Route path="/payment-methods" component={PaymentMethodsPage} />
+          <Route path="/appearance" component={AppearancePage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
