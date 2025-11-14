@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { 
-  ChevronLeft, 
   UserCircle, 
   Camera, 
   MapPin, 
@@ -38,6 +37,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { ProfileGallery } from "@/components/ui/profile-gallery";
+import { PageHeader } from "@/components/ui/page-header";
 
 const profileSchema = z.object({
   username: z.string().optional(),
@@ -229,24 +229,13 @@ export default function ProfileEditPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-black/40 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-white hover:bg-foreground/10"
-              onClick={() => setLocation(`/profile/${user?.username}`)}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <UserCircle className="w-6 h-6" />
-              <h1 className="text-lg font-semibold">{t("editProfile")}</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title={t("editProfile")}
+        icon={UserCircle}
+        backButtonFallbackPath={`/profile/${user?.username}`}
+        forceUsePathFallback={true}
+        className="bg-black/40"
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">

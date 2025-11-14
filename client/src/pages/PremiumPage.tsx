@@ -2,10 +2,11 @@ import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, Crown, Star, Shield, Gift, Zap, MessageSquare, Check, Loader2 } from "lucide-react";
+import { Crown, Star, Shield, Gift, Zap, MessageSquare, Check, Loader2 } from "lucide-react";
 import { useUser } from "@/lib/useUser";
 import { useToast } from "@/components/ui/use-toast";
 import { PaymentHistory } from '../components/premium/PaymentHistory';
+import { PageHeader } from "@/components/ui/page-header";
 
 const features = [
   {
@@ -216,24 +217,12 @@ export default function PremiumPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background/40 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground hover:bg-foreground/10"
-              onClick={() => setLocation("/")}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Crown className="w-6 h-6 text-purple-400" />
-              <h1 className="text-lg font-semibold">Premium Benefits</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Premium Benefits"
+        icon={Crown}
+        backButtonFallbackPath="/"
+        className="bg-background/40"
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">

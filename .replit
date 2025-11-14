@@ -96,12 +96,12 @@ localPort = 42041
 externalPort = 3002
 
 [[ports]]
-localPort = 44497
-externalPort = 5173
+localPort = 43133
+externalPort = 8008
 
 [[ports]]
-localPort = 45155
-externalPort = 8008
+localPort = 44497
+externalPort = 5173
 
 [[ports]]
 localPort = 45357

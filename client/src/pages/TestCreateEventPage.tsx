@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function TestCreateEventPage() {
   const [_, setLocation] = useLocation();
@@ -79,23 +79,11 @@ export default function TestCreateEventPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-lg border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white/60"
-              onClick={() => setLocation("/")}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-sm font-medium uppercase tracking-wider">
-              Test Event Creation
-            </h1>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Test Event Creation"
+        backButtonFallbackPath="/"
+        className="bg-black/80"
+      />
 
       <div className="container mx-auto px-4 py-8 space-y-8 max-w-2xl">
         <div className="bg-white/5 p-6 rounded-lg space-y-4">

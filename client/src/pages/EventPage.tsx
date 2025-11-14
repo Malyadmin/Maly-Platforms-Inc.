@@ -290,9 +290,10 @@ export default function EventPage() {
           />
         </div>
         
-        {/* Bottom bar with Back button and Discover title */}
+        {/* Bottom bar with Discover title and Back button */}
         <div className="px-5 pb-3">
-          <div className="flex items-center gap-3">
+          <div className="space-y-2 sm:space-y-3">
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
             <button
               onClick={() => {
                 if (window.history.length > 1) {
@@ -306,7 +307,6 @@ export default function EventPage() {
             >
               Back
             </button>
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
           </div>
         </div>
       </header>
