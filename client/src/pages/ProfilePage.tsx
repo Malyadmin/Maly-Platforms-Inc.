@@ -379,8 +379,11 @@ export default function ProfilePage() {
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}
     <div className="px-5 pb-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between">
+        <div className="space-y-2 sm:space-y-3">
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
+          </h2>
           <button
             onClick={() => {
               if (fromUrl) {
@@ -396,9 +399,6 @@ export default function ProfilePage() {
           >
             Back
           </button>
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
-          </h2>
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (
           <button
