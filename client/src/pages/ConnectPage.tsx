@@ -416,9 +416,14 @@ export function ConnectPage() {
         <div className="px-5">
           <div className="flex items-center justify-between pb-3">
             {/* Connect title with gradient - uppercase with extra letter spacing */}
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {selectedCity !== 'all' ? `C O N N E C T | ${selectedCity}` : 'C O N N E C T'}
-            </h2>
+            <div>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+                C O N N E C T
+              </h2>
+              {selectedCity !== 'all' && (
+                <p className="text-white text-sm mt-1">{selectedCity}</p>
+              )}
+            </div>
             
             {/* Filter icon */}
             <Button
