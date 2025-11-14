@@ -604,7 +604,11 @@ export default function ProfilePage() {
                 handleMessageClick();
               }}
               disabled={createConversationMutation.isPending}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50"
+              className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
+                messageClicked 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-foreground border-0'
+                  : 'bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700'
+              }`}
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (
@@ -617,7 +621,7 @@ export default function ProfilePage() {
             
             {/* Connect Button */}
             {connectionLoading ? (
-              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 text-white text-sm font-medium py-2.5 px-4 opacity-50">
+              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gray-600 text-gray-200 border border-gray-700 opacity-50">
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Loading
               </button>
@@ -625,7 +629,7 @@ export default function ProfilePage() {
               <button 
                 onClick={() => removeConnectionMutation.mutate(profileData.id)}
                 disabled={removeConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 transition-all disabled:opacity-50"
                 data-testid="button-remove-contact"
               >
                 {removeConnectionMutation.isPending ? (
@@ -639,7 +643,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => createConnectionMutation.mutate(profileData.id)}
                 disabled={createConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700"
                 data-testid="button-add-contact"
               >
                 {createConnectionMutation.isPending ? (

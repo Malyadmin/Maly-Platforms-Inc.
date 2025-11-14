@@ -810,7 +810,11 @@ export function ConnectPage() {
                             }
                           }}
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
-                          className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                          className={
+                            isConnected
+                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              : "inline-flex items-center justify-center gap-2 rounded-md bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                          }
                           data-testid={`connect-button-${user.id}`}
                         >
                           {(createConnectionMutation.isPending || removeConnectionMutation.isPending) ? (
