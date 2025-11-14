@@ -452,7 +452,7 @@ export default function EventPage() {
               {/* Ticket/Purchase Button */}
               {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground text-sm py-2 px-6"
+                  className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm py-2 px-6"
                   onClick={() => setIsTicketModalOpen(true)}
                   data-testid="button-purchase-ticket"
                 >
@@ -461,7 +461,7 @@ export default function EventPage() {
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
+                  className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm py-2 px-6"
                   onClick={() => accessRequestMutation.mutate()}
                   disabled={accessRequestMutation.isPending}
                   data-testid="button-request-access"
@@ -480,7 +480,7 @@ export default function EventPage() {
                 </Button>
               ) : (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
+                  className="rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 text-sm py-2 px-6"
                   onClick={() => participateMutation.mutate(
                     participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
                   )}
@@ -630,7 +630,7 @@ export default function EventPage() {
                       }
                     }}
                     disabled={!selectedTierId || purchaseTicketMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground disabled:opacity-50"
+                    className="flex-1 rounded-full border border-white/40 bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
                     data-testid="button-confirm-purchase"
                   >
                     {purchaseTicketMutation.isPending ? (
