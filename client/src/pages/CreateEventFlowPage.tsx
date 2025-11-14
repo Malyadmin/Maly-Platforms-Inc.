@@ -28,7 +28,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
     resolver: zodResolver(step1Schema),
     defaultValues: {
       title: data.title || "",
-      tagline: data.tagline || "",
       summary: data.summary || "",
     },
   });
@@ -91,16 +90,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Event Tagline (optional)</label>
-            <Input
-              {...form.register("tagline")}
-              placeholder="Short and catchy"
-              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-tagline"
-            />
-          </div>
-
-          <div className="space-y-2">
             <label className="text-foreground font-medium">Event Summary / Invitation</label>
             <Textarea
               {...form.register("summary")}
@@ -124,7 +113,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-full hover:bg-foreground/10 transition-colors"
           data-testid="button-next"
         >
           Next

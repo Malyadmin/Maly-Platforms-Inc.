@@ -157,14 +157,16 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
             </div>
             
-            <button
+            <Button
               type="submit"
               form="step1-form"
-              className="text-white font-medium"
+              variant="outline"
+              size="sm"
+              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
               data-testid="button-next"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -324,14 +326,16 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
             </div>
             
-            <button
+            <Button
               type="submit"
               form="step2-form"
-              className="text-white font-medium"
+              variant="outline"
+              size="sm"
+              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
               data-testid="button-next"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -441,14 +445,16 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
             </div>
             
-            <button
+            <Button
               type="submit"
               form="step3-form"
-              className="text-white font-medium"
+              variant="outline"
+              size="sm"
+              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
               data-testid="button-next"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -563,14 +569,16 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
             </div>
             
-            <button
+            <Button
               type="submit"
               form="step4-form"
-              className="text-white font-medium"
+              variant="outline"
+              size="sm"
+              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
               data-testid="button-next"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>
