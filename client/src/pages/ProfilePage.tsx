@@ -505,7 +505,7 @@ export default function ProfilePage() {
           <span>{profileData.fullName || profileData.username}</span>
           {profileData.isPremium && (
             <img 
-              src="/attached_assets/IMG_0425_1762623366264.jpeg" 
+              src="/attached_assets/unnamed-5-removebg-preview_1763498361330.png" 
               alt="Premium" 
               className="w-6 h-6 flex-shrink-0"
             />

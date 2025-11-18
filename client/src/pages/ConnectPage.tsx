@@ -762,7 +762,7 @@ export function ConnectPage() {
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
                         {user.isPremium && (
                           <img 
-                            src="/attached_assets/IMG_0425_1762623366264.jpeg" 
+                            src="/attached_assets/unnamed-5-removebg-preview_1763498361330.png" 
                             alt="Premium" 
                             className="w-4 h-4 flex-shrink-0"
                           />

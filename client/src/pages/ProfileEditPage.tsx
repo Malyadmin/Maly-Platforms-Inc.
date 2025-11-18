@@ -502,7 +502,7 @@ export default function ProfileEditPage() {
                             variant="outline"
                             className={`cursor-pointer transition-all ${
                               isSelected 
-                                ? 'bg-white/10 border-white/40 hover:bg-white/20' 
+                                ? 'bg-transparent border-white/50 hover:border-white/70' 
                                 : 'bg-transparent border-gray-500/40 hover:bg-white/10'
                             }`}
                             onClick={() => {
