@@ -607,7 +607,7 @@ export default function ProfilePage() {
               className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
                 messageClicked 
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-foreground border-0'
-                  : 'bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700'
+                  : 'bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10'
               }`}
               data-testid="button-message"
             >
@@ -621,7 +621,7 @@ export default function ProfilePage() {
             
             {/* Connect Button */}
             {connectionLoading ? (
-              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gray-600 text-gray-200 border border-gray-700 opacity-50">
+              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-transparent border border-gray-500/40 text-gray-200 opacity-50">
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Loading
               </button>
@@ -643,7 +643,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => createConnectionMutation.mutate(profileData.id)}
                 disabled={createConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gray-600 hover:bg-gray-700 text-gray-200 border border-gray-700"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10"
                 data-testid="button-add-contact"
               >
                 {createConnectionMutation.isPending ? (

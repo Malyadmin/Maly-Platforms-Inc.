@@ -494,28 +494,17 @@ export default function ProfileEditPage() {
                       {VIBE_AND_MOOD_TAGS.map(tag => {
                         const isInterest = selectedInterests.includes(tag);
                         const isMood = selectedMoods.includes(tag);
-                        
-                        // Determine badge style based on selection states
-                        let variant = "outline";
-                        let className = "cursor-pointer hover:opacity-80 transition-opacity";
-                        
-                        if (isInterest && isMood) {
-                          // Tag is selected as both interest and mood
-                          variant = "default";
-                          className += " ring-2 ring-primary ring-opacity-50";
-                        } else if (isInterest) {
-                          // Tag is selected as interest only
-                          variant = "default";
-                        } else if (isMood) {
-                          // Tag is selected as mood only
-                          variant = "secondary";
-                        }
+                        const isSelected = isInterest || isMood;
                         
                         return (
                           <Badge
                             key={tag}
-                            variant={variant as any}
-                            className={className}
+                            variant="outline"
+                            className={`cursor-pointer transition-all ${
+                              isSelected 
+                                ? 'bg-white/10 border-white/40 hover:bg-white/20' 
+                                : 'bg-transparent border-gray-500/40 hover:bg-white/10'
+                            }`}
                             onClick={() => {
                               // Toggle selection for both interest and mood at once
                               const newInterests = isInterest
