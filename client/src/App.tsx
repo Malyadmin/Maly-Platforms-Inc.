@@ -49,7 +49,8 @@ import { LanguageProvider } from "./lib/language-context";
 import { QueryProvider } from "./lib/query-provider";
 import { UserProvider } from "./lib/user-provider";
 import { useUser } from "@/hooks/use-user";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { SplashScreen } from "@/components/SplashScreen";
 
 function AppContent() {
   const [location, setLocation] = useLocation();
@@ -182,6 +183,22 @@ function AppContent() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(() => {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                  (window.navigator as any).standalone === true;
+    const hasSeenSplash = sessionStorage.getItem('maly_splash_shown');
+    return isPWA && !hasSeenSplash;
+  });
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem('maly_splash_shown', 'true');
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} duration={3000} />;
+  }
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="nomad-theme">
       <QueryProvider>
