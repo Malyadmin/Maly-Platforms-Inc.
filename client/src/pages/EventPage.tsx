@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -69,6 +69,7 @@ export default function EventPage() {
   const [showAllVibes, setShowAllVibes] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showDressCode, setShowDressCode] = useState(false);
+  const [shareClicked, setShareClicked] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -293,7 +294,47 @@ export default function EventPage() {
         {/* Bottom bar with Discover title and Back button */}
         <div className="px-5 pb-3">
           <div className="space-y-2 sm:space-y-3">
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+              {/* Share Button */}
+              <button
+                onClick={async () => {
+                  setShareClicked(true);
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({
+                        title: event?.title || 'Event',
+                        text: `Check out this event: ${event?.title || 'Event'}`,
+                        url: window.location.href,
+                      });
+                    } catch (err) {
+                      if ((err as Error).name !== 'AbortError') {
+                        console.error('Error sharing:', err);
+                        toast({
+                          title: "Share failed",
+                          description: "Unable to share this event",
+                          variant: "destructive",
+                        });
+                      }
+                    }
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast({
+                      title: "Link copied!",
+                      description: "Event link copied to clipboard",
+                    });
+                  }
+                }}
+                className="p-0 bg-transparent border-0 transition-colors hover:opacity-80"
+                data-testid="button-share"
+              >
+                <Share 
+                  className="h-6 w-6" 
+                  strokeWidth={2.5}
+                  color={shareClicked ? '#9333ea' : '#9ca3af'}
+                />
+              </button>
+            </div>
             <button
               onClick={() => {
                 if (window.history.length > 1) {
@@ -499,41 +540,6 @@ export default function EventPage() {
                   )}
                 </Button>
               )}
-              
-              {/* Share Button */}
-              <Button 
-                variant="outline" 
-                className="border-gray-600 text-foreground hover:bg-gray-800 px-4"
-                onClick={async () => {
-                  if (navigator.share) {
-                    try {
-                      await navigator.share({
-                        title: event.title,
-                        text: `Check out this event: ${event.title}`,
-                        url: window.location.href,
-                      });
-                    } catch (err) {
-                      if ((err as Error).name !== 'AbortError') {
-                        console.error('Error sharing:', err);
-                        toast({
-                          title: "Share failed",
-                          description: "Unable to share this event",
-                          variant: "destructive",
-                        });
-                      }
-                    }
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast({
-                      title: "Link copied!",
-                      description: "Event link copied to clipboard",
-                    });
-                  }
-                }}
-                data-testid="button-share"
-              >
-                <Share2 className="w-5 h-5" />
-              </Button>
               
               {/* Save Button */}
               <Button 
