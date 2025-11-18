@@ -380,8 +380,8 @@ export default function EditProfilePage() {
                   onClick={() => toggleMood(mood)}
                   className={`py-2 px-3 rounded-lg text-sm transition-all border ${
                     tempMoods.includes(mood)
-                      ? `${moodStyles[mood as keyof typeof moodStyles]} border-current`
-                      : "bg-gray-900/50 text-muted-foreground border-gray-700 hover:border-gray-600"
+                      ? "bg-transparent border-white/50 text-foreground hover:border-white/70"
+                      : "bg-transparent text-muted-foreground border-gray-500/40 hover:bg-white/10"
                   }`}
                   data-testid={`vibe-option-${mood}`}
                 >
