@@ -813,7 +813,7 @@ export function ConnectPage() {
                           className={
                             isConnected
                               ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
-                              : "inline-flex items-center justify-center gap-2 rounded-md bg-gray-600 border border-gray-700 text-gray-200 hover:bg-gray-700 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              : "inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}
                         >
