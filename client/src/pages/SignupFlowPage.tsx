@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ProfileGallery } from "@/components/ui/profile-gallery";
 
 // Step schemas
 const step1Schema = z.object({
@@ -85,6 +86,7 @@ interface SignupData {
   profession?: string;
   bio?: string;
   profileImage?: File | null;
+  profileImages?: File[];
   termsAccepted?: boolean;
   privacyAccepted?: boolean;
 }
@@ -649,7 +651,8 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
 
 // Step 5: Profile Completion
 function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -665,24 +668,16 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue('profileImage', file);
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImagesChange = (newImages: File[], newPreviews: string[]) => {
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
   };
 
   const onSubmit = (formData: any) => {
     if (!termsAccepted || !privacyAccepted) {
       return;
     }
-    onNext({ ...formData, termsAccepted, privacyAccepted });
+    onNext({ ...formData, profileImages: selectedImages, termsAccepted, privacyAccepted });
   };
 
   return (
@@ -736,41 +731,16 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-white font-medium">Profile Picture</label>
-            {imagePreview ? (
-              <div className="flex items-center gap-4">
-                <img 
-                  src={imagePreview} 
-                  alt="Profile preview" 
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-700"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setImagePreview(null);
-                    form.setValue('profileImage', null);
-                  }}
-                  className="bg-transparent border-gray-700 text-white hover:bg-gray-900"
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer hover:border-gray-600 bg-black">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Click to upload profile picture</p>
-                </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  data-testid="input-profileImage"
-                />
-              </label>
-            )}
+            <label className="text-white font-medium">Profile Photos</label>
+            <p className="text-white/70 text-sm leading-relaxed">
+              Show your best face—avoid group, distant, and low-quality photos for great connections. Add up to 7 images to highlight your travels, vibe, and lifestyle.
+            </p>
+            <ProfileGallery
+              images={selectedImages}
+              imagePreviews={imagePreviews}
+              onImagesChange={handleImagesChange}
+              maxImages={7}
+            />
           </div>
 
           <div className="space-y-2">
@@ -920,6 +890,30 @@ export default function SignupFlowPage() {
     setIsSubmitting(true);
 
     try {
+      // Step 1: Upload multiple profile images if any were selected
+      let uploadedImageUrls: string[] = [];
+      
+      if (completeData.profileImages && completeData.profileImages.length > 0) {
+        const imageFormData = new FormData();
+        completeData.profileImages.forEach((image: File) => {
+          imageFormData.append('images', image);
+        });
+        
+        // Upload without auth headers since user isn't logged in yet
+        const imageResponse = await fetch('/api/upload-images-public', {
+          method: 'POST',
+          body: imageFormData
+        });
+        
+        if (!imageResponse.ok) {
+          throw new Error('Failed to upload profile images');
+        }
+        
+        const imageResult = await imageResponse.json();
+        uploadedImageUrls = imageResult.imageUrls || [];
+      }
+
+      // Step 2: Create registration data with uploaded image URLs
       const registrationData = new FormData();
       
       // Add all fields
@@ -944,9 +938,11 @@ export default function SignupFlowPage() {
         registrationData.append('currentMoods', JSON.stringify(completeData.vibes));
       }
       
-      // Add profile image if present
-      if (completeData.profileImage) {
-        registrationData.append('profileImage', completeData.profileImage);
+      // Add uploaded image URLs
+      if (uploadedImageUrls.length > 0) {
+        registrationData.append('profileImages', JSON.stringify(uploadedImageUrls));
+        // Set first image as main profile image for backward compatibility
+        registrationData.append('profileImage', uploadedImageUrls[0]);
       }
 
       const response = await fetch('/api/register-redirect', {

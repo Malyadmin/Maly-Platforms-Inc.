@@ -1157,6 +1157,47 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // Public multiple images upload endpoint (for registration)
+  app.post("/api/upload-images-public", uploadImage.array('images', 7), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+
+      const uploadedUrls: string[] = [];
+
+      try {
+        // Upload each image to Cloudinary
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          const result = await uploadToCloudinary(
+            file.buffer, 
+            file.originalname, 
+            'image'
+          );
+          uploadedUrls.push(result.secure_url);
+          console.log(`Uploaded public image ${i + 1} to Cloudinary: ${result.secure_url}`);
+        }
+      } catch (cloudinaryError) {
+        console.error("Error uploading to Cloudinary:", cloudinaryError);
+        return res.status(500).json({ error: "Failed to upload images to Cloudinary" });
+      }
+
+      return res.json({ 
+        success: true, 
+        message: `${uploadedUrls.length} images uploaded successfully`,
+        imageUrls: uploadedUrls
+      });
+    } 
+    catch (error) {
+      console.error("Public images upload error:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload images" 
+      });
+    }
+  });
+
   // API endpoint for city suggestions
   app.post("/api/suggest-city", async (req: Request, res: Response) => {
     try {
