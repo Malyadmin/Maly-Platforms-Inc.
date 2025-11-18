@@ -78,6 +78,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (November 2025)
 
+### Inbox Scrolling Fix (November 18, 2025)
+- **Smooth Scrolling**: Removed CSS transform on inbox scrollable container that was causing glitchy scrolling behavior
+- **Performance**: Improved scroll performance by eliminating scale transform on overflow containers
+
 ### Premium Verification Badge (November 8, 2025)
 - **Visual Premium Indicator**: Premium users now display a custom verification badge (Maly logo) next to their names
 - **Connect Page Integration**: Badge appears in user cards next to full name in the main user grid
