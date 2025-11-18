@@ -39,6 +39,7 @@ import SelectPeopleToInvitePage from "./pages/SelectPeopleToInvitePage";
 import AboutMalyPage from "./pages/AboutMalyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import PaymentDisclaimerPage from "./pages/PaymentDisclaimerPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 import PaymentMethodsPage from "./pages/PaymentMethodsPage";
 import AppearancePage from "./pages/AppearancePage";
@@ -130,6 +131,7 @@ function AppContent() {
             <Route path="/about" component={AboutMalyPage} />
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPolicyPage} />
+            <Route path="/payment-disclaimer" component={PaymentDisclaimerPage} />
             <Route path="/notification-preferences" component={NotificationPreferencesPage} />
             <Route path="/payment-methods" component={PaymentMethodsPage} />
             <Route path="/appearance" component={AppearancePage} />
@@ -150,6 +152,7 @@ function AppContent() {
           <Route path="/about" component={AboutMalyPage} />
           <Route path="/terms" component={TermsPage} />
           <Route path="/privacy" component={PrivacyPolicyPage} />
+          <Route path="/payment-disclaimer" component={PaymentDisclaimerPage} />
           <Route path="/notification-preferences" component={NotificationPreferencesPage} />
           <Route path="/payment-methods" component={PaymentMethodsPage} />
           <Route path="/appearance" component={AppearancePage} />

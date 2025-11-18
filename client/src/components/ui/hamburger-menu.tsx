@@ -19,7 +19,6 @@ const menuSections: MenuSection[] = [
     items: [
       "Edit Profile",
       "Appearance",
-      "Payment Methods",
       "Notification Preferences"
     ]
   },
@@ -35,7 +34,8 @@ const menuSections: MenuSection[] = [
     items: [
       "About Maly",
       "Terms & Conditions",
-      "Privacy Policy"
+      "Privacy Policy",
+      "Payment Disclaimer"
     ]
   }
 ];
@@ -62,13 +62,13 @@ export function HamburgerMenu() {
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
       "Appearance": "/appearance",
-      "Payment Methods": "/payment-methods",
       "Manage Subscriptions": "/premium",
       "Notification Preferences": "/notification-preferences",
       "Stripe Connect": "/stripe/connect",
       "About Maly": "/about",
       "Terms & Conditions": "/terms",
       "Privacy Policy": "/privacy",
+      "Payment Disclaimer": "/payment-disclaimer",
       // Add more routes as needed
     };
     
