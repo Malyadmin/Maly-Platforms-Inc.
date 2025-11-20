@@ -207,7 +207,30 @@ type TranslationKey =
   | 'successfullyUpdated'
   | 'proceedToPayment'
   | 'login'
-  | 'cancelParticipation';
+  | 'cancelParticipation'
+  // Hamburger Menu Sections
+  | 'aiTools'
+  | 'accountAndProfile'
+  | 'creatorTools'
+  | 'companyAndLegal'
+  | 'language'
+  // Menu Items
+  | 'aiConcierge'
+  | 'editProfile'
+  | 'notificationPreferences'
+  | 'creatorDashboard'
+  | 'stripeConnect'
+  | 'aboutMaly'
+  | 'termsAndConditions'
+  | 'privacyPolicy'
+  | 'paymentDisclaimer'
+  // Auth Page
+  | 'register'
+  | 'usernameOrEmail'
+  | 'password'
+  | 'enterYourInformation'
+  | 'alreadyHaveAccount'
+  | 'dontHaveAccount';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -404,7 +427,29 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     noLongerParticipating: 'You are no longer participating in this event',
     successfullyUpdated: 'Successfully updated',
     proceedToPayment: 'Proceed to Payment',
-    cancelParticipation: 'Cancel Participation'
+    cancelParticipation: 'Cancel Participation',
+    // Hamburger Menu Sections
+    aiTools: 'AI TOOLS',
+    accountAndProfile: 'ACCOUNT AND PROFILE',
+    creatorTools: 'CREATOR TOOLS',
+    companyAndLegal: 'COMPANY AND LEGAL',
+    language: 'LANGUAGE',
+    // Menu Items
+    aiConcierge: 'A.I Concierge (Beta)',
+    notificationPreferences: 'Notification Preferences',
+    creatorDashboard: 'Creator Dashboard',
+    stripeConnect: 'Stripe Connect',
+    aboutMaly: 'About Maly',
+    termsAndConditions: 'Terms & Conditions',
+    privacyPolicy: 'Privacy Policy',
+    paymentDisclaimer: 'Payment Disclaimer',
+    // Auth Page
+    register: 'Register',
+    usernameOrEmail: 'Username or Email',
+    password: 'Password',
+    enterYourInformation: 'Enter your information to get started',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?"
   },
   es: {
     discover: 'Descubrir',
@@ -601,7 +646,29 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     backToEvent: 'Volver al Evento',
     qrCodeTicket: 'Después del pago, recibirás un código QR que se puede utilizar para la entrada al evento.',
     eventOrganizer: 'Organizador del Evento',
-    cancelParticipation: 'Cancelar Participación'
+    cancelParticipation: 'Cancelar Participación',
+    // Hamburger Menu Sections
+    aiTools: 'HERRAMIENTAS DE IA',
+    accountAndProfile: 'CUENTA Y PERFIL',
+    creatorTools: 'HERRAMIENTAS DE CREADOR',
+    companyAndLegal: 'EMPRESA Y LEGAL',
+    language: 'IDIOMA',
+    // Menu Items
+    aiConcierge: 'Conserje I.A (Beta)',
+    notificationPreferences: 'Preferencias de Notificación',
+    creatorDashboard: 'Panel de Creador',
+    stripeConnect: 'Stripe Connect',
+    aboutMaly: 'Acerca de Maly',
+    termsAndConditions: 'Términos y Condiciones',
+    privacyPolicy: 'Política de Privacidad',
+    paymentDisclaimer: 'Descargo de Responsabilidad de Pago',
+    // Auth Page
+    register: 'Registrarse',
+    usernameOrEmail: 'Nombre de Usuario o Correo',
+    password: 'Contraseña',
+    enterYourInformation: 'Ingresa tu información para comenzar',
+    alreadyHaveAccount: '¿Ya tienes una cuenta?',
+    dontHaveAccount: '¿No tienes una cuenta?'
   }
 };
 

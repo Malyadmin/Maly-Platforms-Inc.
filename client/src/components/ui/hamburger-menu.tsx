@@ -8,40 +8,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/lib/language-context";
+import { useTranslation } from "@/lib/translations";
 
 interface MenuSection {
-  title: string;
-  items: string[];
+  titleKey: string;
+  itemKeys: string[];
 }
 
 const menuSections: MenuSection[] = [
   {
-    title: "AI TOOLS",
-    items: [
-      "A.I Concierge (Beta)"
+    titleKey: "aiTools",
+    itemKeys: [
+      "aiConcierge"
     ]
   },
   {
-    title: "ACCOUNT AND PROFILE",
-    items: [
-      "Edit Profile",
-      "Notification Preferences"
+    titleKey: "accountAndProfile",
+    itemKeys: [
+      "editProfile",
+      "notificationPreferences"
     ]
   },
   {
-    title: "CREATOR TOOLS",
-    items: [
-      "Creator Dashboard",
-      "Stripe Connect"
+    titleKey: "creatorTools",
+    itemKeys: [
+      "creatorDashboard",
+      "stripeConnect"
     ]
   },
   {
-    title: "COMPANY AND LEGAL",
-    items: [
-      "About Maly",
-      "Terms & Conditions",
-      "Privacy Policy",
-      "Payment Disclaimer"
+    titleKey: "companyAndLegal",
+    itemKeys: [
+      "aboutMaly",
+      "termsAndConditions",
+      "privacyPolicy",
+      "paymentDisclaimer"
     ]
   }
 ];
@@ -56,11 +57,24 @@ export function HamburgerMenu() {
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [, setLocation] = useLocation();
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const languageOptions: LanguageOption[] = [
     { code: 'en', label: 'English' },
     { code: 'es', label: 'Español' }
   ];
+  
+  const routeMap: Record<string, string> = {
+    "aiConcierge": "/companion",
+    "editProfile": "/profile-edit",
+    "notificationPreferences": "/notification-preferences",
+    "creatorDashboard": "/creator/dashboard",
+    "stripeConnect": "/stripe/connect",
+    "aboutMaly": "/about",
+    "termsAndConditions": "/terms",
+    "privacyPolicy": "/privacy",
+    "paymentDisclaimer": "/payment-disclaimer",
+  };
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev =>
@@ -70,33 +84,17 @@ export function HamburgerMenu() {
     );
   };
 
-  const handleMenuItemClick = (item: string) => {
-    console.log('[HAMBURGER MENU] Clicked menu item:', item);
+  const handleMenuItemClick = (itemKey: string) => {
+    console.log('[HAMBURGER MENU] Clicked menu item:', itemKey);
     setOpen(false);
     
-    // Map menu items to routes
-    const routeMap: Record<string, string> = {
-      "A.I Concierge (Beta)": "/companion",
-      "Creator Dashboard": "/creator/dashboard",
-      "Edit Profile": "/profile-edit",
-      "Appearance": "/appearance",
-      "Manage Subscriptions": "/premium",
-      "Notification Preferences": "/notification-preferences",
-      "Stripe Connect": "/stripe/connect",
-      "About Maly": "/about",
-      "Terms & Conditions": "/terms",
-      "Privacy Policy": "/privacy",
-      "Payment Disclaimer": "/payment-disclaimer",
-      // Add more routes as needed
-    };
-    
-    const route = routeMap[item];
+    const route = routeMap[itemKey];
     console.log('[HAMBURGER MENU] Mapped route:', route);
     if (route) {
       console.log('[HAMBURGER MENU] Navigating to:', route);
       setLocation(route);
     } else {
-      console.log(`Navigate to: ${item} (not yet implemented)`);
+      console.log(`Navigate to: ${itemKey} (not yet implemented)`);
     }
   };
 
@@ -157,32 +155,32 @@ export function HamburgerMenu() {
       >
         <div className="py-2">
           {menuSections.map((section, idx) => (
-            <div key={section.title} className={idx > 0 ? "border-t border-border" : ""}>
+            <div key={section.titleKey} className={idx > 0 ? "border-t border-border" : ""}>
               <button
-                onClick={() => toggleSection(section.title)}
+                onClick={() => toggleSection(section.titleKey)}
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
-                data-testid={`menu-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
+                data-testid={`menu-section-${section.titleKey}`}
               >
-                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.title) ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
-                  {section.title}
+                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.titleKey) ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
+                  {t(section.titleKey)}
                 </span>
-                {expandedSections.includes(section.title) ? (
+                {expandedSections.includes(section.titleKey) ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
               
-              {expandedSections.includes(section.title) && (
+              {expandedSections.includes(section.titleKey) && (
                 <div className="bg-muted/50">
-                  {section.items.map((item) => (
+                  {section.itemKeys.map((itemKey) => (
                     <button
-                      key={item}
+                      key={itemKey}
                       className="w-full text-left px-8 py-2.5 text-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground transition-colors"
-                      data-testid={`menu-item-${item.toLowerCase().replace(/\s+/g, '-')}`}
-                      onClick={() => handleMenuItemClick(item)}
+                      data-testid={`menu-item-${itemKey}`}
+                      onClick={() => handleMenuItemClick(itemKey)}
                     >
-                      {item}
+                      {t(itemKey)}
                     </button>
                   ))}
                 </div>
@@ -193,21 +191,21 @@ export function HamburgerMenu() {
           {/* Language section */}
           <div className="border-t border-border">
             <button
-              onClick={() => toggleSection("LANGUAGE")}
+              onClick={() => toggleSection("language")}
               className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
               data-testid="menu-section-language"
             >
-              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("LANGUAGE") ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
-                LANGUAGE
+              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("language") ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
+                {t("language")}
               </span>
-              {expandedSections.includes("LANGUAGE") ? (
+              {expandedSections.includes("language") ? (
                 <ChevronUp className="h-4 w-4 text-muted-foreground" />
               ) : (
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               )}
             </button>
             
-            {expandedSections.includes("LANGUAGE") && (
+            {expandedSections.includes("language") && (
               <div className="bg-muted/50">
                 {languageOptions.map((option) => (
                   <button
@@ -239,7 +237,7 @@ export function HamburgerMenu() {
               type="button"
             >
               <LogOut className="h-4 w-4" />
-              <span className="text-sm font-semibold tracking-wider">LOGOUT</span>
+              <span className="text-sm font-semibold tracking-wider">{t("logout").toUpperCase()}</span>
             </button>
           </div>
         </div>
