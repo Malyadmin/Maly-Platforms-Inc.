@@ -446,6 +446,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     home: 'Inicio',
     pageNotFound: 'Página No Encontrada',
     filters: 'Filtros',
+    connections: 'Conexiones',
     save: 'Guardar',
     edit: 'Editar',
     delete: 'Eliminar',
