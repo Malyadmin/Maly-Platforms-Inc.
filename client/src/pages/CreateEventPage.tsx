@@ -34,6 +34,7 @@ import { useUser } from "@/hooks/use-user";
 import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useTranslation } from "@/lib/translations";
 import StripeConnectBanner from "@/components/StripeConnectBanner";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 // Define a simple schema for our form
 // Define a schema for itinerary items
@@ -343,10 +344,12 @@ export default function CreateEventPage() {
             
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Event Address</h3>
-              <Input
-                {...form.register("address")}
-                className="bg-white/5 border-0 h-12"
+              <LocationAutocomplete
+                value={form.watch("address") || ""}
+                onChange={(value) => form.setValue("address", value)}
                 placeholder="Enter exact event address"
+                className="bg-white/5 border-0 h-12"
+                type="address"
               />
               {form.formState.errors.address && (
                 <p className="text-red-500 text-xs">{form.formState.errors.address.message}</p>

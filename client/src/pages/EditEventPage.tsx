@@ -34,6 +34,7 @@ import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
 import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useQuery } from "@tanstack/react-query";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 // Define a schema for itinerary items
 const itineraryItemSchema = z.object({
@@ -421,10 +422,12 @@ export default function EditEventPage() {
             
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Event Address</h3>
-              <Input
-                {...form.register("address")}
-                className="bg-white/5 border-0 h-12"
+              <LocationAutocomplete
+                value={form.watch("address") || ""}
+                onChange={(value) => form.setValue("address", value)}
                 placeholder="Enter exact event address"
+                className="bg-white/5 border-0 h-12"
+                type="address"
               />
               {form.formState.errors.address && (
                 <p className="text-red-500 text-xs">{form.formState.errors.address.message}</p>

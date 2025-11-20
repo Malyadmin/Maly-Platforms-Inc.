@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Upload } from "lucide-react";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -207,14 +208,13 @@ export default function ProfileSetupPage() {
                       <FormItem>
                         <FormLabel>Current Location</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                              {...field} 
-                              className="pl-9 bg-white/5 border-white/10" 
-                              placeholder="Where are you based?"
-                            />
-                          </div>
+                          <LocationAutocomplete
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            placeholder="Where are you based?"
+                            className="bg-white/5 border-white/10"
+                            type="city"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

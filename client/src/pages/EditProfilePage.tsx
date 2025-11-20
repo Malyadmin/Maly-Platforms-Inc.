@@ -11,6 +11,7 @@ import { Pencil, Loader2, X, Check, ChevronRight, ChevronLeft } from "lucide-rea
 import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 const moodStyles = {
   "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30 border-purple-500/30",
@@ -287,6 +288,7 @@ export default function EditProfilePage() {
   ) => {
     const value = profileData[field];
     const isEditing = editingField === field;
+    const isLocationField = ["location", "birthLocation", "livedLocation", "nextLocation"].includes(field);
 
     return (
       <div>
@@ -312,6 +314,14 @@ export default function EditProfilePage() {
                 className="bg-gray-900/50 border-purple-500/30 text-foreground min-h-[100px]"
                 autoFocus
                 data-testid={`input-${field}`}
+              />
+            ) : isLocationField ? (
+              <LocationAutocomplete
+                value={tempValue}
+                onChange={(value) => setTempValue(value)}
+                placeholder={`Enter ${label.toLowerCase()}`}
+                className="bg-gray-900/50 border-purple-500/30 text-foreground"
+                type="city"
               />
             ) : (
               <Input
