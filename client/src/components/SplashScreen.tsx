@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import splashImage1 from '@assets/Nov 20, 2025 at 03_05_43 PM_1763670195108.png';
-import splashImage2 from '@assets/6A83322A-7392-4A34-9AF7-E15B84033DB9_1763670195108.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -34,7 +32,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     return () => timers.forEach(timer => clearTimeout(timer));
   }, [onComplete]);
 
-  const images = [splashImage1, splashImage2];
+  const images = ['/splash-1.png', '/splash-2.png'];
 
   return (
     <div
