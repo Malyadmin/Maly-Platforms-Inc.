@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -344,12 +344,19 @@ export default function CreateEventPage() {
             
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Event Address</h3>
-              <LocationAutocomplete
-                value={form.watch("address") || ""}
-                onChange={(value) => form.setValue("address", value)}
-                placeholder="Enter exact event address"
-                className="bg-white/5 border-0 h-12"
-                type="address"
+              <Controller
+                name="address"
+                control={form.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <LocationAutocomplete
+                    value={field.value || ""}
+                    onChange={(value) => field.onChange(value)}
+                    placeholder="Enter exact event address"
+                    className="bg-white/5 border-0 h-12"
+                    type="address"
+                  />
+                )}
               />
               {form.formState.errors.address && (
                 <p className="text-red-500 text-xs">{form.formState.errors.address.message}</p>
