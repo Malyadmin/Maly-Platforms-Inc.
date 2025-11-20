@@ -87,11 +87,18 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
       {/* Main Image */}
       <div className="relative w-full h-full">
         {currentImage ? (
-          <img 
-            src={currentImage} 
-            alt={displayName}
-            className="w-full h-full object-cover object-center"
-          />
+          <>
+            <img 
+              src={currentImage} 
+              alt={displayName}
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <div className="bg-black/70 text-white font-bold px-6 py-3 text-center rotate-[-15deg] text-2xl sm:text-3xl md:text-4xl whitespace-nowrap">
+                FOR DEMO ONLY
+              </div>
+            </div>
+          </>
         ) : (
           <div className="w-full h-full bg-gray-700 flex items-center justify-center">
             <div className="text-6xl font-bold text-muted-foreground">

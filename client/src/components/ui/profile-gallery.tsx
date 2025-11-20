@@ -63,14 +63,19 @@ export function ProfileGallery({
       <div className="relative">
         {imagePreviews.length > 0 ? (
           <div className="relative group">
-            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600">
+            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600 relative">
               <img
                 src={imagePreviews[0]}
                 alt="Main profile photo"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div className="bg-black/70 text-white font-bold px-2 py-1 text-center rotate-[-15deg] text-xs sm:text-sm whitespace-nowrap">
+                  FOR DEMO ONLY
+                </div>
+              </div>
             </div>
-            <div className="absolute top-2 right-2 flex gap-2">
+            <div className="absolute top-2 right-2 flex gap-2 z-20">
               <button
                 type="button"
                 onClick={() => removeImage(0)}
@@ -111,15 +116,20 @@ export function ProfileGallery({
           return (
             <div key={index} className="aspect-square relative">
               {hasImage ? (
-                <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
+                <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600 relative">
                   <img
                     src={imagePreviews[index]}
                     alt={`Profile image ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <div className="bg-black/70 text-white font-bold px-1 py-0.5 text-center rotate-[-15deg] text-[0.5rem] leading-tight whitespace-nowrap">
+                      FOR DEMO ONLY
+                    </div>
+                  </div>
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                    className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs z-20"
                     data-testid={`remove-image-${index}`}
                   >
                     ×
