@@ -55,14 +55,21 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
       data-testid={`event-card-${event.id}`}
     >
       {/* Event Image - iOS style larger size */}
-      <div className="w-40 h-40 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden">
+      <div className="w-40 h-40 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden relative">
         {event.image ? (
-          <img
-            src={event.image}
-            alt={event.title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <>
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-black/70 text-white font-bold px-3 py-1 text-center rotate-[-15deg] text-sm whitespace-nowrap">
+                FOR DEMO ONLY
+              </div>
+            </div>
+          </>
         ) : (
           <div className="w-full h-full bg-gray-700 flex items-center justify-center">
             <span className="text-muted-foreground text-lg font-light tracking-wider">MÁLY</span>

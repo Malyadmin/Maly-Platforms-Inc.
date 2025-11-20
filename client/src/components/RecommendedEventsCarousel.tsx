@@ -62,6 +62,11 @@ export function RecommendedEventsCarousel() {
                         alt={event.title}
                         className="w-full h-full object-cover"
                       />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                        <div className="bg-black/70 text-white font-bold px-3 py-1.5 text-center rotate-[-15deg] text-base sm:text-lg whitespace-nowrap">
+                          FOR DEMO ONLY
+                        </div>
+                      </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-transparent">
                         <div className="absolute bottom-0 left-0 right-0 p-4">
                           <div className="flex flex-wrap gap-1 mb-2">

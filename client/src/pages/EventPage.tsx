@@ -362,6 +362,11 @@ export default function EventPage() {
             alt={event.title}
             className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+            <div className="bg-black/70 text-white font-bold px-6 py-3 text-center rotate-[-15deg] text-2xl sm:text-3xl whitespace-nowrap">
+              FOR DEMO ONLY
+            </div>
+          </div>
         </div>
       )}
 
