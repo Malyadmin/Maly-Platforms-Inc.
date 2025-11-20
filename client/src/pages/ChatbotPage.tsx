@@ -131,6 +131,8 @@ export default function ChatbotPage() {
         title={t('concierge')}
         showBackButton={true}
         backButtonFallbackPath="/discover"
+        showIcon={false}
+        showThemeToggle={false}
       >
         <HamburgerMenu />
       </GradientHeader>
