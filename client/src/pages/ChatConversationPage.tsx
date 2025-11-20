@@ -204,32 +204,24 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Fixed Header - Logo and hamburger menu */}
-      <header className="bg-background text-foreground shrink-0 z-50">
-        {/* Top bar with MÁLY logo on left and hamburger menu on right */}
-        <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img 
-            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
-            alt="MÁLY" 
-            className="h-14 w-auto"
-          />
+      {/* Fixed Header - Gradient title with back button and hamburger menu */}
+      <header className="bg-background text-foreground shrink-0 z-50 border-b border-border">
+        <div className="px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/inbox')}
+              data-testid="back-to-inbox"
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              Inbox
+            </h2>
+          </div>
           <HamburgerMenu />
-        </div>
-        
-        {/* Gradient title with back button */}
-        <div className="px-5 pb-3 flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/inbox')}
-            data-testid="back-to-inbox"
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            Inbox
-          </h2>
         </div>
       </header>
 
@@ -310,7 +302,7 @@ export default function ChatConversationPage() {
       </div>
 
       {/* Scrollable Messages Area - Only messages scroll */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 bg-background" data-testid="messages-container">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 bg-background" data-testid="messages-container">
             {isLoading && messages.length === 0 ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
