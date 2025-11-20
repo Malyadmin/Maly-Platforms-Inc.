@@ -269,7 +269,16 @@ type TranslationKey =
   | 'remove'
   | 'send'
   | 'reply'
-  | 'forward';
+  | 'forward'
+  // Validation and errors
+  | 'usernameOrEmailRequired'
+  | 'passwordMinLength'
+  | 'usernameMinLength'
+  | 'validEmailRequired'
+  | 'mustAcceptTerms'
+  | 'mustAcceptPrivacy'
+  | 'validationError'
+  | 'error';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -527,7 +536,16 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     remove: 'Remove',
     send: 'Send',
     reply: 'Reply',
-    forward: 'Forward'
+    forward: 'Forward',
+    // Validation and errors
+    usernameOrEmailRequired: 'Username or email must be provided',
+    passwordMinLength: 'Password must be at least 6 characters',
+    usernameMinLength: 'Username must be at least 3 characters',
+    validEmailRequired: 'Please enter a valid email address',
+    mustAcceptTerms: 'You must accept the Terms and Conditions to register',
+    mustAcceptPrivacy: 'You must accept the Privacy Policy to register',
+    validationError: 'Validation Error',
+    error: 'Error'
   },
   es: {
     discover: 'Descubrir',
@@ -785,7 +803,16 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     remove: 'Quitar',
     send: 'Enviar',
     reply: 'Responder',
-    forward: 'Reenviar'
+    forward: 'Reenviar',
+    // Validation and errors
+    usernameOrEmailRequired: 'Se debe proporcionar un nombre de usuario o correo electrónico',
+    passwordMinLength: 'La contraseña debe tener al menos 6 caracteres',
+    usernameMinLength: 'El nombre de usuario debe tener al menos 3 caracteres',
+    validEmailRequired: 'Por favor ingresa una dirección de correo electrónico válida',
+    mustAcceptTerms: 'Debes aceptar los Términos y Condiciones para registrarte',
+    mustAcceptPrivacy: 'Debes aceptar la Política de Privacidad para registrarte',
+    validationError: 'Error de Validación',
+    error: 'Error'
   }
 };
 
