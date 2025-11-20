@@ -15,6 +15,12 @@ interface MenuSection {
 
 const menuSections: MenuSection[] = [
   {
+    title: "AI TOOLS",
+    items: [
+      "A.I Concierge (Beta)"
+    ]
+  },
+  {
     title: "ACCOUNT AND PROFILE",
     items: [
       "Edit Profile",
@@ -59,6 +65,7 @@ export function HamburgerMenu() {
     
     // Map menu items to routes
     const routeMap: Record<string, string> = {
+      "A.I Concierge (Beta)": "/companion",
       "Creator Dashboard": "/creator/dashboard",
       "Edit Profile": "/profile-edit",
       "Appearance": "/appearance",
