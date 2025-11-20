@@ -522,11 +522,59 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* User Info - Labeled Fields */}
         <div className="space-y-4">
-          {/* Occupation */}
+          {/* Occupation with Connect Button */}
           {profileData.profession && (
-            <div>
-              <p className="text-foreground/60 text-sm">Occupation</p>
-              <p className="text-foreground text-base mt-1">{profileData.profession}</p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-foreground/60 text-sm">Occupation</p>
+                <p className="text-foreground text-base mt-1">{profileData.profession}</p>
+              </div>
+              
+              {/* Connect Button - Inline with occupation */}
+              {currentUser && profileData.id !== currentUser.id && (
+                <div className="flex-shrink-0">
+                  {connectionLoading ? (
+                    <button 
+                      disabled 
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium opacity-50"
+                    >
+                      <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                    </button>
+                  ) : isContact ? (
+                    <button 
+                      onClick={() => removeConnectionMutation.mutate(profileData.id)}
+                      disabled={removeConnectionMutation.isPending}
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      data-testid="button-remove-contact"
+                    >
+                      {removeConnectionMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Connected</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => createConnectionMutation.mutate(profileData.id)}
+                      disabled={createConnectionMutation.isPending}
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      data-testid="button-add-contact"
+                    >
+                      {createConnectionMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Connect</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
           
@@ -601,7 +649,7 @@ export default function ProfilePage() {
               disabled={createConversationMutation.isPending}
               className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
                 messageClicked 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-foreground border-0'
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-foreground border-0'
                   : 'bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10'
               }`}
               data-testid="button-message"
@@ -613,42 +661,6 @@ export default function ProfilePage() {
               )}
               Message
             </button>
-            
-            {/* Connect Button */}
-            {connectionLoading ? (
-              <button disabled className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-transparent border border-gray-500/40 text-gray-200 opacity-50">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Loading
-              </button>
-            ) : isContact ? (
-              <button 
-                onClick={() => removeConnectionMutation.mutate(profileData.id)}
-                disabled={removeConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 transition-all disabled:opacity-50"
-                data-testid="button-remove-contact"
-              >
-                {removeConnectionMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <UserCheck className="h-4 w-4 mr-2" />
-                )}
-                In Contacts
-              </button>
-            ) : (
-              <button
-                onClick={() => createConnectionMutation.mutate(profileData.id)}
-                disabled={createConnectionMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10"
-                data-testid="button-add-contact"
-              >
-                {createConnectionMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <UserPlus className="h-4 w-4 mr-2" />
-                )}
-                Add to Contacts
-              </button>
-            )}
           </div>
         )}
       </div>
