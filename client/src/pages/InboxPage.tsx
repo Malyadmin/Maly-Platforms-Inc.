@@ -339,7 +339,7 @@ export default function InboxPage() {
       </header>
 
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {loading ? (
           <div className="space-y-4 p-4">
             {[1, 2, 3, 4, 5].map((i) => (
