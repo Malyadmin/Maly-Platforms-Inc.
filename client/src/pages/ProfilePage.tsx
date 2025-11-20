@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { PremiumBadge } from "@/components/ui/premium-badge";
 
 // Mood badge styles configuration
 const moodStyles = {
@@ -503,13 +504,7 @@ export default function ProfilePage() {
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight flex items-center gap-3">
           <span>{profileData.fullName || profileData.username}</span>
-          {profileData.isPremium && (
-            <img 
-              src="/attached_assets/unnamed-5-removebg-preview_1763498361330.png" 
-              alt="Premium" 
-              className="w-6 h-6 flex-shrink-0"
-            />
-          )}
+          {profileData.isPremium && <PremiumBadge size="lg" />}
         </h1>
         
         {profileData.location && (

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
+import { PremiumBadge } from "@/components/ui/premium-badge";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -760,13 +761,7 @@ export function ConnectPage() {
                         onClick={() => handleUserClick(user)}
                       >
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
-                        {user.isPremium && (
-                          <img 
-                            src="/attached_assets/unnamed-5-removebg-preview_1763498361330.png" 
-                            alt="Premium" 
-                            className="w-4 h-4 flex-shrink-0"
-                          />
-                        )}
+                        {user.isPremium && <PremiumBadge size="sm" />}
                       </h3>
                       
                       {/* Middle elements - evenly spaced */}
