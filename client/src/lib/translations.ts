@@ -250,6 +250,8 @@ type TranslationKey =
   | 'iAgreeToThe'
   | 'showPassword'
   | 'hidePassword'
+  | 'events'
+  | 'discover'
   // Common buttons and actions
   | 'submit'
   | 'back'
@@ -342,10 +344,64 @@ type TranslationKey =
   | 'added'
   | 'addedSuccessfully'
   | 'failedToAddContact'
-  | 'loading';
+  | 'loading'
+  // Event Detail strings
+  | 'hostedBy'
+  | 'unknownHost'
+  | 'checkOutThisEvent'
+  | 'shareFailed'
+  | 'unableToShareEvent'
+  | 'linkCopied'
+  | 'eventLinkCopied'
+  | 'locationCoordinatesNotAvailable'
+  | 'viewMore'
+  | 'viewLess'
+  | 'accessRequestSent'
+  | 'accessRequestSentDescription'
+  | 'failedToSendAccessRequest'
+  | 'failedToUpdateParticipation'
+  | 'forDemoOnly'
+  // Profile strings
+  | 'contactAdded'
+  | 'contactAddedDescription'
+  | 'errorAddingContact'
+  | 'contactRemoved'
+  | 'contactRemovedDescription'
+  | 'errorRemovingContact'
+  | 'errorStartingConversation'
+  | 'message'
+  | 'age'
+  | 'years'
+  | 'profession'
+  | 'location'
+  | 'from'
+  | 'lived'
+  | 'nextStop'
+  | 'lookingFor'
+  | 'interests'
+  | 'currentVibe'
+  | 'profileNotFound'
+  | 'profile'
+  | 'connect'
+  | 'connected'
+  | 'profileLinkCopied'
+  | 'occupation'
+  | 'bio'
+  | 'vibe'
+  | 'intention'
+  | 'born'
+  | 'upcoming'
+  | 'moodUpdated'
+  | 'moodUpdatedDescription'
+  | 'errorUpdatingMood'
+  | 'selectYourTicket'
+  | 'selected'
+  | 'purchase'
+  | 'selectATicket';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
+    events: 'Events',
     discover: 'Discover',
     login: 'Login',
     connect: 'Connect',
@@ -667,9 +723,63 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     added: 'Added',
     addedSuccessfully: 'Added successfully',
     failedToAddContact: 'Failed to add contact',
-    loading: 'Loading...'
+    loading: 'Loading...',
+    // Event Detail strings
+    hostedBy: 'Hosted by',
+    unknownHost: 'Unknown Host',
+    checkOutThisEvent: 'Check out this event:',
+    shareFailed: 'Share failed',
+    unableToShareEvent: 'Unable to share this event',
+    linkCopied: 'Link copied!',
+    eventLinkCopied: 'Event link copied to clipboard',
+    locationCoordinatesNotAvailable: 'Location coordinates not available',
+    viewMore: 'View More',
+    viewLess: 'View Less',
+    accessRequestSent: 'Access Request Sent',
+    accessRequestSentDescription: 'Your request has been sent to the event host for approval',
+    failedToSendAccessRequest: 'Failed to send access request',
+    failedToUpdateParticipation: 'Failed to update participation status',
+    forDemoOnly: 'FOR DEMO ONLY',
+    // Profile strings
+    contactAdded: 'Contact added',
+    contactAddedDescription: "They've been added to your contacts.",
+    errorAddingContact: 'Error adding contact',
+    contactRemoved: 'Contact removed',
+    contactRemovedDescription: "They've been removed from your contacts.",
+    errorRemovingContact: 'Error removing contact',
+    errorStartingConversation: 'Error starting conversation',
+    message: 'Message',
+    age: 'Age',
+    years: 'years',
+    profession: 'Profession',
+    location: 'Location',
+    from: 'From',
+    lived: 'Lived',
+    nextStop: 'Next Stop',
+    lookingFor: 'Looking For',
+    interests: 'Interests',
+    currentVibe: 'Current Vibe',
+    profileNotFound: 'Profile not found',
+    profile: 'P R O F I L E',
+    connect: 'Connect',
+    connected: 'Connected',
+    profileLinkCopied: 'Profile link copied to clipboard',
+    occupation: 'Occupation',
+    bio: 'Bio',
+    vibe: 'Vibe',
+    intention: 'Intention',
+    born: 'Born',
+    upcoming: 'Upcoming',
+    moodUpdated: 'Mood updated',
+    moodUpdatedDescription: 'Your mood has been updated successfully.',
+    errorUpdatingMood: 'Error updating mood',
+    selectYourTicket: 'Select Your Ticket',
+    selected: 'Selected',
+    purchase: 'Purchase',
+    selectATicket: 'Select a ticket'
   },
   es: {
+    events: 'Eventos',
     discover: 'Descubrir',
     login: 'Iniciar Sesión',
     share: 'Compartir',
@@ -992,7 +1102,60 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     added: 'Agregado',
     addedSuccessfully: 'Agregado exitosamente',
     failedToAddContact: 'No se pudo agregar contacto',
-    loading: 'Cargando...'
+    loading: 'Cargando...',
+    // Event Detail strings
+    hostedBy: 'Organizado por',
+    unknownHost: 'Anfitrión Desconocido',
+    checkOutThisEvent: 'Mira este evento:',
+    shareFailed: 'Error al compartir',
+    unableToShareEvent: 'No se puede compartir este evento',
+    linkCopied: '¡Enlace copiado!',
+    eventLinkCopied: 'Enlace del evento copiado al portapapeles',
+    locationCoordinatesNotAvailable: 'Coordenadas de ubicación no disponibles',
+    viewMore: 'Ver Más',
+    viewLess: 'Ver Menos',
+    accessRequestSent: 'Solicitud de Acceso Enviada',
+    accessRequestSentDescription: 'Tu solicitud ha sido enviada al anfitrión del evento para su aprobación',
+    failedToSendAccessRequest: 'No se pudo enviar la solicitud de acceso',
+    failedToUpdateParticipation: 'No se pudo actualizar el estado de participación',
+    forDemoOnly: 'SOLO PARA DEMO',
+    // Profile strings
+    contactAdded: 'Contacto agregado',
+    contactAddedDescription: 'Se ha agregado a tus contactos.',
+    errorAddingContact: 'Error al agregar contacto',
+    contactRemoved: 'Contacto eliminado',
+    contactRemovedDescription: 'Se ha eliminado de tus contactos.',
+    errorRemovingContact: 'Error al eliminar contacto',
+    errorStartingConversation: 'Error al iniciar conversación',
+    message: 'Mensaje',
+    age: 'Edad',
+    years: 'años',
+    profession: 'Profesión',
+    location: 'Ubicación',
+    from: 'De',
+    lived: 'Vivió',
+    nextStop: 'Próxima Parada',
+    lookingFor: 'Busco',
+    interests: 'Intereses',
+    currentVibe: 'Ambiente Actual',
+    profileNotFound: 'Perfil no encontrado',
+    profile: 'P E R F I L',
+    connect: 'Conectar',
+    connected: 'Conectado',
+    profileLinkCopied: 'Enlace de perfil copiado al portapapeles',
+    occupation: 'Ocupación',
+    bio: 'Bio',
+    vibe: 'Ambiente',
+    intention: 'Intención',
+    born: 'Nacido',
+    upcoming: 'Próximo',
+    moodUpdated: 'Ambiente actualizado',
+    moodUpdatedDescription: 'Tu ambiente ha sido actualizado exitosamente.',
+    errorUpdatingMood: 'Error al actualizar ambiente',
+    selectYourTicket: 'Selecciona Tu Entrada',
+    selected: 'Seleccionado',
+    purchase: 'Comprar',
+    selectATicket: 'Selecciona una entrada'
   }
 };
 

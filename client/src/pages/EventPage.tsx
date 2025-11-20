@@ -106,8 +106,8 @@ export default function EventPage() {
     onError: (error: any) => {
       console.error("Purchase ticket error:", error);
       toast({
-        title: "Purchase Failed",
-        description: error.message || "Failed to initiate ticket purchase. Please try again.",
+        title: t('purchaseFailed'),
+        description: error.message || t('failedInitiateTicketPurchase'),
         variant: "destructive",
       });
     }
@@ -171,15 +171,15 @@ export default function EventPage() {
       queryClient.invalidateQueries({ queryKey: [`/api/events/${id}/participation/status`] });
       queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
       toast({
-        title: "Success",
-        description: "Successfully updated participation status",
+        title: t('success'),
+        description: t('successfullyUpdatedParticipation'),
       });
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to update participation status",
+        title: t('error'),
+        description: t('failedToUpdateParticipation'),
       });
     },
   });
@@ -200,15 +200,15 @@ export default function EventPage() {
     },
     onSuccess: () => {
       toast({
-        title: "Access Request Sent",
-        description: "Your request has been sent to the event host for approval",
+        title: t('accessRequestSent'),
+        description: t('accessRequestSentDescription'),
       });
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to send access request",
+        title: t('error'),
+        description: error.message || t('failedToSendAccessRequest'),
       });
     },
   });
@@ -295,7 +295,7 @@ export default function EventPage() {
         <div className="px-5 pb-3">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Discover</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('discover')}</h2>
               {/* Share Button */}
               <button
                 onClick={async () => {
@@ -303,16 +303,16 @@ export default function EventPage() {
                   if (navigator.share) {
                     try {
                       await navigator.share({
-                        title: event?.title || 'Event',
-                        text: `Check out this event: ${event?.title || 'Event'}`,
+                        title: event?.title || t('events'),
+                        text: `${t('checkOutThisEvent')} ${event?.title || t('events')}`,
                         url: window.location.href,
                       });
                     } catch (err) {
                       if ((err as Error).name !== 'AbortError') {
                         console.error('Error sharing:', err);
                         toast({
-                          title: "Share failed",
-                          description: "Unable to share this event",
+                          title: t('shareFailed'),
+                          description: t('unableToShareEvent'),
                           variant: "destructive",
                         });
                       }
@@ -320,8 +320,8 @@ export default function EventPage() {
                   } else {
                     navigator.clipboard.writeText(window.location.href);
                     toast({
-                      title: "Link copied!",
-                      description: "Event link copied to clipboard",
+                      title: t('linkCopied'),
+                      description: t('eventLinkCopied'),
                     });
                   }
                 }}
@@ -364,7 +364,7 @@ export default function EventPage() {
           />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <div className="bg-black/70 text-white font-bold px-6 py-3 text-center rotate-[-15deg] text-2xl sm:text-3xl whitespace-nowrap">
-              FOR DEMO ONLY
+              {t('forDemoOnly')}
             </div>
           </div>
         </div>
@@ -410,7 +410,7 @@ export default function EventPage() {
               <span className="text-foreground text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
             </div>
           )}
-          <span className="text-sm text-foreground/80">Hosted by {event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
+          <span className="text-sm text-foreground/80">{t('hostedBy')} {event?.creator?.fullName || event?.creator?.username || t('unknownHost')}</span>
         </button>
 
         {/* Date, Time, Price, Address */}
@@ -428,12 +428,12 @@ export default function EventPage() {
                     const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
                     return minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
                   } else {
-                    return "Free";
+                    return t('free');
                   }
                 } else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
                   return `$${event.price}`;
                 } else {
-                  return "Free";
+                  return t('free');
                 }
               })()}
             </p>
@@ -452,7 +452,7 @@ export default function EventPage() {
           />
         ) : (
           <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-            <p className="text-sm text-foreground/60">Location coordinates not available</p>
+            <p className="text-sm text-foreground/60">{t('locationCoordinatesNotAvailable')}</p>
           </div>
         )}
 
@@ -484,7 +484,7 @@ export default function EventPage() {
               onClick={() => setShowDressCode(!showDressCode)}
               className="flex items-center gap-2 text-foreground/80 hover:text-foreground text-sm"
             >
-              <span>Dress Code</span>
+              <span>{t('dressCode')}</span>
               <ChevronRight className={`w-4 h-4 transition-transform ${showDressCode ? 'rotate-90' : ''}`} />
             </button>
             {showDressCode && (
@@ -503,7 +503,7 @@ export default function EventPage() {
               onClick={() => setShowFullDescription(!showFullDescription)}
               className="text-sm text-foreground hover:underline"
             >
-              {showFullDescription ? 'View Less' : 'View More'}
+              {showFullDescription ? t('viewLess') : t('viewMore')}
             </button>
           )}
         </div>
@@ -521,7 +521,7 @@ export default function EventPage() {
                   data-testid="button-purchase-ticket"
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Get Tickets
+                  {t('getTickets')}
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
@@ -585,7 +585,7 @@ export default function EventPage() {
       <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
         <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-foreground">Select Your Ticket</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-foreground">{t('selectYourTicket')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
@@ -619,7 +619,7 @@ export default function EventPage() {
                     {selectedTierId === tier.id && (
                       <div className="flex items-center gap-2 text-purple-300 text-sm">
                         <CheckCircle className="w-4 h-4" />
-                        <span>Selected</span>
+                        <span>{t('selected')}</span>
                       </div>
                     )}
                   </div>
@@ -632,7 +632,7 @@ export default function EventPage() {
                     className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
                     data-testid="button-cancel-modal"
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -648,22 +648,22 @@ export default function EventPage() {
                     {purchaseTicketMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
+                        {t('loading')}
                       </>
                     ) : selectedTierId ? (
                       <>
                         <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase
+                        {t('purchase')}
                       </>
                     ) : (
-                      'Select a ticket'
+                      t('selectATicket')
                     )}
                   </Button>
                 </div>
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-300">No ticket tiers available for this event.</p>
+                <p className="text-gray-300">{t('noEventsFound')}</p>
               </div>
             )}
           </div>

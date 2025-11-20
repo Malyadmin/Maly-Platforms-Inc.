@@ -136,14 +136,14 @@ export default function ProfilePage() {
     },
     onSuccess: () => {
       toast({
-        title: 'Contact added',
-        description: "They've been added to your contacts.",
+        title: t('contactAdded'),
+        description: t('contactAddedDescription'),
       });
       queryClient.invalidateQueries({ queryKey: ['contact-check', profileData?.id, currentUser?.id] });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error adding contact',
+        title: t('errorAddingContact'),
         description: error.message,
         variant: 'destructive',
       });
@@ -166,14 +166,14 @@ export default function ProfilePage() {
     },
     onSuccess: () => {
       toast({
-        title: 'Contact removed',
-        description: "They've been removed from your contacts.",
+        title: t('contactRemoved'),
+        description: t('contactRemovedDescription'),
       });
       queryClient.invalidateQueries({ queryKey: ['contact-check', profileData?.id, currentUser?.id] });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error removing contact',
+        title: t('errorRemovingContact'),
         description: error.message,
         variant: 'destructive',
       });
@@ -216,7 +216,7 @@ export default function ProfilePage() {
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error starting conversation',
+        title: t('errorStartingConversation'),
         description: error.message,
         variant: 'destructive',
       });
@@ -272,8 +272,8 @@ export default function ProfilePage() {
     },
     onSuccess: (data) => {
       toast({
-        title: 'Mood updated',
-        description: 'Your mood has been updated successfully.',
+        title: t('moodUpdated'),
+        description: t('moodUpdatedDescription'),
       });
       
       // Update the profile data locally
@@ -292,7 +292,7 @@ export default function ProfilePage() {
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error updating mood',
+        title: t('errorUpdatingMood'),
         description: error.message,
         variant: 'destructive',
       });
@@ -361,7 +361,7 @@ export default function ProfilePage() {
   }
 
   if (!profileData) {
-    return <div>Profile not found</div>;
+    return <div>{t('profileNotFound')}</div>;
   }
 
   return (
@@ -384,7 +384,7 @@ export default function ProfilePage() {
         <div className="space-y-2 sm:space-y-3">
           <div>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
+              {profileData?.id === currentUser?.id ? t('profile') : t('connect').toUpperCase().split('').join(' ')}
             </h2>
             {profileData?.location && (
               <p className="text-white text-sm mt-1">{profileData.location}</p>
@@ -424,8 +424,8 @@ export default function ProfilePage() {
               } else {
                 await navigator.clipboard.writeText(shareUrl);
                 toast({
-                  title: 'Link copied',
-                  description: 'Profile link copied to clipboard',
+                  title: t('linkCopied'),
+                  description: t('profileLinkCopied'),
                 });
               }
             }}
@@ -526,7 +526,7 @@ export default function ProfilePage() {
           {profileData.profession && (
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <p className="text-foreground/60 text-sm">Occupation</p>
+                <p className="text-foreground/60 text-sm">{t('occupation')}</p>
                 <p className="text-foreground text-base mt-1">{profileData.profession}</p>
               </div>
               
@@ -552,7 +552,7 @@ export default function ProfilePage() {
                       ) : (
                         <>
                           <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Connected</span>
+                          <span className="hidden sm:inline">{t('connected')}</span>
                         </>
                       )}
                     </button>
@@ -568,7 +568,7 @@ export default function ProfilePage() {
                       ) : (
                         <>
                           <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Connect</span>
+                          <span className="hidden sm:inline">{t('connect')}</span>
                         </>
                       )}
                     </button>
@@ -581,14 +581,14 @@ export default function ProfilePage() {
           {/* Bio */}
           {profileData.bio && (
             <div className="space-y-2">
-              <p className="text-foreground/60 text-sm">Bio</p>
+              <p className="text-foreground/60 text-sm">{t('bio')}</p>
               <p className={`text-foreground text-base mt-1 ${showFullBio ? '' : 'line-clamp-2'}`}>{profileData.bio}</p>
               {profileData.bio.length > 100 && (
                 <button
                   onClick={() => setShowFullBio(!showFullBio)}
                   className="text-sm text-purple-400 hover:underline"
                 >
-                  {showFullBio ? 'View Less' : 'View More'}
+                  {showFullBio ? t('viewLess') : t('viewMore')}
                 </button>
               )}
             </div>
@@ -597,7 +597,7 @@ export default function ProfilePage() {
           {/* Vibe */}
           {profileData.currentMoods && profileData.currentMoods.length > 0 && (
             <div>
-              <p className="text-foreground/60 text-sm">Vibe</p>
+              <p className="text-foreground/60 text-sm">{t('vibe')}</p>
               <p className="text-foreground text-base mt-1">{profileData.currentMoods.join(', ')}</p>
             </div>
           )}
@@ -605,7 +605,7 @@ export default function ProfilePage() {
           {/* Intention */}
           {profileData.intention && (
             <div>
-              <p className="text-foreground/60 text-sm">Intention</p>
+              <p className="text-foreground/60 text-sm">{t('intention')}</p>
               <p className="text-foreground text-base mt-1">
                 {formatIntentionLabel(profileData.intention)}
               </p>
@@ -615,7 +615,7 @@ export default function ProfilePage() {
           {/* Born */}
           {profileData.birthLocation && (
             <div>
-              <p className="text-foreground/60 text-sm">Born</p>
+              <p className="text-foreground/60 text-sm">{t('born')}</p>
               <p className="text-foreground text-base mt-1">{t(profileData.birthLocation)}</p>
             </div>
           )}
@@ -623,7 +623,7 @@ export default function ProfilePage() {
           {/* Lived */}
           {profileData.livedLocation && (
             <div>
-              <p className="text-foreground/60 text-sm">Lived</p>
+              <p className="text-foreground/60 text-sm">{t('lived')}</p>
               <p className="text-foreground text-base mt-1">{t(profileData.livedLocation)}</p>
             </div>
           )}
@@ -631,7 +631,7 @@ export default function ProfilePage() {
           {/* Upcoming */}
           {profileData.nextLocation && (
             <div>
-              <p className="text-foreground/60 text-sm">Upcoming</p>
+              <p className="text-foreground/60 text-sm">{t('upcoming')}</p>
               <p className="text-foreground text-base mt-1">{t(profileData.nextLocation)}</p>
             </div>
           )}
@@ -655,7 +655,7 @@ export default function ProfilePage() {
               ) : (
                 <Mail className="h-4 w-4 mr-2" />
               )}
-              Message
+              {t('message')}
             </button>
           </div>
         )}
