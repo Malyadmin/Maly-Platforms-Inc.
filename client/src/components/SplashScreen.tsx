@@ -36,15 +36,16 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-500"
+      className="fixed inset-0 z-[9999] bg-black flex items-center justify-center transition-opacity duration-500"
       style={{
-        opacity,
-        backgroundImage: `url(${images[currentImage]})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        opacity
       }}
     >
+      <img
+        src={images[currentImage]}
+        alt="Splash"
+        className="w-full h-full object-contain"
+      />
     </div>
   );
 }
