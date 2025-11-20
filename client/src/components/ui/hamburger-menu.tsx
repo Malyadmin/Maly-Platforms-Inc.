@@ -24,7 +24,6 @@ const menuSections: MenuSection[] = [
     title: "ACCOUNT AND PROFILE",
     items: [
       "Edit Profile",
-      "Appearance",
       "Notification Preferences"
     ]
   },

@@ -7,13 +7,17 @@ import { useChat } from "@/hooks/use-chat";
 import { 
   Loader2, Send, Bot, User, Globe,
   Wine, HeartHandshake, Plane, 
-  Building, MapPin
+  Building, MapPin, ChevronLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientHeader } from "@/components/ui/GradientHeader";
 import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { useLanguage } from "@/lib/language-context";
+import { MalyLogo } from "@/components/ui/maly-logo";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 // Quick prompts for the most common questions with specialized internal prompts
 const getQuickPrompts = (t: (key: string) => string, language: string) => [
@@ -77,6 +81,8 @@ export default function ChatbotPage() {
   const [input, setInput] = useState("");
   const [selectedCity, setSelectedCity] = useState("Mexico City");
   const quickPrompts = getQuickPrompts(t, language);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   
   // Initialize messages with translated greeting
   useEffect(() => {
@@ -89,6 +95,15 @@ export default function ChatbotPage() {
       ]);
     }
   }, [language, messages, setMessages, t]);
+  
+  // Show toast notification on page load
+  useEffect(() => {
+    toast({
+      title: "Welcome to Maly's Concierge (Beta V1.5)",
+      description: "Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.",
+      duration: 6000,
+    });
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,36 +129,54 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className="bg-[#121212] text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
+      {/* Custom Header */}
+      <header className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3">
+              <MalyLogo className="w-6 h-6" />
+              <h1 className="text-sm font-medium uppercase tracking-[.5em] text-foreground">
+                C O N C I E R G E
+              </h1>
+              <button
+                onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/discover")}
+                className="flex items-center gap-1 text-foreground/60 hover:text-foreground transition-colors"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            </div>
+            <HamburgerMenu />
+          </div>
+        </div>
+      </header>
+
       <div className="p-4">
-        <GradientHeader 
-          title={t('concierge')}
-          className="mb-4"
-          showBackButton={true}
-          backButtonFallbackPath="/discover"
-        >
+        {/* City selector */}
+        <div className="max-w-2xl mx-auto mb-4">
           <select 
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
-            className="bg-transparent border border-border rounded-md px-2 py-1 text-sm focus-visible"
+            className="bg-transparent border border-border rounded-md px-3 py-2 text-sm w-full sm:w-auto text-foreground"
             aria-label="Select a city"
           >
             {DIGITAL_NOMAD_CITIES.map(city => (
-              <option key={city} value={city}>{city}</option>
+              <option key={city} value={city} className="bg-background text-foreground">{city}</option>
             ))}
           </select>
-        </GradientHeader>
+        </div>
         
         <div className="max-w-2xl mx-auto">
           {/* Quick prompts */}
-          <div className="bg-black/40 border border-white/10 rounded-lg mb-4 p-4">
+          <div className="bg-muted/20 border border-border rounded-lg mb-4 p-4">
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map(({ text, icon: Icon, prompt, specializedPrompt, ariaLabel }) => (
                 <Button
                   key={text}
                   variant="outline"
                   size="sm"
-                  className="border-white/10 hover:bg-foreground/10 glass-hover flex items-center gap-2 interactive-hover flex-1 min-w-fit"
+                  className="border-border hover:bg-foreground/10 glass-hover flex items-center gap-2 interactive-hover flex-1 min-w-fit"
                   onClick={() => handleQuickPrompt(prompt, specializedPrompt)}
                   disabled={isLoading}
                   aria-label={ariaLabel}
@@ -156,7 +189,7 @@ export default function ChatbotPage() {
           </div>
           
           {/* Messages */}
-          <div className="bg-black/40 border border-white/10 rounded-lg mb-4">
+          <div className="bg-muted/20 border border-border rounded-lg mb-4">
             <div className="p-4">
               {messages.map((message, index) => (
                 <div
@@ -181,7 +214,7 @@ export default function ChatbotPage() {
                   <div
                     className={`rounded-lg p-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
-                        ? "bg-white/5 glass"
+                        ? "bg-muted/30 glass"
                         : "bg-gradient-to-r from-purple-600 via-pink-600 to-red-500"
                     }`}
                   >
@@ -223,23 +256,23 @@ export default function ChatbotPage() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 flex items-center justify-center">
                     <Bot className="w-5 h-5" />
                   </div>
-                  <div className="rounded-lg p-4 bg-white/5 glass flex items-center gap-2">
+                  <div className="rounded-lg p-4 bg-muted/30 glass flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-white/60">{t('findingLocalInsights')}</span>
+                    <span className="text-muted-foreground">{t('findingLocalInsights')}</span>
                   </div>
                 </div>
               )}
             </div>
             
             {/* Message input */}
-            <div className="border-t border-white/10 p-4">
+            <div className="border-t border-border p-4">
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={`${t('askAnythingAbout')} ${selectedCity}...`}
                   disabled={isLoading}
-                  className="bg-white/5 border-white/10 glass-hover focus-visible"
+                  className="bg-muted/20 border-border glass-hover focus-visible"
                   aria-label="Type your message"
                 />
                 <Button 
@@ -255,7 +288,7 @@ export default function ChatbotPage() {
           </div>
 
           {/* Ad card */}
-          <div className="bg-black/40 border border-white/10 rounded-lg p-4">
+          <div className="bg-muted/20 border border-border rounded-lg p-4">
             <p className="text-center text-sm font-medium text-muted-foreground mb-4">
               {t('premiumAdPartner')}
             </p>
