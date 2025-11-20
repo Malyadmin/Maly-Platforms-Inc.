@@ -203,7 +203,7 @@ export default function ChatConversationPage() {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Fixed Header */}
-      <div className="w-full bg-background border-b border-border sticky top-0 z-10">
+      <div className="w-full bg-background border-b border-border">
         <div className="flex flex-row items-center p-3">
           <Button
             variant="ghost"
@@ -396,7 +396,7 @@ export default function ChatConversationPage() {
       </div>
       
       {/* Fixed Message Input */}
-      <div className="w-full p-4 pb-6 bg-background border-t border-border sticky bottom-0 z-10">
+      <div className="w-full p-4 pb-6 bg-background border-t border-border">
         <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
           <div className="flex-1">
             <Textarea 
