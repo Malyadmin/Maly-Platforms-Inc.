@@ -278,7 +278,71 @@ type TranslationKey =
   | 'mustAcceptTerms'
   | 'mustAcceptPrivacy'
   | 'validationError'
-  | 'error';
+  | 'error'
+  // DiscoverPage & Event listings
+  | 'today'
+  | 'thisWeek'
+  | 'thisWeekend'
+  | 'nextWeek'
+  | 'nextWeekend'
+  | 'thisMonth'
+  | 'upcomingEvents'
+  | 'noEventsFound'
+  | 'noEventsInCity'
+  | 'tryOtherCity'
+  | 'anytime'
+  | 'filterByTime'
+  | 'filterByCity'
+  | 'filterByVibe'
+  | 'createFirstEvent'
+  | 'beFirstToCreateEvent'
+  // EventPage
+  | 'purchaseFailed'
+  | 'failedInitiateTicketPurchase'
+  | 'success'
+  | 'successfullyUpdatedParticipation'
+  | 'eventNotFound'
+  | 'rsvpRequestSent'
+  | 'dressCode'
+  | 'showMore'
+  | 'showLess'
+  | 'readMore'
+  | 'readLess'
+  | 'messageHost'
+  | 'selectTicketTier'
+  | 'requestToAttend'
+  | 'applicationPending'
+  | 'applicationApproved'
+  | 'applicationDeclined'
+  | 'cancelRequest'
+  // InboxPage
+  | 'conversations'
+  | 'noConversationsYet'
+  | 'noConversationsMatch'
+  | 'connectWithOthers'
+  | 'messages'
+  | 'groups'
+  | 'contacts'
+  | 'rsvpRequests'
+  | 'connectionRequests'
+  | 'accept'
+  | 'decline'
+  | 'viewEvent'
+  | 'participants'
+  // ConnectPage
+  | 'people'
+  | 'filters'
+  | 'allGenders'
+  | 'male'
+  | 'female'
+  | 'nonBinary'
+  | 'allVibes'
+  | 'allIntentions'
+  | 'addToContacts'
+  | 'added'
+  | 'addedSuccessfully'
+  | 'failedToAddContact'
+  | 'loading';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -391,6 +455,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     whatsapp: 'WhatsApp',
     sms: 'SMS',
     done: 'Done',
+    close: 'Close',
+    search: 'Search',
+    filter: 'Filter',
+    sort: 'Sort',
+    view: 'View',
+    add: 'Add',
+    remove: 'Remove',
+    send: 'Send',
+    reply: 'Reply',
+    back: 'Back',
+    next: 'Next',
     yourStatus: 'Your Status',
     eventOptions: 'Event Options',
     editEvent: 'Edit Event',
@@ -500,8 +575,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     dontHaveAccount: "Don't have an account?",
     signInToAccount: 'Sign in to your Maly account',
     createNewAccount: 'Create a new account to join our community',
-    username: 'Username',
-    email: 'Email',
     enterUsername: 'Enter your username',
     enterUsernameOrEmail: 'Enter your username or email',
     enterEmail: 'Enter your email address',
@@ -519,23 +592,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     hidePassword: 'Hide password',
     // Common buttons and actions
     submit: 'Submit',
-    back: 'Back',
-    next: 'Next',
-    done: 'Done',
-    close: 'Close',
-    delete: 'Delete',
-    edit: 'Edit',
-    save: 'Save',
     update: 'Update',
     confirm: 'Confirm',
-    search: 'Search',
-    filter: 'Filter',
-    sort: 'Sort',
-    view: 'View',
-    add: 'Add',
-    remove: 'Remove',
-    send: 'Send',
-    reply: 'Reply',
     forward: 'Forward',
     // Validation and errors
     usernameOrEmailRequired: 'Username or email must be provided',
@@ -545,7 +603,71 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     mustAcceptTerms: 'You must accept the Terms and Conditions to register',
     mustAcceptPrivacy: 'You must accept the Privacy Policy to register',
     validationError: 'Validation Error',
-    error: 'Error'
+    error: 'Error',
+    // DiscoverPage & Event listings
+    today: 'TODAY',
+    thisWeek: 'THIS WEEK',
+    thisWeekend: 'THIS WEEKEND',
+    nextWeek: 'NEXT WEEK',
+    nextWeekend: 'NEXT WEEKEND',
+    thisMonth: 'THIS MONTH',
+    upcomingEvents: 'UPCOMING',
+    noEventsFound: 'No events found',
+    noEventsInCity: 'No events yet in',
+    tryOtherCity: 'Try selecting another city',
+    anytime: 'Anytime',
+    filterByTime: 'Filter by time',
+    filterByCity: 'Filter by city',
+    filterByVibe: 'Filter by vibe',
+    createFirstEvent: 'Create First Event',
+    beFirstToCreateEvent: 'Be the first to create an event',
+    // EventPage
+    purchaseFailed: 'Purchase Failed',
+    failedInitiateTicketPurchase: 'Failed to initiate ticket purchase. Please try again.',
+    success: 'Success',
+    successfullyUpdatedParticipation: 'Successfully updated participation status',
+    eventNotFound: 'Event not found',
+    rsvpRequestSent: 'RSVP request sent! The host will review your application.',
+    dressCode: 'Dress Code',
+    showMore: 'Show more',
+    showLess: 'Show less',
+    readMore: 'Read more',
+    readLess: 'Read less',
+    messageHost: 'Message Host',
+    selectTicketTier: 'Select a ticket tier',
+    requestToAttend: 'Request to Attend',
+    applicationPending: 'Application Pending',
+    applicationApproved: 'Application Approved',
+    applicationDeclined: 'Application Declined',
+    cancelRequest: 'Cancel Request',
+    // InboxPage
+    conversations: 'Conversations',
+    noConversationsYet: 'No conversations yet',
+    noConversationsMatch: 'No conversations match your search',
+    connectWithOthers: 'Connect with others to start messaging',
+    messages: 'Messages',
+    groups: 'Groups',
+    contacts: 'Contacts',
+    rsvpRequests: 'RSVP Requests',
+    connectionRequests: 'Connection Requests',
+    accept: 'Accept',
+    decline: 'Decline',
+    viewEvent: 'View Event',
+    participants: 'participants',
+    // ConnectPage
+    people: 'People',
+    filters: 'Filters',
+    allGenders: 'All Genders',
+    male: 'Male',
+    female: 'Female',
+    nonBinary: 'Non-Binary',
+    allVibes: 'All Vibes',
+    allIntentions: 'All Intentions',
+    addToContacts: 'Add to Contacts',
+    added: 'Added',
+    addedSuccessfully: 'Added successfully',
+    failedToAddContact: 'Failed to add contact',
+    loading: 'Loading...'
   },
   es: {
     discover: 'Descubrir',
@@ -658,6 +780,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     whatsapp: 'WhatsApp',
     sms: 'SMS',
     done: 'Listo',
+    close: 'Cerrar',
+    search: 'Buscar',
+    filter: 'Filtrar',
+    sort: 'Ordenar',
+    view: 'Ver',
+    add: 'Agregar',
+    remove: 'Quitar',
+    send: 'Enviar',
+    reply: 'Responder',
+    back: 'Atrás',
+    next: 'Siguiente',
     yourStatus: 'Tu Estado',
     eventOptions: 'Opciones del Evento',
     editEvent: 'Editar Evento',
@@ -767,8 +900,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     dontHaveAccount: '¿No tienes una cuenta?',
     signInToAccount: 'Inicia sesión en tu cuenta de Maly',
     createNewAccount: 'Crea una nueva cuenta para unirte a nuestra comunidad',
-    username: 'Nombre de Usuario',
-    email: 'Correo Electrónico',
     enterUsername: 'Ingresa tu nombre de usuario',
     enterUsernameOrEmail: 'Ingresa tu nombre de usuario o correo',
     enterEmail: 'Ingresa tu dirección de correo electrónico',
@@ -786,23 +917,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     hidePassword: 'Ocultar contraseña',
     // Common buttons and actions
     submit: 'Enviar',
-    back: 'Atrás',
-    next: 'Siguiente',
-    done: 'Hecho',
-    close: 'Cerrar',
-    delete: 'Eliminar',
-    edit: 'Editar',
-    save: 'Guardar',
     update: 'Actualizar',
     confirm: 'Confirmar',
-    search: 'Buscar',
-    filter: 'Filtrar',
-    sort: 'Ordenar',
-    view: 'Ver',
-    add: 'Agregar',
-    remove: 'Quitar',
-    send: 'Enviar',
-    reply: 'Responder',
     forward: 'Reenviar',
     // Validation and errors
     usernameOrEmailRequired: 'Se debe proporcionar un nombre de usuario o correo electrónico',
@@ -812,7 +928,71 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     mustAcceptTerms: 'Debes aceptar los Términos y Condiciones para registrarte',
     mustAcceptPrivacy: 'Debes aceptar la Política de Privacidad para registrarte',
     validationError: 'Error de Validación',
-    error: 'Error'
+    error: 'Error',
+    // DiscoverPage & Event listings
+    today: 'HOY',
+    thisWeek: 'ESTA SEMANA',
+    thisWeekend: 'ESTE FIN DE SEMANA',
+    nextWeek: 'PRÓXIMA SEMANA',
+    nextWeekend: 'PRÓXIMO FIN DE SEMANA',
+    thisMonth: 'ESTE MES',
+    upcomingEvents: 'PRÓXIMOS',
+    noEventsFound: 'No se encontraron eventos',
+    noEventsInCity: 'Aún no hay eventos en',
+    tryOtherCity: 'Intenta seleccionar otra ciudad',
+    anytime: 'Cualquier momento',
+    filterByTime: 'Filtrar por tiempo',
+    filterByCity: 'Filtrar por ciudad',
+    filterByVibe: 'Filtrar por ambiente',
+    createFirstEvent: 'Crear Primer Evento',
+    beFirstToCreateEvent: 'Sé el primero en crear un evento',
+    // EventPage
+    purchaseFailed: 'Compra Fallida',
+    failedInitiateTicketPurchase: 'No se pudo iniciar la compra de entradas. Por favor, inténtalo de nuevo.',
+    success: 'Éxito',
+    successfullyUpdatedParticipation: 'Estado de participación actualizado exitosamente',
+    eventNotFound: 'Evento no encontrado',
+    rsvpRequestSent: '¡Solicitud RSVP enviada! El anfitrión revisará tu solicitud.',
+    dressCode: 'Código de Vestimenta',
+    showMore: 'Mostrar más',
+    showLess: 'Mostrar menos',
+    readMore: 'Leer más',
+    readLess: 'Leer menos',
+    messageHost: 'Mensaje al Anfitrión',
+    selectTicketTier: 'Selecciona un tipo de entrada',
+    requestToAttend: 'Solicitar Asistir',
+    applicationPending: 'Solicitud Pendiente',
+    applicationApproved: 'Solicitud Aprobada',
+    applicationDeclined: 'Solicitud Rechazada',
+    cancelRequest: 'Cancelar Solicitud',
+    // InboxPage
+    conversations: 'Conversaciones',
+    noConversationsYet: 'Aún no hay conversaciones',
+    noConversationsMatch: 'Ninguna conversación coincide con tu búsqueda',
+    connectWithOthers: 'Conecta con otros para comenzar a enviar mensajes',
+    messages: 'Mensajes',
+    groups: 'Grupos',
+    contacts: 'Contactos',
+    rsvpRequests: 'Solicitudes RSVP',
+    connectionRequests: 'Solicitudes de Conexión',
+    accept: 'Aceptar',
+    decline: 'Rechazar',
+    viewEvent: 'Ver Evento',
+    participants: 'participantes',
+    // ConnectPage
+    people: 'Personas',
+    filters: 'Filtros',
+    allGenders: 'Todos los Géneros',
+    male: 'Masculino',
+    female: 'Femenino',
+    nonBinary: 'No Binario',
+    allVibes: 'Todos los Ambientes',
+    allIntentions: 'Todas las Intenciones',
+    addToContacts: 'Agregar a Contactos',
+    added: 'Agregado',
+    addedSuccessfully: 'Agregado exitosamente',
+    failedToAddContact: 'No se pudo agregar contacto',
+    loading: 'Cargando...'
   }
 };
 
