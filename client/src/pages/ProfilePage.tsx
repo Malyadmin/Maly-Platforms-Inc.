@@ -400,10 +400,10 @@ export default function ProfilePage() {
                 setLocation("/discover");
               }
             }}
-            className="text-white/80 hover:text-white transition-colors text-sm"
+            className="text-white/80 hover:text-white transition-colors"
             data-testid="button-back"
           >
-            Back
+            <ChevronLeft className="w-6 h-6" />
           </button>
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (

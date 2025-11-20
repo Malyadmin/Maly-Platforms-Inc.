@@ -449,10 +449,10 @@ export default function EditProfilePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLocation(`/profile/${user?.username}`)}
-              className="text-foreground/80 hover:text-foreground transition-colors text-sm"
+              className="text-foreground/80 hover:text-foreground transition-colors"
               data-testid="button-back-to-profile"
             >
-              Back
+              <ChevronLeft className="w-6 h-6" />
             </button>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               Edit Profile

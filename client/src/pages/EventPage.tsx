@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight, ChevronLeft } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -343,10 +343,10 @@ export default function EventPage() {
                   setLocation('/discover');
                 }
               }}
-              className="text-white/80 hover:text-white transition-colors text-sm"
+              className="text-white/80 hover:text-white transition-colors"
               data-testid="button-back"
             >
-              Back
+              <ChevronLeft className="w-6 h-6" />
             </button>
           </div>
         </div>
