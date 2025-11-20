@@ -230,7 +230,46 @@ type TranslationKey =
   | 'password'
   | 'enterYourInformation'
   | 'alreadyHaveAccount'
-  | 'dontHaveAccount';
+  | 'dontHaveAccount'
+  | 'signInToAccount'
+  | 'createNewAccount'
+  | 'username'
+  | 'email'
+  | 'enterUsername'
+  | 'enterUsernameOrEmail'
+  | 'enterEmail'
+  | 'enterPassword'
+  | 'name'
+  | 'enterName'
+  | 'enterAge'
+  | 'willNotBeDisplayed'
+  | 'whereAreYouBased'
+  | 'chooseYourVibe'
+  | 'profilePicture'
+  | 'profilePreview'
+  | 'iAgreeToThe'
+  | 'showPassword'
+  | 'hidePassword'
+  // Common buttons and actions
+  | 'submit'
+  | 'back'
+  | 'next'
+  | 'done'
+  | 'close'
+  | 'delete'
+  | 'edit'
+  | 'save'
+  | 'update'
+  | 'confirm'
+  | 'search'
+  | 'filter'
+  | 'sort'
+  | 'view'
+  | 'add'
+  | 'remove'
+  | 'send'
+  | 'reply'
+  | 'forward';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -449,7 +488,46 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     password: 'Password',
     enterYourInformation: 'Enter your information to get started',
     alreadyHaveAccount: 'Already have an account?',
-    dontHaveAccount: "Don't have an account?"
+    dontHaveAccount: "Don't have an account?",
+    signInToAccount: 'Sign in to your Maly account',
+    createNewAccount: 'Create a new account to join our community',
+    username: 'Username',
+    email: 'Email',
+    enterUsername: 'Enter your username',
+    enterUsernameOrEmail: 'Enter your username or email',
+    enterEmail: 'Enter your email address',
+    enterPassword: 'Enter your password',
+    name: 'Name',
+    enterName: 'Enter your name',
+    enterAge: 'Enter your age',
+    willNotBeDisplayed: '(will not be displayed)',
+    whereAreYouBased: 'Where are you based?',
+    chooseYourVibe: 'Choose your vibe',
+    profilePicture: 'Profile Picture',
+    profilePreview: 'Profile preview',
+    iAgreeToThe: 'I agree to the',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    // Common buttons and actions
+    submit: 'Submit',
+    back: 'Back',
+    next: 'Next',
+    done: 'Done',
+    close: 'Close',
+    delete: 'Delete',
+    edit: 'Edit',
+    save: 'Save',
+    update: 'Update',
+    confirm: 'Confirm',
+    search: 'Search',
+    filter: 'Filter',
+    sort: 'Sort',
+    view: 'View',
+    add: 'Add',
+    remove: 'Remove',
+    send: 'Send',
+    reply: 'Reply',
+    forward: 'Forward'
   },
   es: {
     discover: 'Descubrir',
@@ -668,7 +746,46 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     password: 'Contraseña',
     enterYourInformation: 'Ingresa tu información para comenzar',
     alreadyHaveAccount: '¿Ya tienes una cuenta?',
-    dontHaveAccount: '¿No tienes una cuenta?'
+    dontHaveAccount: '¿No tienes una cuenta?',
+    signInToAccount: 'Inicia sesión en tu cuenta de Maly',
+    createNewAccount: 'Crea una nueva cuenta para unirte a nuestra comunidad',
+    username: 'Nombre de Usuario',
+    email: 'Correo Electrónico',
+    enterUsername: 'Ingresa tu nombre de usuario',
+    enterUsernameOrEmail: 'Ingresa tu nombre de usuario o correo',
+    enterEmail: 'Ingresa tu dirección de correo electrónico',
+    enterPassword: 'Ingresa tu contraseña',
+    name: 'Nombre',
+    enterName: 'Ingresa tu nombre',
+    enterAge: 'Ingresa tu edad',
+    willNotBeDisplayed: '(no se mostrará)',
+    whereAreYouBased: '¿Dónde te encuentras?',
+    chooseYourVibe: 'Elige tu ambiente',
+    profilePicture: 'Foto de Perfil',
+    profilePreview: 'Vista previa del perfil',
+    iAgreeToThe: 'Acepto los',
+    showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
+    // Common buttons and actions
+    submit: 'Enviar',
+    back: 'Atrás',
+    next: 'Siguiente',
+    done: 'Hecho',
+    close: 'Cerrar',
+    delete: 'Eliminar',
+    edit: 'Editar',
+    save: 'Guardar',
+    update: 'Actualizar',
+    confirm: 'Confirmar',
+    search: 'Buscar',
+    filter: 'Filtrar',
+    sort: 'Ordenar',
+    view: 'Ver',
+    add: 'Agregar',
+    remove: 'Quitar',
+    send: 'Enviar',
+    reply: 'Responder',
+    forward: 'Reenviar'
   }
 };
 

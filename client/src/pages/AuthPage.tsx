@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useTranslation } from "@/lib/translations";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username or email must be provided"),
@@ -84,6 +85,7 @@ export default function AuthPage() {
   const { login, register, user } = useUser();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
   
   // If user is already logged in, redirect to home page
   useEffect(() => {
@@ -295,11 +297,11 @@ export default function AuthPage() {
       
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isLogin ? "Login" : "Register"}</CardTitle>
+          <CardTitle>{isLogin ? t('login') : t('register')}</CardTitle>
           <CardDescription>
             {isLogin 
-              ? "Sign in to your Maly account" 
-              : "Create a new account to join our community"
+              ? t('signInToAccount')
+              : t('createNewAccount')
             }
           </CardDescription>
         </CardHeader>
@@ -307,11 +309,11 @@ export default function AuthPage() {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">{isLogin ? "Username or Email" : "Username"}</Label>
+              <Label htmlFor="username">{isLogin ? t('usernameOrEmail') : t('username')}</Label>
               <Input
                 id="username"
                 required
-                placeholder={isLogin ? "Enter your username or email" : "Enter your username"}
+                placeholder={isLogin ? t('enterUsernameOrEmail') : t('enterUsername')}
                 value={formData.username}
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
@@ -321,12 +323,12 @@ export default function AuthPage() {
 
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('email')}</Label>
                 <Input
                   id="email"
                   type="email"
                   required
-                  placeholder="Enter your email address"
+                  placeholder={t('enterEmail')}
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -336,13 +338,13 @@ export default function AuthPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  placeholder="Enter your password"
+                  placeholder={t('enterPassword')}
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
@@ -352,7 +354,7 @@ export default function AuthPage() {
                   type="button"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -366,10 +368,10 @@ export default function AuthPage() {
             {!isLogin && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Name</Label>
+                  <Label htmlFor="fullName">{t('name')}</Label>
                   <Input
                     id="fullName"
-                    placeholder="Enter your name"
+                    placeholder={t('enterName')}
                     value={formData.fullName}
                     onChange={(e) =>
                       setFormData({ ...formData, fullName: e.target.value })
@@ -378,11 +380,11 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age <span className="text-xs text-muted-foreground">(will not be displayed)</span></Label>
+                  <Label htmlFor="age">{t('age')} <span className="text-xs text-muted-foreground">{t('willNotBeDisplayed')}</span></Label>
                   <Input
                     id="age"
                     type="number"
-                    placeholder="Enter your age"
+                    placeholder={t('enterAge')}
                     value={formData.age}
                     onChange={(e) =>
                       setFormData({ ...formData, age: e.target.value })
@@ -391,10 +393,10 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">{t('location')}</Label>
                   <Input
                     id="location"
-                    placeholder="Where are you based?"
+                    placeholder={t('whereAreYouBased')}
                     value={formData.location}
                     onChange={(e) =>
                       setFormData({ ...formData, location: e.target.value })
@@ -403,7 +405,7 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="moods">Choose your vibe</Label>
+                  <Label htmlFor="moods">{t('chooseYourVibe')}</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {VIBE_AND_MOOD_TAGS.map(mood => {
                       const isSelected = selectedMoods.includes(mood);
@@ -424,12 +426,12 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="profileImage">Profile Picture</Label>
+                  <Label htmlFor="profileImage">{t('profilePicture')}</Label>
                   {imagePreview && (
                     <div className="mb-2">
                       <img 
                         src={imagePreview} 
-                        alt="Profile preview" 
+                        alt={t('profilePreview')}
                         className="w-24 h-24 rounded-full object-cover border"
                       />
                     </div>
@@ -460,10 +462,10 @@ export default function AuthPage() {
                       htmlFor="terms"
                       className="text-sm font-medium leading-none cursor-pointer"
                     >
-                      I agree to the{" "}
+                      {t('iAgreeToThe')}{" "}
                       <Dialog open={showTerms} onOpenChange={setShowTerms}>
                         <DialogTrigger asChild>
-                          <span className="text-primary cursor-pointer underline">Terms and Conditions</span>
+                          <span className="text-primary cursor-pointer underline">{t('termsAndConditions')}</span>
                         </DialogTrigger>
                         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
@@ -542,10 +544,10 @@ export default function AuthPage() {
                       htmlFor="privacy"
                       className="text-sm font-medium leading-none cursor-pointer"
                     >
-                      I agree to the{" "}
+                      {t('iAgreeToThe')}{" "}
                       <Dialog open={showPrivacy} onOpenChange={setShowPrivacy}>
                         <DialogTrigger asChild>
-                          <span className="text-primary cursor-pointer underline">Privacy Policy</span>
+                          <span className="text-primary cursor-pointer underline">{t('privacyPolicy')}</span>
                         </DialogTrigger>
                         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
@@ -644,9 +646,9 @@ export default function AuthPage() {
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : isLogin ? (
-                "Login"
+                t('login')
               ) : (
-                "Register"
+                t('register')
               )}
             </Button>
           </form>
@@ -666,8 +668,8 @@ export default function AuthPage() {
             disabled={isSubmitting}
           >
             {isLogin
-              ? "Don't have an account? Register"
-              : "Already have an account? Login"}
+              ? `${t('dontHaveAccount')} ${t('register')}`
+              : `${t('alreadyHaveAccount')} ${t('login')}`}
           </Button>
         </CardFooter>
       </Card>
