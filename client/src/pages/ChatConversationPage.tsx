@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users, ChevronLeft } from 'lucide-react';
 import { ConversationMessage } from '@/types/inbox';
+import { BottomNav } from '@/components/ui/bottom-nav';
+import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 
 interface ConversationInfo {
   id: number;
@@ -201,30 +203,49 @@ export default function ChatConversationPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Fixed Header */}
-      <div className="w-full bg-background border-b border-border">
-        <div className="flex flex-row items-center p-3">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Fixed Header - Logo and hamburger menu */}
+      <header className="bg-background text-foreground shrink-0 z-50">
+        {/* Top bar with MÁLY logo on left and hamburger menu on right */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto"
+          />
+          <HamburgerMenu />
+        </div>
+        
+        {/* Gradient title with back button */}
+        <div className="px-5 pb-3 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
-            className="mr-2"
             onClick={() => setLocation('/inbox')}
             data-testid="back-to-inbox"
+            className="shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            Inbox
+          </h2>
+        </div>
+      </header>
+
+      {/* Fixed Profile Bar - Doesn't scroll with messages */}
+      <div className="w-full bg-background border-b border-border shrink-0">
+        <div className="flex flex-row items-center px-5 py-3">
           {isLoading && !conversation ? (
             <div className="flex items-center">
-              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
               <div className="ml-3">
-                <Skeleton className="h-4 w-[120px]" />
-                <Skeleton className="h-3 w-[80px] mt-1" />
+                <Skeleton className="h-4 w-[120px] bg-gray-700" />
+                <Skeleton className="h-3 w-[80px] mt-1 bg-gray-700" />
               </div>
             </div>
           ) : conversation ? (
-            <div className="flex items-center">
+            <div className="flex items-center flex-1">
               {!isGroupChat && conversation.otherParticipant ? (
                 <button
                   type="button"
@@ -262,14 +283,14 @@ export default function ChatConversationPage() {
                 </div>
               )}
               <div className="ml-3">
-                <CardTitle className="text-base" data-testid="conversation-title">
+                <h3 className="text-foreground font-medium text-base" data-testid="conversation-title">
                   {conversation.title}
                   {isGroupChat && (
                     <span className="ml-2 text-sm text-muted-foreground font-normal">
                       ({conversation.participantCount} members)
                     </span>
                   )}
-                </CardTitle>
+                </h3>
                 <p className="text-xs text-muted-foreground">
                   {isGroupChat ? 'Group Chat' : 'Direct Message'}
                 </p>
@@ -281,15 +302,15 @@ export default function ChatConversationPage() {
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
               <div className="ml-3">
-                <CardTitle className="text-base">Loading...</CardTitle>
+                <h3 className="text-base text-foreground font-medium">Loading...</h3>
               </div>
             </div>
           )}
         </div>
       </div>
-        
-      {/* Scrollable Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background" data-testid="messages-container">
+
+      {/* Scrollable Messages Area - Only messages scroll */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 bg-background" data-testid="messages-container">
             {isLoading && messages.length === 0 ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -328,7 +349,7 @@ export default function ChatConversationPage() {
                 </div>
               </div>
             ) : (
-              <>
+              <div className="space-y-4">
                 {messages.map((message, index) => {
                   const isCurrentUser = Number(message.sender_id) === user.id;
                   const dateHeader = formatMessageDate(message, index);
@@ -391,12 +412,12 @@ export default function ChatConversationPage() {
                   );
                 })}
                 <div ref={messagesEndRef} />
-              </>
+              </div>
             )}
       </div>
       
-      {/* Fixed Message Input */}
-      <div className="w-full p-4 pb-6 bg-background border-t border-border">
+      {/* Fixed Message Input - Stuck above bottom navigation */}
+      <div className="w-full px-4 pt-3 pb-2 bg-background border-t border-border shrink-0">
         <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
           <div className="flex-1">
             <Textarea 
@@ -419,6 +440,9 @@ export default function ChatConversationPage() {
           </Button>
         </form>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
