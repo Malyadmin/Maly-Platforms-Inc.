@@ -1,4 +1,4 @@
-import malyLogo from "@assets/maly-logo.png";
+import malyLogo from "@/assets/maly-logo.png";
 
 interface PremiumBadgeProps {
   size?: "sm" | "md" | "lg";
