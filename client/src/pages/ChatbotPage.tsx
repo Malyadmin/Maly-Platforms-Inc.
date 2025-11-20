@@ -7,16 +7,14 @@ import { useChat } from "@/hooks/use-chat";
 import { 
   Loader2, Send, Bot, User, Globe,
   Wine, HeartHandshake, Plane, 
-  Building, MapPin, ChevronLeft
+  Building, MapPin
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientHeader } from "@/components/ui/GradientHeader";
 import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { useLanguage } from "@/lib/language-context";
-import { MalyLogo } from "@/components/ui/maly-logo";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
-import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
 // Quick prompts for the most common questions with specialized internal prompts
@@ -81,7 +79,6 @@ export default function ChatbotPage() {
   const [input, setInput] = useState("");
   const [selectedCity, setSelectedCity] = useState("Mexico City");
   const quickPrompts = getQuickPrompts(t, language);
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   // Initialize messages with translated greeting
@@ -130,27 +127,13 @@ export default function ChatbotPage() {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      {/* Custom Header */}
-      <header className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col gap-3">
-              <MalyLogo className="w-6 h-6" />
-              <h1 className="text-sm font-medium uppercase tracking-[.5em] text-foreground">
-                C O N C I E R G E
-              </h1>
-              <button
-                onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/discover")}
-                className="flex items-center gap-1 text-foreground/60 hover:text-foreground transition-colors"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            </div>
-            <HamburgerMenu />
-          </div>
-        </div>
-      </header>
+      <GradientHeader 
+        title={t('concierge')}
+        showBackButton={true}
+        backButtonFallbackPath="/discover"
+      >
+        <HamburgerMenu />
+      </GradientHeader>
 
       <div className="p-4">
         {/* City selector */}
@@ -285,18 +268,6 @@ export default function ChatbotPage() {
                 </Button>
               </form>
             </div>
-          </div>
-
-          {/* Ad card */}
-          <div className="bg-muted/20 border border-border rounded-lg p-4">
-            <p className="text-center text-sm font-medium text-muted-foreground mb-4">
-              {t('premiumAdPartner')}
-            </p>
-            <img
-              src="/attached_assets/Screenshot 2025-03-05 at 8.12.59 AM.png"
-              alt="Premium Ad Partner"
-              className="w-full max-w-md mx-auto h-auto object-contain rounded-lg"
-            />
           </div>
         </div>
       </div>
