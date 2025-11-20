@@ -734,16 +734,23 @@ export function ConnectPage() {
                   >
                     {/* User Image */}
                     <div 
-                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
+                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer relative"
                       onClick={() => handleUserClick(user)}
                     >
                       {user.profileImage ? (
-                        <img
-                          src={user.profileImage}
-                          alt={user.fullName || user.username}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
+                        <>
+                          <img
+                            src={user.profileImage}
+                            alt={user.fullName || user.username}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="bg-black/70 text-white font-bold px-3 py-1 text-center rotate-[-15deg] text-sm whitespace-nowrap">
+                              FOR DEMO ONLY
+                            </div>
+                          </div>
+                        </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
                           <span className="text-6xl font-bold text-foreground/40">
