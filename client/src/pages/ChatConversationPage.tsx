@@ -202,8 +202,9 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="w-full">
-        <div className="flex flex-row items-center bg-background p-3 shadow-sm">
+      {/* Fixed Header */}
+      <div className="w-full bg-background border-b border-border sticky top-0 z-10">
+        <div className="flex flex-row items-center p-3">
           <Button
             variant="ghost"
             size="icon"
@@ -285,9 +286,10 @@ export default function ChatConversationPage() {
             </div>
           )}
         </div>
+      </div>
         
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background" data-testid="messages-container">
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background" data-testid="messages-container">
             {isLoading && messages.length === 0 ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -391,32 +393,31 @@ export default function ChatConversationPage() {
                 <div ref={messagesEndRef} />
               </>
             )}
+      </div>
+      
+      {/* Fixed Message Input */}
+      <div className="w-full p-4 pb-6 bg-background border-t border-border sticky bottom-0 z-10">
+        <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
+          <div className="flex-1">
+            <Textarea 
+              placeholder="Type a message..."
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="min-h-[60px] max-h-[120px] resize-none bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary rounded-2xl"
+              disabled={sendMessageMutation.isPending}
+              data-testid="message-input"
+            />
           </div>
-          
-          <div className="p-4 pb-6 bg-background shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
-            <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
-              <div className="flex-1">
-                <Textarea 
-                  placeholder="Type a message..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="min-h-[60px] max-h-[120px] resize-none bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary rounded-2xl"
-                  disabled={sendMessageMutation.isPending}
-                  data-testid="message-input"
-                />
-              </div>
-              <Button 
-                type="submit" 
-                disabled={!messageText.trim() || sendMessageMutation.isPending}
-                className="h-10 rounded-full"
-                data-testid="send-button"
-              >
-                <SendIcon className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
-        </div>
+          <Button 
+            type="submit" 
+            disabled={!messageText.trim() || sendMessageMutation.isPending}
+            className="h-10 rounded-full"
+            data-testid="send-button"
+          >
+            <SendIcon className="h-4 w-4" />
+          </Button>
+        </form>
       </div>
     </div>
   );

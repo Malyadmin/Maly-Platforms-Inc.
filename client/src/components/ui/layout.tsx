@@ -132,19 +132,6 @@ export function Layout({ children }: LayoutProps) {
               </a>
             </div>
             <div className="flex items-center gap-4">
-              {/* Mobile Inbox Icon */}
-              {(userDisplayData || user) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden interactive-hover p-2"
-                  onClick={() => setLocation("/inbox")}
-                >
-                  <GradientInboxIcon />
-                  <span className="sr-only">Inbox</span>
-                </Button>
-              )}
-              
               {/* User profile or avatar - only show when authenticated */}
               {(userDisplayData || user) && (
                 <Button 
