@@ -647,11 +647,7 @@ export default function ProfilePage() {
                 handleMessageClick();
               }}
               disabled={createConversationMutation.isPending}
-              className={`w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 ${
-                messageClicked 
-                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-foreground border-0'
-                  : 'bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10'
-              }`}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-foreground border-0"
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (
