@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/lib/language-context";
 
 interface MenuSection {
   title: string;
@@ -45,10 +46,21 @@ const menuSections: MenuSection[] = [
   }
 ];
 
+interface LanguageOption {
+  code: 'en' | 'es';
+  label: string;
+}
+
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [, setLocation] = useLocation();
+  const { language, setLanguage } = useLanguage();
+
+  const languageOptions: LanguageOption[] = [
+    { code: 'en', label: 'English' },
+    { code: 'es', label: 'Español' }
+  ];
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev =>
@@ -177,6 +189,46 @@ export function HamburgerMenu() {
               )}
             </div>
           ))}
+          
+          {/* Language section */}
+          <div className="border-t border-border">
+            <button
+              onClick={() => toggleSection("LANGUAGE")}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
+              data-testid="menu-section-language"
+            >
+              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("LANGUAGE") ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
+                LANGUAGE
+              </span>
+              {expandedSections.includes("LANGUAGE") ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            
+            {expandedSections.includes("LANGUAGE") && (
+              <div className="bg-muted/50">
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.code}
+                    className={`w-full text-left px-8 py-2.5 text-sm transition-colors ${
+                      language === option.code 
+                        ? 'gradient-text font-semibold' 
+                        : 'text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
+                    }`}
+                    data-testid={`menu-language-${option.code}`}
+                    onClick={() => {
+                      setLanguage(option.code);
+                      setOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           
           {/* Logout section */}
           <div className="border-t border-border">
