@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
+import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -113,9 +113,10 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-full hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
+          <ArrowRight className="h-5 w-5" />
           Next
         </button>
       </div>
@@ -347,9 +348,10 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
         <button
           onClick={onSubmit}
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
+          <ArrowRight className="h-5 w-5" />
           Next
         </button>
       </div>
@@ -746,9 +748,10 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
+          <ArrowRight className="h-5 w-5" />
           Next
         </button>
       </div>
@@ -896,9 +899,10 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
+          <ArrowRight className="h-5 w-5" />
           Next
         </button>
       </div>
@@ -1149,9 +1153,10 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
+          <ArrowRight className="h-5 w-5" />
           Next
         </button>
       </div>
@@ -1390,9 +1395,10 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 border-2 border-white text-foreground font-medium rounded-lg hover:bg-foreground/10 transition-colors"
+          className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-create"
         >
+          <ArrowRight className="h-5 w-5" />
           Create
         </button>
       </div>
