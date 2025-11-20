@@ -4115,7 +4115,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         createdAt: new Date(),
       });
 
-      return res.json({ sessionId: session.id });
+      return res.json({ sessionId: session.id, url: session.url });
     } catch (error) {
       console.error('Error creating checkout session:', error);
       return res.status(500).json({ 
