@@ -367,8 +367,26 @@ export default function EventPage() {
 
       {/* Event Details */}
       <div className="px-5 py-4 space-y-4">
-        {/* Event Title */}
-        <h1 className="text-xl font-semibold text-foreground">{event.title}</h1>
+        {/* Event Title with Save Button */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-xl font-semibold text-foreground flex-1">{event.title}</h1>
+          {user && event.creatorId !== user.id && (
+            <button
+              className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
+                participationStatus?.status === 'interested'
+                  ? 'bg-purple-600/20 text-purple-400 hover:bg-purple-600/30'
+                  : 'bg-transparent text-foreground/60 hover:bg-gray-800 hover:text-foreground'
+              }`}
+              onClick={() => participateMutation.mutate(
+                participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
+              )}
+              disabled={participateMutation.isPending}
+              data-testid="button-interested"
+            >
+              <Bookmark className={`w-5 h-5 ${participationStatus?.status === 'interested' ? 'fill-current' : ''}`} />
+            </button>
+          )}
+        </div>
         
         {/* Hosted by */}
         <button
@@ -540,23 +558,6 @@ export default function EventPage() {
                   )}
                 </Button>
               )}
-              
-              {/* Save Button */}
-              <Button 
-                variant="outline" 
-                className={`px-4 ${
-                  participationStatus?.status === 'interested'
-                    ? 'bg-purple-600/20 border-purple-600 text-purple-400 hover:bg-purple-600/30'
-                    : 'border-gray-600 text-foreground hover:bg-gray-800'
-                }`}
-                onClick={() => participateMutation.mutate(
-                  participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
-                )}
-                disabled={participateMutation.isPending}
-                data-testid="button-interested"
-              >
-                <Bookmark className={`w-5 h-5 ${participationStatus?.status === 'interested' ? 'fill-current' : ''}`} />
-              </Button>
             </div>
           </div>
         )}
