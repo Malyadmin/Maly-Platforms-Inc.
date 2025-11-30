@@ -204,29 +204,41 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Fixed Header - Gradient title with back button and hamburger menu */}
-      <header className="bg-background text-foreground shrink-0 z-50 border-b border-border">
-        <div className="px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation('/inbox')}
-              data-testid="back-to-inbox"
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              Inbox
-            </h2>
-          </div>
+      {/* Fixed Header Section - All stays fixed at top */}
+      <header className="bg-black text-white shrink-0 z-50">
+        {/* Row 1: MALY Logo */}
+        <div className="px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-10 w-auto"
+          />
+        </div>
+        
+        {/* Row 2: Inbox title left, hamburger menu right */}
+        <div className="px-5 pb-2 flex items-center justify-between">
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            Inbox
+          </h2>
           <HamburgerMenu />
+        </div>
+        
+        {/* Row 3: Back button */}
+        <div className="px-3 pb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLocation('/inbox')}
+            data-testid="back-to-inbox"
+            className="text-white hover:bg-white/10 p-2"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
         </div>
       </header>
 
       {/* Fixed Profile Bar - Doesn't scroll with messages */}
-      <div className="w-full bg-background border-b border-border shrink-0">
+      <div className="w-full bg-black border-b border-gray-800 shrink-0">
         <div className="flex flex-row items-center px-5 py-3">
           {isLoading && !conversation ? (
             <div className="flex items-center">
@@ -257,7 +269,7 @@ export default function ChatConversationPage() {
                         alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
                       />
                     )}
-                    <AvatarFallback className="bg-primary/10 text-primary">
+                    <AvatarFallback className="bg-gray-700 text-white">
                       {conversation.title.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -265,7 +277,7 @@ export default function ChatConversationPage() {
               ) : (
                 <div className="relative">
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary">
+                    <AvatarFallback className="bg-gray-700 text-white">
                       <Users className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
@@ -275,15 +287,15 @@ export default function ChatConversationPage() {
                 </div>
               )}
               <div className="ml-3">
-                <h3 className="text-foreground font-medium text-base" data-testid="conversation-title">
+                <h3 className="text-white font-medium text-base" data-testid="conversation-title">
                   {conversation.title}
                   {isGroupChat && (
-                    <span className="ml-2 text-sm text-muted-foreground font-normal">
+                    <span className="ml-2 text-sm text-gray-400 font-normal">
                       ({conversation.participantCount} members)
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-400">
                   {isGroupChat ? 'Group Chat' : 'Direct Message'}
                 </p>
               </div>
@@ -291,10 +303,10 @@ export default function ChatConversationPage() {
           ) : (
             <div className="flex items-center">
               <Avatar className="h-10 w-10">
-                <AvatarFallback>?</AvatarFallback>
+                <AvatarFallback className="bg-gray-700 text-white">?</AvatarFallback>
               </Avatar>
               <div className="ml-3">
-                <h3 className="text-base text-foreground font-medium">Loading...</h3>
+                <h3 className="text-base text-white font-medium">Loading...</h3>
               </div>
             </div>
           )}
@@ -409,7 +421,7 @@ export default function ChatConversationPage() {
       </div>
       
       {/* Fixed Message Input - Stuck above bottom navigation */}
-      <div className="w-full px-4 pt-3 pb-2 bg-background border-t border-border shrink-0">
+      <div className="w-full px-4 pt-3 pb-2 bg-black border-t border-gray-800 shrink-0" style={{ marginBottom: '80px' }}>
         <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
           <div className="flex-1">
             <Textarea 
@@ -417,7 +429,7 @@ export default function ChatConversationPage() {
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="min-h-[60px] max-h-[120px] resize-none bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary rounded-2xl"
+              className="min-h-[50px] max-h-[120px] resize-none bg-gray-800 border-gray-700 text-white placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-primary rounded-2xl"
               disabled={sendMessageMutation.isPending}
               data-testid="message-input"
             />
@@ -425,10 +437,10 @@ export default function ChatConversationPage() {
           <Button 
             type="submit" 
             disabled={!messageText.trim() || sendMessageMutation.isPending}
-            className="h-10 rounded-full"
+            className="h-10 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:opacity-90"
             data-testid="send-button"
           >
-            <SendIcon className="h-4 w-4" />
+            <SendIcon className="h-4 w-4 text-white" />
           </Button>
         </form>
       </div>
