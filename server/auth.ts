@@ -670,7 +670,7 @@ export function setupAuth(app: Express) {
 
           // Add a timestamp to break browser caching and include session ID in URL
           const timestamp = Date.now();
-          return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+          return res.redirect(`/discover?sessionId=${sessionId}&ts=${timestamp}`);
         });
       });
     })(req, res, next);
