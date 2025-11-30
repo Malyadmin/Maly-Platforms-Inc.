@@ -315,7 +315,7 @@ export default function DiscoverPage() {
       />
       {/* iOS-style Header - Fixed at top */}
       <div className="bg-black text-foreground shrink-0 z-50">
-        {/* Top bar with MÁLY logo and hamburger menu */}
+        {/* Top bar with MÁLY logo and hamburger menu (includes theme toggle) */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 

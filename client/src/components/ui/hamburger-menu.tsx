@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Menu, X, ChevronDown, ChevronUp, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronUp, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/lib/language-context";
 import { useTranslation } from "@/lib/translations";
+import { useTheme } from "@/lib/theme-provider";
 
 interface MenuSection {
   titleKey: string;
@@ -58,6 +59,12 @@ export function HamburgerMenu() {
   const [, setLocation] = useLocation();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { theme, setTheme } = useTheme();
+  
+  // Determine effective theme for toggle display
+  const effectiveTheme = theme === "system" 
+    ? (typeof window !== 'undefined' && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : theme;
 
   const languageOptions: LanguageOption[] = [
     { code: 'en', label: 'English' },
@@ -137,17 +144,33 @@ export function HamburgerMenu() {
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-foreground p-2 hover:bg-foreground/5"
-          data-testid="hamburger-menu-button"
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </Button>
-      </DropdownMenuTrigger>
+    <div className="flex items-center gap-2">
+      {/* Theme Toggle Button */}
+      <button
+        onClick={() => setTheme(effectiveTheme === "dark" ? "light" : "dark")}
+        className="p-2 rounded-full hover:bg-white/10 dark:hover:bg-white/10 hover:bg-black/10 transition-colors"
+        aria-label="Toggle theme"
+        data-testid="button-theme-toggle"
+      >
+        {effectiveTheme === "dark" ? (
+          <Sun className="w-5 h-5 text-white" />
+        ) : (
+          <Moon className="w-5 h-5 text-white" />
+        )}
+      </button>
+      
+      {/* Hamburger Menu */}
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white p-2 hover:bg-white/10"
+            data-testid="hamburger-menu-button"
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
         className="w-72 bg-popover border-border text-foreground p-0 max-h-[80vh] overflow-y-auto"
@@ -243,5 +266,6 @@ export function HamburgerMenu() {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+    </div>
   );
 }
