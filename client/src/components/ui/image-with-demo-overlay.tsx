@@ -14,10 +14,10 @@ export function ImageWithDemoOverlay({ src, alt, className = "", loading }: Imag
         className={className}
         loading={loading}
       />
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="bg-black/70 text-white font-bold px-4 py-2 text-center rotate-[-15deg] text-lg sm:text-xl md:text-2xl">
-          FOR DEMO ONLY
-        </div>
+      <div className="absolute bottom-2 right-2 pointer-events-none">
+        <span className="text-white/30 text-[10px] font-medium tracking-wide uppercase">
+          demo
+        </span>
       </div>
     </div>
   );
