@@ -1,0 +1,45 @@
+2:10:52 PM [express] GET /api/auth/check 304 in 1ms :: {"authenticated":false,"message":"Not logged …
+User not authenticated in user-by-session request
+2:10:52 PM [express] GET /api/user-by-session 401 in 1ms :: {"error":"Authentication required","auth…
+Login+redirect attempt: { usernameOrEmail: 'djluna' }
+Login attempt for usernameOrEmail: djluna
+Found user: { id: 239, username: 'djluna' }
+Comparing passwords
+Stored password hash length: 64
+Supplied password hash length: 64
+Hashes match: true
+Login successful for user: djluna
+Serializing user: 239
+Session managed by connect-pg-simple for redirect flow: 2ne4paH6Hyb4U9iIRuIQx1aBFXaruU77
+Login successful, redirecting to homepage with session: 2ne4paH6Hyb4U9iIRuIQx1aBFXaruU77
+2:11:01 PM [express] POST /api/login-redirect 302 in 2369ms
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+User not authenticated in user-by-session request
+2:11:02 PM [express] GET /api/user-by-session 401 in 1ms :: {"error":"Authentication required","auth…
+Found 10 events in database before filtering
+Found 10 events to display
+Returning 10 events from database
+2:11:02 PM [express] GET /api/events 304 in 86ms :: [{"id":189,"title":"HAAB ART WEEK - Migrar Exhib…
+2:11:02 PM [express] GET /api/replit-info 304 in 1ms :: {"isReplit":true,"replId":"82e7ad69-963b-472…
+Login+redirect attempt: { usernameOrEmail: 'djluna' }
+Login attempt for usernameOrEmail: djluna
+Found user: { id: 239, username: 'djluna' }
+Comparing passwords
+Stored password hash length: 64
+Supplied password hash length: 64
+Hashes match: true
+Login successful for user: djluna
+Serializing user: 239
+Session managed by connect-pg-simple for redirect flow: Jl5rsernJCOBSklmfYejEukvc8GMt5ed
+Login successful, redirecting to homepage with session: Jl5rsernJCOBSklmfYejEukvc8GMt5ed
+2:11:13 PM [express] POST /api/login-redirect 302 in 277ms
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+User not authenticated in user-by-session request
+2:11:14 PM [express] GET /api/user-by-session 401 in 0ms :: {"error":"Authentication required","auth…
+Found 10 events in database before filtering
+Found 10 events to display
+Returning 10 events from database
+2:11:14 PM [express] GET /api/events 304 in 85ms :: [{"id":189,"title":"HAAB ART WEEK - Migrar Exhib…
+2:11:14 PM [express] GET /api/replit-info 304 in 1ms :: {"isReplit":true,"replId":"82e7ad69-963b-472…
