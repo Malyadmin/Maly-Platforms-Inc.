@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Bookmark, ChevronRight, ChevronLeft } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Heart, ChevronRight, ChevronLeft } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -388,7 +388,13 @@ export default function EventPage() {
               disabled={participateMutation.isPending}
               data-testid="button-interested"
             >
-              <Bookmark className={`w-5 h-5 ${participationStatus?.status === 'interested' ? 'fill-current' : ''}`} />
+              <Heart 
+                className={`w-5 h-5 transition-all ${
+                  participationStatus?.status === 'interested' 
+                    ? 'fill-current bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-transparent bg-clip-text' 
+                    : 'fill-none stroke-gray-500 stroke-[1.5]'
+                }`}
+              />
             </button>
           )}
         </div>
@@ -574,7 +580,7 @@ export default function EventPage() {
             <span>{event.attendingCount || 0} Attending</span>
           </div>
           <div className="flex items-center gap-2">
-            <Bookmark className="w-4 h-4" />
+            <Heart className="w-4 h-4 stroke-gray-500 stroke-[1.5] fill-none" />
             <span>{event.interestedCount || 0} Interested</span>
           </div>
         </div>
