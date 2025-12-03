@@ -89,6 +89,14 @@ export function setupAuth(app: Express) {
   // Initialize PostgreSQL Session store
   const PgSession = pgSession(session);
 
+  // Always trust the proxy in Replit environment
+  app.set("trust proxy", 1);
+
+  // Detect Replit environment 
+  const isReplit = !!process.env.REPL_ID;
+  
+  // For Replit preview/webview to work, we need sameSite: 'none', secure: true, and partitioned: true
+  // This allows cookies to work in the embedded iframe preview (Chrome CHIPS support)
   const sessionSettings: session.SessionOptions = {
     store: new PgSession({
       pool: pgPool,                // PostgreSQL connection pool
@@ -103,28 +111,12 @@ export function setupAuth(app: Express) {
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: isReplit ? 'none' as const : 'lax' as const,
       path: '/',
-      secure: process.env.NODE_ENV === "production"
-    }
+      secure: isReplit ? true : process.env.NODE_ENV === "production",
+      partitioned: isReplit ? true : undefined  // Chrome CHIPS support for iframe
+    } as session.CookieOptions
   };
-
-  // Always trust the proxy in Replit environment
-  app.set("trust proxy", 1);
-
-  // Detect Replit environment 
-  const isReplit = !!process.env.REPL_ID;
-  const isHTTPS = process.env.HTTPS === 'true';
-
-  // Configure cookie security based on environment
-  if (isReplit || isHTTPS || app.get("env") === "production") {
-    // Use secure cookies in Replit environment or production
-    sessionSettings.cookie = { 
-      ...sessionSettings.cookie,
-      sameSite: 'none', // Required for cross-site cookie access (including webview)
-      secure: true // Needed for sameSite: 'none'
-    };
-  }
   
   // Log session configuration for debugging
   console.log("Using PostgreSQL session store with table:", "session");
