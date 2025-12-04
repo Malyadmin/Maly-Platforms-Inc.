@@ -384,7 +384,7 @@ export default function ProfilePage() {
         <div className="space-y-2 sm:space-y-3">
           <div>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
+              {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
             </h2>
             {profileData?.location && (
               <p className="text-foreground text-sm mt-1">{profileData.location}</p>

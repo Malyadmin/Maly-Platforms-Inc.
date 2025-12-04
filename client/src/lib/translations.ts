@@ -477,7 +477,19 @@ type TranslationKey =
   | 'noConnectionsYet'
   | 'unknownUser'
   | 'groupThread'
-  | 'members';
+  | 'members'
+  // ProfilePage spaced headers
+  | 'profileSpaced'
+  | 'connectSpaced'
+  // EventPage strings
+  | 'exploreSpaced'
+  | 'requesting'
+  | 'request'
+  | 'attending'
+  | 'rsvp'
+  | 'xAttending'
+  | 'xInterested'
+  | 'xAvailable';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -935,7 +947,19 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     noConnectionsYet: 'No connections yet',
     unknownUser: 'Unknown User',
     groupThread: 'Group Thread',
-    members: 'members'
+    members: 'members',
+    // ProfilePage spaced headers
+    profileSpaced: 'P R O F I L E',
+    connectSpaced: 'C O N N E C T',
+    // EventPage strings
+    exploreSpaced: 'E X P L O R E',
+    requesting: 'Requesting...',
+    request: 'Request',
+    attending: 'Attending',
+    rsvp: 'RSVP',
+    xAttending: 'Attending',
+    xInterested: 'Interested',
+    xAvailable: 'available'
   },
   es: {
     events: 'Eventos',
@@ -1393,7 +1417,19 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     noConnectionsYet: 'Aún no hay conexiones',
     unknownUser: 'Usuario Desconocido',
     groupThread: 'Hilo Grupal',
-    members: 'miembros'
+    members: 'miembros',
+    // ProfilePage spaced headers
+    profileSpaced: 'P E R F I L',
+    connectSpaced: 'C O N E C T A R',
+    // EventPage strings
+    exploreSpaced: 'E X P L O R A R',
+    requesting: 'Solicitando...',
+    request: 'Solicitar',
+    attending: 'Asistiendo',
+    rsvp: 'RSVP',
+    xAttending: 'Asistiendo',
+    xInterested: 'Interesados',
+    xAvailable: 'disponibles'
   }
 };
 

@@ -300,7 +300,7 @@ export default function EventPage() {
         <div className="px-5 pb-3">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>E X P L O R E</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
               {/* Share Button - includes share token for private/friends events */}
               <button
                 onClick={async () => {
@@ -571,12 +571,12 @@ export default function EventPage() {
                   {accessRequestMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Requesting...
+                      {t('requesting')}
                     </>
                   ) : (
                     <>
                       <Lock className="w-4 h-4 mr-2" />
-                      Request
+                      {t('request')}
                     </>
                   )}
                 </Button>
@@ -594,10 +594,10 @@ export default function EventPage() {
                   ) : participationStatus?.status === 'attending' ? (
                     <>
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      Attending
+                      {t('attending')}
                     </>
                   ) : (
-                    "RSVP"
+                    t('rsvp')
                   )}
                 </Button>
               )}
@@ -609,11 +609,11 @@ export default function EventPage() {
         <div className="flex items-center justify-between text-foreground/60 text-xs pt-2">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4" />
-            <span>{event.attendingCount || 0} Attending</span>
+            <span>{event.attendingCount || 0} {t('xAttending')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 stroke-gray-500 stroke-[1.5] fill-none" />
-            <span>{event.interestedCount || 0} Interested</span>
+            <span>{event.interestedCount || 0} {t('xInterested')}</span>
           </div>
         </div>
 
@@ -650,7 +650,7 @@ export default function EventPage() {
                       <div className="text-right">
                         <div className="text-foreground font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
                         {tier.quantity && (
-                          <div className="text-muted-foreground text-xs">{tier.quantity} available</div>
+                          <div className="text-muted-foreground text-xs">{tier.quantity} {t('xAvailable')}</div>
                         )}
                       </div>
                     </div>
