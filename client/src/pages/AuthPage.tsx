@@ -318,6 +318,9 @@ export default function AuthPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoComplete="username"
               />
             </div>
 
@@ -333,6 +336,9 @@ export default function AuthPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  autoComplete="email"
                 />
               </div>
             )}
