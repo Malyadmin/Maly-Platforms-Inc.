@@ -25,6 +25,10 @@ const moodStyles = {
   "Chill & Recharge": "bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30 border-cyan-500/30",
   "Adventure & Exploring": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30 border-orange-500/30",
   "Spiritual & Intentional": "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border-amber-500/30",
+  "Dancing & Music": "bg-fuchsia-500/20 text-fuchsia-500 hover:bg-fuchsia-500/30 border-fuchsia-500/30",
+  "Volunteering & Service": "bg-lime-500/20 text-lime-500 hover:bg-lime-500/30 border-lime-500/30",
+  "Fundraiser": "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30 border-yellow-500/30",
+  "Community Service": "bg-sky-500/20 text-sky-500 hover:bg-sky-500/30 border-sky-500/30",
 } as const;
 
 interface ProfileData {
