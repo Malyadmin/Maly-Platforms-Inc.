@@ -34,7 +34,7 @@ import {
   Smile,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { CITIES_BY_REGION, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { ProfileGallery } from "@/components/ui/profile-gallery";
 import { PageHeader } from "@/components/ui/page-header";
@@ -408,9 +408,23 @@ export default function ProfileEditPage() {
                               <SelectValue placeholder={t("selectYourCurrentLocation")} />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            {DIGITAL_NOMAD_CITIES.map(city => (
-                              <SelectItem key={city} value={city}>{city}</SelectItem>
+                          <SelectContent className="max-h-[300px]">
+                            {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                              <div key={region}>
+                                <div className="px-2 py-1.5 text-xs font-semibold text-purple-400 bg-muted/50">
+                                  {region}
+                                </div>
+                                {Object.entries(countries).map(([country, cities]) => (
+                                  <div key={country}>
+                                    <div className="px-3 py-1 text-xs text-muted-foreground">
+                                      {country}
+                                    </div>
+                                    {cities.map((city) => (
+                                      <SelectItem key={city} value={city} className="pl-6">{city}</SelectItem>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
                             ))}
                           </SelectContent>
                         </Select>

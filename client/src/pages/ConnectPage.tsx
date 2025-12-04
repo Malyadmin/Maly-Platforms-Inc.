@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
+import { DIGITAL_NOMAD_CITIES, CITIES_BY_REGION, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 import { PremiumBadge } from "@/components/ui/premium-badge";
 
 // User interface matching the existing ConnectPage User type
@@ -538,21 +538,35 @@ export function ConnectPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-accent"
                       data-testid={`location-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
                     </button>
                   ))}
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <button
-                      key={city}
-                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
-                      data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      {city}
-                    </button>
+                  {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                    <div key={region}>
+                      <div className="px-4 py-2 text-xs font-semibold text-purple-400 bg-muted/50 sticky top-8">
+                        {region}
+                      </div>
+                      {Object.entries(countries).map(([country, cities]) => (
+                        <div key={country}>
+                          <div className="px-4 py-1 text-xs text-muted-foreground bg-background/50">
+                            {country}
+                          </div>
+                          {cities.map((city) => (
+                            <button
+                              key={city}
+                              onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                              className="w-full text-left px-6 py-2 text-sm text-foreground hover:bg-accent"
+                              data-testid={`location-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                            >
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}

@@ -28,7 +28,7 @@ import {
 import { GradientHeader } from "@/components/ui/GradientHeader";
 import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
+import { VIBE_AND_MOOD_TAGS, CITIES_BY_REGION } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
 import { useTranslation } from "@/lib/translations";
 import StripeConnectBanner from "@/components/StripeConnectBanner";
@@ -310,11 +310,25 @@ export default function CreateEventPage() {
                 <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10">
                   <SelectValue placeholder={t('selectCity')} />
                 </SelectTrigger>
-                <SelectContent>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                    <div key={region}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-purple-400 bg-muted/50">
+                        {region}
+                      </div>
+                      {Object.entries(countries).map(([country, cities]) => (
+                        <div key={country}>
+                          <div className="px-3 py-1 text-xs text-muted-foreground">
+                            {country}
+                          </div>
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city} className="pl-6">
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   ))}
                 </SelectContent>
               </Select>
