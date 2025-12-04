@@ -4,19 +4,9 @@ import {
   Users,
   Plus,
   MessageCircle,
-  UserCircle
+  Bot
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useTranslation } from "@/lib/translations";
-import { useUser } from "@/hooks/use-user";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 
 // Main navigation items - iOS style 5 tabs
 export const mainNavItems = [
@@ -24,15 +14,12 @@ export const mainNavItems = [
   { icon: Users, label: 'connect', href: "/connect" },
   { icon: Plus, label: 'create', href: "/create" },
   { icon: MessageCircle, label: 'chats', href: "/inbox" },
-  { icon: UserCircle, label: 'profile', href: "/profile" }
+  { icon: Bot, label: 'concierge', href: "/companion" }
 ] as const;
 
-// No more menu items needed since inbox and profile are in main nav
-
 export function BottomNav() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const { t } = useTranslation();
-  const { user } = useUser();
 
   return (
     <>
@@ -48,18 +35,9 @@ export function BottomNav() {
                 href={href}
                 className="relative flex flex-col items-center justify-center gap-1 py-2"
               >
-                {label === 'profile' && user ? (
-                  <Avatar className={`w-5 h-5 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                    <AvatarImage src={user.profileImage || ''} alt={user.fullName || user.username} />
-                    <AvatarFallback className="text-xs bg-gray-700 text-white">
-                      {(user.fullName || user.username || 'U').charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
-                )}
+                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                 <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-gray-400'}`}>
-                  {t(label)}
+                  {label === 'concierge' ? 'CONCIERGE' : t(label)}
                 </span>
               </Link>
             );
@@ -81,18 +59,9 @@ export function BottomNav() {
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              {label === 'profile' && user ? (
-                <Avatar className={`w-6 h-6 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                  <AvatarImage src={user.profileImage || ''} alt={user.fullName || user.username} />
-                  <AvatarFallback className="text-xs bg-gray-700 text-white">
-                    {(user.fullName || user.username || 'U').charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Icon className="w-6 h-6 transition-transform" />
-              )}
+              <Icon className="w-6 h-6 transition-transform" />
               <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 absolute left-16 bg-black text-white px-2 py-1 rounded whitespace-nowrap border border-gray-700 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                {t(label)}
+                {label === 'concierge' ? 'CONCIERGE' : t(label)}
               </span>
             </Link>
           );

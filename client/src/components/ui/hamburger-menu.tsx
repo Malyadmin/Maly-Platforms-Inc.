@@ -18,12 +18,6 @@ interface MenuSection {
 
 const menuSections: MenuSection[] = [
   {
-    titleKey: "aiTools",
-    itemKeys: [
-      "aiConcierge"
-    ]
-  },
-  {
     titleKey: "accountAndProfile",
     itemKeys: [
       "editProfile",
