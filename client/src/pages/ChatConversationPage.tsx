@@ -218,7 +218,7 @@ export default function ChatConversationPage() {
         {/* Row 2: Chats title left, hamburger menu right */}
         <div className="px-5 pb-2 flex items-center justify-between">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            Chats
+            C H A T S
           </h2>
           <HamburgerMenu />
         </div>

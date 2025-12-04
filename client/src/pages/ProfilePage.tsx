@@ -384,7 +384,7 @@ export default function ProfilePage() {
         <div className="space-y-2 sm:space-y-3">
           <div>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {profileData?.id === currentUser?.id ? t('profile') : t('connect').toUpperCase().split('').join(' ')}
+              {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
             </h2>
             {profileData?.location && (
               <p className="text-white text-sm mt-1">{profileData.location}</p>
@@ -447,13 +447,13 @@ export default function ProfilePage() {
     {/* Profile Image with Name Overlay - sized to show name/location immediately */}
     <div className="relative w-full" style={{ height: 'calc(100vh - 180px)' }}>
     {(() => {
-      const profileImages = profileData.profileImages?.length > 0 
+      const profileImagesArray: string[] = (profileData.profileImages && profileData.profileImages.length > 0)
         ? profileData.profileImages 
         : profileData.profileImage 
         ? [profileData.profileImage] 
         : [];
       
-      const currentImage = profileImages[currentProfileImageIndex];
+      const currentImage = profileImagesArray[currentProfileImageIndex];
       
       return currentImage ? (
         <div className="absolute inset-0">
@@ -464,11 +464,11 @@ export default function ProfilePage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
           
-          {profileImages.length > 1 && (
+          {profileImagesArray.length > 1 && (
             <>
               <button
                 onClick={() => setCurrentProfileImageIndex((prev) => 
-                  prev > 0 ? prev - 1 : profileImages.length - 1
+                  prev > 0 ? prev - 1 : profileImagesArray.length - 1
                 )}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-prev"
@@ -477,7 +477,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => setCurrentProfileImageIndex((prev) => 
-                  prev < profileImages.length - 1 ? prev + 1 : 0
+                  prev < profileImagesArray.length - 1 ? prev + 1 : 0
                 )}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-next"
@@ -485,7 +485,7 @@ export default function ProfilePage() {
                 <ChevronRight className="h-6 w-6 text-foreground" />
               </button>
               <div className="absolute top-4 right-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm" data-testid="image-counter">
-                {currentProfileImageIndex + 1} / {profileImages.length}
+                {currentProfileImageIndex + 1} / {profileImagesArray.length}
               </div>
             </>
           )}

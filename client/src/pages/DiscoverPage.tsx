@@ -328,10 +328,10 @@ export default function DiscoverPage() {
         {/* Controls section */}
         <div className="px-5">
           <div className="flex items-center justify-between pb-3">
-            {/* Discover title with gradient - uppercase with extra letter spacing */}
+            {/* Explore title with gradient - uppercase with extra letter spacing */}
             <div>
               <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                D I S C O V E R
+                E X P L O R E
               </h2>
               {selectedCity !== 'all' && (
                 <p className="text-white text-sm mt-1">{selectedCity}</p>

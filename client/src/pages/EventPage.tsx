@@ -291,11 +291,11 @@ export default function EventPage() {
           />
         </div>
         
-        {/* Bottom bar with Discover title and Back button */}
+        {/* Bottom bar with Explore title and Back button */}
         <div className="px-5 pb-3">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('discover')}</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>E X P L O R E</h2>
               {/* Share Button */}
               <button
                 onClick={async () => {
