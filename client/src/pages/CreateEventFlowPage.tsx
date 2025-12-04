@@ -355,7 +355,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
-          Next
+          {t('next')}
         </button>
       </div>
       
@@ -373,6 +373,7 @@ interface Step3Props {
 }
 
 function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step3Schema.extend({
       city: z.string().optional(),
@@ -518,7 +519,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -529,8 +530,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Event details</h2>
-          <p className="text-muted-foreground text-sm">Set your event location and schedule</p>
+          <h2 className="text-2xl font-light mb-2">{t('eventDetails')}</h2>
+          <p className="text-muted-foreground text-sm">{t('setLocationSchedule')}</p>
         </div>
 
         <Form {...form}>
@@ -542,8 +543,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Online Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-foreground font-medium">Online Event</label>
-              <p className="text-muted-foreground text-sm">Event will be hosted virtually</p>
+              <label className="text-foreground font-medium">{t('onlineEvent')}</label>
+              <p className="text-muted-foreground text-sm">{t('hostedVirtually')}</p>
             </div>
             <Switch
               checked={isOnlineEvent}
@@ -558,11 +559,11 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             name="eventVisibility"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-foreground font-medium">Event Visibility</FormLabel>
+                <FormLabel className="text-foreground font-medium">{t('eventVisibility')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-visibility">
-                      <SelectValue placeholder="Select visibility" />
+                      <SelectValue placeholder={t('selectVisibility')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -584,14 +585,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
               <div className="space-y-2 relative">
                 <label className="text-foreground font-medium flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
-                  City
+                  {t('city')}
                 </label>
                 <Input
                   value={cityQuery}
                   onChange={handleCityInputChange}
                   onFocus={() => cityQuery.length >= 2 && citySuggestions.length > 0 && setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  placeholder="Start typing city name..."
+                  placeholder={t('startTypingCity')}
                   className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-city"
                   autoComplete="off"
@@ -621,20 +622,20 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-foreground font-medium">Address / Venue</label>
+                <label className="text-foreground font-medium">{t('venueAddress')}</label>
                 <Input
                   {...form.register("addressLine1")}
-                  placeholder="Enter venue or address"
+                  placeholder={t('addressPlaceholder')}
                   className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-address"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-foreground font-medium">Additional Location Info</label>
+                <label className="text-foreground font-medium">{t('additionalLocationInfo')}</label>
                 <Textarea
                   {...form.register("additionalInfo")}
-                  placeholder="Floor, room number, landmark, etc."
+                  placeholder={t('optionalFloorNotes')}
                   rows={3}
                   className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                   data-testid="textarea-additional-info"
@@ -648,7 +649,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             <div className="space-y-2">
               <label className="text-foreground font-medium flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
-                Start Date & Time
+                {t('startDateTime')}
               </label>
               <Input
                 {...form.register("startDate")}
@@ -664,7 +665,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             <div className="space-y-2">
               <label className="text-foreground font-medium flex items-center">
                 <Clock className="w-4 h-4 mr-2" />
-                End Date & Time
+                {t('endDateTime')}
               </label>
               <Input
                 {...form.register("endDate")}
@@ -681,8 +682,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Activity Schedule Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-foreground font-medium">Add Activity Schedule</label>
-              <p className="text-muted-foreground text-sm">Create a detailed agenda for your event</p>
+              <label className="text-foreground font-medium">{t('activitySchedule')}</label>
+              <p className="text-muted-foreground text-sm">{t('addItinerary')}</p>
             </div>
             <Switch
               checked={addActivitySchedule}
@@ -694,7 +695,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Agenda Items */}
           {addActivitySchedule && (
             <div className="space-y-4">
-              <label className="text-foreground font-medium">Event Agenda</label>
+              <label className="text-foreground font-medium">{t('activitySchedule')}</label>
               
               {agendaItems.map((item, index) => (
                 <div key={index} className="p-4 border border-gray-700 rounded-lg space-y-3">
@@ -735,7 +736,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
                 data-testid="button-add-agenda"
               >
                 <Plus className="w-5 h-5 mx-auto mb-2" />
-                Add Activity
+                {t('addActivity')}
               </button>
             </div>
           )}
@@ -755,7 +756,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
-          Next
+          {t('next')}
         </button>
       </div>
       
@@ -773,6 +774,7 @@ interface Step4Props {
 }
 
 function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step4Schema),
     defaultValues: {
@@ -814,7 +816,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -924,6 +926,7 @@ interface Step5Props {
 }
 
 function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step5Schema),
     defaultValues: {
@@ -984,7 +987,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -995,8 +998,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Pricing & audience</h2>
-          <p className="text-muted-foreground text-sm">Set pricing and define your target audience</p>
+          <h2 className="text-2xl font-light mb-2">{t('ticketingSetup')}</h2>
+          <p className="text-muted-foreground text-sm">{t('setTicketPrices')}</p>
         </div>
 
         <Form {...form}>
@@ -1008,8 +1011,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {/* Paid Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-foreground font-medium">Paid Event</label>
-              <p className="text-muted-foreground text-sm">Charge admission for your event</p>
+              <label className="text-foreground font-medium">{t('eventPaid')}</label>
+              <p className="text-muted-foreground text-sm">{t('setTicketPrices')}</p>
             </div>
             <Switch
               checked={isPaidEvent}
@@ -1022,7 +1025,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {isPaidEvent && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-foreground font-medium">Ticket Tiers</label>
+                <label className="text-foreground font-medium">{t('addTicketTier')}</label>
                 <Button
                   type="button"
                   onClick={addTier}
@@ -1178,6 +1181,7 @@ interface Step6Props {
 }
 
 function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step6Schema),
     defaultValues: {
@@ -1232,7 +1236,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -1243,8 +1247,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Audience targeting</h2>
-          <p className="text-muted-foreground text-sm">Fine-tune who can discover and attend your event</p>
+          <h2 className="text-2xl font-light mb-2">{t('eventSetup')}</h2>
+          <p className="text-muted-foreground text-sm">{t('privacySettings')}</p>
         </div>
 
         <Form {...form}>
@@ -1294,7 +1298,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-foreground">Require Approval</span>
+                <span className="text-foreground">{t('requiresApproval')}</span>
                 <Switch
                   {...form.register("requireApproval")}
                   data-testid="switch-require-approval"
@@ -1309,7 +1313,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             name="genderExclusive"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-foreground font-medium">Gender Restriction</FormLabel>
+                <FormLabel className="text-foreground font-medium">{t('genderRestrictions')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-gender">
@@ -1358,8 +1362,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
 
           {/* Vibe Selection */}
           <div className="space-y-4">
-            <label className="text-foreground font-medium">Event Vibes</label>
-            <p className="text-xs text-muted-foreground">Select the vibes that best match your event (multiple selection allowed)</p>
+            <label className="text-foreground font-medium">{t('requiredVibes')}</label>
+            <p className="text-xs text-muted-foreground">{t('selectVibes')}</p>
             <div className="grid grid-cols-2 gap-3">
               {VIBE_OPTIONS.map((vibe) => (
                 <div
@@ -1402,7 +1406,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           data-testid="button-create"
         >
           <ArrowRight className="h-5 w-5" />
-          Create
+          {t('createEvent')}
         </button>
       </div>
       
