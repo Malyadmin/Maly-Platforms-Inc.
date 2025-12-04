@@ -178,7 +178,7 @@ export function HamburgerMenu() {
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
                 data-testid={`menu-section-${section.titleKey}`}
               >
-                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.titleKey) ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
+                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.titleKey) ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                   {t(section.titleKey)}
                 </span>
                 {expandedSections.includes(section.titleKey) ? (
@@ -212,7 +212,7 @@ export function HamburgerMenu() {
               className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
               data-testid="menu-section-language"
             >
-              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("language") ? 'gradient-text' : 'text-muted-foreground group-hover:gradient-text'}`}>
+              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("language") ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                 {t("language")}
               </span>
               {expandedSections.includes("language") ? (
@@ -229,7 +229,7 @@ export function HamburgerMenu() {
                     key={option.code}
                     className={`w-full text-left px-8 py-2.5 text-sm transition-colors ${
                       language === option.code 
-                        ? 'gradient-text font-semibold' 
+                        ? 'text-foreground font-semibold' 
                         : 'text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
                     }`}
                     data-testid={`menu-language-${option.code}`}
