@@ -117,7 +117,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "public",
+      shareToken: null,
+      requireApproval: false,
+      isRsvp: false,
+      dressCode: null,
+      viewCount: 0
     },
     {
       id: Math.floor(Math.random() * 1000),
@@ -147,7 +153,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "private",
+      shareToken: null,
+      requireApproval: true,
+      isRsvp: true,
+      dressCode: null,
+      viewCount: 0
     },
     {
       id: Math.floor(Math.random() * 1000),
@@ -177,7 +189,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "public",
+      shareToken: null,
+      requireApproval: false,
+      isRsvp: false,
+      dressCode: null,
+      viewCount: 0
     }
   ];
   return acc;
@@ -196,7 +214,10 @@ export const VIBE_AND_MOOD_TAGS = [
   "Chill & Recharge",
   "Adventure & Exploring",
   "Spiritual & Intentional",
-  "Dancing & Music"
+  "Dancing & Music",
+  "Volunteering & Service",
+  "Fundraiser",
+  "Community Service"
 ];
 
 // For backward compatibility, keeping INTEREST_TAGS and MOOD_TAGS
@@ -223,7 +244,8 @@ function formatSingleIntention(value: string): string {
     "dating": "Dating",
     "social": "Social",
     "networking": "Networking",
-    "friends": "Friends"
+    "friends": "Friends",
+    "community": "Community"
   };
   
   // Return mapped value or capitalize first letter as fallback

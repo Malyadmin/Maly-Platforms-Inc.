@@ -627,6 +627,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               <option value="social">Social</option>
               <option value="networking">Networking</option>
               <option value="friends">Friends</option>
+              <option value="community">Community</option>
             </select>
           </div>
 
