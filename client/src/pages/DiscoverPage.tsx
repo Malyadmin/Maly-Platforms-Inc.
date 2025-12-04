@@ -284,24 +284,24 @@ export default function DiscoverPage() {
       <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Add Custom City</DialogTitle>
+            <DialogTitle className="text-foreground">{t('addCustomCity')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <input
               type="text"
               value={newCityInput}
               onChange={(e) => setNewCityInput(e.target.value)}
-              placeholder="Enter city name"
+              placeholder={t('enterCityName')}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
               data-testid="input-custom-city"
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setShowAddCityDialog(false); setNewCityInput(''); }} data-testid="button-cancel-add-city">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button onClick={handleAddCity} disabled={!newCityInput.trim()} data-testid="button-confirm-add-city">
-                Add
+                {t('add')}
               </Button>
             </div>
           </div>
@@ -385,20 +385,27 @@ export default function DiscoverPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-when"
               >
-                When
+                {t('when')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'when' ? 'rotate-180' : ''}`} />
               </button>
               
               {activeDropdown === 'when' && (
                 <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[140px]">
-                  {['Anytime', 'Today', 'This Week', 'This Weekend', 'Next Week', 'Next Month'].map((time) => (
+                  {[
+                    { key: 'Anytime', label: t('anytime') },
+                    { key: 'Today', label: t('today') },
+                    { key: 'This Week', label: t('thisWeek') },
+                    { key: 'This Weekend', label: t('thisWeekend') },
+                    { key: 'Next Week', label: t('nextWeek') },
+                    { key: 'Next Month', label: t('nextMonth') }
+                  ].map(({ key, label }) => (
                     <button
-                      key={time}
-                      onClick={() => { setSelectedTimeFilter(time); setActiveDropdown(null); }}
+                      key={key}
+                      onClick={() => { setSelectedTimeFilter(key); setActiveDropdown(null); }}
                       className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
-                      data-testid={`when-option-${time.toLowerCase().replace(/\s+/g, '-')}`}
+                      data-testid={`when-option-${key.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      {time}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -412,7 +419,7 @@ export default function DiscoverPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-city"
               >
-                City
+                {t('city')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'city' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -450,7 +457,7 @@ export default function DiscoverPage() {
                     className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-muted last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="city-option-add"
                   >
-                    + Add City
+                    {t('addCity')}
                   </button>
                 </div>
               )}
@@ -463,7 +470,7 @@ export default function DiscoverPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibes"
               >
-                Vibes
+                {t('vibes')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'vibes' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -564,13 +571,13 @@ export default function DiscoverPage() {
               </div>
             ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-center">
-                <p className="text-lg text-muted-foreground mb-4">No events match your search criteria</p>
+                <p className="text-lg text-muted-foreground mb-4">{t('noEventsMatchCriteria')}</p>
                 <Button variant="outline" onClick={() => {
                   setSearchTerm("");
                   setSelectedCategory("all");
                   setSelectedEventTypes([]);
                 }}>
-                  {t('filters')}
+                  {t('clearFilters')}
                 </Button>
               </div>
             ) : (
@@ -582,7 +589,7 @@ export default function DiscoverPage() {
                     {groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">TODAY</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('today')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
@@ -596,7 +603,7 @@ export default function DiscoverPage() {
                     {groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeek')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
@@ -610,7 +617,7 @@ export default function DiscoverPage() {
                     {groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeekend')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
@@ -624,7 +631,7 @@ export default function DiscoverPage() {
                     {groupedEvents.nextWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeek')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
@@ -638,7 +645,7 @@ export default function DiscoverPage() {
                     {groupedEvents.nextWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeekend')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeekend.map((event: any) => (
@@ -652,7 +659,7 @@ export default function DiscoverPage() {
                     {groupedEvents.month.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS MONTH</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisMonth')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (
@@ -666,7 +673,7 @@ export default function DiscoverPage() {
                     {groupedEvents.upcoming.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">UPCOMING</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('upcomingEvents')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.upcoming.map((event: any) => (
@@ -682,7 +689,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">TODAY</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('today')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
@@ -695,7 +702,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeek')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
@@ -708,7 +715,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">THIS WEEKEND</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeekend')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
@@ -721,7 +728,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Next Week' && groupedEvents.nextWeek.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT WEEK</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeek')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
@@ -734,7 +741,7 @@ export default function DiscoverPage() {
                     {selectedTimeFilter === 'Next Month' && groupedEvents.month.length > 0 && (
                       <div className="space-y-4">
                         <div className="pb-2">
-                          <h2 className="text-sm font-medium text-foreground tracking-wide">NEXT MONTH</h2>
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextMonth')}</h2>
                         </div>
                         <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (
@@ -755,13 +762,13 @@ export default function DiscoverPage() {
                  groupedEvents.month.length === 0 && 
                  groupedEvents.upcoming.length === 0 && (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <p className="text-lg text-muted-foreground mb-4">No events match your search criteria</p>
+                    <p className="text-lg text-muted-foreground mb-4">{t('noEventsMatchCriteria')}</p>
                     <Button variant="outline" onClick={() => {
                       setSearchTerm("");
                       setSelectedCategory("all");
                       setSelectedEventTypes([]);
                     }}>
-                      Clear Filters
+                      {t('clearFilters')}
                     </Button>
                   </div>
                 )}
@@ -779,7 +786,7 @@ export default function DiscoverPage() {
                         <div className="h-2 w-2 bg-muted-foreground rounded-full"></div>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">Scroll for more events</p>
+                      <p className="text-sm text-muted-foreground">{t('scrollForMore')}</p>
                     )}
                   </div>
                 )}

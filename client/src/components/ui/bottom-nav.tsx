@@ -37,7 +37,7 @@ export function BottomNav() {
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'text-foreground' : 'text-muted-foreground'}`} />
                 <span className={`text-[10px] font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  {label === 'concierge' ? 'CONCIERGE' : t(label)}
+                  {t(label).toUpperCase()}
                 </span>
               </Link>
             );
@@ -61,7 +61,7 @@ export function BottomNav() {
             >
               <Icon className="w-6 h-6 transition-transform" />
               <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 absolute left-16 bg-popover text-popover-foreground px-2 py-1 rounded whitespace-nowrap border border-border transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                {label === 'concierge' ? 'CONCIERGE' : t(label)}
+                {t(label).toUpperCase()}
               </span>
             </Link>
           );

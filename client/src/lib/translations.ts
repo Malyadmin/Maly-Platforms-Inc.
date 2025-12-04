@@ -399,7 +399,59 @@ type TranslationKey =
   | 'selectYourTicket'
   | 'selected'
   | 'purchase'
-  | 'selectATicket';
+  | 'selectATicket'
+  | 'addCustomCity'
+  | 'enterCityName'
+  | 'when'
+  | 'city'
+  | 'vibes'
+  | 'addCity'
+  | 'noEventsMatchCriteria'
+  | 'clearFilters'
+  | 'scrollForMore'
+  | 'nextMonth'
+  | 'appearance'
+  | 'typeMessage'
+  | 'sendMessage'
+  | 'newMessage'
+  | 'groupChat'
+  | 'directMessage'
+  | 'startNewConversation'
+  | 'noMessagesYet'
+  | 'startConversation'
+  | 'eventChat'
+  | 'savedEvents'
+  | 'myEvents'
+  | 'hostedEvents'
+  | 'attendingEvents'
+  | 'noSavedEvents'
+  | 'noHostedEvents'
+  | 'noAttendingEvents'
+  | 'viewProfile'
+  | 'removeFromContacts'
+  | 'pendingRequest'
+  | 'requestSent'
+  | 'acceptRequest'
+  | 'declineRequest'
+  | 'connectionPending'
+  | 'loadingMore'
+  | 'endOfResults'
+  | 'tryDifferentFilters'
+  | 'noResultsFound'
+  | 'searchResults'
+  | 'recentSearches'
+  | 'clearHistory'
+  | 'popularSearches'
+  | 'seeAll'
+  | 'hideAll'
+  | 'sortBy'
+  | 'newest'
+  | 'oldest'
+  | 'mostPopular'
+  | 'priceHighToLow'
+  | 'priceLowToHigh'
+  | 'dateAscending'
+  | 'dateDescending';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -779,7 +831,59 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     selectYourTicket: 'Select Your Ticket',
     selected: 'Selected',
     purchase: 'Purchase',
-    selectATicket: 'Select a ticket'
+    selectATicket: 'Select a ticket',
+    addCustomCity: 'Add Custom City',
+    enterCityName: 'Enter city name',
+    when: 'When',
+    city: 'City',
+    vibes: 'Vibes',
+    addCity: '+ Add City',
+    noEventsMatchCriteria: 'No events match your search criteria',
+    clearFilters: 'Clear Filters',
+    scrollForMore: 'Scroll for more events',
+    nextMonth: 'NEXT MONTH',
+    appearance: 'Appearance',
+    typeMessage: 'Type a message...',
+    sendMessage: 'Send message',
+    newMessage: 'New Message',
+    groupChat: 'Group Chat',
+    directMessage: 'Direct Message',
+    startNewConversation: 'Start a new conversation',
+    noMessagesYet: 'No messages yet',
+    startConversation: 'Start the conversation',
+    eventChat: 'Event Chat',
+    savedEvents: 'Saved Events',
+    myEvents: 'My Events',
+    hostedEvents: 'Hosted Events',
+    attendingEvents: 'Attending Events',
+    noSavedEvents: 'No saved events',
+    noHostedEvents: 'No hosted events',
+    noAttendingEvents: 'No attending events',
+    viewProfile: 'View Profile',
+    removeFromContacts: 'Remove from Contacts',
+    pendingRequest: 'Pending Request',
+    requestSent: 'Request Sent',
+    acceptRequest: 'Accept Request',
+    declineRequest: 'Decline Request',
+    connectionPending: 'Connection Pending',
+    loadingMore: 'Loading more...',
+    endOfResults: 'End of results',
+    tryDifferentFilters: 'Try different filters',
+    noResultsFound: 'No results found',
+    searchResults: 'Search Results',
+    recentSearches: 'Recent Searches',
+    clearHistory: 'Clear History',
+    popularSearches: 'Popular Searches',
+    seeAll: 'See All',
+    hideAll: 'Hide All',
+    sortBy: 'Sort By',
+    newest: 'Newest',
+    oldest: 'Oldest',
+    mostPopular: 'Most Popular',
+    priceHighToLow: 'Price: High to Low',
+    priceLowToHigh: 'Price: Low to High',
+    dateAscending: 'Date: Ascending',
+    dateDescending: 'Date: Descending'
   },
   es: {
     events: 'Eventos',
@@ -1159,7 +1263,59 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     selectYourTicket: 'Selecciona Tu Entrada',
     selected: 'Seleccionado',
     purchase: 'Comprar',
-    selectATicket: 'Selecciona una entrada'
+    selectATicket: 'Selecciona una entrada',
+    addCustomCity: 'Agregar Ciudad Personalizada',
+    enterCityName: 'Ingresa el nombre de la ciudad',
+    when: 'Cuándo',
+    city: 'Ciudad',
+    vibes: 'Ambientes',
+    addCity: '+ Agregar Ciudad',
+    noEventsMatchCriteria: 'No hay eventos que coincidan con tu búsqueda',
+    clearFilters: 'Borrar Filtros',
+    scrollForMore: 'Desplázate para ver más eventos',
+    nextMonth: 'PRÓXIMO MES',
+    appearance: 'Apariencia',
+    typeMessage: 'Escribe un mensaje...',
+    sendMessage: 'Enviar mensaje',
+    newMessage: 'Nuevo Mensaje',
+    groupChat: 'Chat Grupal',
+    directMessage: 'Mensaje Directo',
+    startNewConversation: 'Iniciar una nueva conversación',
+    noMessagesYet: 'Aún no hay mensajes',
+    startConversation: 'Iniciar la conversación',
+    eventChat: 'Chat del Evento',
+    savedEvents: 'Eventos Guardados',
+    myEvents: 'Mis Eventos',
+    hostedEvents: 'Eventos Organizados',
+    attendingEvents: 'Eventos a los que Asistes',
+    noSavedEvents: 'No hay eventos guardados',
+    noHostedEvents: 'No hay eventos organizados',
+    noAttendingEvents: 'No hay eventos a los que asistas',
+    viewProfile: 'Ver Perfil',
+    removeFromContacts: 'Eliminar de Contactos',
+    pendingRequest: 'Solicitud Pendiente',
+    requestSent: 'Solicitud Enviada',
+    acceptRequest: 'Aceptar Solicitud',
+    declineRequest: 'Rechazar Solicitud',
+    connectionPending: 'Conexión Pendiente',
+    loadingMore: 'Cargando más...',
+    endOfResults: 'Fin de los resultados',
+    tryDifferentFilters: 'Prueba filtros diferentes',
+    noResultsFound: 'No se encontraron resultados',
+    searchResults: 'Resultados de Búsqueda',
+    recentSearches: 'Búsquedas Recientes',
+    clearHistory: 'Borrar Historial',
+    popularSearches: 'Búsquedas Populares',
+    seeAll: 'Ver Todo',
+    hideAll: 'Ocultar Todo',
+    sortBy: 'Ordenar Por',
+    newest: 'Más Nuevos',
+    oldest: 'Más Antiguos',
+    mostPopular: 'Más Populares',
+    priceHighToLow: 'Precio: Mayor a Menor',
+    priceLowToHigh: 'Precio: Menor a Mayor',
+    dateAscending: 'Fecha: Ascendente',
+    dateDescending: 'Fecha: Descendente'
   }
 };
 
