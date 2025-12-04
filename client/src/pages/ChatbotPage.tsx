@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientHeader } from "@/components/ui/GradientHeader";
-import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
+import { CITIES_BY_REGION } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { useLanguage } from "@/lib/language-context";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
@@ -169,8 +169,16 @@ export default function ChatbotPage() {
             className="bg-transparent border border-border rounded-md px-3 py-2 text-sm w-full sm:w-auto text-foreground"
             aria-label="Select a city"
           >
-            {DIGITAL_NOMAD_CITIES.map(city => (
-              <option key={city} value={city} className="bg-background text-foreground">{city}</option>
+            {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+              <optgroup key={region} label={region} className="text-white uppercase font-semibold bg-background">
+                {Object.entries(countries).map(([country, cities]) => (
+                  cities.map(city => (
+                    <option key={city} value={city} className="bg-background text-foreground pl-4">
+                      {city}
+                    </option>
+                  ))
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
