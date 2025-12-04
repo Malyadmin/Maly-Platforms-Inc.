@@ -62,6 +62,8 @@ export const events = pgTable("events", {
   availableTickets: integer("available_tickets"),
   createdAt: timestamp("created_at").defaultNow(),
   isPrivate: boolean("is_private").default(false),
+  privacy: text("privacy").default("public"), // public, private, friends - controls visibility
+  shareToken: text("share_token"), // Unique token for sharing private/friends events
   requireApproval: boolean("require_approval").default(false), // For private events requiring access approval
   isRsvp: boolean("is_rsvp").default(false), // For RSVP events requiring approval
   isBusinessEvent: boolean("is_business_event").default(false),
