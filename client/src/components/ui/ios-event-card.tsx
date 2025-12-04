@@ -99,18 +99,18 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
       {/* Event Details - Simplified with vertical alignment */}
       <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
         {/* Title - aligned to top */}
-        <h3 className={`text-xs sm:text-sm md:text-base lg:text-lg font-medium text-foreground leading-tight whitespace-nowrap overflow-hidden ${isPrivateBlurred ? 'blur-sm' : ''}`}>
+        <h3 className={`text-sm sm:text-base md:text-lg font-semibold text-foreground leading-tight whitespace-nowrap overflow-hidden ${isPrivateBlurred ? 'blur-sm' : ''}`}>
           {isPrivateBlurred ? 'Private Event' : event.title}
         </h3>
         
         {/* Middle elements - evenly spaced */}
         <div className="flex-1 flex flex-col justify-evenly">
-          <p className={`text-sm text-foreground/80 truncate whitespace-nowrap ${isPrivateBlurred ? 'blur-sm' : ''}`}>
+          <p className={`text-sm text-foreground truncate whitespace-nowrap ${isPrivateBlurred ? 'blur-sm' : ''}`}>
             {formattedDateTime}
           </p>
           
           {event.location && (
-            <p className={`text-sm text-foreground/80 truncate ${isPrivateBlurred ? 'blur-sm' : ''}`}>
+            <p className={`text-sm text-foreground truncate ${isPrivateBlurred ? 'blur-sm' : ''}`}>
               {isPrivateBlurred ? 'Location Hidden' : event.location}
             </p>
           )}

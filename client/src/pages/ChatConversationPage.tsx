@@ -429,7 +429,7 @@ export default function ChatConversationPage() {
         className="fixed left-0 right-0 px-4 pt-3 bg-background border-t border-border z-50"
         style={{ bottom: '80px', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
       >
-        <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
+        <form onSubmit={handleSendMessage} className="flex items-center gap-2" data-testid="message-form">
           <div className="flex-1">
             <Textarea 
               placeholder="Type a message..."
