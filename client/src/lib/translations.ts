@@ -495,6 +495,42 @@ type TranslationKey =
   | 'cityGuide'
   | 'welcomeConcierge'
   | 'conciergeBetaDescription'
+  // SignupFlowPage strings
+  | 'signupSpaced'
+  | 'createAccount'
+  | 'getStartedBasics'
+  | 'yourFullName'
+  | 'chooseUsername'
+  | 'phoneOptional'
+  | 'choosePassword'
+  | 'confirmPasswordLabel'
+  | 'tellUsAboutYourself'
+  | 'personalInfo'
+  | 'selectAge'
+  | 'selectGender'
+  | 'selectOrientation'
+  | 'whereAreYou'
+  | 'locationInfo'
+  | 'currentCity'
+  | 'bornIn'
+  | 'livedIn'
+  | 'nextDestination'
+  | 'yourVibes'
+  | 'vibesDescription'
+  | 'selectIntention'
+  | 'yourProfession'
+  | 'finishProfile'
+  | 'almostDone'
+  | 'writeBio'
+  | 'uploadProfile'
+  | 'agreeTerms'
+  | 'agreePrivacy'
+  | 'acceptTerms'
+  | 'acceptPrivacy'
+  | 'creatingAccount'
+  | 'submitProfile'
+  | 'registrationSuccess'
+  | 'registrationError'
   // CreateEventFlowPage strings
   | 'createSpaced'
   | 'createYourEvent'
@@ -1032,6 +1068,42 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     cityGuide: 'City Guide',
     welcomeConcierge: "Welcome to Maly's Concierge (Beta V1.5)",
     conciergeBetaDescription: 'Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.',
+    // SignupFlowPage strings
+    signupSpaced: 'S I G N U P',
+    createAccount: 'Create your account',
+    getStartedBasics: "Let's get started with the basics",
+    yourFullName: 'Your full name',
+    chooseUsername: 'Choose a username',
+    phoneOptional: 'Phone number (optional)',
+    choosePassword: 'Create a password',
+    confirmPasswordLabel: 'Confirm password',
+    tellUsAboutYourself: 'Tell us about yourself',
+    personalInfo: 'Some basic personal information',
+    selectAge: 'Select age range',
+    selectGender: 'Select gender',
+    selectOrientation: 'Select orientation',
+    whereAreYou: 'Where are you?',
+    locationInfo: 'Tell us about your locations',
+    currentCity: 'Current city',
+    bornIn: 'Born in',
+    livedIn: 'Lived in',
+    nextDestination: 'Next destination',
+    yourVibes: 'Your vibes',
+    vibesDescription: 'Select vibes that match your personality',
+    selectIntention: 'What brings you here?',
+    yourProfession: 'Your profession',
+    finishProfile: 'Finish your profile',
+    almostDone: "You're almost done!",
+    writeBio: 'Write a short bio',
+    uploadProfile: 'Upload profile photos',
+    agreeTerms: 'I agree to the Terms and Conditions',
+    agreePrivacy: 'I agree to the Privacy Policy',
+    acceptTerms: 'Accept Terms',
+    acceptPrivacy: 'Accept Privacy',
+    creatingAccount: 'Creating account...',
+    submitProfile: 'Complete Signup',
+    registrationSuccess: 'Account created successfully!',
+    registrationError: 'Error creating account',
     // CreateEventFlowPage strings
     createSpaced: 'C R E A T E',
     createYourEvent: 'Create your event',
@@ -1569,6 +1641,42 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     cityGuide: 'Guía de Ciudad',
     welcomeConcierge: 'Bienvenido al Conserje de Maly (Beta V1.5)',
     conciergeBetaDescription: 'Próximamente: Reservaciones de restaurantes, reservas de hotel y recomendaciones de la comunidad.',
+    // SignupFlowPage strings
+    signupSpaced: 'R E G I S T R O',
+    createAccount: 'Crea tu cuenta',
+    getStartedBasics: 'Empecemos con lo básico',
+    yourFullName: 'Tu nombre completo',
+    chooseUsername: 'Elige un nombre de usuario',
+    phoneOptional: 'Número de teléfono (opcional)',
+    choosePassword: 'Crea una contraseña',
+    confirmPasswordLabel: 'Confirmar contraseña',
+    tellUsAboutYourself: 'Cuéntanos sobre ti',
+    personalInfo: 'Información personal básica',
+    selectAge: 'Seleccionar rango de edad',
+    selectGender: 'Seleccionar género',
+    selectOrientation: 'Seleccionar orientación',
+    whereAreYou: '¿Dónde estás?',
+    locationInfo: 'Cuéntanos sobre tus ubicaciones',
+    currentCity: 'Ciudad actual',
+    bornIn: 'Nacido en',
+    livedIn: 'Vivido en',
+    nextDestination: 'Próximo destino',
+    yourVibes: 'Tus vibes',
+    vibesDescription: 'Selecciona vibes que coincidan con tu personalidad',
+    selectIntention: '¿Qué te trae aquí?',
+    yourProfession: 'Tu profesión',
+    finishProfile: 'Completa tu perfil',
+    almostDone: '¡Ya casi terminas!',
+    writeBio: 'Escribe una breve biografía',
+    uploadProfile: 'Sube fotos de perfil',
+    agreeTerms: 'Acepto los Términos y Condiciones',
+    agreePrivacy: 'Acepto la Política de Privacidad',
+    acceptTerms: 'Aceptar Términos',
+    acceptPrivacy: 'Aceptar Privacidad',
+    creatingAccount: 'Creando cuenta...',
+    submitProfile: 'Completar Registro',
+    registrationSuccess: '¡Cuenta creada exitosamente!',
+    registrationError: 'Error al crear la cuenta',
     // CreateEventFlowPage strings
     createSpaced: 'C R E A R',
     createYourEvent: 'Crea tu evento',

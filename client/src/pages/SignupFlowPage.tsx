@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProfileGallery } from "@/components/ui/profile-gallery";
+import { useTranslation } from "@/lib/translations";
 
 // Step schemas
 const step1Schema = z.object({
@@ -117,6 +118,7 @@ interface StepProps {
 
 // Step 1: Basic Account Info
 function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -159,7 +161,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
                   <ChevronLeft className="w-6 h-6" />
                 </button>
               )}
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -170,7 +172,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
-              Next
+              {t('next')}
             </Button>
           </div>
         </div>
@@ -180,8 +182,8 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Create your account</h2>
-          <p className="text-muted-foreground text-sm">Let's get started with the basics</p>
+          <h2 className="text-2xl font-light mb-2">{t('createAccount')}</h2>
+          <p className="text-muted-foreground text-sm">{t('getStartedBasics')}</p>
         </div>
 
         <form 
@@ -190,10 +192,10 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Name</label>
+            <label className="text-foreground font-medium">{t('name')}</label>
             <Input
               {...form.register("fullName")}
-              placeholder="Your full name"
+              placeholder={t('yourFullName')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-fullName"
             />
@@ -203,10 +205,10 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Username</label>
+            <label className="text-foreground font-medium">{t('username')}</label>
             <Input
               {...form.register("username")}
-              placeholder="Choose a username"
+              placeholder={t('chooseUsername')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-username"
             />
@@ -216,7 +218,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Email</label>
+            <label className="text-foreground font-medium">{t('email')}</label>
             <Input
               {...form.register("email")}
               type="email"
@@ -230,7 +232,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Phone Number (optional)</label>
+            <label className="text-foreground font-medium">{t('phoneOptional')}</label>
             <Input
               {...form.register("phoneNumber")}
               type="tel"
@@ -241,12 +243,12 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Password</label>
+            <label className="text-foreground font-medium">{t('password')}</label>
             <div className="relative">
               <Input
                 {...form.register("password")}
                 type={showPassword ? "text" : "password"}
-                placeholder="At least 6 characters"
+                placeholder={t('choosePassword')}
                 className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary pr-10"
                 data-testid="input-password"
               />
@@ -264,12 +266,12 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Confirm Password</label>
+            <label className="text-foreground font-medium">{t('confirmPasswordLabel')}</label>
             <div className="relative">
               <Input
                 {...form.register("confirmPassword")}
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="Re-enter your password"
+                placeholder={t('confirmPasswordLabel')}
                 className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary pr-10"
                 data-testid="input-confirmPassword"
               />
@@ -293,6 +295,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
 
 // Step 2: Demographics
 function Step2Demographics({ data, onNext, onBack }: StepProps) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step2Schema),
     defaultValues: {
@@ -327,7 +330,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -338,7 +341,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
-              Next
+              {t('next')}
             </Button>
           </div>
         </div>
@@ -348,8 +351,8 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Tell us about yourself</h2>
-          <p className="text-muted-foreground text-sm">This helps us connect you with the right people</p>
+          <h2 className="text-2xl font-light mb-2">{t('tellUsAboutYourself')}</h2>
+          <p className="text-muted-foreground text-sm">{t('personalInfo')}</p>
         </div>
 
         <form 
@@ -358,18 +361,18 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Age <span className="text-xs text-muted-foreground">(will not be displayed)</span></label>
+            <label className="text-foreground font-medium">{t('age')}</label>
             <Input
               {...form.register("age")}
               type="number"
-              placeholder="Your age"
+              placeholder={t('selectAge')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-age"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Gender</label>
+            <label className="text-foreground font-medium">{t('gender')}</label>
             <select
               {...form.register("gender")}
               className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
@@ -410,6 +413,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
 
 // Step 3: Locations
 function Step3Locations({ data, onNext, onBack }: StepProps) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step3Schema),
     defaultValues: {
@@ -445,7 +449,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -456,7 +460,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
-              Next
+              {t('next')}
             </Button>
           </div>
         </div>
@@ -466,8 +470,8 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Where are you?</h2>
-          <p className="text-muted-foreground text-sm">Help others find you and connect based on location</p>
+          <h2 className="text-2xl font-light mb-2">{t('whereAreYou')}</h2>
+          <p className="text-muted-foreground text-sm">{t('locationInfo')}</p>
         </div>
 
         <form 
@@ -476,40 +480,40 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Current Location</label>
+            <label className="text-foreground font-medium">{t('currentCity')}</label>
             <Input
               {...form.register("location")}
-              placeholder="Where do you live now?"
+              placeholder={t('currentCity')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-location"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Born In</label>
+            <label className="text-foreground font-medium">{t('bornIn')}</label>
             <Input
               {...form.register("birthLocation")}
-              placeholder="Your birthplace"
+              placeholder={t('bornIn')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-birthLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Lived In</label>
+            <label className="text-foreground font-medium">{t('livedIn')}</label>
             <Input
               {...form.register("livedLocation")}
-              placeholder="Places you've lived"
+              placeholder={t('livedIn')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-livedLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Traveling To</label>
+            <label className="text-foreground font-medium">{t('nextDestination')}</label>
             <Input
               {...form.register("nextLocation")}
-              placeholder="Where are you headed next?"
+              placeholder={t('nextDestination')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-nextLocation"
             />
@@ -522,6 +526,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
 
 // Step 4: Preferences
 function Step4Preferences({ data, onNext, onBack }: StepProps) {
+  const { t } = useTranslation();
   const [selectedVibes, setSelectedVibes] = useState<string[]>(data.vibes || []);
   
   const form = useForm({
@@ -568,7 +573,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -579,7 +584,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
-              Next
+              {t('next')}
             </Button>
           </div>
         </div>
@@ -589,8 +594,8 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">What brings you here?</h2>
-          <p className="text-muted-foreground text-sm">Tell us your interests and intentions</p>
+          <h2 className="text-2xl font-light mb-2">{t('selectIntention')}</h2>
+          <p className="text-muted-foreground text-sm">{t('vibesDescription')}</p>
         </div>
 
         <form 
@@ -599,7 +604,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-foreground font-medium">Choose your vibe</label>
+            <label className="text-foreground font-medium">{t('yourVibes')}</label>
             <div className="flex flex-wrap gap-2">
               {VIBE_AND_MOOD_TAGS.map(vibe => {
                 const isSelected = selectedVibes.includes(vibe);
@@ -636,10 +641,10 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Occupation</label>
+            <label className="text-foreground font-medium">{t('yourProfession')}</label>
             <Input
               {...form.register("profession")}
-              placeholder="What do you do?"
+              placeholder={t('yourProfession')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-profession"
             />
@@ -652,6 +657,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
 
 // Step 5: Profile Completion
 function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
+  const { t } = useTranslation();
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -702,7 +708,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <button
@@ -711,7 +717,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               className="text-foreground font-medium"
               data-testid="button-create"
             >
-              Create Account
+              {t('submitProfile')}
             </button>
           </div>
         </div>
@@ -721,8 +727,8 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Complete your profile</h2>
-          <p className="text-muted-foreground text-sm">Add a photo and bio to stand out</p>
+          <h2 className="text-2xl font-light mb-2">{t('finishProfile')}</h2>
+          <p className="text-muted-foreground text-sm">{t('almostDone')}</p>
         </div>
 
         <form 
@@ -731,9 +737,9 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-foreground font-medium">Profile Photos</label>
+            <label className="text-foreground font-medium">{t('uploadProfile')}</label>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Show your best face—avoid group, distant, and low-quality photos for great connections. Add up to 7 images to highlight your travels, vibe, and lifestyle.
+              {t('uploadProfile')}
             </p>
             <ProfileGallery
               images={selectedImages}
@@ -744,10 +750,10 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Bio</label>
+            <label className="text-foreground font-medium">{t('bio')}</label>
             <Textarea
               {...form.register("bio")}
-              placeholder="Tell us a bit about yourself..."
+              placeholder={t('writeBio')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary min-h-[120px]"
               data-testid="input-bio"
             />
