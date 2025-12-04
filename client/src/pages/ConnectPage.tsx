@@ -179,8 +179,8 @@ export function ConnectPage() {
     onSuccess: (_, targetUserId) => {
       inFlightMutations.current.delete(targetUserId);
       toast({
-        title: 'Contact added',
-        description: 'User has been added to your contacts.',
+        title: t('contactAdded'),
+        description: t('userAddedToContacts'),
       });
       
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
@@ -197,7 +197,7 @@ export function ConnectPage() {
       }));
       
       toast({
-        title: 'Error adding contact',
+        title: t('errorAddingContact'),
         description: error.message,
         variant: 'destructive',
       });
@@ -222,8 +222,8 @@ export function ConnectPage() {
     onSuccess: (_, targetUserId) => {
       inFlightMutations.current.delete(targetUserId);
       toast({
-        title: 'Contact removed',
-        description: 'User has been removed from your contacts.',
+        title: t('contactRemoved'),
+        description: t('userRemovedFromContacts'),
       });
       
       queryClient.invalidateQueries({ queryKey: ['connection-status'] });
@@ -240,7 +240,7 @@ export function ConnectPage() {
       }));
       
       toast({
-        title: 'Error removing contact',
+        title: t('errorRemovingContact'),
         description: error.message,
         variant: 'destructive',
       });
@@ -377,24 +377,24 @@ export function ConnectPage() {
       <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Add Custom City</DialogTitle>
+            <DialogTitle className="text-foreground">{t('addCustomCity')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <input
               type="text"
               value={newCityInput}
               onChange={(e) => setNewCityInput(e.target.value)}
-              placeholder="Enter city name"
+              placeholder={t('enterCityName')}
               className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
               data-testid="input-custom-city"
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setShowAddCityDialog(false); setNewCityInput(''); }} data-testid="button-cancel-add-city">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button onClick={handleAddCity} disabled={!newCityInput.trim()} data-testid="button-confirm-add-city">
-                Add
+                {t('add')}
               </Button>
             </div>
           </div>
@@ -456,7 +456,7 @@ export function ConnectPage() {
           {/* Show profile count here when filter bar is hidden */}
           {!showFiltersBar && (
             <p className="text-xs sm:text-sm text-muted-foreground py-3">
-              {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
+              {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
             </p>
           )}
         </div>
@@ -474,7 +474,7 @@ export function ConnectPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-gender"
               >
-                Gender
+                {t('gender')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'gender' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -486,28 +486,28 @@ export function ConnectPage() {
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg"
                     data-testid="gender-option-all"
                   >
-                    All
+                    {t('all')}
                   </button>
                   <button
                     onClick={() => { setSelectedGender('male'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="gender-option-male"
                   >
-                    Male
+                    {t('male')}
                   </button>
                   <button
                     onClick={() => { setSelectedGender('female'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="gender-option-female"
                   >
-                    Female
+                    {t('female')}
                   </button>
                   <button
                     onClick={() => { setSelectedGender('other'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
                     data-testid="gender-option-other"
                   >
-                    Other
+                    {t('other')}
                   </button>
                 </div>
               )}
@@ -520,7 +520,7 @@ export function ConnectPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-location"
               >
-                City
+                {t('city')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'location' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -532,7 +532,7 @@ export function ConnectPage() {
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover border-b border-border"
                     data-testid="location-option-all"
                   >
-                    All Cities
+                    {t('allCities')}
                   </button>
                   {customCities.map((city) => (
                     <button
@@ -559,7 +559,7 @@ export function ConnectPage() {
                     className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-foreground/10 last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="location-option-add"
                   >
-                    + Add City
+                    {t('addCity')}
                   </button>
                 </div>
               )}
@@ -572,7 +572,7 @@ export function ConnectPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibe"
               >
-                Vibe
+                {t('vibe')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'vibe' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -584,7 +584,7 @@ export function ConnectPage() {
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover"
                     data-testid="vibe-option-all"
                   >
-                    All Vibes
+                    {t('allVibes')}
                   </button>
                   {VIBE_AND_MOOD_TAGS.map((vibe) => (
                     <button
@@ -607,7 +607,7 @@ export function ConnectPage() {
                 className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
                 data-testid="filter-category-intention"
               >
-                Intention
+                {t('intention')}
                 <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'intention' ? 'rotate-180' : ''}`} />
               </button>
               
@@ -619,35 +619,35 @@ export function ConnectPage() {
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover"
                     data-testid="intention-option-all"
                   >
-                    All
+                    {t('all')}
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('dating'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-dating"
                   >
-                    Dating
+                    {t('dating')}
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('social'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-social"
                   >
-                    Social
+                    {t('social')}
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('networking'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                     data-testid="intention-option-networking"
                   >
-                    Networking
+                    {t('networking')}
                   </button>
                   <button
                     onClick={() => { setSelectedIntention('friends'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
                     data-testid="intention-option-friends"
                   >
-                    Friends
+                    {t('friends')}
                   </button>
                 </div>
               )}
@@ -693,7 +693,7 @@ export function ConnectPage() {
           {/* Show profile count below filter bar when it's visible */}
           <div className="px-5 pb-3">
             <p className="text-xs sm:text-sm text-muted-foreground">
-              {users?.length || 0} {users?.length === 1 ? 'profile' : 'profiles'} found
+              {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
             </p>
           </div>
         </div>
@@ -703,7 +703,7 @@ export function ConnectPage() {
       <main className="flex-1 overflow-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {isLoading ? (
           <div className="text-center py-8">
-            <span className="text-muted-foreground">Loading users...</span>
+            <span className="text-muted-foreground">{t('loadingUsers')}</span>
           </div>
         ) : (
           /* List View - Similar to Discover Page */
@@ -747,7 +747,7 @@ export function ConnectPage() {
                           />
                           <div className="absolute bottom-2 right-2 pointer-events-none z-10">
                             <div className="bg-black/50 backdrop-blur-sm text-white/90 text-[10px] font-medium px-2 py-1 rounded-full">
-                              DEMO
+                              {t('demo')}
                             </div>
                           </div>
                         </>
@@ -824,17 +824,17 @@ export function ConnectPage() {
                           ) : isConnected ? (
                             <>
                               <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                              <span className="hidden sm:inline">Connected</span>
+                              <span className="hidden sm:inline">{t('connected')}</span>
                             </>
                           ) : isPending ? (
                             <>
                               <Clock className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                              <span className="hidden sm:inline">Pending</span>
+                              <span className="hidden sm:inline">{t('pending')}</span>
                             </>
                           ) : (
                             <>
                               <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                              <span className="hidden sm:inline">Connect</span>
+                              <span className="hidden sm:inline">{t('connect')}</span>
                             </>
                           )}
                         </button>
@@ -846,7 +846,7 @@ export function ConnectPage() {
               
               {(!users || users.length === 0) && (
                 <div className="text-center py-8">
-                  <span className="text-muted-foreground">No users found</span>
+                  <span className="text-muted-foreground">{t('noUsersFound')}</span>
                 </div>
               )}
             </div>

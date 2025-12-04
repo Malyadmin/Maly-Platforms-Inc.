@@ -451,7 +451,23 @@ type TranslationKey =
   | 'priceHighToLow'
   | 'priceLowToHigh'
   | 'dateAscending'
-  | 'dateDescending';
+  | 'dateDescending'
+  // Additional ConnectPage strings
+  | 'profilesFound'
+  | 'profileFound'
+  | 'loadingUsers'
+  | 'noUsersFound'
+  | 'dating'
+  | 'social'
+  | 'networking'
+  | 'friends'
+  | 'all'
+  | 'allCities'
+  | 'pending'
+  | 'demo'
+  | 'userRemovedFromContacts'
+  | 'errorRemovingContact'
+  | 'userAddedToContacts';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -883,7 +899,23 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     priceHighToLow: 'Price: High to Low',
     priceLowToHigh: 'Price: Low to High',
     dateAscending: 'Date: Ascending',
-    dateDescending: 'Date: Descending'
+    dateDescending: 'Date: Descending',
+    // Additional ConnectPage strings
+    profilesFound: 'profiles found',
+    profileFound: 'profile found',
+    loadingUsers: 'Loading users...',
+    noUsersFound: 'No users found',
+    dating: 'Dating',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Friends',
+    all: 'All',
+    allCities: 'All Cities',
+    pending: 'Pending',
+    demo: 'DEMO',
+    userRemovedFromContacts: 'User has been removed from your contacts.',
+    errorRemovingContact: 'Error removing contact',
+    userAddedToContacts: 'User has been added to your contacts.'
   },
   es: {
     events: 'Eventos',
@@ -1315,7 +1347,23 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     priceHighToLow: 'Precio: Mayor a Menor',
     priceLowToHigh: 'Precio: Menor a Mayor',
     dateAscending: 'Fecha: Ascendente',
-    dateDescending: 'Fecha: Descendente'
+    dateDescending: 'Fecha: Descendente',
+    // Additional ConnectPage strings
+    profilesFound: 'perfiles encontrados',
+    profileFound: 'perfil encontrado',
+    loadingUsers: 'Cargando usuarios...',
+    noUsersFound: 'No se encontraron usuarios',
+    dating: 'Citas',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Amigos',
+    all: 'Todos',
+    allCities: 'Todas las Ciudades',
+    pending: 'Pendiente',
+    demo: 'DEMO',
+    userRemovedFromContacts: 'Usuario eliminado de tus contactos.',
+    errorRemovingContact: 'Error al eliminar contacto',
+    userAddedToContacts: 'Usuario agregado a tus contactos.'
   }
 };
 
