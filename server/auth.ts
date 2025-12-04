@@ -734,6 +734,43 @@ export function setupAuth(app: Express) {
   // Helper function to get userId from request in various ways
   // The getUserIdFromRequest and isAuthenticated functions have been moved to server/middleware/auth.middleware.ts
 
+  // Development-only auto-login endpoint for testing in Replit preview
+  app.get("/api/dev/auto-login", async (req, res) => {
+    // Only allow in development/Replit environment
+    if (!process.env.REPL_ID) {
+      return res.status(403).json({ error: "Only available in development" });
+    }
+    
+    try {
+      // Find djluna user
+      const [djlunaUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, "djluna"))
+        .limit(1);
+      
+      if (!djlunaUser) {
+        return res.status(404).json({ error: "djluna user not found" });
+      }
+      
+      // Log in as djluna using Passport
+      req.login(djlunaUser, (err) => {
+        if (err) {
+          console.error("Auto-login error:", err);
+          return res.status(500).json({ error: "Login failed" });
+        }
+        
+        console.log("Auto-logged in as djluna (dev mode)");
+        
+        // Redirect to home page
+        res.redirect("/");
+      });
+    } catch (error) {
+      console.error("Auto-login error:", error);
+      res.status(500).json({ error: "Auto-login failed" });
+    }
+  });
+
   // Add a dedicated auth check endpoint
   app.get("/api/auth/check", async (req, res) => {
     // Set proper cache headers - allow browser to cache for 5 minutes
