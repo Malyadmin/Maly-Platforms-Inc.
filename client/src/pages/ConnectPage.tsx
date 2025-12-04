@@ -60,7 +60,7 @@ export function ConnectPage() {
   const [newCityInput, setNewCityInput] = useState('');
   const [selectedVibe, setSelectedVibe] = useState<string>("all");
   const [selectedIntention, setSelectedIntention] = useState<string>("all");
-  const [showFiltersBar, setShowFiltersBar] = useState(false);
+  const [showFiltersBar, setShowFiltersBar] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [connectionStatuses, setConnectionStatuses] = useState<Record<number, ConnectionStatus>>({});
   const inFlightMutations = useRef<Set<number>>(new Set());

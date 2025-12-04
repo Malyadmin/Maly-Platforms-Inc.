@@ -72,7 +72,7 @@ export default function DiscoverPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
-  const [showFiltersBar, setShowFiltersBar] = useState(false);
+  const [showFiltersBar, setShowFiltersBar] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [customCities, setCustomCities] = useState<string[]>([]);
   const [showAddCityDialog, setShowAddCityDialog] = useState(false);
