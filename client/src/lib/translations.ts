@@ -605,7 +605,25 @@ type TranslationKey =
   | 'notSet'
   | 'savingImages'
   | 'saveImages'
-  | 'fullName';
+  | 'fullName'
+  // AppearancePage strings
+  | 'theme'
+  | 'selectTheme'
+  | 'light'
+  | 'dark'
+  | 'system'
+  | 'useLightTheme'
+  | 'useDarkTheme'
+  | 'followDeviceSettings'
+  | 'themeNote'
+  | 'note'
+  // Additional common strings
+  | 'failedToUpload'
+  | 'nameRequired'
+  | 'usernameRequired'
+  | 'emailRequired'
+  | 'passwordsDoNotMatch'
+  | 'mustAcceptTermsAndPrivacy';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -1191,7 +1209,25 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     notSet: 'Not set',
     savingImages: 'Saving...',
     saveImages: 'Save Images',
-    fullName: 'Full Name'
+    fullName: 'Full Name',
+    // AppearancePage strings
+    theme: 'Theme',
+    selectTheme: 'Select your preferred theme for the application',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+    useLightTheme: 'Use light theme',
+    useDarkTheme: 'Use dark theme',
+    followDeviceSettings: 'Follow device settings',
+    themeNote: 'System theme will automatically match your device\'s appearance settings. Changes take effect immediately.',
+    note: 'Note',
+    // Additional common strings
+    failedToUpload: 'Failed to upload images',
+    nameRequired: 'Name is required',
+    usernameRequired: 'Username is required',
+    emailRequired: 'Email is required',
+    passwordsDoNotMatch: 'Passwords do not match',
+    mustAcceptTermsAndPrivacy: 'You must accept the Terms and Privacy Policy'
   },
   es: {
     events: 'Eventos',
@@ -1777,7 +1813,25 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     notSet: 'No establecido',
     savingImages: 'Guardando...',
     saveImages: 'Guardar Imágenes',
-    fullName: 'Nombre Completo'
+    fullName: 'Nombre Completo',
+    // AppearancePage strings
+    theme: 'Tema',
+    selectTheme: 'Selecciona tu tema preferido para la aplicación',
+    light: 'Claro',
+    dark: 'Oscuro',
+    system: 'Sistema',
+    useLightTheme: 'Usar tema claro',
+    useDarkTheme: 'Usar tema oscuro',
+    followDeviceSettings: 'Seguir configuración del dispositivo',
+    themeNote: 'El tema del sistema seguirá automáticamente la configuración de apariencia de tu dispositivo. Los cambios se aplican inmediatamente.',
+    note: 'Nota',
+    // Additional common strings
+    failedToUpload: 'Error al subir imágenes',
+    nameRequired: 'El nombre es requerido',
+    usernameRequired: 'El nombre de usuario es requerido',
+    emailRequired: 'El correo electrónico es requerido',
+    passwordsDoNotMatch: 'Las contraseñas no coinciden',
+    mustAcceptTermsAndPrivacy: 'Debes aceptar los Términos y Política de Privacidad'
   }
 };
 

@@ -2,43 +2,45 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useTheme } from "@/lib/theme-provider";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "@/lib/translations";
 
 type ThemeOption = "light" | "dark" | "system";
 
 export default function AppearancePage() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
 
-  const themeOptions: { value: ThemeOption; label: string; icon: typeof Sun; description: string }[] = [
+  const themeOptions: { value: ThemeOption; labelKey: 'light' | 'dark' | 'system'; icon: typeof Sun; descriptionKey: 'useLightTheme' | 'useDarkTheme' | 'followDeviceSettings' }[] = [
     {
       value: "light",
-      label: "Light",
+      labelKey: "light",
       icon: Sun,
-      description: "Use light theme"
+      descriptionKey: "useLightTheme"
     },
     {
       value: "dark",
-      label: "Dark",
+      labelKey: "dark",
       icon: Moon,
-      description: "Use dark theme"
+      descriptionKey: "useDarkTheme"
     },
     {
       value: "system",
-      label: "System",
+      labelKey: "system",
       icon: Monitor,
-      description: "Follow device settings"
+      descriptionKey: "followDeviceSettings"
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title="Appearance" />
+      <PageHeader title={t('appearance')} />
       
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Theme</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('theme')}</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Select your preferred theme for the application
+              {t('selectTheme')}
             </p>
           </div>
 
@@ -71,9 +73,9 @@ export default function AppearancePage() {
                       </div>
                       
                       <div className="flex-1 text-left">
-                        <div className="font-medium">{option.label}</div>
+                        <div className="font-medium">{t(option.labelKey)}</div>
                         <div className="text-sm text-muted-foreground">
-                          {option.description}
+                          {t(option.descriptionKey)}
                         </div>
                       </div>
                       
@@ -89,7 +91,7 @@ export default function AppearancePage() {
 
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">Note:</strong> System theme will automatically match your device's appearance settings. Changes take effect immediately.
+              <strong className="text-foreground">{t('note')}:</strong> {t('themeNote')}
             </p>
           </div>
         </div>

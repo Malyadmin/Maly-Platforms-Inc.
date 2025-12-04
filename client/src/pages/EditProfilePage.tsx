@@ -143,7 +143,7 @@ export default function EditProfilePage() {
       setTempMoods([]);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -240,7 +240,7 @@ export default function EditProfilePage() {
       setHasNewImages(false);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -272,7 +272,7 @@ export default function EditProfilePage() {
       setLocation(`/profile/${user?.username}`);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
