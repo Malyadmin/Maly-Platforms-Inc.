@@ -443,9 +443,9 @@ export default function ProfilePage() {
   </header>
 
   {/* Scrollable content area */}
-  <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-    {/* Fullscreen Profile Image with Name Overlay on Left */}
-    <div className="relative w-full h-screen">
+  <div className="flex-1 overflow-y-auto">
+    {/* Profile Image with Name Overlay - sized to show name/location immediately */}
+    <div className="relative w-full" style={{ height: 'calc(100vh - 180px)' }}>
     {(() => {
       const profileImages = profileData.profileImages?.length > 0 
         ? profileData.profileImages 
@@ -499,16 +499,16 @@ export default function ProfilePage() {
       );
     })()}
     
-    {/* Name and Location overlay - absolute positioned at bottom with more space */}
-    <div className="absolute bottom-32 left-0 right-0 px-6 z-10">
-      <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight flex items-center gap-3">
+    {/* Name and Location overlay - positioned at bottom of image */}
+    <div className="absolute bottom-4 left-0 right-0 px-6 z-10">
+      <div className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight flex items-center gap-3 drop-shadow-lg">
           <span>{profileData.fullName || profileData.username}</span>
           {profileData.isPremium && <PremiumBadge size="lg" />}
         </h1>
         
         {profileData.location && (
-          <p className="text-foreground text-base">
+          <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
             {t(profileData.location)}
           </p>
         )}
