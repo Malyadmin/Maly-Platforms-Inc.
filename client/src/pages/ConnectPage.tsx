@@ -422,7 +422,7 @@ export function ConnectPage() {
                 C O N N E C T
               </h2>
               {selectedCity !== 'all' && (
-                <p className="text-white text-sm mt-1">{selectedCity}</p>
+                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
               )}
             </div>
             
@@ -430,7 +430,7 @@ export function ConnectPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white p-2 hover:bg-foreground/10"
+              className="text-foreground p-2 hover:bg-foreground/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -464,7 +464,7 @@ export function ConnectPage() {
 
       {/* Filter Bar - Shows when filter icon is clicked */}
       {showFiltersBar && (
-        <div className="bg-black border-b border-border">
+        <div className="bg-background border-b border-border">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* Gender */}
@@ -613,7 +613,7 @@ export function ConnectPage() {
               
               {/* Intention Dropdown */}
               {activeDropdown === 'intention' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[150px]">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[150px]">
                   <button
                     onClick={() => { setSelectedIntention('all'); setActiveDropdown(null); }}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg sticky top-0 bg-popover"
@@ -673,7 +673,7 @@ export function ConnectPage() {
                   <Badge
                     key={`${filter.type}-${filter.value}`}
                     variant="secondary"
-                    className="bg-gray-800 text-foreground flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
+                    className="bg-muted text-foreground flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                     data-testid={`filter-badge-${filter.type}`}
                   >
                     <span className="truncate">{filter.label}</span>
@@ -729,12 +729,12 @@ export function ConnectPage() {
                 return (
                   <div 
                     key={user.id}
-                    className="flex gap-4 p-2 hover:bg-gray-900/20 rounded-lg transition-colors"
+                    className="flex gap-4 p-2 hover:bg-muted/50 rounded-lg transition-colors"
                     data-testid={`user-card-${user.id}`}
                   >
                     {/* User Image */}
                     <div 
-                      className="w-40 h-40 bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer relative"
+                      className="w-40 h-40 bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden cursor-pointer relative"
                       onClick={() => handleUserClick(user)}
                     >
                       {user.profileImage ? (
@@ -815,7 +815,7 @@ export function ConnectPage() {
                           className={
                             isConnected
                               ? "inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
-                              : "inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              : "inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-border text-muted-foreground hover:bg-muted/50 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}
                         >

@@ -410,12 +410,12 @@ export default function AuthPage() {
                     {VIBE_AND_MOOD_TAGS.map(mood => {
                       const isSelected = selectedMoods.includes(mood);
                       // @ts-ignore - Type safety handled through known values
-                      const moodStyle = moodStyles[mood] || "bg-gray-500/20 text-gray-500 hover:bg-gray-500/30";
+                      const moodStyle = moodStyles[mood] || "bg-muted text-muted-foreground hover:bg-muted/80";
                       
                       return (
                         <Badge
                           key={mood}
-                          className={`cursor-pointer transition-all ${isSelected ? moodStyle + ' font-medium' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                          className={`cursor-pointer transition-all ${isSelected ? moodStyle + ' font-medium' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                           onClick={() => handleMoodToggle(mood)}
                         >
                           {mood}

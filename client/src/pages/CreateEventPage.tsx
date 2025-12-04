@@ -214,7 +214,7 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <GradientHeader 
         title={t('create')}
         backButtonFallbackPath="/"
@@ -223,8 +223,8 @@ export default function CreateEventPage() {
       <ScrollArea className="flex-1" style={{ height: 'calc(100vh - 140px)' }}>
         <div className="container mx-auto px-4 py-8 space-y-8 max-w-2xl">
             <div className="space-y-4">
-              <p className="text-sm text-white/60">{t('letsGetStarted')}</p>
-              <div className="relative aspect-[3/2] bg-white/5 rounded-lg overflow-hidden">
+              <p className="text-sm text-muted-foreground">{t('letsGetStarted')}</p>
+              <div className="relative aspect-[3/2] bg-muted/20 rounded-lg overflow-hidden">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -234,8 +234,8 @@ export default function CreateEventPage() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-foreground/10 transition-colors">
                     <div className="flex flex-col items-center gap-2">
-                      <Plus className="w-8 h-8 text-white/60" />
-                      <span className="text-sm text-white/60">
+                      <Plus className="w-8 h-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
                         {t('addPhotosFlyer')}
                       </span>
                     </div>
@@ -427,13 +427,13 @@ export default function CreateEventPage() {
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "public"
                       ? "border-purple-500 bg-purple-500/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
                   <Globe className="h-5 w-5" />
                   <div className="text-left">
                     <p className="font-medium">{t('public') || 'Public'}</p>
-                    <p className="text-xs text-white/60">{t('publicEventDesc') || 'Visible to everyone on Explore'}</p>
+                    <p className="text-xs text-muted-foreground">{t('publicEventDesc') || 'Visible to everyone on Explore'}</p>
                   </div>
                 </button>
                 <button
@@ -442,13 +442,13 @@ export default function CreateEventPage() {
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "private"
                       ? "border-purple-500 bg-purple-500/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
                   <Lock className="h-5 w-5" />
                   <div className="text-left">
                     <p className="font-medium">{t('private') || 'Private'}</p>
-                    <p className="text-xs text-white/60">{t('privateEventDesc') || 'Shows blurred on Explore, accessible via link'}</p>
+                    <p className="text-xs text-muted-foreground">{t('privateEventDesc') || 'Shows blurred on Explore, accessible via link'}</p>
                   </div>
                 </button>
                 <button
@@ -457,13 +457,13 @@ export default function CreateEventPage() {
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "friends"
                       ? "border-purple-500 bg-purple-500/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
                   <Users className="h-5 w-5" />
                   <div className="text-left">
                     <p className="font-medium">{t('friendsOnly') || 'Friends Only'}</p>
-                    <p className="text-xs text-white/60">{t('friendsOnlyDesc') || 'Only accessible via shared link'}</p>
+                    <p className="text-xs text-muted-foreground">{t('friendsOnlyDesc') || 'Only accessible via shared link'}</p>
                   </div>
                 </button>
               </div>
@@ -478,17 +478,17 @@ export default function CreateEventPage() {
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all w-full ${
                     form.watch("isRsvp")
                       ? "border-purple-500 bg-purple-500/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    form.watch("isRsvp") ? "border-purple-500 bg-purple-500" : "border-white/40"
+                    form.watch("isRsvp") ? "border-purple-500 bg-purple-500" : "border-muted-foreground/40"
                   }`}>
                     {form.watch("isRsvp") && <span className="text-white text-xs">✓</span>}
                   </div>
                   <div className="text-left">
                     <p className="font-medium">{t('requireRsvp') || 'Require RSVP'}</p>
-                    <p className="text-xs text-white/60">{t('rsvpDesc') || 'Guests must RSVP and be approved to attend'}</p>
+                    <p className="text-xs text-muted-foreground">{t('rsvpDesc') || 'Guests must RSVP and be approved to attend'}</p>
                   </div>
                 </button>
               </div>
@@ -523,7 +523,7 @@ export default function CreateEventPage() {
         </div>
       </ScrollArea>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border">
         <div className="container mx-auto max-w-2xl p-4">
           <Button
             type="button"

@@ -71,7 +71,7 @@ export function GradientHeader({
   };
 
   return (
-    <header className={`sticky top-0 z-10 bg-black dark:bg-black bg-white border-b border-border ${className}`}>
+    <header className={`sticky top-0 z-10 bg-background border-b border-border ${className}`}>
       <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-4 overflow-visible w-full">
           {showBackButton && (

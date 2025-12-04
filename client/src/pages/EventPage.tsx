@@ -357,7 +357,7 @@ export default function EventPage() {
                   setLocation('/discover');
                 }
               }}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-foreground/80 hover:text-foreground transition-colors"
               data-testid="button-back"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -392,7 +392,7 @@ export default function EventPage() {
           <h1 className="text-xl font-semibold text-foreground flex-1">{event.title}</h1>
           {user && event.creatorId !== user.id && (
             <button
-              className="flex-shrink-0 p-2 rounded-lg transition-colors bg-transparent hover:bg-gray-800/50"
+              className="flex-shrink-0 p-2 rounded-lg transition-colors bg-transparent hover:bg-muted/50"
               onClick={() => participateMutation.mutate(
                 participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
               )}
@@ -444,7 +444,7 @@ export default function EventPage() {
               className="w-5 h-5 rounded-full"
             />
           ) : (
-            <div className="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center">
+            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
               <span className="text-foreground text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
             </div>
           )}
@@ -489,7 +489,7 @@ export default function EventPage() {
             className="h-48 w-full rounded-lg"
           />
         ) : (
-          <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
+          <div className="h-48 bg-muted rounded-lg flex items-center justify-center">
             <p className="text-sm text-foreground/60">{t('locationCoordinatesNotAvailable')}</p>
           </div>
         )}
@@ -636,7 +636,7 @@ export default function EventPage() {
                     className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
                       selectedTierId === tier.id
                         ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
-                        : 'border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-400/10'
+                        : 'border-border bg-muted/50 hover:border-purple-400 hover:bg-purple-400/10'
                     }`}
                     data-testid={`modal-ticket-tier-${tier.id}`}
                   >
@@ -667,7 +667,7 @@ export default function EventPage() {
                   <Button
                     variant="outline"
                     onClick={() => setIsTicketModalOpen(false)}
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                    className="flex-1 border-border text-muted-foreground hover:bg-muted"
                     data-testid="button-cancel-modal"
                   >
                     {t('cancel')}

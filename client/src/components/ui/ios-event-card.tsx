@@ -56,12 +56,12 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
 
   return (
     <div 
-      className="flex gap-4 cursor-pointer hover:bg-gray-900/20 p-2 rounded-lg transition-colors"
+      className="flex gap-4 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
       onClick={() => setLocation(`/event/${event.id}`)}
       data-testid={`event-card-${event.id}`}
     >
       {/* Event Image - iOS style larger size */}
-      <div className="w-40 h-40 bg-gray-700 rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+      <div className="w-40 h-40 bg-muted rounded-none flex-shrink-0 flex items-center justify-center overflow-hidden relative">
         {event.image ? (
           <>
             <img
@@ -84,7 +84,7 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
             )}
           </>
         ) : (
-          <div className={`w-full h-full bg-gray-700 flex items-center justify-center ${isPrivateBlurred ? 'blur-lg' : ''}`}>
+          <div className={`w-full h-full bg-muted flex items-center justify-center ${isPrivateBlurred ? 'blur-lg' : ''}`}>
             <span className="text-muted-foreground text-lg font-light tracking-wider">MÁLY</span>
             {isPrivateBlurred && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">

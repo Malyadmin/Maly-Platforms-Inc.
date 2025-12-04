@@ -133,8 +133,8 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="border-b border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -149,7 +149,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               {onBack && (
                 <button
                   onClick={onBack}
-                  className="flex items-center text-white"
+                  className="flex items-center text-foreground"
                   data-testid="button-back"
                 >
                   <ChevronLeft className="w-6 h-6" />
@@ -163,7 +163,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               form="step1-form"
               variant="outline"
               size="sm"
-              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
+              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
               Next
@@ -186,11 +186,11 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-white font-medium">Name</label>
+            <label className="text-foreground font-medium">Name</label>
             <Input
               {...form.register("fullName")}
               placeholder="Your full name"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-fullName"
             />
             {form.formState.errors.fullName && (
@@ -199,11 +199,11 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Username</label>
+            <label className="text-foreground font-medium">Username</label>
             <Input
               {...form.register("username")}
               placeholder="Choose a username"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-username"
             />
             {form.formState.errors.username && (
@@ -212,12 +212,12 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Email</label>
+            <label className="text-foreground font-medium">Email</label>
             <Input
               {...form.register("email")}
               type="email"
               placeholder="your.email@example.com"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-email"
             />
             {form.formState.errors.email && (
@@ -226,24 +226,24 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Phone Number (optional)</label>
+            <label className="text-foreground font-medium">Phone Number (optional)</label>
             <Input
               {...form.register("phoneNumber")}
               type="tel"
               placeholder="+1 234 567 8900"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-phoneNumber"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Password</label>
+            <label className="text-foreground font-medium">Password</label>
             <div className="relative">
               <Input
                 {...form.register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="At least 6 characters"
-                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 pr-10"
+                className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary pr-10"
                 data-testid="input-password"
               />
               <button
@@ -260,13 +260,13 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Confirm Password</label>
+            <label className="text-foreground font-medium">Confirm Password</label>
             <div className="relative">
               <Input
                 {...form.register("confirmPassword")}
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Re-enter your password"
-                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 pr-10"
+                className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary pr-10"
                 data-testid="input-confirmPassword"
               />
               <button
@@ -303,8 +303,8 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="border-b border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -318,7 +318,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center text-white"
+                className="flex items-center text-foreground"
                 data-testid="button-back"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -331,7 +331,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               form="step2-form"
               variant="outline"
               size="sm"
-              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
+              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
               Next
@@ -354,21 +354,21 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-white font-medium">Age <span className="text-xs text-muted-foreground">(will not be displayed)</span></label>
+            <label className="text-foreground font-medium">Age <span className="text-xs text-muted-foreground">(will not be displayed)</span></label>
             <Input
               {...form.register("age")}
               type="number"
               placeholder="Your age"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-age"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Gender</label>
+            <label className="text-foreground font-medium">Gender</label>
             <select
               {...form.register("gender")}
-              className="w-full bg-black border border-gray-700 text-white rounded-md px-3 py-2 focus:border-gray-500"
+              className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-gender"
             >
               <option value="">Select your gender</option>
@@ -380,10 +380,10 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Sexual Orientation</label>
+            <label className="text-foreground font-medium">Sexual Orientation</label>
             <select
               {...form.register("sexualOrientation")}
-              className="w-full bg-black border border-gray-700 text-white rounded-md px-3 py-2 focus:border-gray-500"
+              className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-sexualOrientation"
             >
               <option value="">Select your orientation</option>
@@ -421,8 +421,8 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="border-b border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -436,7 +436,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center text-white"
+                className="flex items-center text-foreground"
                 data-testid="button-back"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -449,7 +449,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               form="step3-form"
               variant="outline"
               size="sm"
-              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
+              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
               Next
@@ -472,41 +472,41 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-white font-medium">Current Location</label>
+            <label className="text-foreground font-medium">Current Location</label>
             <Input
               {...form.register("location")}
               placeholder="Where do you live now?"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-location"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Born In</label>
+            <label className="text-foreground font-medium">Born In</label>
             <Input
               {...form.register("birthLocation")}
               placeholder="Your birthplace"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-birthLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Lived In</label>
+            <label className="text-foreground font-medium">Lived In</label>
             <Input
               {...form.register("livedLocation")}
               placeholder="Places you've lived"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-livedLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Traveling To</label>
+            <label className="text-foreground font-medium">Traveling To</label>
             <Input
               {...form.register("nextLocation")}
               placeholder="Where are you headed next?"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-nextLocation"
             />
           </div>
@@ -544,8 +544,8 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="border-b border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -559,7 +559,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center text-white"
+                className="flex items-center text-foreground"
                 data-testid="button-back"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -572,7 +572,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               form="step4-form"
               variant="outline"
               size="sm"
-              className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20 px-4 py-2"
+              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
               data-testid="button-next"
             >
               Next
@@ -595,7 +595,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-white font-medium">Choose your vibe</label>
+            <label className="text-foreground font-medium">Choose your vibe</label>
             <div className="flex flex-wrap gap-2">
               {VIBE_AND_MOOD_TAGS.map(vibe => {
                 const isSelected = selectedVibes.includes(vibe);
@@ -604,7 +604,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
                 return (
                   <Badge
                     key={vibe}
-                    className={`cursor-pointer transition-all ${isSelected ? vibeStyle + ' font-medium' : 'bg-gray-800 text-muted-foreground hover:bg-gray-700'}`}
+                    className={`cursor-pointer transition-all ${isSelected ? vibeStyle + ' font-medium' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                     onClick={() => handleVibeToggle(vibe)}
                     data-testid={`badge-vibe-${vibe.replace(/\s+/g, '-')}`}
                   >
@@ -616,10 +616,10 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Intention</label>
+            <label className="text-foreground font-medium">Intention</label>
             <select
               {...form.register("intention")}
-              className="w-full bg-black border border-gray-700 text-white rounded-md px-3 py-2 focus:border-gray-500"
+              className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-intention"
             >
               <option value="">What are you looking for?</option>
@@ -631,11 +631,11 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Occupation</label>
+            <label className="text-foreground font-medium">Occupation</label>
             <Input
               {...form.register("profession")}
               placeholder="What do you do?"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-profession"
             />
           </div>
@@ -677,8 +677,8 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
-      <div className="border-b border-gray-800">
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -692,7 +692,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center text-white"
+                className="flex items-center text-foreground"
                 data-testid="button-back"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -703,7 +703,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
             <button
               type="submit"
               form="step5-form"
-              className="text-white font-medium"
+              className="text-foreground font-medium"
               data-testid="button-create"
             >
               Create Account
@@ -726,8 +726,8 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-white font-medium">Profile Photos</label>
-            <p className="text-white/70 text-sm leading-relaxed">
+            <label className="text-foreground font-medium">Profile Photos</label>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Show your best face—avoid group, distant, and low-quality photos for great connections. Add up to 7 images to highlight your travels, vibe, and lifestyle.
             </p>
             <ProfileGallery
@@ -739,16 +739,16 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white font-medium">Bio</label>
+            <label className="text-foreground font-medium">Bio</label>
             <Textarea
               {...form.register("bio")}
               placeholder="Tell us a bit about yourself..."
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 min-h-[120px]"
+              className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary min-h-[120px]"
               data-testid="input-bio"
             />
           </div>
 
-          <div className="space-y-4 pt-4 border-t border-gray-800">
+          <div className="space-y-4 pt-4 border-t border-border">
             <div className="flex items-start space-x-3">
               <Checkbox 
                 id="terms" 
@@ -770,26 +770,26 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                     <DialogTrigger asChild>
                       <span className="text-purple-400 cursor-pointer underline">Terms and Conditions</span>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-black text-white border-gray-800">
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-foreground border-border">
                       <DialogHeader>
                         <DialogTitle>Maly Platforms Inc. DBA Maly – Terms and Conditions</DialogTitle>
                         <DialogDescription className="text-muted-foreground">Effective Date: May 17, 2025</DialogDescription>
                       </DialogHeader>
-                      <div className="text-sm space-y-4 mt-4 text-gray-300">
+                      <div className="text-sm space-y-4 mt-4 text-muted-foreground">
                         <p>Welcome to Maly Platforms Inc. ("Maly"). These Terms and Conditions govern your use of our mobile application and website platform. By accessing or using Maly, you agree to be bound by these terms.</p>
                         
                         <div>
-                          <h3 className="font-bold mb-2 text-white">1. Eligibility</h3>
+                          <h3 className="font-bold mb-2 text-foreground">1. Eligibility</h3>
                           <p>You must be at least 18 years old to use Maly. By using the platform, you confirm that you are legally permitted to use the service under your local jurisdiction.</p>
                         </div>
                         
                         <div>
-                          <h3 className="font-bold mb-2 text-white">2. User Content</h3>
+                          <h3 className="font-bold mb-2 text-foreground">2. User Content</h3>
                           <p>You are responsible for any content you upload, including profile information, event listings, and messages. By submitting content, you grant Maly a worldwide, non-exclusive, royalty-free license to use, display, and distribute this content on our platform and promotional materials.</p>
                         </div>
                         
                         <div>
-                          <h3 className="font-bold mb-2 text-white">3. Community Standards</h3>
+                          <h3 className="font-bold mb-2 text-foreground">3. Community Standards</h3>
                           <p>To maintain a respectful environment, users may not post offensive, obscene, discriminatory, or misleading content. Maly reserves the right to remove content or suspend accounts in violation of our guidelines.</p>
                         </div>
                       </div>
@@ -820,21 +820,21 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                     <DialogTrigger asChild>
                       <span className="text-purple-400 cursor-pointer underline">Privacy Policy</span>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-black text-white border-gray-800">
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-foreground border-border">
                       <DialogHeader>
                         <DialogTitle>Maly Platforms Inc. DBA Maly – Privacy Policy</DialogTitle>
                         <DialogDescription className="text-muted-foreground">Effective Date: May 17, 2025</DialogDescription>
                       </DialogHeader>
-                      <div className="text-sm space-y-4 mt-4 text-gray-300">
+                      <div className="text-sm space-y-4 mt-4 text-muted-foreground">
                         <p>Your privacy is important to us at Maly. This Privacy Policy explains how we collect, use, and protect your information when you use our platform.</p>
                         
                         <div>
-                          <h3 className="font-bold mb-2 text-white">1. Information We Collect</h3>
+                          <h3 className="font-bold mb-2 text-foreground">1. Information We Collect</h3>
                           <p>We collect information you provide directly (profile details, messages), usage data (interactions, event attendance), and device information.</p>
                         </div>
                         
                         <div>
-                          <h3 className="font-bold mb-2 text-white">2. How We Use Your Information</h3>
+                          <h3 className="font-bold mb-2 text-foreground">2. How We Use Your Information</h3>
                           <p>We use your information to provide services, facilitate connections, improve user experience, and send relevant notifications.</p>
                         </div>
                       </div>

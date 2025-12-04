@@ -142,14 +142,14 @@ export function HamburgerMenu() {
       {/* Theme Toggle Button */}
       <button
         onClick={() => setTheme(effectiveTheme === "dark" ? "light" : "dark")}
-        className="p-2 rounded-full hover:bg-white/10 dark:hover:bg-white/10 hover:bg-black/10 transition-colors"
+        className="p-2 rounded-full hover:bg-foreground/10 transition-colors"
         aria-label="Toggle theme"
         data-testid="button-theme-toggle"
       >
         {effectiveTheme === "dark" ? (
-          <Sun className="w-5 h-5 text-white" />
+          <Sun className="w-5 h-5 text-foreground" />
         ) : (
-          <Moon className="w-5 h-5 text-white" />
+          <Moon className="w-5 h-5 text-foreground" />
         )}
       </button>
       
@@ -159,7 +159,7 @@ export function HamburgerMenu() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-white p-2 hover:bg-white/10"
+            className="text-foreground p-2 hover:bg-foreground/10"
             data-testid="hamburger-menu-button"
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

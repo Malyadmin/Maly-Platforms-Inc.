@@ -314,7 +314,7 @@ export default function DiscoverPage() {
         onClose={handleModalClose} 
       />
       {/* iOS-style Header - Fixed at top */}
-      <div className="bg-black text-foreground shrink-0 z-50">
+      <div className="bg-background text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu (includes theme toggle) */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
@@ -334,7 +334,7 @@ export default function DiscoverPage() {
                 E X P L O R E
               </h2>
               {selectedCity !== 'all' && (
-                <p className="text-white text-sm mt-1">{selectedCity}</p>
+                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
               )}
             </div>
             
@@ -375,7 +375,7 @@ export default function DiscoverPage() {
 
         {/* Filter Bar - Shows when filter icon is clicked */}
         {showFiltersBar && (
-          <div className="border-t border-gray-800">
+          <div className="border-t border-border">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* When */}
@@ -390,12 +390,12 @@ export default function DiscoverPage() {
               </button>
               
               {activeDropdown === 'when' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[140px]">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[140px]">
                   {['Anytime', 'Today', 'This Week', 'This Weekend', 'Next Week', 'Next Month'].map((time) => (
                     <button
                       key={time}
                       onClick={() => { setSelectedTimeFilter(time); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
                       data-testid={`when-option-${time.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {time}
@@ -417,10 +417,10 @@ export default function DiscoverPage() {
               </button>
               
               {activeDropdown === 'city' && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
                   <button
                     onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 first:rounded-t-lg sticky top-0 bg-gray-900 border-b border-gray-700"
+                    className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg sticky top-0 bg-popover border-b border-border"
                     data-testid="city-option-all"
                   >
                     {t('allLocations')}
@@ -429,7 +429,7 @@ export default function DiscoverPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-muted"
                       data-testid={`city-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -439,7 +439,7 @@ export default function DiscoverPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800"
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted"
                       data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -447,7 +447,7 @@ export default function DiscoverPage() {
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-gray-800 last:rounded-b-lg border-t border-gray-700 sticky bottom-0 bg-gray-900"
+                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-muted last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="city-option-add"
                   >
                     + Add City
@@ -468,7 +468,7 @@ export default function DiscoverPage() {
               </button>
               
               {activeDropdown === 'vibes' && (
-                <div className="absolute top-full right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
                   {VIBE_AND_MOOD_TAGS.map((vibe) => (
                     <button
                       key={vibe}
@@ -479,7 +479,7 @@ export default function DiscoverPage() {
                             : [...prev, vibe]
                         );
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-gray-800 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted flex items-center gap-2"
                       data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {selectedEventTypes.includes(vibe) && <span className="text-purple-400">✓</span>}

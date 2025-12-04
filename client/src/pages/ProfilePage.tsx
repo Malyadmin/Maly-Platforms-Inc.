@@ -365,7 +365,7 @@ export default function ProfilePage() {
   }
 
   return (
-<div className="h-screen flex flex-col overflow-hidden bg-black">
+<div className="h-screen flex flex-col overflow-hidden bg-background">
   {/* Header - Fixed at top */}
   <header className="bg-background text-foreground shrink-0 z-50">
     {/* Top bar with MÁLY logo and hamburger menu */}
@@ -387,7 +387,7 @@ export default function ProfilePage() {
               {profileData?.id === currentUser?.id ? 'P R O F I L E' : 'C O N N E C T'}
             </h2>
             {profileData?.location && (
-              <p className="text-white text-sm mt-1">{profileData.location}</p>
+              <p className="text-foreground text-sm mt-1">{profileData.location}</p>
             )}
           </div>
           <button
@@ -400,7 +400,7 @@ export default function ProfilePage() {
                 setLocation("/discover");
               }
             }}
-            className="text-white/80 hover:text-white transition-colors"
+            className="text-foreground/80 hover:text-foreground transition-colors"
             data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -517,7 +517,7 @@ export default function ProfilePage() {
   </div>
 
   {/* Profile Info Section - starts immediately below image */}
-  <div className="bg-black">
+  <div className="bg-background">
     <div className="container mx-auto px-6 py-6 pb-24">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* User Info - Labeled Fields */}
@@ -536,7 +536,7 @@ export default function ProfilePage() {
                   {connectionLoading ? (
                     <button 
                       disabled 
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium opacity-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-border text-muted-foreground text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium opacity-50"
                     >
                       <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                     </button>
@@ -560,7 +560,7 @@ export default function ProfilePage() {
                     <button
                       onClick={() => createConnectionMutation.mutate(profileData.id)}
                       disabled={createConnectionMutation.isPending}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-gray-500/40 text-gray-200 hover:bg-white/10 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-border text-muted-foreground hover:bg-muted/50 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                       data-testid="button-add-contact"
                     >
                       {createConnectionMutation.isPending ? (

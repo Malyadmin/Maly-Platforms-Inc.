@@ -241,7 +241,7 @@ export default function InboxPage() {
         >
           <Avatar className="h-10 w-10">
             <AvatarImage src={avatar} alt={title} />
-            <AvatarFallback className="bg-gray-700 text-gray-300">
+            <AvatarFallback className="bg-muted text-muted-foreground">
               <UserPlus className="h-5 w-5" />
             </AvatarFallback>
           </Avatar>
@@ -249,7 +249,7 @@ export default function InboxPage() {
       ) : (
         <Avatar className="h-10 w-10 mr-3">
           <AvatarImage src={avatar} alt={title} />
-          <AvatarFallback className="bg-gray-700 text-gray-300">
+          <AvatarFallback className="bg-muted text-muted-foreground">
             <UserPlus className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
@@ -299,14 +299,14 @@ export default function InboxPage() {
         </div>
 
         {/* Filter Bar - Always Present */}
-        <div className="bg-background dark:bg-black border-b border-border">
+        <div className="bg-background border-b border-border">
           <div className="px-5 py-3 flex items-center justify-between">
             <button
               onClick={() => setActiveFilter('all')}
               className={`text-sm transition-colors ${
                 activeFilter === 'all' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-all"
             >
@@ -317,7 +317,7 @@ export default function InboxPage() {
               className={`text-sm transition-colors ${
                 activeFilter === 'groups' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-groups"
             >
@@ -328,7 +328,7 @@ export default function InboxPage() {
               className={`text-sm transition-colors ${
                 activeFilter === 'contacts' 
                   ? 'text-purple-400 font-medium' 
-                  : 'text-white hover:text-purple-400'
+                  : 'text-foreground hover:text-purple-400'
               }`}
               data-testid="filter-contacts"
             >
@@ -344,12 +344,12 @@ export default function InboxPage() {
           <div className="space-y-4 p-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex items-center space-x-3">
-                <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
+                <Skeleton className="h-10 w-10 rounded-full bg-muted" />
                 <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-[150px] bg-gray-700" />
-                  <Skeleton className="h-3 w-[100px] bg-gray-700" />
+                  <Skeleton className="h-4 w-[150px] bg-muted" />
+                  <Skeleton className="h-3 w-[100px] bg-muted" />
                 </div>
-                <Skeleton className="h-4 w-4 bg-gray-700" />
+                <Skeleton className="h-4 w-4 bg-muted" />
               </div>
             ))}
           </div>
