@@ -493,6 +493,8 @@ type TranslationKey =
   | 'xAvailable'
   // ChatbotPage strings
   | 'conciergeSpaced'
+  // NotificationPreferencesPage strings
+  | 'alertsSpaced'
   | 'cityGuide'
   | 'welcomeConcierge'
   | 'conciergeBetaDescription'
@@ -1098,6 +1100,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     xAvailable: 'available',
     // ChatbotPage strings
     conciergeSpaced: 'C O N C I E R G E',
+    // NotificationPreferencesPage strings
+    alertsSpaced: 'A L E R T S',
     cityGuide: 'City Guide',
     welcomeConcierge: "Welcome to Maly's Concierge (Beta V1.5)",
     conciergeBetaDescription: 'Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.',
@@ -1703,6 +1707,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     xAvailable: 'disponibles',
     // ChatbotPage strings
     conciergeSpaced: 'C O N S E R J E',
+    // NotificationPreferencesPage strings
+    alertsSpaced: 'A L E R T A S',
     cityGuide: 'Guía de Ciudad',
     welcomeConcierge: 'Bienvenido al Conserje de Maly (Beta V1.5)',
     conciergeBetaDescription: 'Próximamente: Reservaciones de restaurantes, reservas de hotel y recomendaciones de la comunidad.',

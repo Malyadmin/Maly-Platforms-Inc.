@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
+import { useTranslation } from '@/lib/translations';
 
 interface NotificationSettings {
   inAppMessages: boolean;
@@ -21,6 +22,7 @@ interface NotificationSettings {
 export default function NotificationPreferencesPage() {
   const { user } = useUser();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<NotificationSettings>({
@@ -285,8 +287,8 @@ export default function NotificationPreferencesPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            N O T I F I C A T I O N S
+          <h1 className="gradient-text text-lg font-medium uppercase whitespace-nowrap" style={{ letterSpacing: '0.3em' }}>
+            {t('alertsSpaced')}
           </h1>
           
           <HamburgerMenu />
