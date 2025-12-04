@@ -159,6 +159,9 @@ function AppContent() {
           <Route path="/appearance" component={AppearancePage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
+          <Route path="/companion" component={ChatbotPage} />
+          <Route path="/chat/:id" component={ChatPage} />
+          <Route path="/chat/conversation/:conversationId" component={ChatConversationPage} />
           <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
           <Route path="/event/:id/tickets" component={EventTicketsPage} />
           <Route path="/event/:id/invite" component={SelectPeopleToInvitePage} />
