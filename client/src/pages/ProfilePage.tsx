@@ -407,7 +407,9 @@ export default function ProfilePage() {
           )}
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={async () => {
               setShareClicked(true);
               const shareUrl = `${window.location.origin}/profile/${profileData.username || profileData.id}`;
@@ -429,14 +431,11 @@ export default function ProfilePage() {
                 });
               }
             }}
-            className="p-0 bg-transparent border-0 transition-colors hover:opacity-80"
+            className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
+            data-testid="button-share"
           >
-            <Share 
-              className="h-6 w-6" 
-              strokeWidth={2.5}
-              color={shareClicked ? '#9333ea' : '#9ca3af'}
-            />
-          </button>
+            <Share className="h-6 w-6" />
+          </Button>
         )}
       </div>
     </div>

@@ -316,7 +316,9 @@ export default function EventPage() {
               <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
             </div>
             {/* Share Button - includes share token for private/friends events */}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={async () => {
                 setShareClicked(true);
                 // Build share URL with token if host and event is private/friends
@@ -354,14 +356,11 @@ export default function EventPage() {
                   });
                 }
               }}
-              className="p-2 hover:bg-foreground/10 rounded-lg transition-colors"
+              className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
               data-testid="button-share"
             >
-              <Share 
-                className={`h-7 w-7 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
-                strokeWidth={2}
-              />
-            </button>
+              <Share className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </header>
