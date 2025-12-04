@@ -90,8 +90,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, ProfilePage, EventPage, CreateEventFlowPage, CreatorDashboardPage, PaymentMethodsPage, and SignupFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && location !== '/payment-methods' && location !== '/notification-preferences' && location !== '/appearance';
+  // Exclude pages with their own headers from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && !location.startsWith('/companion') && !location.startsWith('/chat') && location !== '/payment-methods' && location !== '/notification-preferences' && location !== '/appearance';
 
   return (
     <>

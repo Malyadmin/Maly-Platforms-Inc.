@@ -204,19 +204,31 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Fixed Header - Simple back button and hamburger menu */}
+      {/* Fixed Header - MALY logo, back button, and hamburger menu */}
       <header className="sticky top-0 bg-background border-b border-border shrink-0 z-50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation('/inbox')}
-            data-testid="back-to-inbox"
-            className="text-foreground hover:bg-foreground/10 p-2"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <HamburgerMenu />
+        <div className="px-4 pt-3">
+          {/* Row 1: MALY Logo left, Hamburger right */}
+          <div className="flex items-center justify-between pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-8 w-auto"
+            />
+            <HamburgerMenu />
+          </div>
+          
+          {/* Row 2: Back button */}
+          <div className="pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation('/inbox')}
+              data-testid="back-to-inbox"
+              className="text-foreground hover:bg-foreground/10 p-1"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
