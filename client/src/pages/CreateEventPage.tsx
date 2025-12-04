@@ -313,7 +313,7 @@ export default function CreateEventPage() {
                 <SelectContent className="max-h-[300px]">
                   {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
                     <div key={region}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-purple-400 bg-muted/50">
+                      <div className="px-2 py-1.5 text-xs font-semibold text-white uppercase">
                         {region}
                       </div>
                       {Object.entries(countries).map(([country, cities]) => (
