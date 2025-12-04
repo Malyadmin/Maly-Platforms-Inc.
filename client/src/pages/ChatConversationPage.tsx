@@ -204,8 +204,8 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Fixed Header Section - All stays fixed at top */}
-      <header className="bg-black text-white shrink-0 z-50">
+      {/* Fixed Header Section - Sticky at top */}
+      <header className="sticky top-0 bg-black text-white shrink-0 z-50">
         {/* Row 1: MALY Logo */}
         <div className="px-5 pt-3 pb-2">
           <img 
@@ -237,8 +237,8 @@ export default function ChatConversationPage() {
         </div>
       </header>
 
-      {/* Fixed Profile Bar - Doesn't scroll with messages */}
-      <div className="w-full bg-black border-b border-gray-800 shrink-0">
+      {/* Fixed Profile Bar - Sticky under header, never moves */}
+      <div className="sticky top-0 w-full bg-black border-b border-gray-800 shrink-0 z-40">
         <div className="flex flex-row items-center px-5 py-3">
           {isLoading && !conversation ? (
             <div className="flex items-center">
@@ -313,8 +313,12 @@ export default function ChatConversationPage() {
         </div>
       </div>
 
-      {/* Scrollable Messages Area - Only messages scroll */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 bg-background" data-testid="messages-container">
+      {/* Scrollable Messages Area - Only this section scrolls */}
+      <div 
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 bg-background pb-36" 
+        style={{ overscrollBehavior: 'contain' }}
+        data-testid="messages-container"
+      >
             {isLoading && messages.length === 0 ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -420,8 +424,11 @@ export default function ChatConversationPage() {
             )}
       </div>
       
-      {/* Fixed Message Input - Stuck above bottom navigation */}
-      <div className="w-full px-4 pt-3 pb-2 bg-black border-t border-gray-800 shrink-0" style={{ marginBottom: '80px' }}>
+      {/* Fixed Message Input - Absolutely positioned above bottom navigation */}
+      <div 
+        className="fixed left-0 right-0 px-4 pt-3 bg-black border-t border-gray-800 z-50"
+        style={{ bottom: '80px', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
+      >
         <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
           <div className="flex-1">
             <Textarea 
