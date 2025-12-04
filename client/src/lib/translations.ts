@@ -626,7 +626,43 @@ type TranslationKey =
   | 'usernameRequired'
   | 'emailRequired'
   | 'passwordsDoNotMatch'
-  | 'mustAcceptTermsAndPrivacy';
+  | 'mustAcceptTermsAndPrivacy'
+  // Creator Dashboard Page strings
+  | 'dashboardSpaced'
+  | 'myEvents'
+  | 'analytics'
+  | 'ticketSales'
+  | 'rsvps'
+  | 'views'
+  | 'tickets'
+  | 'revenue'
+  | 'earnings'
+  | 'totalRevenue'
+  | 'ticketsSold'
+  | 'platformFee'
+  | 'yourEarnings'
+  | 'noTicketSalesYet'
+  | 'salesWillAppear'
+  | 'completed'
+  | 'noPendingRsvpRequests'
+  | 'noCompletedRsvpRequests'
+  | 'acceptRsvpRequest'
+  | 'declineRsvpRequest'
+  | 'confirmAcceptRsvp'
+  | 'confirmDeclineRsvp'
+  | 'yesAccept'
+  | 'yesDecline'
+  | 'noEventsCreatedYet'
+  | 'createYourFirstEvent'
+  | 'noAnalyticsAvailable'
+  | 'failedToLoadDashboard'
+  | 'failedToLoadRsvpApplications'
+  | 'dateTbd'
+  | 'ticket'
+  | 'pleaseLoginToViewDashboard'
+  | 'goToLogin'
+  | 'accepted'
+  | 'declined';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -1233,7 +1269,43 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     usernameRequired: 'Username is required',
     emailRequired: 'Email is required',
     passwordsDoNotMatch: 'Passwords do not match',
-    mustAcceptTermsAndPrivacy: 'You must accept the Terms and Privacy Policy'
+    mustAcceptTermsAndPrivacy: 'You must accept the Terms and Privacy Policy',
+    // Creator Dashboard Page strings
+    dashboardSpaced: 'D A S H B O A R D',
+    myEvents: 'My Events',
+    analytics: 'Analytics',
+    ticketSales: 'Ticket Sales',
+    rsvps: 'RSVPs',
+    views: 'Views',
+    tickets: 'Tickets',
+    revenue: 'Revenue',
+    earnings: 'Earnings',
+    totalRevenue: 'Total Revenue',
+    ticketsSold: 'Tickets Sold',
+    platformFee: 'Platform Fee (3%)',
+    yourEarnings: 'Your Earnings',
+    noTicketSalesYet: 'No ticket sales yet',
+    salesWillAppear: 'Sales will appear here when tickets are purchased',
+    completed: 'Completed',
+    noPendingRsvpRequests: 'No pending RSVP requests',
+    noCompletedRsvpRequests: 'No completed RSVP requests (last 30 days)',
+    acceptRsvpRequest: 'Accept RSVP Request?',
+    declineRsvpRequest: 'Decline RSVP Request?',
+    confirmAcceptRsvp: "Are you sure you want to accept this RSVP request? They will be added to the event group chat and receive a notification.",
+    confirmDeclineRsvp: "Are you sure you want to decline this RSVP request? They will receive a notification.",
+    yesAccept: 'Yes, Accept',
+    yesDecline: 'Yes, Decline',
+    noEventsCreatedYet: 'No events created yet',
+    createYourFirstEvent: 'Create Your First Event',
+    noAnalyticsAvailable: 'No analytics available',
+    failedToLoadDashboard: 'Failed to load dashboard data',
+    failedToLoadRsvpApplications: 'Failed to load RSVP applications',
+    dateTbd: 'Date TBD',
+    ticket: 'ticket',
+    pleaseLoginToViewDashboard: 'Please log in to view your creator dashboard',
+    goToLogin: 'Go to Login',
+    accepted: 'Accepted',
+    declined: 'Declined'
   },
   es: {
     events: 'Eventos',
@@ -1840,7 +1912,43 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     usernameRequired: 'El nombre de usuario es requerido',
     emailRequired: 'El correo electrónico es requerido',
     passwordsDoNotMatch: 'Las contraseñas no coinciden',
-    mustAcceptTermsAndPrivacy: 'Debes aceptar los Términos y Política de Privacidad'
+    mustAcceptTermsAndPrivacy: 'Debes aceptar los Términos y Política de Privacidad',
+    // Creator Dashboard Page strings
+    dashboardSpaced: 'P A N E L',
+    myEvents: 'Mis Eventos',
+    analytics: 'Estadísticas',
+    ticketSales: 'Ventas',
+    rsvps: 'RSVPs',
+    views: 'Vistas',
+    tickets: 'Entradas',
+    revenue: 'Ingresos',
+    earnings: 'Ganancias',
+    totalRevenue: 'Ingresos Totales',
+    ticketsSold: 'Entradas Vendidas',
+    platformFee: 'Comisión (3%)',
+    yourEarnings: 'Tus Ganancias',
+    noTicketSalesYet: 'Aún no hay ventas de entradas',
+    salesWillAppear: 'Las ventas aparecerán aquí cuando se compren entradas',
+    completed: 'Completado',
+    noPendingRsvpRequests: 'No hay solicitudes RSVP pendientes',
+    noCompletedRsvpRequests: 'No hay solicitudes RSVP completadas (últimos 30 días)',
+    acceptRsvpRequest: '¿Aceptar Solicitud RSVP?',
+    declineRsvpRequest: '¿Rechazar Solicitud RSVP?',
+    confirmAcceptRsvp: "¿Seguro que quieres aceptar esta solicitud RSVP? Se añadirá al chat del evento y recibirá una notificación.",
+    confirmDeclineRsvp: "¿Seguro que quieres rechazar esta solicitud RSVP? Recibirá una notificación.",
+    yesAccept: 'Sí, Aceptar',
+    yesDecline: 'Sí, Rechazar',
+    noEventsCreatedYet: 'Aún no has creado eventos',
+    createYourFirstEvent: 'Crea Tu Primer Evento',
+    noAnalyticsAvailable: 'No hay estadísticas disponibles',
+    failedToLoadDashboard: 'Error al cargar datos del panel',
+    failedToLoadRsvpApplications: 'Error al cargar solicitudes RSVP',
+    dateTbd: 'Fecha por confirmar',
+    ticket: 'entrada',
+    pleaseLoginToViewDashboard: 'Inicia sesión para ver tu panel de creador',
+    goToLogin: 'Ir a Iniciar Sesión',
+    accepted: 'Aceptado',
+    declined: 'Rechazado'
   }
 };
 

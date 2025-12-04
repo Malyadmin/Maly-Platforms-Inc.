@@ -9,6 +9,7 @@ import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 import { IOSEventCard } from '@/components/ui/ios-event-card';
 import { UserListModal } from '@/components/UserListModal';
+import { useTranslation } from '@/lib/translations';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -104,6 +105,7 @@ export default function CreatorDashboardPage() {
   const [, setLocation] = useLocation();
   const { user } = useUser();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<'events' | 'analytics' | 'sales' | 'rsvps'>('events');
   const [rsvpSection, setRsvpSection] = useState<'pending' | 'completed'>('pending');
   const [confirmDialog, setConfirmDialog] = useState<RSVPConfirmation>({
@@ -212,7 +214,7 @@ export default function CreatorDashboardPage() {
         <div>
           <p className="text-foreground font-medium text-sm">{event.title}</p>
           <p className="text-muted-foreground text-xs">
-            {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
+            {event.date ? format(new Date(event.date), 'MMM d, yyyy') : t('dateTbd')}
           </p>
         </div>
       </div>
@@ -230,7 +232,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <Eye className="h-4 w-4 text-blue-400" />
-            <span className="text-xs text-muted-foreground">Views</span>
+            <span className="text-xs text-muted-foreground">{t('views')}</span>
           </div>
           <p className="text-foreground text-xl font-semibold">{event.analytics?.totalViews || 0}</p>
         </button>
@@ -247,7 +249,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <UserCheck className="h-4 w-4 text-green-400" />
-            <span className="text-xs text-muted-foreground">Attending</span>
+            <span className="text-xs text-muted-foreground">{t('attending')}</span>
           </div>
           <p className="text-foreground text-xl font-semibold">{event.analytics?.attendingCount || 0}</p>
         </button>
@@ -264,7 +266,7 @@ export default function CreatorDashboardPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <Users className="h-4 w-4 text-purple-400" />
-            <span className="text-xs text-muted-foreground">Interested</span>
+            <span className="text-xs text-muted-foreground">{t('interested')}</span>
           </div>
           <p className="text-foreground text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
         </button>
@@ -320,7 +322,7 @@ export default function CreatorDashboardPage() {
           data-testid={`approve-rsvp-${rsvp.id}`}
         >
           <Check className="h-4 w-4 mr-1" />
-          Accept
+          {t('accept')}
         </Button>
         <Button
           onClick={() => setConfirmDialog({
@@ -336,7 +338,7 @@ export default function CreatorDashboardPage() {
           data-testid={`decline-rsvp-${rsvp.id}`}
         >
           <X className="h-4 w-4 mr-1" />
-          Decline
+          {t('decline')}
         </Button>
       </div>
     </div>
@@ -344,7 +346,7 @@ export default function CreatorDashboardPage() {
 
   const renderCompletedRSVP = (rsvp: PendingRSVP) => {
     const isApproved = rsvp.status === 'attending' || rsvp.status === 'interested';
-    const statusText = isApproved ? 'Accepted' : 'Declined';
+    const statusText = isApproved ? t('accepted') : t('declined');
     const statusColor = isApproved ? 'text-green-400' : 'text-red-400';
     const StatusIcon = isApproved ? CheckCircle2 : XCircle;
 
@@ -375,9 +377,9 @@ export default function CreatorDashboardPage() {
   if (!user) {
     return (
       <div className="h-screen bg-background dark:bg-black text-foreground flex flex-col items-center justify-center gap-4">
-        <p>Please log in to view your creator dashboard</p>
+        <p>{t('pleaseLoginToViewDashboard')}</p>
         <Button onClick={() => setLocation('/auth')} className="bg-purple-600 hover:bg-purple-700">
-          Go to Login
+          {t('goToLogin')}
         </Button>
       </div>
     );
@@ -400,7 +402,7 @@ export default function CreatorDashboardPage() {
         {/* Dashboard title with gradient */}
         <div className="px-5 pb-3">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            D A S H B O A R D
+            {t('dashboardSpaced')}
           </h2>
         </div>
 
@@ -416,7 +418,7 @@ export default function CreatorDashboardPage() {
               }`}
               data-testid="filter-events"
             >
-              My Events
+              {t('myEvents')}
             </button>
             <button
               onClick={() => setActiveFilter('analytics')}
@@ -427,7 +429,7 @@ export default function CreatorDashboardPage() {
               }`}
               data-testid="filter-analytics"
             >
-              Analytics
+              {t('analytics')}
             </button>
             <button
               onClick={() => setActiveFilter('sales')}
@@ -438,7 +440,7 @@ export default function CreatorDashboardPage() {
               }`}
               data-testid="filter-sales"
             >
-              Ticket Sales
+              {t('ticketSales')}
             </button>
             <button
               onClick={() => setActiveFilter('rsvps')}
@@ -449,7 +451,7 @@ export default function CreatorDashboardPage() {
               }`}
               data-testid="filter-rsvps"
             >
-              RSVPs
+              {t('rsvps')}
             </button>
           </div>
         </div>
@@ -466,7 +468,7 @@ export default function CreatorDashboardPage() {
         ) : error ? (
           <div className="p-4">
             <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
-              <p className="text-red-400 font-medium">Failed to load dashboard data</p>
+              <p className="text-red-400 font-medium">{t('failedToLoadDashboard')}</p>
               <p className="text-red-300 text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
               <p className="text-muted-foreground text-xs mt-2">User ID: {user?.id || 'Not found'}</p>
             </div>
@@ -478,12 +480,12 @@ export default function CreatorDashboardPage() {
               <div>
                 {!data?.events || data.events.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p className="text-muted-foreground text-sm">No events created yet</p>
+                    <p className="text-muted-foreground text-sm">{t('noEventsCreatedYet')}</p>
                     <Button
                       onClick={() => setLocation('/create-event')}
                       className="mt-4 bg-purple-600 hover:bg-purple-700"
                     >
-                      Create Your First Event
+                      {t('createYourFirstEvent')}
                     </Button>
                   </div>
                 ) : (
@@ -516,7 +518,7 @@ export default function CreatorDashboardPage() {
               <div>
                 {!data?.events || data.events.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p className="text-muted-foreground text-sm">No analytics available</p>
+                    <p className="text-muted-foreground text-sm">{t('noAnalyticsAvailable')}</p>
                   </div>
                 ) : (
                   <div className="mt-4">
@@ -534,19 +536,19 @@ export default function CreatorDashboardPage() {
                   <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg p-4 mb-4 border border-purple-500/20">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs text-muted-foreground">Total Revenue</p>
+                        <p className="text-xs text-muted-foreground">{t('totalRevenue')}</p>
                         <p className="text-xl font-bold text-green-400">${data.salesSummary.totalRevenue.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Tickets Sold</p>
+                        <p className="text-xs text-muted-foreground">{t('ticketsSold')}</p>
                         <p className="text-xl font-bold text-foreground">{data.salesSummary.totalTicketsSold}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Platform Fee (3%)</p>
+                        <p className="text-xs text-muted-foreground">{t('platformFee')}</p>
                         <p className="text-sm text-muted-foreground">-${data.salesSummary.totalPlatformFees.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Your Earnings</p>
+                        <p className="text-xs text-muted-foreground">{t('yourEarnings')}</p>
                         <p className="text-lg font-semibold text-green-400">${data.salesSummary.totalNetRevenue.toFixed(2)}</p>
                       </div>
                     </div>
@@ -557,8 +559,8 @@ export default function CreatorDashboardPage() {
                 {!data?.events || data.events.every(e => (e.analytics?.ticketsSold || 0) === 0) ? (
                   <div className="py-8 text-center">
                     <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                    <p className="text-muted-foreground text-sm">No ticket sales yet</p>
-                    <p className="text-muted-foreground text-xs mt-1">Sales will appear here when tickets are purchased</p>
+                    <p className="text-muted-foreground text-sm">{t('noTicketSalesYet')}</p>
+                    <p className="text-muted-foreground text-xs mt-1">{t('salesWillAppear')}</p>
                   </div>
                 ) : (
                   <div className="mt-4 space-y-3">
@@ -575,7 +577,7 @@ export default function CreatorDashboardPage() {
                           <div className="flex-1">
                             <p className="text-foreground font-medium text-sm">{event.title}</p>
                             <p className="text-muted-foreground text-xs">
-                              {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
+                              {event.date ? format(new Date(event.date), 'MMM d, yyyy') : t('dateTbd')}
                             </p>
                           </div>
                         </div>
@@ -583,15 +585,15 @@ export default function CreatorDashboardPage() {
                         <div className="grid grid-cols-3 gap-3 text-center">
                           <div className="bg-gray-800/50 rounded-lg p-2">
                             <p className="text-lg font-semibold text-foreground">{event.analytics?.ticketsSold || 0}</p>
-                            <p className="text-xs text-muted-foreground">Tickets</p>
+                            <p className="text-xs text-muted-foreground">{t('tickets')}</p>
                           </div>
                           <div className="bg-gray-800/50 rounded-lg p-2">
                             <p className="text-lg font-semibold text-green-400">${(event.analytics?.grossRevenue || 0).toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">Revenue</p>
+                            <p className="text-xs text-muted-foreground">{t('revenue')}</p>
                           </div>
                           <div className="bg-gray-800/50 rounded-lg p-2">
                             <p className="text-lg font-semibold text-green-400">${(event.analytics?.netRevenue || 0).toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">Earnings</p>
+                            <p className="text-xs text-muted-foreground">{t('earnings')}</p>
                           </div>
                         </div>
                       </div>
@@ -607,7 +609,7 @@ export default function CreatorDashboardPage() {
                 {applicationsError ? (
                   <div className="p-4">
                     <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
-                      <p className="text-red-400 font-medium">Failed to load RSVP applications</p>
+                      <p className="text-red-400 font-medium">{t('failedToLoadRsvpApplications')}</p>
                       <p className="text-red-300 text-sm mt-2">{applicationsError instanceof Error ? applicationsError.message : 'Unknown error'}</p>
                     </div>
                   </div>
@@ -624,7 +626,7 @@ export default function CreatorDashboardPage() {
                         }`}
                         data-testid="tab-pending-rsvps"
                       >
-                        Pending ({applicationsData?.totalPending || 0})
+                        {t('pending')} ({applicationsData?.totalPending || 0})
                       </button>
                       <button
                         onClick={() => setRsvpSection('completed')}
@@ -635,7 +637,7 @@ export default function CreatorDashboardPage() {
                         }`}
                         data-testid="tab-completed-rsvps"
                       >
-                        Completed ({applicationsData?.totalCompleted || 0})
+                        {t('completed')} ({applicationsData?.totalCompleted || 0})
                       </button>
                     </div>
 
@@ -652,7 +654,7 @@ export default function CreatorDashboardPage() {
                           <div>
                             {!applicationsData?.pending || applicationsData.pending.length === 0 ? (
                               <div className="py-8 text-center">
-                                <p className="text-muted-foreground text-sm">No pending RSVP requests</p>
+                                <p className="text-muted-foreground text-sm">{t('noPendingRsvpRequests')}</p>
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -667,7 +669,7 @@ export default function CreatorDashboardPage() {
                           <div>
                             {!applicationsData?.completed || applicationsData.completed.length === 0 ? (
                               <div className="py-8 text-center">
-                                <p className="text-muted-foreground text-sm">No completed RSVP requests (last 30 days)</p>
+                                <p className="text-muted-foreground text-sm">{t('noCompletedRsvpRequests')}</p>
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -708,12 +710,12 @@ export default function CreatorDashboardPage() {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground">
-              {confirmDialog.type === 'accept' ? 'Accept RSVP Request?' : 'Decline RSVP Request?'}
+              {confirmDialog.type === 'accept' ? t('acceptRsvpRequest') : t('declineRsvpRequest')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
               {confirmDialog.type === 'accept' 
-                ? `Are you sure you want to accept ${confirmDialog.userName}'s RSVP request? They will be added to the event group chat and receive a notification.`
-                : `Are you sure you want to decline ${confirmDialog.userName}'s RSVP request? They will receive a notification.`
+                ? t('confirmAcceptRsvp')
+                : t('confirmDeclineRsvp')
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -722,7 +724,7 @@ export default function CreatorDashboardPage() {
               className="bg-gray-800 text-foreground hover:bg-gray-700"
               data-testid="confirm-dialog-cancel"
             >
-              Cancel
+              {t('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -740,7 +742,7 @@ export default function CreatorDashboardPage() {
               }
               data-testid="confirm-dialog-confirm"
             >
-              {confirmDialog.type === 'accept' ? 'Yes, Accept' : 'Yes, Decline'}
+              {confirmDialog.type === 'accept' ? t('yesAccept') : t('yesDecline')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
