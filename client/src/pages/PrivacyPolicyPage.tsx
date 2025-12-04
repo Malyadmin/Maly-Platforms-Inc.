@@ -19,8 +19,8 @@ export default function PrivacyPolicyPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-            Privacy Policy
+          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            P R I V A C Y
           </h1>
           
           <HamburgerMenu />

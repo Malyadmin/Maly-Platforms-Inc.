@@ -155,7 +155,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
                   <ChevronLeft className="w-6 h-6" />
                 </button>
               )}
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
             </div>
             
             <Button
@@ -323,7 +323,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
             </div>
             
             <Button
@@ -441,7 +441,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
             </div>
             
             <Button
@@ -564,7 +564,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
             </div>
             
             <Button
@@ -697,7 +697,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Sign Up</h2>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>S I G N U P</h2>
             </div>
             
             <button

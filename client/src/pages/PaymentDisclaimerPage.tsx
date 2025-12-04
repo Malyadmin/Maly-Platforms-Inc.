@@ -22,8 +22,8 @@ export default function PaymentDisclaimerPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-            Payment Disclaimer
+          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            P A Y M E N T S
           </h1>
           
           <HamburgerMenu />

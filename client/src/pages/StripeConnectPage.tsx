@@ -145,8 +145,8 @@ export default function StripeConnectPage() {
               <ArrowLeft className="h-6 w-6" />
             </Button>
             
-            <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-              Payment Setup
+            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              P A Y M E N T S
             </h1>
             
             <HamburgerMenu />

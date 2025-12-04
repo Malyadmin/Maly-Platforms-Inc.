@@ -19,8 +19,8 @@ export default function TermsPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-            Terms & Conditions
+          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            T E R M S
           </h1>
           
           <HamburgerMenu />

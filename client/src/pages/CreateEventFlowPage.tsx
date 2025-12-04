@@ -55,7 +55,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <BackButton onClick={onBack} className="text-foreground" />
             )}
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -236,7 +236,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -515,7 +515,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -811,7 +811,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -981,7 +981,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -1229,7 +1229,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-xl font-medium uppercase" style={{ letterSpacing: '0.3em' }}>Create</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>

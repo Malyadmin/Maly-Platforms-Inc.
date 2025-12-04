@@ -764,7 +764,7 @@ export function ConnectPage() {
                     <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
                       {/* Name - aligned to top */}
                       <h3 
-                        className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-foreground leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
+                        className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
                         onClick={() => handleUserClick(user)}
                       >
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
@@ -774,19 +774,19 @@ export function ConnectPage() {
                       {/* Middle elements - evenly spaced */}
                       <div className="flex-1 flex flex-col justify-evenly">
                         {user.profession && (
-                          <p className="text-sm text-foreground/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate font-normal">
                             {user.profession}
                           </p>
                         )}
                         
                         {user.location && (
-                          <p className="text-sm text-foreground/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate font-normal">
                             {user.location}
                           </p>
                         )}
                         
                         {userVibes && (
-                          <p className="text-sm text-foreground/80 truncate">
+                          <p className="text-sm text-foreground/80 truncate font-normal">
                             {userVibes}
                           </p>
                         )}
@@ -794,7 +794,7 @@ export function ConnectPage() {
                       
                       {/* Intention - aligned to bottom */}
                       {userIntention && (
-                        <p className="text-sm text-foreground truncate">
+                        <p className="text-sm text-foreground truncate font-normal">
                           {userIntention}
                         </p>
                       )}

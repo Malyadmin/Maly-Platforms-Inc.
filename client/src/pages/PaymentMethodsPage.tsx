@@ -65,7 +65,7 @@ export default function PaymentMethodsPage() {
         
         <div className="px-5 pb-3">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            Payment Methods
+            P A Y M E N T S
           </h2>
         </div>
       </header>

@@ -465,7 +465,7 @@ export default function EditProfilePage() {
               <ChevronLeft className="w-6 h-6" />
             </button>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              Edit Profile
+              E D I T
             </h2>
           </div>
         </div>

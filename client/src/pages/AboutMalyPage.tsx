@@ -19,8 +19,8 @@ export default function AboutMalyPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-            About Maly
+          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            A B O U T
           </h1>
           
           <HamburgerMenu />

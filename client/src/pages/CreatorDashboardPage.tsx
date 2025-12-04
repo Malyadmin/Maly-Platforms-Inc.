@@ -388,7 +388,7 @@ export default function CreatorDashboardPage() {
         {/* Dashboard title with gradient */}
         <div className="px-5 pb-3">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            Creator Dashboard
+            D A S H B O A R D
           </h2>
         </div>
 

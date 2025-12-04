@@ -285,8 +285,8 @@ export default function NotificationPreferencesPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
-            Notifications
+          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            N O T I F I C A T I O N S
           </h1>
           
           <HamburgerMenu />
