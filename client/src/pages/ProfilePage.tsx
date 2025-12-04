@@ -444,8 +444,8 @@ export default function ProfilePage() {
 
   {/* Scrollable content area */}
   <div className="flex-1 overflow-y-auto">
-    {/* Profile Image with Name Overlay - sized to show name/location immediately */}
-    <div className="relative w-full" style={{ height: 'calc(100vh - 180px)' }}>
+    {/* Profile Image with Name Overlay - compact height to show name/location immediately */}
+    <div className="relative w-full h-[50vh] min-h-[280px] max-h-[400px]">
     {(() => {
       const profileImagesArray: string[] = (profileData.profileImages && profileData.profileImages.length > 0)
         ? profileData.profileImages 
@@ -460,9 +460,9 @@ export default function ProfilePage() {
           <img 
             src={currentImage} 
             alt={profileData.fullName || profileData.username}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-top"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90"></div>
           
           {profileImagesArray.length > 1 && (
             <>
@@ -492,7 +492,7 @@ export default function ProfilePage() {
         </div>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-          <div className="text-9xl font-bold text-foreground/20">
+          <div className="text-7xl font-bold text-foreground/20">
             {profileData.username[0].toUpperCase()}
           </div>
         </div>
@@ -500,15 +500,15 @@ export default function ProfilePage() {
     })()}
     
     {/* Name and Location overlay - positioned at bottom of image */}
-    <div className="absolute bottom-4 left-0 right-0 px-6 z-10">
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight flex items-center gap-3 drop-shadow-lg">
+    <div className="absolute bottom-4 left-0 right-0 px-5 z-10">
+      <div className="space-y-0.5">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-2 drop-shadow-lg">
           <span>{profileData.fullName || profileData.username}</span>
-          {profileData.isPremium && <PremiumBadge size="lg" />}
+          {profileData.isPremium && <PremiumBadge size="md" />}
         </h1>
         
         {profileData.location && (
-          <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+          <p className="text-white/90 text-sm drop-shadow-md">
             {t(profileData.location)}
           </p>
         )}
@@ -516,7 +516,7 @@ export default function ProfilePage() {
     </div>
   </div>
 
-  {/* Scrollable Content Section */}
+  {/* Profile Info Section - starts immediately below image */}
   <div className="bg-black">
     <div className="container mx-auto px-6 py-6 pb-24">
       <div className="max-w-2xl mx-auto space-y-6">
