@@ -444,7 +444,7 @@ export default function DiscoverPage() {
                   ))}
                   {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
                     <div key={region}>
-                      <div className="px-4 py-2 text-xs font-semibold text-white uppercase">
+                      <div className="px-4 py-2 text-xs font-semibold text-foreground uppercase">
                         {region}
                       </div>
                       {Object.entries(countries).map(([country, cities]) => (
