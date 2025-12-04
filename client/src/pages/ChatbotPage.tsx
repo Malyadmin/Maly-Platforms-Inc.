@@ -7,7 +7,7 @@ import { useChat } from "@/hooks/use-chat";
 import { 
   Loader2, Send, Bot, User, Globe,
   Wine, HeartHandshake, Plane, 
-  Building, MapPin, ChevronLeft
+  Building, MapPin, ChevronLeft, ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientHeader } from "@/components/ui/GradientHeader";
@@ -78,9 +78,22 @@ export default function ChatbotPage() {
   const { language } = useLanguage();
   const [input, setInput] = useState("");
   const [selectedCity, setSelectedCity] = useState("Mexico City");
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   const quickPrompts = getQuickPrompts(t, language);
   const { toast } = useToast();
   const hasShownToast = useRef(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCityDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   // Initialize messages with translated greeting
   useEffect(() => {
@@ -162,25 +175,43 @@ export default function ChatbotPage() {
 
       <div className="p-4">
         {/* City selector */}
-        <div className="max-w-2xl mx-auto mb-4">
-          <select 
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-            className="bg-transparent border border-border rounded-md px-3 py-2 text-sm w-full sm:w-auto text-foreground"
+        <div className="max-w-2xl mx-auto mb-4 relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowCityDropdown(!showCityDropdown)}
+            className="bg-transparent border border-border rounded-md px-3 py-2 text-sm w-full sm:w-auto text-foreground flex items-center justify-between gap-2 min-w-[200px]"
             aria-label="Select a city"
           >
-            {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
-              <optgroup key={region} label={region} className="text-white uppercase font-semibold bg-background">
-                {Object.entries(countries).map(([country, cities]) => (
-                  cities.map(city => (
-                    <option key={city} value={city} className="bg-background text-foreground pl-4">
-                      {city}
-                    </option>
-                  ))
-                ))}
-              </optgroup>
-            ))}
-          </select>
+            <span>{selectedCity}</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${showCityDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {showCityDropdown && (
+            <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[250px] max-h-[400px] overflow-y-auto">
+              {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                <div key={region}>
+                  <div className="px-4 py-2 text-xs font-semibold text-white uppercase">
+                    {region}
+                  </div>
+                  {Object.entries(countries).map(([country, cities]) => (
+                    <div key={country}>
+                      <div className="px-4 py-1 text-xs text-muted-foreground bg-background/50">
+                        {country}
+                      </div>
+                      {cities.map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => { setSelectedCity(city); setShowCityDropdown(false); }}
+                          className={`w-full text-left px-6 py-2 text-sm hover:bg-accent ${selectedCity === city ? 'text-purple-400' : 'text-foreground'}`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="max-w-2xl mx-auto">
