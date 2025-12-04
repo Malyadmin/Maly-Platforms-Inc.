@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -23,26 +23,17 @@ import {
 import { 
   CalendarIcon, 
   Plus, 
-  Loader2,
-  ChevronsUpDown
+  Loader2
 } from "lucide-react";
 import { GradientHeader } from "@/components/ui/GradientHeader";
 import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
-import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useTranslation } from "@/lib/translations";
 import StripeConnectBanner from "@/components/StripeConnectBanner";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
-
-// Define a simple schema for our form
-// Define a schema for itinerary items
-const itineraryItemSchema = z.object({
-  startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "End time is required"),
-  description: z.string().min(1, "Description is required"),
-});
+import { Globe, Lock, Users } from "lucide-react";
 
 const eventSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -50,14 +41,11 @@ const eventSchema = z.object({
   location: z.string().min(3, "Location is required"),
   address: z.string().optional(),
   price: z.coerce.number().min(0).default(0),
-  isPrivate: z.boolean().default(false),
-  // Add a proper date validator to ensure valid dates
+  privacy: z.enum(["public", "private", "friends"]).default("public"),
+  isRsvp: z.boolean().default(false),
   date: z.string()
     .refine(val => !isNaN(Date.parse(val)), "Please enter a valid date")
     .default(() => new Date().toISOString()),
-  // Add itinerary field (optional array of itinerary items)
-  itinerary: z.array(itineraryItemSchema).optional().default([]),
-  // Include category field even though we don't show it in the UI anymore
   category: z.string().default("Other"),
 });
 
@@ -86,9 +74,8 @@ export default function CreateEventPage() {
       location: "",
       date: new Date().toISOString(),
       price: 0,
-      isPrivate: false,
-      itinerary: [], // Initialize with empty array
-      // Include a default category even though we don't show it in the UI anymore
+      privacy: "public",
+      isRsvp: false,
       category: "Other"
     },
   });
@@ -154,14 +141,8 @@ export default function CreateEventPage() {
       // Add all form fields
       Object.entries(data).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          if (key === 'itinerary' && Array.isArray(value)) {
-            // Serialize the itinerary array to JSON
-            formData.append(key, JSON.stringify(value));
-            console.log(`Added itinerary field with ${value.length} items`);
-          } else {
-            formData.append(key, value.toString());
-            console.log(`Added form field: ${key} = ${value}`);
-          }
+          formData.append(key, value.toString());
+          console.log(`Added form field: ${key} = ${value}`);
         }
       });
 
@@ -436,15 +417,82 @@ export default function CreateEventPage() {
               )}
             </div>
 
-            {/* Event Itinerary */}
-            <div className="space-y-4 bg-white/5 p-6 rounded-lg">
-              <FormProvider {...form}>
-                <ItineraryFormField name="itinerary" />
-              </FormProvider>
-              {form.formState.errors.itinerary && (
-                <p className="text-red-500 text-xs">Please check itinerary details</p>
-              )}
+            {/* Event Privacy */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">{t('eventPrivacy') || 'Event Privacy'}</h3>
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "public")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "public"
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <Globe className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('public') || 'Public'}</p>
+                    <p className="text-xs text-white/60">{t('publicEventDesc') || 'Visible to everyone on Explore'}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "private")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "private"
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <Lock className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('private') || 'Private'}</p>
+                    <p className="text-xs text-white/60">{t('privateEventDesc') || 'Shows blurred on Explore, accessible via link'}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "friends")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "friends"
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <Users className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('friendsOnly') || 'Friends Only'}</p>
+                    <p className="text-xs text-white/60">{t('friendsOnlyDesc') || 'Only accessible via shared link'}</p>
+                  </div>
+                </button>
+              </div>
             </div>
+
+            {/* RSVP Option (for free events) */}
+            {form.watch("price") === 0 && (
+              <div className="space-y-4">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("isRsvp", !form.watch("isRsvp"))}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all w-full ${
+                    form.watch("isRsvp")
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    form.watch("isRsvp") ? "border-purple-500 bg-purple-500" : "border-white/40"
+                  }`}>
+                    {form.watch("isRsvp") && <span className="text-white text-xs">✓</span>}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium">{t('requireRsvp') || 'Require RSVP'}</p>
+                    <p className="text-xs text-white/60">{t('rsvpDesc') || 'Guests must RSVP and be approved to attend'}</p>
+                  </div>
+                </button>
+              </div>
+            )}
 
             {/* Publication Button */}
             <div className="space-y-4">

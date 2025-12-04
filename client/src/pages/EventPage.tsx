@@ -32,7 +32,7 @@ const EventSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   date: z.string().or(z.date()),
-  category: z.string(),
+  category: z.string().optional(),
   price: z.string().nullable(),
   ticketType: z.string().nullable(),
   image: z.string().nullable(),
@@ -42,6 +42,10 @@ const EventSchema = z.object({
   creatorId: z.number().nullable(),
   tags: z.array(z.string()).nullable(),
   isPrivate: z.boolean().optional(),
+  privacy: z.enum(['public', 'private', 'friends']).optional(),
+  shareToken: z.string().nullable().optional(),
+  isBlurred: z.boolean().optional(),
+  accessDenied: z.boolean().optional(),
   isRsvp: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
   dressCode: z.string().nullable().optional(),
@@ -296,16 +300,26 @@ export default function EventPage() {
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>E X P L O R E</h2>
-              {/* Share Button */}
+              {/* Share Button - includes share token for private/friends events */}
               <button
                 onClick={async () => {
                   setShareClicked(true);
+                  // Build share URL with token if host and event is private/friends
+                  const isHost = user?.id === event?.creatorId;
+                  let shareUrl = window.location.href;
+                  
+                  // Add share token for private/friends events when host shares
+                  if (isHost && event?.shareToken && (event?.privacy === 'private' || event?.privacy === 'friends')) {
+                    const baseUrl = window.location.origin + `/event/${event.id}`;
+                    shareUrl = `${baseUrl}?token=${event.shareToken}`;
+                  }
+                  
                   if (navigator.share) {
                     try {
                       await navigator.share({
                         title: event?.title || t('events'),
                         text: `${t('checkOutThisEvent')} ${event?.title || t('events')}`,
-                        url: window.location.href,
+                        url: shareUrl,
                       });
                     } catch (err) {
                       if ((err as Error).name !== 'AbortError') {
@@ -318,7 +332,7 @@ export default function EventPage() {
                       }
                     }
                   } else {
-                    navigator.clipboard.writeText(window.location.href);
+                    navigator.clipboard.writeText(shareUrl);
                     toast({
                       title: t('linkCopied'),
                       description: t('eventLinkCopied'),

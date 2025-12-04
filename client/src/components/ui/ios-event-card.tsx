@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { useLocation } from "wouter";
+import { Lock } from "lucide-react";
 
 interface Event {
   id: number;
@@ -13,6 +14,8 @@ interface Event {
   requireApproval?: boolean;
   ticketType?: string;
   ticketTiers?: { price: string }[];
+  privacy?: string;
+  isBlurred?: boolean;
   creator?: {
     id: number;
     username: string;
@@ -48,6 +51,9 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
     priceText = `$${event.price}`;
   }
 
+  // Check if this is a private event that should be blurred
+  const isPrivateBlurred = event.isBlurred || event.privacy === 'private';
+
   return (
     <div 
       className="flex gap-4 cursor-pointer hover:bg-gray-900/20 p-2 rounded-lg transition-colors"
@@ -61,18 +67,31 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
             <img
               src={event.image}
               alt={event.title}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover ${isPrivateBlurred ? 'blur-xl' : ''}`}
               loading="lazy"
             />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="bg-black/70 text-white font-bold px-3 py-1 text-center rotate-[-15deg] text-sm whitespace-nowrap">
-                FOR DEMO ONLY
+            {isPrivateBlurred ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                <Lock className="w-8 h-8 text-white mb-2" />
+                <span className="text-white text-xs font-medium">Private Event</span>
               </div>
-            </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/70 text-white font-bold px-3 py-1 text-center rotate-[-15deg] text-sm whitespace-nowrap">
+                  FOR DEMO ONLY
+                </div>
+              </div>
+            )}
           </>
         ) : (
-          <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+          <div className={`w-full h-full bg-gray-700 flex items-center justify-center ${isPrivateBlurred ? 'blur-lg' : ''}`}>
             <span className="text-muted-foreground text-lg font-light tracking-wider">MÁLY</span>
+            {isPrivateBlurred && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                <Lock className="w-8 h-8 text-white mb-2" />
+                <span className="text-white text-xs font-medium">Private Event</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -80,26 +99,26 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
       {/* Event Details - Simplified with vertical alignment */}
       <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
         {/* Title - aligned to top */}
-        <h3 className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-foreground leading-tight whitespace-nowrap overflow-hidden">
-          {event.title}
+        <h3 className={`text-xs sm:text-sm md:text-base lg:text-lg font-medium text-foreground leading-tight whitespace-nowrap overflow-hidden ${isPrivateBlurred ? 'blur-sm' : ''}`}>
+          {isPrivateBlurred ? 'Private Event' : event.title}
         </h3>
         
         {/* Middle elements - evenly spaced */}
         <div className="flex-1 flex flex-col justify-evenly">
-          <p className="text-sm text-foreground/80 truncate whitespace-nowrap">
+          <p className={`text-sm text-foreground/80 truncate whitespace-nowrap ${isPrivateBlurred ? 'blur-sm' : ''}`}>
             {formattedDateTime}
           </p>
           
           {event.location && (
-            <p className="text-sm text-foreground/80 truncate">
-              {event.location}
+            <p className={`text-sm text-foreground/80 truncate ${isPrivateBlurred ? 'blur-sm' : ''}`}>
+              {isPrivateBlurred ? 'Location Hidden' : event.location}
             </p>
           )}
         </div>
         
         {/* Price - aligned to bottom */}
         <p className="text-sm text-foreground truncate">
-          {priceText}
+          {isPrivateBlurred ? 'Request Access' : priceText}
         </p>
       </div>
     </div>

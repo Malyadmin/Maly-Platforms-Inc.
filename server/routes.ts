@@ -1476,6 +1476,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         availableTickets: events.availableTickets,
         tags: events.tags,
         isPrivate: events.isPrivate,
+        privacy: events.privacy,
+        shareToken: events.shareToken,
         isRsvp: events.isRsvp,
         requireApproval: events.requireApproval,
         isBusinessEvent: events.isBusinessEvent,
@@ -1516,15 +1518,34 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           .where(inArray(ticketTiers.eventId, eventIds));
       }
 
+      // Filter out friends-only events (they should not appear on explore)
+      // Private events will appear but will be marked for blurring in the UI
+      const filteredEvents = dbEvents.filter(event => {
+        const eventPrivacy = event.privacy || 'public';
+        // Hide friends-only events from the public listing
+        if (eventPrivacy === 'friends') {
+          // Only show to the creator
+          return event.creatorId === currentUserId;
+        }
+        return true;
+      });
+
       // Map events to include properly structured creator objects and ticket tiers
-      const eventsWithCreators = dbEvents.map(event => {
-        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, ...eventData } = event;
+      const eventsWithCreators = filteredEvents.map(event => {
+        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, shareToken, ...eventData } = event;
         
         // Get ticket tiers for this event
         const eventTicketTiers = allTicketTiers.filter(tier => tier.eventId === event.id);
         
+        const eventPrivacy = event.privacy || 'public';
+        const isBlurred = eventPrivacy === 'private' && event.creatorId !== currentUserId;
+        
         return {
           ...eventData,
+          privacy: eventPrivacy,
+          isBlurred: isBlurred, // Flag for UI to show blurred version
+          // Don't expose shareToken in listings - only for hosts
+          shareToken: event.creatorId === currentUserId ? shareToken : null,
           creator: creatorUserId ? {
             id: creatorUserId,
             username: creatorUsername,
@@ -1881,6 +1902,45 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       if (dbEvent && dbEvent.length > 0) {
         const event = dbEvent[0];
         
+        // Check privacy and access control
+        const eventPrivacy = event.privacy || 'public';
+        const requestToken = req.query.token as string | undefined;
+        const isHost = currentUserId === event.creatorId;
+        
+        // For private and friends-only events, check access
+        if ((eventPrivacy === 'private' || eventPrivacy === 'friends') && !isHost) {
+          // Check if user has a valid share token
+          const hasValidToken = requestToken && event.shareToken && requestToken === event.shareToken;
+          
+          if (!hasValidToken) {
+            // For private events, return limited info with isBlurred flag
+            if (eventPrivacy === 'private') {
+              return res.json({
+                id: event.id,
+                title: 'Private Event',
+                description: 'This is a private event. Request access from the host.',
+                date: event.date,
+                location: event.location,
+                city: event.city,
+                image: event.image,
+                privacy: eventPrivacy,
+                isBlurred: true,
+                isPrivate: true,
+                creatorId: event.creatorId,
+                accessDenied: true
+              });
+            }
+            // For friends-only events without token, deny access completely
+            if (eventPrivacy === 'friends') {
+              return res.status(403).json({ 
+                error: "Access denied. This event is only accessible via invite link.",
+                accessDenied: true,
+                privacy: 'friends'
+              });
+            }
+          }
+        }
+        
         // Increment view count
         await db.update(events)
           .set({ viewCount: (event.viewCount || 0) + 1 })
@@ -1992,6 +2052,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
+                privacy: event.privacy || 'public',
+                // Only expose shareToken to the host
+                shareToken: isHost ? event.shareToken : null,
                 requireApproval: event.requireApproval,
                 // Keep flat properties for backward compatibility
                 creatorName: creator.fullName || creator.username,
@@ -2024,6 +2087,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           ticketType: calculatedTicketType, // Use calculated ticket type
           // Transform snake_case to camelCase for frontend compatibility
           isPrivate: event.isPrivate,
+          privacy: event.privacy || 'public',
+          // Only expose shareToken to the host
+          shareToken: isHost ? event.shareToken : null,
           requireApproval: event.requireApproval,
           attendingUsers,
           interestedUsers,
@@ -2374,6 +2440,13 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         ticketType = 'paid';
       }
 
+      // Determine privacy setting (default to public)
+      const privacy = req.body.privacy || 'public';
+      const isRsvp = req.body.isRsvp === 'true' || req.body.isRsvp === true;
+      
+      // Generate share token for private and friends-only events
+      const shareToken = (privacy === 'private' || privacy === 'friends') ? uuidv4() : null;
+
       // Create event data object with all required fields from schema
       const eventData = {
         title: req.body.title,
@@ -2394,13 +2467,15 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         videoUrls: videoUrls, // Add video URLs array
 
         creatorId: currentUser.id,
-        isPrivate: req.body.eventPrivacy === 'private',
-        requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
-        isRsvp: req.body.eventPrivacy === 'rsvp', // Set isRsvp to true for RSVP events
+        isPrivate: privacy === 'private' || privacy === 'friends', // Backward compatibility
+        privacy: privacy, // New privacy field: public, private, friends
+        shareToken: shareToken, // Token for sharing private/friends events
+        requireApproval: isRsvp || privacy === 'private', // Set requireApproval for RSVP or private events
+        isRsvp: isRsvp, // RSVP flag from form
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
-        itinerary: itinerary, // Add the parsed itinerary data
+        itinerary: [], // Keep empty for now
         stripeProductId: null,
         stripePriceId: null
       };
