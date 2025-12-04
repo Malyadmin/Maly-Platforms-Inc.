@@ -300,13 +300,13 @@ export default function NotificationPreferencesPage() {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Push Notification Status */}
           {!pushSupported && (
-            <Card className="bg-yellow-950 border-yellow-800">
+            <Card className="bg-background/40 border-border">
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-3">
-                  <BellOff className="h-5 w-5 text-yellow-400 mt-0.5" />
+                  <BellOff className="h-5 w-5 text-foreground mt-0.5" />
                   <div>
-                    <p className="text-yellow-200 font-medium">Push Notifications Not Available</p>
-                    <p className="text-sm text-yellow-300 mt-1">
+                    <p className="text-foreground font-medium">Push Notifications Not Available</p>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Your device or browser doesn't support push notifications.
                     </p>
                   </div>
@@ -316,18 +316,18 @@ export default function NotificationPreferencesPage() {
           )}
 
           {pushSupported && pushPermission !== 'granted' && (
-            <Card className="bg-blue-950 border-blue-800">
+            <Card className="bg-background/40 border-border">
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-3">
-                  <Bell className="h-5 w-5 text-blue-400 mt-0.5" />
+                  <Bell className="h-5 w-5 text-foreground mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-blue-200 font-medium">Enable Push Notifications</p>
-                    <p className="text-sm text-blue-300 mt-1">
+                    <p className="text-foreground font-medium">Enable Push Notifications</p>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Get real-time notifications on your phone when something important happens.
                     </p>
                     <Button
                       onClick={requestPushPermission}
-                      className="mt-3 bg-blue-600 hover:bg-blue-700"
+                      className="mt-3"
                       size="sm"
                       data-testid="button-enable-push"
                     >
