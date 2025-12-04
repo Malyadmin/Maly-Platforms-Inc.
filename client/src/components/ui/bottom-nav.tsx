@@ -20,10 +20,10 @@ import {
 
 // Main navigation items - iOS style 5 tabs
 export const mainNavItems = [
-  { icon: Globe, label: 'discover', href: "/discover" },
+  { icon: Globe, label: 'explore', href: "/discover" },
   { icon: Users, label: 'connect', href: "/connect" },
   { icon: Plus, label: 'create', href: "/create" },
-  { icon: MessageCircle, label: 'inbox', href: "/inbox" },
+  { icon: MessageCircle, label: 'chats', href: "/inbox" },
   { icon: UserCircle, label: 'profile', href: "/profile" }
 ] as const;
 

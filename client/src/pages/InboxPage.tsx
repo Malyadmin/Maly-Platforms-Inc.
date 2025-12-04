@@ -293,9 +293,9 @@ export default function InboxPage() {
           <HamburgerMenu />
         </div>
         
-        {/* Inbox title with gradient */}
+        {/* Chats title with gradient */}
         <div className="px-5 pb-3">
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">Inbox</h2>
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">Chats</h2>
         </div>
 
         {/* Filter Bar - Always Present */}

@@ -782,7 +782,7 @@ export default function HomePage() {
               className="text-white flex flex-col items-center"
             >
               <Calendar className="h-5 w-5" />
-              <span className="text-xs mt-1">Discover</span>
+              <span className="text-xs mt-1">Explore</span>
             </Button>
             <Button
               variant="ghost"

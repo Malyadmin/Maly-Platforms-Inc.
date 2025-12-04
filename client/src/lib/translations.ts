@@ -3,10 +3,12 @@ import OpenAI from 'openai';
 
 type TranslationKey = 
   | 'discover'
+  | 'explore'
   | 'connect'
   | 'create'
   | 'make'
   | 'inbox'
+  | 'chats'
   | 'profile'
   | 'settings'
   | 'guide'
@@ -402,12 +404,14 @@ type TranslationKey =
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
     events: 'Events',
-    discover: 'Discover',
+    discover: 'Explore',
+    explore: 'Explore',
     login: 'Login',
     connect: 'Connect',
     create: 'Create',
     make: 'Make',
-    inbox: 'Inbox',
+    inbox: 'Chats',
+    chats: 'Chats',
     profile: 'Profile',
     settings: 'Settings',
     guide: 'City Guide',
@@ -614,7 +618,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     companyAndLegal: 'COMPANY AND LEGAL',
     language: 'LANGUAGE',
     // Menu Items
-    aiConcierge: 'A.I Concierge (Beta)',
+    aiConcierge: 'Concierge',
     notificationPreferences: 'Notification Preferences',
     creatorDashboard: 'Creator Dashboard',
     stripeConnect: 'Stripe Connect',
@@ -779,13 +783,15 @@ const translations: Record<string, Record<TranslationKey, string>> = {
   },
   es: {
     events: 'Eventos',
-    discover: 'Descubrir',
+    discover: 'Explorar',
+    explore: 'Explorar',
     login: 'Iniciar Sesión',
     share: 'Compartir',
     connect: 'Conectar',
     create: 'Crear',
     make: 'Hacer',
-    inbox: 'Mensajes',
+    inbox: 'Chats',
+    chats: 'Chats',
     profile: 'Perfil',
     settings: 'Ajustes',
     guide: 'Guía Local',
@@ -992,7 +998,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     companyAndLegal: 'EMPRESA Y LEGAL',
     language: 'IDIOMA',
     // Menu Items
-    aiConcierge: 'Conserje I.A (Beta)',
+    aiConcierge: 'Conserje',
     notificationPreferences: 'Preferencias de Notificación',
     creatorDashboard: 'Panel de Creador',
     stripeConnect: 'Stripe Connect',
