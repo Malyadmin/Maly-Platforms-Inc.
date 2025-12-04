@@ -419,7 +419,7 @@ export function ConnectPage() {
             {/* Connect title with gradient - uppercase with extra letter spacing */}
             <div>
               <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                C O N N E C T
+                {t('connectSpaced')}
               </h2>
               {selectedCity !== 'all' && (
                 <p className="text-foreground text-sm mt-1">{selectedCity}</p>

@@ -481,6 +481,7 @@ type TranslationKey =
   // ProfilePage spaced headers
   | 'profileSpaced'
   | 'connectSpaced'
+  | 'chatsSpaced'
   // EventPage strings
   | 'exploreSpaced'
   | 'requesting'
@@ -1085,6 +1086,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     // ProfilePage spaced headers
     profileSpaced: 'P R O F I L E',
     connectSpaced: 'C O N N E C T',
+    chatsSpaced: 'C H A T S',
     // EventPage strings
     exploreSpaced: 'E X P L O R E',
     requesting: 'Requesting...',
@@ -1689,6 +1691,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     // ProfilePage spaced headers
     profileSpaced: 'P E R F I L',
     connectSpaced: 'C O N E C T A R',
+    chatsSpaced: 'C H A T S',
     // EventPage strings
     exploreSpaced: 'E X P L O R A R',
     requesting: 'Solicitando...',

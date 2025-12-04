@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,6 +80,7 @@ export default function ChatbotPage() {
   const [selectedCity, setSelectedCity] = useState("Mexico City");
   const quickPrompts = getQuickPrompts(t, language);
   const { toast } = useToast();
+  const hasShownToast = useRef(false);
   
   // Initialize messages with translated greeting
   useEffect(() => {
@@ -93,14 +94,17 @@ export default function ChatbotPage() {
     }
   }, [language, messages, setMessages, t]);
   
-  // Show toast notification on page load
+  // Show toast notification on page load (only once)
   useEffect(() => {
-    toast({
-      title: t('welcomeConcierge'),
-      description: t('conciergeBetaDescription'),
-      duration: 6000,
-    });
-  }, [toast, t]);
+    if (!hasShownToast.current) {
+      hasShownToast.current = true;
+      toast({
+        title: t('welcomeConcierge'),
+        description: t('conciergeBetaDescription'),
+        duration: 6000,
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +139,7 @@ export default function ChatbotPage() {
             <img 
               src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
               alt="MÁLY" 
-              className="h-12 w-auto"
+              className="h-14 w-auto"
             />
             <HamburgerMenu />
           </div>

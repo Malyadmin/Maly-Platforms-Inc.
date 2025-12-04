@@ -331,7 +331,7 @@ export default function DiscoverPage() {
             {/* Explore title with gradient - uppercase with extra letter spacing */}
             <div>
               <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                E X P L O R E
+                {t('exploreSpaced')}
               </h2>
               {selectedCity !== 'all' && (
                 <p className="text-foreground text-sm mt-1">{selectedCity}</p>
