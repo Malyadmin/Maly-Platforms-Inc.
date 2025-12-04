@@ -185,13 +185,13 @@ export default function InboxPage() {
       <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-center justify-center py-12">
           <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground">You need to sign in</h3>
-          <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
+          <h3 className="text-lg font-medium text-foreground">{t('youNeedToSignIn')}</h3>
+          <p className="text-sm text-gray-500 mt-2">{t('signInToViewMessages')}</p>
           <Button
             className="mt-4"
             onClick={() => setLocation('/auth')}
           >
-            Sign In
+            {t('signIn')}
           </Button>
         </div>
       </div>
@@ -310,7 +310,7 @@ export default function InboxPage() {
               }`}
               data-testid="filter-all"
             >
-              All
+              {t('all')}
             </button>
             <button
               onClick={() => setActiveFilter('groups')}
@@ -321,7 +321,7 @@ export default function InboxPage() {
               }`}
               data-testid="filter-groups"
             >
-              Groups
+              {t('groups')}
             </button>
             <button
               onClick={() => setActiveFilter('contacts')}
@@ -332,7 +332,7 @@ export default function InboxPage() {
               }`}
               data-testid="filter-contacts"
             >
-              Contacts
+              {t('contacts')}
             </button>
           </div>
         </div>
@@ -360,23 +360,23 @@ export default function InboxPage() {
             <div>
               {filteredConversations.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-muted-foreground text-sm">No messages yet</p>
+                  <p className="text-muted-foreground text-sm">{t('noMessagesYet')}</p>
                 </div>
               ) : (
                 <div>
                   {filteredConversations.map((conversation) => {
                     // Handle both direct messages and group chats
                     const displayName = conversation.type === 'direct' && conversation.otherParticipant 
-                      ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
+                      ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || t('unknownUser'))
                       : conversation.type === 'event' && conversation.title 
-                        ? conversation.title.replace(' - Event Chat', ' Group Thread')
-                        : (conversation.title || 'Group Chat');
+                        ? conversation.title.replace(' - Event Chat', ` ${t('groupThread')}`)
+                        : (conversation.title || t('groupChat'));
                     
                     const displaySubtitle = conversation.lastMessage?.content 
                       ? conversation.lastMessage.content 
                       : conversation.type === 'direct'
-                        ? 'No messages yet'
-                        : `${conversation.participantCount} members`;
+                        ? t('noMessagesYet')
+                        : `${conversation.participantCount} ${t('members')}`;
 
                     const avatarUrl = conversation.type === 'direct' 
                       ? conversation.otherParticipant?.profileImage
@@ -405,18 +405,18 @@ export default function InboxPage() {
             <div className="space-y-2">
               {groupChats.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-muted-foreground text-sm">No group chats yet</p>
+                  <p className="text-muted-foreground text-sm">{t('noGroupChatsYet')}</p>
                 </div>
               ) : (
                 <div>
                   {groupChats.map((conversation) => {
                     const displayName = conversation.type === 'event' && conversation.title 
-                      ? conversation.title.replace(' - Event Chat', ' Group Thread')
-                      : (conversation.title || 'Group Chat');
+                      ? conversation.title.replace(' - Event Chat', ` ${t('groupThread')}`)
+                      : (conversation.title || t('groupChat'));
                     
                     const displaySubtitle = conversation.lastMessage?.content 
                       ? conversation.lastMessage.content 
-                      : `${conversation.participantCount} members`;
+                      : `${conversation.participantCount} ${t('members')}`;
                     
                     return renderInboxItem({
                       title: displayName,
@@ -436,14 +436,14 @@ export default function InboxPage() {
             <div className="space-y-2">
               {connections.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-muted-foreground text-sm">No connections yet</p>
+                  <p className="text-muted-foreground text-sm">{t('noConnectionsYet')}</p>
                 </div>
               ) : (
                 <div>
                   {connections.map((connection) => {
                     return renderInboxItem({
                       title: connection.fullName || connection.username,
-                      subtitle: 'Connected',
+                      subtitle: t('connected'),
                       avatar: connection.profileImage || undefined,
                       onPress: () => setLocation(`/profile/${connection.username || connection.id}`),
                       testId: `connection-${connection.id}`,

@@ -467,7 +467,17 @@ type TranslationKey =
   | 'demo'
   | 'userRemovedFromContacts'
   | 'errorRemovingContact'
-  | 'userAddedToContacts';
+  | 'userAddedToContacts'
+  // InboxPage additional strings
+  | 'youNeedToSignIn'
+  | 'signInToViewMessages'
+  | 'signIn'
+  | 'noMessagesYet'
+  | 'noGroupChatsYet'
+  | 'noConnectionsYet'
+  | 'unknownUser'
+  | 'groupThread'
+  | 'members';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -915,7 +925,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     demo: 'DEMO',
     userRemovedFromContacts: 'User has been removed from your contacts.',
     errorRemovingContact: 'Error removing contact',
-    userAddedToContacts: 'User has been added to your contacts.'
+    userAddedToContacts: 'User has been added to your contacts.',
+    // InboxPage additional strings
+    youNeedToSignIn: 'You need to sign in',
+    signInToViewMessages: 'Sign in to view your messages',
+    signIn: 'Sign In',
+    noMessagesYet: 'No messages yet',
+    noGroupChatsYet: 'No group chats yet',
+    noConnectionsYet: 'No connections yet',
+    unknownUser: 'Unknown User',
+    groupThread: 'Group Thread',
+    members: 'members'
   },
   es: {
     events: 'Eventos',
@@ -1363,7 +1383,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     demo: 'DEMO',
     userRemovedFromContacts: 'Usuario eliminado de tus contactos.',
     errorRemovingContact: 'Error al eliminar contacto',
-    userAddedToContacts: 'Usuario agregado a tus contactos.'
+    userAddedToContacts: 'Usuario agregado a tus contactos.',
+    // InboxPage additional strings
+    youNeedToSignIn: 'Necesitas iniciar sesión',
+    signInToViewMessages: 'Inicia sesión para ver tus mensajes',
+    signIn: 'Iniciar Sesión',
+    noMessagesYet: 'Aún no hay mensajes',
+    noGroupChatsYet: 'Aún no hay chats grupales',
+    noConnectionsYet: 'Aún no hay conexiones',
+    unknownUser: 'Usuario Desconocido',
+    groupThread: 'Hilo Grupal',
+    members: 'miembros'
   }
 };
 
