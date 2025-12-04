@@ -642,20 +642,22 @@ export function setupAuth(app: Express) {
 
           console.log("Login successful, redirecting to homepage with session:", req.sessionID);
 
+          // Detect if we're in Replit environment for cookie settings
+          const isReplitEnv = !!process.env.REPL_ID;
+          const cookieOptions = {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: isReplitEnv ? 'none' as const : 'lax' as const,
+            secure: isReplitEnv ? true : false,
+            partitioned: isReplitEnv ? true : undefined
+          };
+
           // Set cookies with different names to maximize persistence
           // Main session ID cookie
-          res.cookie('maly_session_id', sessionId, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            httpOnly: true,
-            sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
-          });
+          res.cookie('maly_session_id', sessionId, cookieOptions);
           
           // Backup session ID cookie
-          res.cookie('sessionId', sessionId, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            httpOnly: true,
-            sameSite: 'lax'
-          });
+          res.cookie('sessionId', sessionId, cookieOptions);
           
           // Set x-session-id header
           res.setHeader('x-session-id', sessionId);
@@ -685,31 +687,22 @@ export function setupAuth(app: Express) {
           // Continue anyway as the user is already logged out
         }
 
+        // Detect if we're in Replit environment for cookie settings
+        const isReplitEnv = !!process.env.REPL_ID;
+        const clearCookieOptions = {
+          path: '/',
+          httpOnly: true,
+          sameSite: isReplitEnv ? 'none' as const : 'lax' as const,
+          secure: isReplitEnv ? true : false
+        };
+
         // Clear all the session cookies we've set
-        res.clearCookie('maly_session', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
-        
-        res.clearCookie('maly_session_id', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
-        
-        res.clearCookie('sessionId', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
+        res.clearCookie('maly_session', clearCookieOptions);
+        res.clearCookie('maly_session_id', clearCookieOptions);
+        res.clearCookie('sessionId', clearCookieOptions);
         
         // Also clear the default Express session cookie
-        res.clearCookie('connect.sid', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
+        res.clearCookie('connect.sid', clearCookieOptions);
 
         console.log("Logout successful for user:", username);
         res.json({ message: "Logged out successfully" });
