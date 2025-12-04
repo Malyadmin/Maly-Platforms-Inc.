@@ -15,6 +15,7 @@ import { CITIES_BY_REGION } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { useLanguage } from "@/lib/language-context";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import { useToast } from "@/hooks/use-toast";
 
 // Quick prompts for the most common questions with specialized internal prompts
@@ -335,6 +336,9 @@ export default function ChatbotPage() {
           </div>
         </div>
       </div>
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
