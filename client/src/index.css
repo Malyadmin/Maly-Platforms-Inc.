@@ -242,4 +242,13 @@
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary;
     @apply focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
+  
+  /* Theme-adaptive logo - white in dark mode, black in light mode */
+  .logo-adaptive {
+    filter: brightness(0);
+  }
+  
+  .dark .logo-adaptive {
+    filter: brightness(0) invert(1);
+  }
 }

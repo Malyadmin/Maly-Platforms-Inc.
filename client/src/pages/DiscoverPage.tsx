@@ -320,7 +320,7 @@ export default function DiscoverPage() {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
           <HamburgerMenu />
         </div>

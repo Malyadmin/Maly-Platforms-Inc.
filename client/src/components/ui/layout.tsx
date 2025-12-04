@@ -123,7 +123,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border sticky top-0 z-50 bg-black text-foreground">
+      <header className="border-b border-border sticky top-0 z-50 bg-background text-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">

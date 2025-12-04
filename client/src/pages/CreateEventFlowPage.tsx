@@ -47,7 +47,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -231,7 +231,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -511,7 +511,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -808,7 +808,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -979,7 +979,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -1228,7 +1228,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         

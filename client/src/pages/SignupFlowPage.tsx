@@ -145,7 +145,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -316,7 +316,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -435,7 +435,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -559,7 +559,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
@@ -694,7 +694,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-14 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
         </div>
         
