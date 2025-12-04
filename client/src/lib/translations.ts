@@ -489,7 +489,74 @@ type TranslationKey =
   | 'rsvp'
   | 'xAttending'
   | 'xInterested'
-  | 'xAvailable';
+  | 'xAvailable'
+  // ChatbotPage strings
+  | 'conciergeSpaced'
+  | 'cityGuide'
+  | 'welcomeConcierge'
+  | 'conciergeBetaDescription'
+  // CreateEventFlowPage strings
+  | 'createSpaced'
+  | 'createYourEvent'
+  | 'promoteOrShare'
+  | 'eventTitle'
+  | 'conciseAndEngaging'
+  | 'eventSummary'
+  | 'briefOverview'
+  | 'buildYourEventGallery'
+  | 'addHighResPhotos'
+  | 'firstPictureFlyer'
+  | 'tooManyImages'
+  | 'maxImagesAllowed'
+  | 'validationError'
+  | 'atLeastOneImage'
+  | 'eventDetails'
+  | 'setLocationSchedule'
+  | 'onlineEvent'
+  | 'hostedVirtually'
+  | 'eventVisibility'
+  | 'selectVisibility'
+  | 'cityRequired'
+  | 'startTypingCity'
+  | 'venueAddress'
+  | 'addressPlaceholder'
+  | 'additionalLocationInfo'
+  | 'optionalFloorNotes'
+  | 'startDateTime'
+  | 'endDateTime'
+  | 'activitySchedule'
+  | 'addItinerary'
+  | 'addActivity'
+  | 'eventSetup'
+  | 'privacySettings'
+  | 'eventPrivacy'
+  | 'publicForEveryone'
+  | 'requiresApproval'
+  | 'guestApprovalDesc'
+  | 'dressCodeLabel'
+  | 'casualSmart'
+  | 'genderRestrictions'
+  | 'noRestriction'
+  | 'requiredVibes'
+  | 'selectVibes'
+  | 'ticketingSetup'
+  | 'eventPaid'
+  | 'setTicketPrices'
+  | 'eventFree'
+  | 'addTicketTier'
+  | 'tierName'
+  | 'tierDescription'
+  | 'price'
+  | 'quantity'
+  | 'unlimited'
+  | 'reviewSubmit'
+  | 'reviewEvent'
+  | 'readyToPublish'
+  | 'creating'
+  | 'createEvent'
+  | 'eventCreated'
+  | 'eventLive'
+  | 'errorCreating';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -959,7 +1026,74 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     rsvp: 'RSVP',
     xAttending: 'Attending',
     xInterested: 'Interested',
-    xAvailable: 'available'
+    xAvailable: 'available',
+    // ChatbotPage strings
+    conciergeSpaced: 'C O N C I E R G E',
+    cityGuide: 'City Guide',
+    welcomeConcierge: "Welcome to Maly's Concierge (Beta V1.5)",
+    conciergeBetaDescription: 'Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.',
+    // CreateEventFlowPage strings
+    createSpaced: 'C R E A T E',
+    createYourEvent: 'Create your event',
+    promoteOrShare: 'Promote or share remarkable experiences',
+    eventTitle: 'Event Title',
+    conciseAndEngaging: 'Concise and engaging',
+    eventSummary: 'Event Summary / Invitation',
+    briefOverview: 'A brief overview of your event. Use ChatGPT or similar if you need assistance.',
+    buildYourEventGallery: 'Build your event gallery',
+    addHighResPhotos: 'Add high resolution photos or flyer to your event',
+    firstPictureFlyer: 'First picture will be your event flyer',
+    tooManyImages: 'Too many images',
+    maxImagesAllowed: 'Maximum 6 images allowed',
+    validationError: 'Validation Error',
+    atLeastOneImage: 'At least one image is required to continue',
+    eventDetails: 'Event details',
+    setLocationSchedule: 'Set your event location and schedule',
+    onlineEvent: 'Online Event',
+    hostedVirtually: 'Event will be hosted virtually',
+    eventVisibility: 'Event Visibility',
+    selectVisibility: 'Select visibility',
+    cityRequired: 'City is required for physical events',
+    startTypingCity: 'Start typing city name...',
+    venueAddress: 'Venue Address',
+    addressPlaceholder: 'Full address of the venue',
+    additionalLocationInfo: 'Additional Location Info',
+    optionalFloorNotes: 'Floor, room number, or notes (optional)',
+    startDateTime: 'Start Date & Time',
+    endDateTime: 'End Date & Time',
+    activitySchedule: 'Activity Schedule',
+    addItinerary: 'Add itinerary or schedule for your event',
+    addActivity: 'Add Activity',
+    eventSetup: 'Event setup',
+    privacySettings: 'Set privacy and event requirements',
+    eventPrivacy: 'Event Privacy',
+    publicForEveryone: 'Public - visible to everyone',
+    requiresApproval: 'Requires Approval',
+    guestApprovalDesc: 'Guests need approval to attend',
+    dressCodeLabel: 'Dress Code',
+    casualSmart: 'Casual, Smart Casual, etc.',
+    genderRestrictions: 'Gender Restrictions',
+    noRestriction: 'No restriction',
+    requiredVibes: 'Required Vibes',
+    selectVibes: 'Select vibes',
+    ticketingSetup: 'Ticketing setup',
+    eventPaid: 'This event is paid',
+    setTicketPrices: 'Set your ticket prices',
+    eventFree: 'This event is free',
+    addTicketTier: 'Add Ticket Tier',
+    tierName: 'Tier Name',
+    tierDescription: 'Description (optional)',
+    price: 'Price',
+    quantity: 'Quantity',
+    unlimited: 'Unlimited',
+    reviewSubmit: 'Review & Submit',
+    reviewEvent: 'Review your event details',
+    readyToPublish: 'Your event is ready to be published',
+    creating: 'Creating...',
+    createEvent: 'Create Event',
+    eventCreated: 'Event Created',
+    eventLive: 'Your event is now live!',
+    errorCreating: 'Error creating event'
   },
   es: {
     events: 'Eventos',
@@ -1429,7 +1563,74 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     rsvp: 'RSVP',
     xAttending: 'Asistiendo',
     xInterested: 'Interesados',
-    xAvailable: 'disponibles'
+    xAvailable: 'disponibles',
+    // ChatbotPage strings
+    conciergeSpaced: 'C O N S E R J E',
+    cityGuide: 'Guía de Ciudad',
+    welcomeConcierge: 'Bienvenido al Conserje de Maly (Beta V1.5)',
+    conciergeBetaDescription: 'Próximamente: Reservaciones de restaurantes, reservas de hotel y recomendaciones de la comunidad.',
+    // CreateEventFlowPage strings
+    createSpaced: 'C R E A R',
+    createYourEvent: 'Crea tu evento',
+    promoteOrShare: 'Promociona o comparte experiencias extraordinarias',
+    eventTitle: 'Título del Evento',
+    conciseAndEngaging: 'Conciso y atractivo',
+    eventSummary: 'Resumen del Evento / Invitación',
+    briefOverview: 'Una breve descripción de tu evento. Usa ChatGPT o similar si necesitas ayuda.',
+    buildYourEventGallery: 'Construye tu galería de eventos',
+    addHighResPhotos: 'Agrega fotos en alta resolución o flyer a tu evento',
+    firstPictureFlyer: 'La primera imagen será el flyer de tu evento',
+    tooManyImages: 'Demasiadas imágenes',
+    maxImagesAllowed: 'Máximo 6 imágenes permitidas',
+    validationError: 'Error de Validación',
+    atLeastOneImage: 'Se requiere al menos una imagen para continuar',
+    eventDetails: 'Detalles del evento',
+    setLocationSchedule: 'Establece la ubicación y horario de tu evento',
+    onlineEvent: 'Evento en Línea',
+    hostedVirtually: 'El evento será virtual',
+    eventVisibility: 'Visibilidad del Evento',
+    selectVisibility: 'Seleccionar visibilidad',
+    cityRequired: 'La ciudad es requerida para eventos presenciales',
+    startTypingCity: 'Comienza a escribir el nombre de la ciudad...',
+    venueAddress: 'Dirección del Lugar',
+    addressPlaceholder: 'Dirección completa del lugar',
+    additionalLocationInfo: 'Información Adicional de Ubicación',
+    optionalFloorNotes: 'Piso, número de sala o notas (opcional)',
+    startDateTime: 'Fecha y Hora de Inicio',
+    endDateTime: 'Fecha y Hora de Fin',
+    activitySchedule: 'Horario de Actividades',
+    addItinerary: 'Agrega itinerario u horario para tu evento',
+    addActivity: 'Agregar Actividad',
+    eventSetup: 'Configuración del evento',
+    privacySettings: 'Establece privacidad y requisitos del evento',
+    eventPrivacy: 'Privacidad del Evento',
+    publicForEveryone: 'Público - visible para todos',
+    requiresApproval: 'Requiere Aprobación',
+    guestApprovalDesc: 'Los invitados necesitan aprobación para asistir',
+    dressCodeLabel: 'Código de Vestimenta',
+    casualSmart: 'Casual, Smart Casual, etc.',
+    genderRestrictions: 'Restricciones de Género',
+    noRestriction: 'Sin restricción',
+    requiredVibes: 'Vibes Requeridas',
+    selectVibes: 'Seleccionar vibes',
+    ticketingSetup: 'Configuración de entradas',
+    eventPaid: 'Este evento es de pago',
+    setTicketPrices: 'Establece los precios de tus entradas',
+    eventFree: 'Este evento es gratuito',
+    addTicketTier: 'Agregar Nivel de Entrada',
+    tierName: 'Nombre del Nivel',
+    tierDescription: 'Descripción (opcional)',
+    price: 'Precio',
+    quantity: 'Cantidad',
+    unlimited: 'Ilimitado',
+    reviewSubmit: 'Revisar y Enviar',
+    reviewEvent: 'Revisa los detalles de tu evento',
+    readyToPublish: 'Tu evento está listo para publicarse',
+    creating: 'Creando...',
+    createEvent: 'Crear Evento',
+    eventCreated: 'Evento Creado',
+    eventLive: '¡Tu evento ya está publicado!',
+    errorCreating: 'Error al crear el evento'
   }
 };
 

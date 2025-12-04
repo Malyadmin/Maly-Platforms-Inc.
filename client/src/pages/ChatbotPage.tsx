@@ -49,7 +49,7 @@ const getQuickPrompts = (t: (key: string) => string, language: string) => [
     ariaLabel: "Find best day trips"
   },
   {
-    text: "City Guide",
+    text: t('cityGuide'),
     icon: MapPin,
     prompt: language === 'es'
       ? "¿Cuál es la mejor guía para explorar esta ciudad?"
@@ -96,11 +96,11 @@ export default function ChatbotPage() {
   // Show toast notification on page load
   useEffect(() => {
     toast({
-      title: "Welcome to Maly's Concierge (Beta V1.5)",
-      description: "Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.",
+      title: t('welcomeConcierge'),
+      description: t('conciergeBetaDescription'),
       duration: 6000,
     });
-  }, [toast]);
+  }, [toast, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,7 +142,7 @@ export default function ChatbotPage() {
           
           {/* Row 2: Page title */}
           <h1 className="gradient-text text-lg font-medium uppercase pb-2" style={{ letterSpacing: '0.3em' }}>
-            C O N C I E R G E
+            {t('conciergeSpaced')}
           </h1>
           
           {/* Row 3: Back button */}

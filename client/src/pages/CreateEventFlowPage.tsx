@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { useTranslation } from "@/lib/translations";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -24,6 +25,7 @@ interface Step1Props {
 }
 
 function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step1Schema),
     defaultValues: {
@@ -55,7 +57,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <BackButton onClick={onBack} className="text-foreground" />
             )}
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -66,8 +68,8 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       {/* Content */}
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">Create your event</h2>
-          <p className="text-muted-foreground text-sm">Promote or share remarkable experiences</p>
+          <h2 className="text-2xl font-light mb-2">{t('createYourEvent')}</h2>
+          <p className="text-muted-foreground text-sm">{t('promoteOrShare')}</p>
         </div>
 
 
@@ -77,10 +79,10 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           className="space-y-8"
         >
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Event Title</label>
+            <label className="text-foreground font-medium">{t('eventTitle')}</label>
             <Input
               {...form.register("title")}
-              placeholder="Concise and engaging"
+              placeholder={t('conciseAndEngaging')}
               className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
               data-testid="input-title"
             />
@@ -90,10 +92,10 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Event Summary / Invitation</label>
+            <label className="text-foreground font-medium">{t('eventSummary')}</label>
             <Textarea
               {...form.register("summary")}
-              placeholder="A brief overview of your event. Use ChatGPT or similar if you need assistance."
+              placeholder={t('briefOverview')}
               rows={5}
               className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
               data-testid="textarea-summary"
@@ -117,7 +119,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
-          Next
+          {t('next')}
         </button>
       </div>
       
@@ -135,6 +137,7 @@ interface Step2Props {
 }
 
 function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
+  const { t } = useTranslation();
   const [selectedImages, setSelectedImages] = useState<File[]>(data.images || []);
   const [imagePreviews, setImagePreviews] = useState<string[]>(data.imageURLs || []);
   const { toast } = useToast();
@@ -165,8 +168,8 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       if (totalImages > 6) {
         toast({
           variant: "destructive",
-          title: "Too many images",
-          description: "Maximum 6 images allowed"
+          title: t('tooManyImages'),
+          description: t('maxImagesAllowed')
         });
         return;
       }
@@ -204,8 +207,8 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
     if (!isValid) {
       toast({
         variant: "destructive", 
-        title: "Validation Error",
-        description: "At least one image is required to continue"
+        title: t('validationError'),
+        description: t('atLeastOneImage')
       });
       return;
     }
@@ -236,7 +239,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -247,9 +250,9 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Build your event gallery</h2>
-          <p className="text-muted-foreground text-sm mb-1">Add high resolution photos or flyer to your event</p>
-          <p className="text-muted-foreground text-sm">First picture will be your event flyer</p>
+          <h2 className="text-2xl font-light mb-2">{t('buildYourEventGallery')}</h2>
+          <p className="text-muted-foreground text-sm mb-1">{t('addHighResPhotos')}</p>
+          <p className="text-muted-foreground text-sm">{t('firstPictureFlyer')}</p>
         </div>
 
         {/* Main Image Upload Area */}
