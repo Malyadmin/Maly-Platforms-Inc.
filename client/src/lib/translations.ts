@@ -592,7 +592,20 @@ type TranslationKey =
   | 'createEvent'
   | 'eventCreated'
   | 'eventLive'
-  | 'errorCreating';
+  | 'errorCreating'
+  // EditProfilePage strings
+  | 'editSpaced'
+  | 'profileUpdated'
+  | 'profileUpdatedDescription'
+  | 'imagesUploaded'
+  | 'imagesUploadedDescription'
+  | 'uploadError'
+  | 'profileImagesUpdated'
+  | 'noVibesSelected'
+  | 'notSet'
+  | 'savingImages'
+  | 'saveImages'
+  | 'fullName';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -1165,7 +1178,20 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     createEvent: 'Create Event',
     eventCreated: 'Event Created',
     eventLive: 'Your event is now live!',
-    errorCreating: 'Error creating event'
+    errorCreating: 'Error creating event',
+    // EditProfilePage strings
+    editSpaced: 'E D I T',
+    profileUpdated: 'Profile Updated',
+    profileUpdatedDescription: 'Your profile has been successfully updated.',
+    imagesUploaded: 'Images Uploaded',
+    imagesUploadedDescription: 'image(s) uploaded successfully.',
+    uploadError: 'Upload Error',
+    profileImagesUpdated: 'Profile Images Updated',
+    noVibesSelected: 'No vibes selected',
+    notSet: 'Not set',
+    savingImages: 'Saving...',
+    saveImages: 'Save Images',
+    fullName: 'Full Name'
   },
   es: {
     events: 'Eventos',
@@ -1738,7 +1764,20 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     createEvent: 'Crear Evento',
     eventCreated: 'Evento Creado',
     eventLive: '¡Tu evento ya está publicado!',
-    errorCreating: 'Error al crear el evento'
+    errorCreating: 'Error al crear el evento',
+    // EditProfilePage strings
+    editSpaced: 'E D I T A R',
+    profileUpdated: 'Perfil Actualizado',
+    profileUpdatedDescription: 'Tu perfil ha sido actualizado exitosamente.',
+    imagesUploaded: 'Imágenes Subidas',
+    imagesUploadedDescription: 'imagen(es) subida(s) exitosamente.',
+    uploadError: 'Error de Subida',
+    profileImagesUpdated: 'Imágenes de Perfil Actualizadas',
+    noVibesSelected: 'No hay vibes seleccionadas',
+    notSet: 'No establecido',
+    savingImages: 'Guardando...',
+    saveImages: 'Guardar Imágenes',
+    fullName: 'Nombre Completo'
   }
 };
 

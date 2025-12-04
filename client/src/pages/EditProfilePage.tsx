@@ -12,6 +12,7 @@ import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { useTranslation } from "@/lib/translations";
 
 const moodStyles = {
   "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30 border-purple-500/30",
@@ -46,6 +47,7 @@ interface ProfileData {
 }
 
 export default function EditProfilePage() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { user, updateProfile, refreshUser } = useUser();
   const { toast } = useToast();
@@ -131,8 +133,8 @@ export default function EditProfilePage() {
       await updateProfile(updatedData);
 
       toast({
-        title: "Profile Updated",
-        description: `Your ${field} has been successfully updated.`,
+        title: t('profileUpdated'),
+        description: t('profileUpdatedDescription'),
       });
 
       await refreshUser();
@@ -179,14 +181,14 @@ export default function EditProfilePage() {
         setHasNewImages(true);
         
         toast({
-          title: "Images Uploaded",
-          description: `${data.profileImages.length} image(s) uploaded successfully.`,
+          title: t('imagesUploaded'),
+          description: `${data.profileImages.length} ${t('imagesUploadedDescription')}`,
         });
       }
     } catch (error: any) {
       toast({
-        title: "Upload Error",
-        description: error.message || "Failed to upload images",
+        title: t('uploadError'),
+        description: error.message || t('uploadError'),
         variant: "destructive",
       });
     } finally {
@@ -229,8 +231,8 @@ export default function EditProfilePage() {
       await updateProfile(updatedData);
 
       toast({
-        title: "Profile Images Updated",
-        description: `${imagePreviews.length} image(s) saved successfully.`,
+        title: t('profileImagesUpdated'),
+        description: `${imagePreviews.length} ${t('imagesUploadedDescription')}`,
       });
 
       await refreshUser();
@@ -262,8 +264,8 @@ export default function EditProfilePage() {
       }
 
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
+        title: t('profileUpdated'),
+        description: t('profileUpdatedDescription'),
       });
 
       await refreshUser();
@@ -360,7 +362,7 @@ export default function EditProfilePage() {
           </div>
         ) : (
           <p className="text-foreground text-base mt-1">
-            {value || <span className="text-gray-500">Not set</span>}
+            {value || <span className="text-gray-500">{t('notSet')}</span>}
           </p>
         )}
       </div>
@@ -430,7 +432,7 @@ export default function EditProfilePage() {
             {profileData.currentMoods.length > 0 ? (
               <span>{profileData.currentMoods.join(", ")}</span>
             ) : (
-              <span className="text-gray-500">No vibes selected</span>
+              <span className="text-gray-500">{t('noVibesSelected')}</span>
             )}
           </p>
         )}
@@ -469,7 +471,7 @@ export default function EditProfilePage() {
               <ChevronLeft className="w-6 h-6" />
             </button>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              E D I T
+              {t('editSpaced')}
             </h2>
           </div>
         </div>
@@ -561,12 +563,12 @@ export default function EditProfilePage() {
                   {isSaving ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      {t('savingImages')}
                     </>
                   ) : (
                     <>
                       <Check className="h-4 w-4 mr-2" />
-                      Save Images
+                      {t('saveImages')}
                     </>
                   )}
                 </Button>
@@ -578,14 +580,14 @@ export default function EditProfilePage() {
         {/* Editable Fields */}
         <div className="container mx-auto px-6 space-y-6">
           <div className="max-w-2xl mx-auto space-y-4">
-            {renderEditableField("Full Name", "fullName")}
-            {renderEditableField("Location", "location")}
-            {renderEditableField("Occupation", "profession")}
-            {renderEditableField("Bio", "bio", true)}
+            {renderEditableField(t('fullName'), "fullName")}
+            {renderEditableField(t('location'), "location")}
+            {renderEditableField(t('occupation'), "profession")}
+            {renderEditableField(t('bio'), "bio", true)}
             {renderVibeField()}
-            {renderEditableField("Born", "birthLocation")}
-            {renderEditableField("Lived", "livedLocation")}
-            {renderEditableField("Upcoming", "nextLocation")}
+            {renderEditableField(t('born'), "birthLocation")}
+            {renderEditableField(t('lived'), "livedLocation")}
+            {renderEditableField(t('upcoming'), "nextLocation")}
           </div>
 
         </div>
