@@ -12,6 +12,7 @@ import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BottomNav } from "@/components/ui/bottom-nav";
 // Define the Event type with all fields
 const TicketTierSchema = z.object({
   id: z.number(),
@@ -339,13 +340,12 @@ export default function EventPage() {
                     });
                   }
                 }}
-                className="p-0 bg-transparent border-0 transition-colors hover:opacity-80"
+                className="p-2 hover:bg-foreground/10 rounded-lg transition-colors"
                 data-testid="button-share"
               >
                 <Share 
-                  className="h-6 w-6" 
-                  strokeWidth={2.5}
-                  color={shareClicked ? '#9333ea' : '#9ca3af'}
+                  className={`h-7 w-7 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
+                  strokeWidth={2}
                 />
               </button>
             </div>
@@ -376,8 +376,9 @@ export default function EventPage() {
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <div className="bg-black/70 text-white font-bold px-6 py-3 text-center rotate-[-15deg] text-2xl sm:text-3xl whitespace-nowrap">
+          {/* Demo pill badge - bottom right */}
+          <div className="absolute bottom-3 right-3 pointer-events-none z-10">
+            <div className="bg-black/50 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full">
               {t('forDemoOnly')}
             </div>
           </div>
@@ -708,6 +709,9 @@ export default function EventPage() {
       </Dialog>
       </div>
       {/* Scrollable content area end */}
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
