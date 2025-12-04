@@ -381,30 +381,30 @@ export default function ProfilePage() {
     {/* Profile title with gradient - uppercase with extra letter spacing */}
     <div className="px-5 pb-3">
       <div className="flex items-start justify-between">
-        <div className="space-y-2 sm:space-y-3">
-          <div>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (fromUrl) {
+                  setLocation(fromUrl);
+                } else if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  setLocation("/discover");
+                }
+              }}
+              className="text-foreground/80 hover:text-foreground transition-colors"
+              data-testid="button-back"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
             <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
             </h2>
-            {profileData?.location && (
-              <p className="text-foreground text-sm mt-1">{profileData.location}</p>
-            )}
           </div>
-          <button
-            onClick={() => {
-              if (fromUrl) {
-                setLocation(fromUrl);
-              } else if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                setLocation("/discover");
-              }
-            }}
-            className="text-foreground/80 hover:text-foreground transition-colors"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
+          {profileData?.location && (
+            <p className="text-foreground text-sm ml-8">{profileData.location}</p>
+          )}
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (
           <button
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                     <button 
                       onClick={() => removeConnectionMutation.mutate(profileData.id)}
                       disabled={removeConnectionMutation.isPending}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-500 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                       data-testid="button-remove-contact"
                     >
                       {removeConnectionMutation.isPending ? (
@@ -647,7 +647,7 @@ export default function ProfilePage() {
                 handleMessageClick();
               }}
               disabled={createConversationMutation.isPending}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:from-purple-700 hover:via-pink-700 hover:to-red-600 text-foreground border-0"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-foreground border-0"
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (

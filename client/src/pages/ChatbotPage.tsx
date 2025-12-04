@@ -144,13 +144,8 @@ export default function ChatbotPage() {
             <HamburgerMenu />
           </div>
           
-          {/* Row 2: Page title */}
-          <h1 className="gradient-text text-lg font-medium uppercase pb-2" style={{ letterSpacing: '0.3em' }}>
-            {t('conciergeSpaced')}
-          </h1>
-          
-          {/* Row 3: Back button */}
-          <div className="pb-2">
+          {/* Row 2: Back button + Page title inline */}
+          <div className="flex items-center gap-2 pb-2">
             <button
               onClick={() => window.history.back()}
               className="text-foreground hover:text-foreground/70 p-1"
@@ -158,6 +153,9 @@ export default function ChatbotPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
+            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {t('conciergeSpaced')}
+            </h1>
           </div>
         </div>
       </header>
@@ -211,7 +209,7 @@ export default function ChatbotPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.role === "assistant"
-                        ? "bg-gradient-to-r from-purple-600 via-pink-600 to-red-500"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-500"
                         : "bg-accent"
                     }`}
                   >
@@ -225,7 +223,7 @@ export default function ChatbotPage() {
                     className={`rounded-lg p-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
                         ? "bg-muted/30 glass"
-                        : "bg-gradient-to-r from-purple-600 via-pink-600 to-red-500"
+                        : "bg-gradient-to-r from-purple-600 to-pink-500"
                     }`}
                   >
                     <div className="text-sm">
@@ -263,7 +261,7 @@ export default function ChatbotPage() {
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 flex items-center justify-center">
                     <Bot className="w-5 h-5" />
                   </div>
                   <div className="rounded-lg p-4 bg-muted/30 glass flex items-center gap-2">

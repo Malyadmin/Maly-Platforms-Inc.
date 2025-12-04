@@ -12,6 +12,7 @@ import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users, ChevronLeft } fro
 import { ConversationMessage } from '@/types/inbox';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
+import { useTranslation } from '@/lib/translations';
 
 interface ConversationInfo {
   id: number;
@@ -41,6 +42,7 @@ export default function ChatConversationPage() {
   const [match, params] = useRoute('/chat/conversation/:conversationId');
   const [, setLocation] = useLocation();
   const { user } = useUser();
+  const { t } = useTranslation();
   const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -212,18 +214,13 @@ export default function ChatConversationPage() {
             <img 
               src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
               alt="MÁLY" 
-              className="h-12 w-auto"
+              className="h-14 w-auto"
             />
             <HamburgerMenu />
           </div>
           
-          {/* Row 2: Page title */}
-          <h1 className="gradient-text text-lg font-medium uppercase pb-2" style={{ letterSpacing: '0.3em' }}>
-            C H A T S
-          </h1>
-          
-          {/* Row 3: Back button */}
-          <div className="pb-2">
+          {/* Row 2: Back button + Page title inline */}
+          <div className="flex items-center gap-2 pb-2">
             <Button
               variant="ghost"
               size="sm"
@@ -233,6 +230,9 @@ export default function ChatConversationPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
+            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {t('chatsSpaced')}
+            </h1>
           </div>
         </div>
       </header>
@@ -444,7 +444,7 @@ export default function ChatConversationPage() {
           <Button 
             type="submit" 
             disabled={!messageText.trim() || sendMessageMutation.isPending}
-            className="h-10 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 hover:opacity-90"
+            className="h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90"
             data-testid="send-button"
           >
             <SendIcon className="h-4 w-4 text-white" />

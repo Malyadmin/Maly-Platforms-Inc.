@@ -298,69 +298,69 @@ export default function EventPage() {
         
         {/* Bottom bar with Explore title and Back button */}
         <div className="px-5 pb-3">
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
-              {/* Share Button - includes share token for private/friends events */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <button
-                onClick={async () => {
-                  setShareClicked(true);
-                  // Build share URL with token if host and event is private/friends
-                  const isHost = user?.id === event?.creatorId;
-                  let shareUrl = window.location.href;
-                  
-                  // Add share token for private/friends events when host shares
-                  if (isHost && event?.shareToken && (event?.privacy === 'private' || event?.privacy === 'friends')) {
-                    const baseUrl = window.location.origin + `/event/${event.id}`;
-                    shareUrl = `${baseUrl}?token=${event.shareToken}`;
-                  }
-                  
-                  if (navigator.share) {
-                    try {
-                      await navigator.share({
-                        title: event?.title || t('events'),
-                        text: `${t('checkOutThisEvent')} ${event?.title || t('events')}`,
-                        url: shareUrl,
-                      });
-                    } catch (err) {
-                      if ((err as Error).name !== 'AbortError') {
-                        console.error('Error sharing:', err);
-                        toast({
-                          title: t('shareFailed'),
-                          description: t('unableToShareEvent'),
-                          variant: "destructive",
-                        });
-                      }
-                    }
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    window.history.back();
                   } else {
-                    navigator.clipboard.writeText(shareUrl);
-                    toast({
-                      title: t('linkCopied'),
-                      description: t('eventLinkCopied'),
-                    });
+                    setLocation('/discover');
                   }
                 }}
-                className="p-2 hover:bg-foreground/10 rounded-lg transition-colors"
-                data-testid="button-share"
+                className="text-foreground/80 hover:text-foreground transition-colors"
+                data-testid="button-back"
               >
-                <Share 
-                  className={`h-7 w-7 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
-                  strokeWidth={2}
-                />
+                <ChevronLeft className="w-6 h-6" />
               </button>
+              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
             </div>
+            {/* Share Button - includes share token for private/friends events */}
             <button
-              onClick={() => {
-                if (window.history.length > 1) {
-                  window.history.back();
+              onClick={async () => {
+                setShareClicked(true);
+                // Build share URL with token if host and event is private/friends
+                const isHost = user?.id === event?.creatorId;
+                let shareUrl = window.location.href;
+                
+                // Add share token for private/friends events when host shares
+                if (isHost && event?.shareToken && (event?.privacy === 'private' || event?.privacy === 'friends')) {
+                  const baseUrl = window.location.origin + `/event/${event.id}`;
+                  shareUrl = `${baseUrl}?token=${event.shareToken}`;
+                }
+                
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: event?.title || t('events'),
+                      text: `${t('checkOutThisEvent')} ${event?.title || t('events')}`,
+                      url: shareUrl,
+                    });
+                  } catch (err) {
+                    if ((err as Error).name !== 'AbortError') {
+                      console.error('Error sharing:', err);
+                      toast({
+                        title: t('shareFailed'),
+                        description: t('unableToShareEvent'),
+                        variant: "destructive",
+                      });
+                    }
+                  }
                 } else {
-                  setLocation('/discover');
+                  navigator.clipboard.writeText(shareUrl);
+                  toast({
+                    title: t('linkCopied'),
+                    description: t('eventLinkCopied'),
+                  });
                 }
               }}
-              className="text-foreground/80 hover:text-foreground transition-colors"
-              data-testid="button-back"
+              className="p-2 hover:bg-foreground/10 rounded-lg transition-colors"
+              data-testid="button-share"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <Share 
+                className={`h-7 w-7 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
+                strokeWidth={2}
+              />
             </button>
           </div>
         </div>
