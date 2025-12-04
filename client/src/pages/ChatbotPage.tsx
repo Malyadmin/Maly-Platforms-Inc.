@@ -7,7 +7,7 @@ import { useChat } from "@/hooks/use-chat";
 import { 
   Loader2, Send, Bot, User, Globe,
   Wine, HeartHandshake, Plane, 
-  Building, MapPin
+  Building, MapPin, ChevronLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GradientHeader } from "@/components/ui/GradientHeader";
@@ -127,15 +127,36 @@ export default function ChatbotPage() {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <GradientHeader 
-        title={t('concierge')}
-        showBackButton={true}
-        backButtonFallbackPath="/discover"
-        showIcon={false}
-        showThemeToggle={false}
-      >
-        <HamburgerMenu />
-      </GradientHeader>
+      {/* Custom Concierge Header - MALY logo, title, back button stacked */}
+      <header className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="px-4 pt-3">
+          {/* Row 1: MALY Logo left, Hamburger right */}
+          <div className="flex items-center justify-between pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-8 w-auto"
+            />
+            <HamburgerMenu />
+          </div>
+          
+          {/* Row 2: Page title */}
+          <h1 className="gradient-text text-lg font-medium uppercase pb-2" style={{ letterSpacing: '0.3em' }}>
+            C O N C I E R G E
+          </h1>
+          
+          {/* Row 3: Back button */}
+          <div className="pb-2">
+            <button
+              onClick={() => window.history.back()}
+              className="text-foreground hover:text-foreground/70 p-1"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </header>
 
       <div className="p-4">
         {/* City selector */}
