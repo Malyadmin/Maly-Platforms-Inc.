@@ -204,7 +204,7 @@ export default function ChatConversationPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Fixed Header - MALY logo, back button, and hamburger menu */}
+      {/* Fixed Header - MALY logo, page title, back button, and hamburger menu */}
       <header className="sticky top-0 bg-background border-b border-border shrink-0 z-50">
         <div className="px-4 pt-3">
           {/* Row 1: MALY Logo left, Hamburger right */}
@@ -212,12 +212,17 @@ export default function ChatConversationPage() {
             <img 
               src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
               alt="MÁLY" 
-              className="h-8 w-auto"
+              className="h-12 w-auto"
             />
             <HamburgerMenu />
           </div>
           
-          {/* Row 2: Back button */}
+          {/* Row 2: Page title */}
+          <h1 className="gradient-text text-lg font-medium uppercase pb-2" style={{ letterSpacing: '0.3em' }}>
+            C H A T S
+          </h1>
+          
+          {/* Row 3: Back button */}
           <div className="pb-2">
             <Button
               variant="ghost"
