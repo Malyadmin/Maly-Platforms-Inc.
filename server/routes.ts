@@ -1750,7 +1750,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       console.log('[CREATOR_DASHBOARD] Found', userEvents.length, 'events for user', userId);
 
-      // Fetch analytics for each event
+      // Fetch analytics and sales for each event
       const eventsWithAnalytics = await Promise.all(userEvents.map(async (event) => {
         // Get all participants for this event
         const participants = await db.select()
@@ -1760,26 +1760,66 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         const interestedCount = participants.filter(p => p.status === 'interested').length;
         const attendingCount = participants.filter(p => p.status === 'attending' || p.status === 'approved').length;
         const pendingCount = participants.filter(p => p.status === 'pending_approval' || p.status === 'pending_access').length;
+        
+        // Get completed ticket sales for this event
+        const completedSales = participants.filter(p => p.paymentStatus === 'completed');
+        const ticketsSold = completedSales.reduce((sum, p) => sum + (p.ticketQuantity || 1), 0);
+
+        // Get ticket tiers for this event to calculate revenue
+        const eventTiers = await db.select()
+          .from(ticketTiers)
+          .where(eq(ticketTiers.eventId, event.id));
+        
+        // Calculate total revenue from completed sales
+        let eventRevenue = 0;
+        for (const sale of completedSales) {
+          const tier = eventTiers.find(t => t.id === sale.ticketTierId);
+          if (tier) {
+            const tierPrice = parseFloat(tier.price || '0');
+            eventRevenue += tierPrice * (sale.ticketQuantity || 1);
+          }
+        }
+        
+        // Calculate net revenue (after 3% platform fee)
+        const platformFee = eventRevenue * 0.03;
+        const netRevenue = eventRevenue - platformFee;
 
         // Get view count for this event
         const viewCount = event.viewCount || 0;
 
         return {
           ...event,
+          ticketTiers: eventTiers,
           analytics: {
             interestedCount,
             attendingCount,
             pendingCount,
-            totalViews: viewCount
+            totalViews: viewCount,
+            ticketsSold,
+            grossRevenue: eventRevenue,
+            platformFee,
+            netRevenue
           }
         };
       }));
+
+      // Calculate total sales across all events
+      const totalRevenue = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.grossRevenue || 0), 0);
+      const totalTicketsSold = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.ticketsSold || 0), 0);
+      const totalPlatformFees = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.platformFee || 0), 0);
+      const totalNetRevenue = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.netRevenue || 0), 0);
 
       return res.json({
         events: eventsWithAnalytics,
         pendingRSVPs: [],
         totalEvents: userEvents.length,
-        totalPendingRSVPs: 0
+        totalPendingRSVPs: 0,
+        salesSummary: {
+          totalRevenue,
+          totalTicketsSold,
+          totalPlatformFees,
+          totalNetRevenue
+        }
       });
     } catch (error) {
       console.error("[CREATOR_DASHBOARD] Error:", error);

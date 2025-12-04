@@ -45,14 +45,25 @@ interface DashboardEvent {
   ticketType: string | null;
   isRsvp: boolean | null;
   requireApproval: boolean | null;
-  ticketTiers?: { price: string }[];
+  ticketTiers?: { id: number; name: string; price: string }[];
   analytics?: {
     interestedCount: number;
     attendingCount: number;
     pendingCount: number;
     totalViews: number;
+    ticketsSold: number;
+    grossRevenue: number;
+    platformFee: number;
+    netRevenue: number;
   };
   ticketSales?: TicketSale[];
+}
+
+interface SalesSummary {
+  totalRevenue: number;
+  totalTicketsSold: number;
+  totalPlatformFees: number;
+  totalNetRevenue: number;
 }
 
 interface TicketSale {
@@ -120,6 +131,7 @@ export default function CreatorDashboardPage() {
     pendingRSVPs: PendingRSVP[];
     totalEvents: number;
     totalPendingRSVPs: number;
+    salesSummary?: SalesSummary;
   }>({
     queryKey: ['/api/creator/dashboard'],
     queryFn: async () => {
@@ -517,24 +529,72 @@ export default function CreatorDashboardPage() {
             {/* Ticket Sales Filter */}
             {activeFilter === 'sales' && (
               <div>
-                {!data?.events || data.events.every(e => (e.ticketSales?.length || 0) === 0) ? (
+                {/* Sales Summary Header */}
+                {data?.salesSummary && data.salesSummary.totalTicketsSold > 0 && (
+                  <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg p-4 mb-4 border border-purple-500/20">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Total Revenue</p>
+                        <p className="text-xl font-bold text-green-400">${data.salesSummary.totalRevenue.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Tickets Sold</p>
+                        <p className="text-xl font-bold text-foreground">{data.salesSummary.totalTicketsSold}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Platform Fee (3%)</p>
+                        <p className="text-sm text-muted-foreground">-${data.salesSummary.totalPlatformFees.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Your Earnings</p>
+                        <p className="text-lg font-semibold text-green-400">${data.salesSummary.totalNetRevenue.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Per-Event Sales Breakdown */}
+                {!data?.events || data.events.every(e => (e.analytics?.ticketsSold || 0) === 0) ? (
                   <div className="py-8 text-center">
+                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" />
                     <p className="text-muted-foreground text-sm">No ticket sales yet</p>
+                    <p className="text-muted-foreground text-xs mt-1">Sales will appear here when tickets are purchased</p>
                   </div>
                 ) : (
-                  <div className="mt-4">
-                    {data.events.map(event => (
-                      (event.ticketSales?.length || 0) > 0 && (
-                        <div key={event.id} className="mb-6">
-                          <div className="flex items-center gap-2 mb-3">
-                            <DollarSign className="h-4 w-4 text-green-400" />
-                            <h3 className="text-foreground font-medium text-sm">{event.title}</h3>
+                  <div className="mt-4 space-y-3">
+                    {data.events.filter(e => (e.analytics?.ticketsSold || 0) > 0).map(event => (
+                      <div key={event.id} className="bg-card/50 rounded-lg p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-800 shrink-0">
+                            {event.image ? (
+                              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <Calendar className="h-6 w-6 text-gray-500 m-3" />
+                            )}
                           </div>
-                          <div className="space-y-2">
-                            {event.ticketSales?.map(renderTicketSale)}
+                          <div className="flex-1">
+                            <p className="text-foreground font-medium text-sm">{event.title}</p>
+                            <p className="text-muted-foreground text-xs">
+                              {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'Date TBD'}
+                            </p>
                           </div>
                         </div>
-                      )
+                        
+                        <div className="grid grid-cols-3 gap-3 text-center">
+                          <div className="bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-lg font-semibold text-foreground">{event.analytics?.ticketsSold || 0}</p>
+                            <p className="text-xs text-muted-foreground">Tickets</p>
+                          </div>
+                          <div className="bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-lg font-semibold text-green-400">${(event.analytics?.grossRevenue || 0).toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Revenue</p>
+                          </div>
+                          <div className="bg-gray-800/50 rounded-lg p-2">
+                            <p className="text-lg font-semibold text-green-400">${(event.analytics?.netRevenue || 0).toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Earnings</p>
+                          </div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
