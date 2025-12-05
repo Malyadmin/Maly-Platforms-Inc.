@@ -95,24 +95,6 @@ interface SignupData {
   privacyAccepted?: boolean;
 }
 
-const moodStyles: Record<string, string> = {
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
-  "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
-  "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30",
-  "Outdoor & Nature": "bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30",
-  "Wellness & Fitness": "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30",
-  "Creative & Artsy": "bg-violet-500/20 text-violet-500 hover:bg-violet-500/30",
-  "Single & Social": "bg-rose-500/20 text-rose-500 hover:bg-rose-500/30",
-  "Chill & Recharge": "bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30",
-  "Adventure & Exploring": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
-  "Spiritual & Intentional": "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30",
-  "Dancing & Music": "bg-fuchsia-500/20 text-fuchsia-500 hover:bg-fuchsia-500/30",
-  "Volunteering & Service": "bg-lime-500/20 text-lime-500 hover:bg-lime-500/30",
-  "Fundraiser": "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30",
-  "Community Service": "bg-sky-500/20 text-sky-500 hover:bg-sky-500/30",
-};
-
 interface StepProps {
   data: SignupData;
   onNext: (data: Partial<SignupData>) => void;
@@ -624,12 +606,12 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
             <div className="flex flex-wrap gap-2">
               {VIBE_AND_MOOD_TAGS.map(vibe => {
                 const isSelected = selectedVibes.includes(vibe);
-                const vibeStyle = moodStyles[vibe] || "bg-gray-500/20 text-gray-500 hover:bg-gray-500/30";
                 
                 return (
                   <Badge
                     key={vibe}
-                    className={`cursor-pointer transition-all ${isSelected ? vibeStyle + ' font-medium' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`cursor-pointer transition-all ${isSelected ? "bg-primary hover:bg-primary/90" : "hover:bg-muted"}`}
                     onClick={() => handleVibeToggle(vibe)}
                     data-testid={`badge-vibe-${vibe.replace(/\s+/g, '-')}`}
                   >
