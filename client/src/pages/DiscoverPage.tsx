@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, SlidersHorizontal, ChevronDown, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { DIGITAL_NOMAD_CITIES, CITIES_BY_REGION, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "@/lib/translations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FirstEventModal } from "@/components/FirstEventModal";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { IOSEventCard } from "@/components/ui/ios-event-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
@@ -86,6 +86,23 @@ export default function DiscoverPage() {
   const observerTarget = useRef(null);
   const [showFirstEventModal, setShowFirstEventModal] = useState(false);
   const [seenEmptyCities, setSeenEmptyCities] = useState<string[]>([]);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  
+  // Check for new user welcome message
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewUser = urlParams.get('welcome') === 'true' || localStorage.getItem('maly_new_user') === 'true';
+    
+    if (isNewUser) {
+      setShowWelcomeModal(true);
+      // Clear the flag so it only shows once
+      localStorage.removeItem('maly_new_user');
+      // Clean up URL without refreshing page
+      if (urlParams.get('welcome')) {
+        window.history.replaceState({}, '', '/discover');
+      }
+    }
+  }, []);
   
   const allEvents = fetchedEvents || [];
 
@@ -313,6 +330,36 @@ export default function DiscoverPage() {
         open={showFirstEventModal} 
         onClose={handleModalClose} 
       />
+
+      {/* Welcome Modal for new users */}
+      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
+        <DialogContent className="bg-card border-border max-w-sm mx-auto">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <DialogTitle className="text-xl font-semibold text-center text-foreground">
+              {t('welcomeComplete')}
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground mt-2">
+              {t('welcomeCompleteMessage')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground text-center">
+              {t('welcomeCompleteHint')}
+            </p>
+          </div>
+          <Button 
+            onClick={() => setShowWelcomeModal(false)}
+            className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+            data-testid="button-welcome-close"
+          >
+            {t('letsGetStarted')}
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       {/* iOS-style Header - Fixed at top */}
       <div className="bg-background text-foreground shrink-0 z-50">
         {/* Top bar with MÁLY logo and hamburger menu (includes theme toggle) */}

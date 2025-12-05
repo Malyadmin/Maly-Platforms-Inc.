@@ -25,12 +25,12 @@ import {
 import { ProfileGallery } from "@/components/ui/profile-gallery";
 import { useTranslation } from "@/lib/translations";
 
-// Step schemas
+// Step schemas with mandatory/optional field distinctions
 const step1Schema = z.object({
   fullName: z.string().min(1, "Name is required"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Please enter a valid email address"),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z.string().optional(), // Optional
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -39,27 +39,30 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  age: z.string().optional(),
-  gender: z.string().optional(),
-  sexualOrientation: z.string().optional(),
+  age: z.string().min(1, "Age is required"),
+  gender: z.string().min(1, "Gender is required"),
+  sexualOrientation: z.string().optional(), // Optional
 });
 
 const step3Schema = z.object({
-  location: z.string().optional(),
-  birthLocation: z.string().optional(),
-  livedLocation: z.string().optional(),
-  nextLocation: z.string().optional(),
+  location: z.string().min(1, "Current location is required"),
+  birthLocation: z.string().optional(), // Optional
+  livedLocation: z.string().optional(), // Optional
+  nextLocation: z.string().optional(), // Optional
 });
 
 const step4Schema = z.object({
-  vibes: z.array(z.string()).optional(),
-  intention: z.string().optional(),
-  profession: z.string().optional(),
+  vibes: z.array(z.string()).min(2, "Please select at least 2 vibes"),
+  intention: z.string().min(1, "Please select an intention"),
+  profession: z.string().optional(), // Optional
 });
 
 const step5Schema = z.object({
-  bio: z.string().optional(),
+  bio: z.string().optional(), // Optional
   profileImage: z.any().optional(),
+  hasProfileImage: z.boolean().refine((val) => val === true, {
+    message: "A profile photo is required",
+  }),
   termsAccepted: z.literal(true, {
     errorMap: () => ({ message: "You must accept the Terms and Conditions to register" }),
   }),
@@ -182,8 +185,8 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">{t('createAccount')}</h2>
-          <p className="text-muted-foreground text-sm">{t('getStartedBasics')}</p>
+          <h2 className="text-2xl font-light mb-2">{t('welcomeToMaly')}</h2>
+          <p className="text-muted-foreground text-sm">{t('step1Instruction')}</p>
         </div>
 
         <form 
@@ -210,6 +213,8 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               {...form.register("username")}
               placeholder={t('chooseUsername')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
+              autoCapitalize="none"
+              autoCorrect="off"
               data-testid="input-username"
             />
             {form.formState.errors.username && (
@@ -224,6 +229,8 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               type="email"
               placeholder="your.email@example.com"
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
+              autoCapitalize="none"
+              autoCorrect="off"
               data-testid="input-email"
             />
             {form.formState.errors.email && (
@@ -232,7 +239,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('phoneOptional')}</label>
+            <label className="text-foreground font-medium">{t('phoneNumber')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Input
               {...form.register("phoneNumber")}
               type="tel"
@@ -352,7 +359,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">{t('tellUsAboutYourself')}</h2>
-          <p className="text-muted-foreground text-sm">{t('personalInfo')}</p>
+          <p className="text-muted-foreground text-sm">{t('step2Instruction')}</p>
         </div>
 
         <form 
@@ -369,6 +376,9 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-age"
             />
+            {form.formState.errors.age && (
+              <p className="text-red-500 text-sm">{form.formState.errors.age.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -378,31 +388,34 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-gender"
             >
-              <option value="">Select your gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
+              <option value="">{t('selectGender')}</option>
+              <option value="male">{t('male')}</option>
+              <option value="female">{t('female')}</option>
+              <option value="non-binary">{t('nonBinary')}</option>
+              <option value="prefer-not-to-say">{t('preferNotToSay')}</option>
             </select>
+            {form.formState.errors.gender && (
+              <p className="text-red-500 text-sm">{form.formState.errors.gender.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Sexual Orientation</label>
+            <label className="text-foreground font-medium">{t('sexualOrientation')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <select
               {...form.register("sexualOrientation")}
               className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-sexualOrientation"
             >
-              <option value="">Select your orientation</option>
-              <option value="straight">Straight</option>
-              <option value="gay">Gay</option>
-              <option value="lesbian">Lesbian</option>
-              <option value="bisexual">Bisexual</option>
-              <option value="pansexual">Pansexual</option>
-              <option value="asexual">Asexual</option>
-              <option value="queer">Queer</option>
-              <option value="questioning">Questioning</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
+              <option value="">{t('selectOrientation')}</option>
+              <option value="straight">{t('straight')}</option>
+              <option value="gay">{t('gay')}</option>
+              <option value="lesbian">{t('lesbian')}</option>
+              <option value="bisexual">{t('bisexual')}</option>
+              <option value="pansexual">{t('pansexual')}</option>
+              <option value="asexual">{t('asexual')}</option>
+              <option value="queer">{t('queer')}</option>
+              <option value="questioning">{t('questioning')}</option>
+              <option value="prefer-not-to-say">{t('preferNotToSay')}</option>
             </select>
           </div>
         </form>
@@ -470,8 +483,8 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">{t('whereAreYou')}</h2>
-          <p className="text-muted-foreground text-sm">{t('locationInfo')}</p>
+          <h2 className="text-2xl font-light mb-2">{t('whereAreYouBased')}</h2>
+          <p className="text-muted-foreground text-sm">{t('step3Instruction')}</p>
         </div>
 
         <form 
@@ -480,40 +493,43 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('currentCity')}</label>
+            <label className="text-foreground font-medium">{t('currentLocation')}</label>
             <Input
               {...form.register("location")}
-              placeholder={t('currentCity')}
+              placeholder={t('enterCurrentCity')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-location"
             />
+            {form.formState.errors.location && (
+              <p className="text-red-500 text-sm">{form.formState.errors.location.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('bornIn')}</label>
+            <label className="text-foreground font-medium">{t('bornIn')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Input
               {...form.register("birthLocation")}
-              placeholder={t('bornIn')}
+              placeholder={t('enterBirthplace')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-birthLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('livedIn')}</label>
+            <label className="text-foreground font-medium">{t('livedIn')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Input
               {...form.register("livedLocation")}
-              placeholder={t('livedIn')}
+              placeholder={t('enterPreviousCity')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-livedLocation"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('nextDestination')}</label>
+            <label className="text-foreground font-medium">{t('nextLocation')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Input
               {...form.register("nextLocation")}
-              placeholder={t('nextDestination')}
+              placeholder={t('enterNextDestination')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-nextLocation"
             />
@@ -594,8 +610,8 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">{t('selectIntention')}</h2>
-          <p className="text-muted-foreground text-sm">{t('vibesDescription')}</p>
+          <h2 className="text-2xl font-light mb-2">{t('yourVibeYourWorld')}</h2>
+          <p className="text-muted-foreground text-sm">{t('step4Instruction')}</p>
         </div>
 
         <form 
@@ -604,7 +620,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-foreground font-medium">{t('yourVibes')}</label>
+            <label className="text-foreground font-medium">{t('yourVibes')} <span className="text-muted-foreground text-sm font-normal">({t('selectAtLeast2')})</span></label>
             <div className="flex flex-wrap gap-2">
               {VIBE_AND_MOOD_TAGS.map(vibe => {
                 const isSelected = selectedVibes.includes(vibe);
@@ -622,29 +638,35 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
                 );
               })}
             </div>
+            {form.formState.errors.vibes && (
+              <p className="text-red-500 text-sm">{form.formState.errors.vibes.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">Intention</label>
+            <label className="text-foreground font-medium">{t('intention')}</label>
             <select
               {...form.register("intention")}
               className="w-full bg-muted border border-border text-foreground rounded-md px-3 py-2 focus:border-primary"
               data-testid="select-intention"
             >
-              <option value="">What are you looking for?</option>
-              <option value="dating">Dating</option>
-              <option value="social">Social</option>
-              <option value="networking">Networking</option>
-              <option value="friends">Friends</option>
-              <option value="community">Community</option>
+              <option value="">{t('whatAreYouLookingFor')}</option>
+              <option value="dating">{t('dating')}</option>
+              <option value="social">{t('social')}</option>
+              <option value="networking">{t('networking')}</option>
+              <option value="friends">{t('friends')}</option>
+              <option value="community">{t('community')}</option>
             </select>
+            {form.formState.errors.intention && (
+              <p className="text-red-500 text-sm">{form.formState.errors.intention.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('yourProfession')}</label>
+            <label className="text-foreground font-medium">{t('profession')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Input
               {...form.register("profession")}
-              placeholder={t('yourProfession')}
+              placeholder={t('enterProfession')}
               className="bg-muted border-border text-foreground placeholder-muted-foreground focus:border-primary"
               data-testid="input-profession"
             />
@@ -664,12 +686,14 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
   
   const form = useForm({
     resolver: zodResolver(step5Schema),
     defaultValues: {
       bio: data.bio || "",
       profileImage: data.profileImage || null,
+      hasProfileImage: false,
       termsAccepted: false,
       privacyAccepted: false,
     },
@@ -678,9 +702,17 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
   const handleImagesChange = (newImages: File[], newPreviews: string[]) => {
     setSelectedImages(newImages);
     setImagePreviews(newPreviews);
+    form.setValue('hasProfileImage', newImages.length > 0);
+    if (newImages.length > 0) {
+      setPhotoError(false);
+    }
   };
 
   const onSubmit = (formData: any) => {
+    if (selectedImages.length === 0) {
+      setPhotoError(true);
+      return;
+    }
     if (!termsAccepted || !privacyAccepted) {
       return;
     }
@@ -727,8 +759,8 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-2xl font-light mb-2">{t('finishProfile')}</h2>
-          <p className="text-muted-foreground text-sm">{t('almostDone')}</p>
+          <h2 className="text-2xl font-light mb-2">{t('makeProfileShine')}</h2>
+          <p className="text-muted-foreground text-sm">{t('step5Instruction')}</p>
         </div>
 
         <form 
@@ -737,20 +769,20 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
           className="space-y-8"
         >
           <div className="space-y-3">
-            <label className="text-foreground font-medium">{t('uploadProfile')}</label>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t('uploadProfile')}
-            </p>
+            <label className="text-foreground font-medium">{t('profilePhoto')} <span className="text-muted-foreground text-sm font-normal">({t('clearFaceRequired')})</span></label>
             <ProfileGallery
               images={selectedImages}
               imagePreviews={imagePreviews}
               onImagesChange={handleImagesChange}
               maxImages={7}
             />
+            {photoError && (
+              <p className="text-red-500 text-sm">{t('profilePhotoRequired')}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground font-medium">{t('bio')}</label>
+            <label className="text-foreground font-medium">{t('bio')} <span className="text-muted-foreground text-sm font-normal">* {t('optional')}</span></label>
             <Textarea
               {...form.register("bio")}
               placeholder={t('writeBio')}
@@ -960,13 +992,17 @@ export default function SignupFlowPage() {
       
       // Handle redirect responses (3xx status codes)
       if (response.type === 'opaqueredirect' || response.status >= 300 && response.status < 400) {
+        // Set flag for new user welcome message
+        localStorage.setItem('maly_new_user', 'true');
         // Wait a moment for session to be established, then navigate
         setTimeout(() => {
-          window.location.href = '/discover';
+          window.location.href = '/discover?welcome=true';
         }, 100);
       } else if (response.ok) {
+        // Set flag for new user welcome message
+        localStorage.setItem('maly_new_user', 'true');
         // Direct success without redirect
-        window.location.href = '/discover';
+        window.location.href = '/discover?welcome=true';
       } else {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Registration failed');

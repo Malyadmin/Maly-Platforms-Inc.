@@ -534,6 +534,50 @@ type TranslationKey =
   | 'submitProfile'
   | 'registrationSuccess'
   | 'registrationError'
+  // New signup flow instruction copy
+  | 'optional'
+  | 'welcomeToMaly'
+  | 'step1Instruction'
+  | 'step2Instruction'
+  | 'step3Instruction'
+  | 'step4Instruction'
+  | 'step5Instruction'
+  | 'phoneNumber'
+  | 'sexualOrientation'
+  | 'male'
+  | 'female'
+  | 'nonBinary'
+  | 'preferNotToSay'
+  | 'straight'
+  | 'gay'
+  | 'lesbian'
+  | 'bisexual'
+  | 'pansexual'
+  | 'asexual'
+  | 'queer'
+  | 'questioning'
+  | 'whereAreYouBased'
+  | 'currentLocation'
+  | 'nextLocation'
+  | 'enterCurrentCity'
+  | 'enterBirthplace'
+  | 'enterPreviousCity'
+  | 'enterNextDestination'
+  | 'yourVibeYourWorld'
+  | 'selectAtLeast2'
+  | 'intention'
+  | 'whatAreYouLookingFor'
+  | 'community'
+  | 'profession'
+  | 'enterProfession'
+  | 'makeProfileShine'
+  | 'profilePhoto'
+  | 'clearFaceRequired'
+  | 'profilePhotoRequired'
+  // Post-onboarding welcome message
+  | 'welcomeComplete'
+  | 'welcomeCompleteMessage'
+  | 'welcomeCompleteHint'
   // CreateEventFlowPage strings
   | 'createSpaced'
   | 'createYourEvent'
@@ -1177,6 +1221,54 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     submitProfile: 'Complete Signup',
     registrationSuccess: 'Account created successfully!',
     registrationError: 'Error creating account',
+    // New signup flow instruction copy
+    optional: 'Optional',
+    welcomeToMaly: 'Welcome to Maly',
+    step1Instruction: "Let's start with the basics. This helps us create your account and tailor your experience.",
+    step2Instruction: 'A few details to personalize your experience and ensure a trusted community.',
+    step3Instruction: 'Your current city helps us show you the right people, places, and experiences.',
+    step4Instruction: 'Select the vibes and intentions that reflect how you explore and connect.',
+    step5Instruction: 'Add a clear photo so members and hosts know who you are. You can complete the rest later.',
+    phoneNumber: 'Phone Number',
+    sexualOrientation: 'Sexual Orientation',
+    male: 'Male',
+    female: 'Female',
+    nonBinary: 'Non-binary',
+    preferNotToSay: 'Prefer not to say',
+    straight: 'Straight',
+    gay: 'Gay',
+    lesbian: 'Lesbian',
+    bisexual: 'Bisexual',
+    pansexual: 'Pansexual',
+    asexual: 'Asexual',
+    queer: 'Queer',
+    questioning: 'Questioning',
+    whereAreYouBased: 'Where are you based?',
+    currentLocation: 'Current Location',
+    nextLocation: 'Next Location',
+    enterCurrentCity: 'Enter your current city',
+    enterBirthplace: 'Where were you born?',
+    enterPreviousCity: 'Cities you have lived in',
+    enterNextDestination: 'Where are you headed next?',
+    yourVibeYourWorld: 'Your vibe, your world',
+    selectAtLeast2: 'select at least 2',
+    intention: 'Intention',
+    whatAreYouLookingFor: 'What are you looking for?',
+    dating: 'Dating',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Friends',
+    community: 'Community',
+    profession: 'Profession',
+    enterProfession: 'What do you do?',
+    makeProfileShine: 'Make your profile shine',
+    profilePhoto: 'Profile Photo',
+    clearFaceRequired: 'clear face required',
+    profilePhotoRequired: 'A profile photo is required',
+    // Post-onboarding welcome message
+    welcomeComplete: "You're all set. Welcome to Maly.",
+    welcomeCompleteMessage: 'Your profile is now ready. You can update your details, add more photos, or edit your bio anytime.',
+    welcomeCompleteHint: 'Just go to Menu → Account → Edit Profile.',
     // CreateEventFlowPage strings
     createSpaced: 'C R E A T E',
     createYourEvent: 'Create your event',
@@ -1820,6 +1912,54 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     submitProfile: 'Completar Registro',
     registrationSuccess: '¡Cuenta creada exitosamente!',
     registrationError: 'Error al crear la cuenta',
+    // New signup flow instruction copy
+    optional: 'Opcional',
+    welcomeToMaly: 'Bienvenido a Maly',
+    step1Instruction: 'Empecemos con lo básico. Esto nos ayuda a crear tu cuenta y personalizar tu experiencia.',
+    step2Instruction: 'Algunos detalles para personalizar tu experiencia y asegurar una comunidad de confianza.',
+    step3Instruction: 'Tu ciudad actual nos ayuda a mostrarte las personas, lugares y experiencias correctas.',
+    step4Instruction: 'Selecciona las vibes e intenciones que reflejan cómo exploras y conectas.',
+    step5Instruction: 'Añade una foto clara para que miembros y anfitriones sepan quién eres. Puedes completar el resto después.',
+    phoneNumber: 'Número de Teléfono',
+    sexualOrientation: 'Orientación Sexual',
+    male: 'Masculino',
+    female: 'Femenino',
+    nonBinary: 'No binario',
+    preferNotToSay: 'Prefiero no decir',
+    straight: 'Heterosexual',
+    gay: 'Gay',
+    lesbian: 'Lesbiana',
+    bisexual: 'Bisexual',
+    pansexual: 'Pansexual',
+    asexual: 'Asexual',
+    queer: 'Queer',
+    questioning: 'Cuestionando',
+    whereAreYouBased: '¿Dónde te encuentras?',
+    currentLocation: 'Ubicación Actual',
+    nextLocation: 'Próxima Ubicación',
+    enterCurrentCity: 'Ingresa tu ciudad actual',
+    enterBirthplace: '¿Dónde naciste?',
+    enterPreviousCity: 'Ciudades donde has vivido',
+    enterNextDestination: '¿A dónde vas después?',
+    yourVibeYourWorld: 'Tu vibe, tu mundo',
+    selectAtLeast2: 'selecciona al menos 2',
+    intention: 'Intención',
+    whatAreYouLookingFor: '¿Qué estás buscando?',
+    dating: 'Citas',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Amigos',
+    community: 'Comunidad',
+    profession: 'Profesión',
+    enterProfession: '¿A qué te dedicas?',
+    makeProfileShine: 'Haz brillar tu perfil',
+    profilePhoto: 'Foto de Perfil',
+    clearFaceRequired: 'rostro claro requerido',
+    profilePhotoRequired: 'Se requiere una foto de perfil',
+    // Post-onboarding welcome message
+    welcomeComplete: 'Todo listo. Bienvenido a Maly.',
+    welcomeCompleteMessage: 'Tu perfil está listo. Puedes actualizar tus datos, agregar más fotos o editar tu biografía en cualquier momento.',
+    welcomeCompleteHint: 'Solo ve a Menú → Cuenta → Editar Perfil.',
     // CreateEventFlowPage strings
     createSpaced: 'C R E A R',
     createYourEvent: 'Crea tu evento',
