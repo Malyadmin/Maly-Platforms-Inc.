@@ -578,6 +578,37 @@ type TranslationKey =
   | 'welcomeComplete'
   | 'welcomeCompleteMessage'
   | 'welcomeCompleteHint'
+  // QR Scanner and Tickets
+  | 'scannerSpaced'
+  | 'myTicketsSpaced'
+  | 'myTickets'
+  | 'qrScanner'
+  | 'selectEvent'
+  | 'allEvents'
+  | 'filterByEventHint'
+  | 'tapToStartScanning'
+  | 'startScanning'
+  | 'stopScanning'
+  | 'cameraAccessDenied'
+  | 'validTicket'
+  | 'invalidTicket'
+  | 'alreadyCheckedIn'
+  | 'confirmCheckIn'
+  | 'scanAnother'
+  | 'ticketCheckedIn'
+  | 'checkInFailed'
+  | 'checkedInAt'
+  | 'viewAttendeeList'
+  | 'noTicketsYet'
+  | 'noTicketsDescription'
+  | 'browseEvents'
+  | 'showThisQRAtEntry'
+  | 'downloadQR'
+  | 'pastEvents'
+  | 'checkedIn'
+  | 'attended'
+  | 'notAttended'
+  | 'ticket'
   // CreateEventFlowPage strings
   | 'createSpaced'
   | 'createYourEvent'
@@ -927,12 +958,43 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     // Menu Items
     aiConcierge: 'Concierge',
     notificationPreferences: 'Notification Preferences',
+    myTickets: 'My Tickets',
     creatorDashboard: 'Creator Dashboard',
+    qrScanner: 'QR Scanner',
     stripeConnect: 'Stripe Connect',
     aboutMaly: 'About Maly',
     termsAndConditions: 'Terms & Conditions',
     privacyPolicy: 'Privacy Policy',
     paymentDisclaimer: 'Payment Disclaimer',
+    // QR Scanner and Tickets
+    scannerSpaced: 'S C A N N E R',
+    myTicketsSpaced: 'M Y   T I C K E T S',
+    selectEvent: 'Select Event',
+    allEvents: 'All Events',
+    filterByEventHint: 'Filter scans to a specific event, or leave empty to scan any ticket',
+    tapToStartScanning: 'Tap the button below to start scanning tickets',
+    startScanning: 'Start Scanning',
+    stopScanning: 'Stop Scanning',
+    cameraAccessDenied: 'Camera access denied. Please allow camera access to scan QR codes.',
+    validTicket: 'Valid Ticket',
+    invalidTicket: 'Invalid Ticket',
+    alreadyCheckedIn: 'Already Checked In',
+    confirmCheckIn: 'Confirm Check-in',
+    scanAnother: 'Scan Another',
+    ticketCheckedIn: 'Ticket checked in successfully!',
+    checkInFailed: 'Failed to check in ticket',
+    checkedInAt: 'Checked in at',
+    viewAttendeeList: 'View Attendee List',
+    noTicketsYet: 'No Tickets Yet',
+    noTicketsDescription: 'Your purchased and RSVP tickets will appear here',
+    browseEvents: 'Browse Events',
+    showThisQRAtEntry: 'Show this QR code at the event entrance',
+    downloadQR: 'Download QR Code',
+    pastEvents: 'Past Events',
+    checkedIn: 'Checked In',
+    attended: 'Attended',
+    notAttended: 'Not Attended',
+    ticket: 'ticket',
     // Auth Page
     register: 'Register',
     usernameOrEmail: 'Username or Email',
@@ -1618,12 +1680,43 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     // Menu Items
     aiConcierge: 'Conserje',
     notificationPreferences: 'Preferencias de Notificación',
+    myTickets: 'Mis Entradas',
     creatorDashboard: 'Panel de Creador',
+    qrScanner: 'Escáner QR',
     stripeConnect: 'Stripe Connect',
     aboutMaly: 'Acerca de Maly',
     termsAndConditions: 'Términos y Condiciones',
     privacyPolicy: 'Política de Privacidad',
     paymentDisclaimer: 'Descargo de Responsabilidad de Pago',
+    // QR Scanner and Tickets
+    scannerSpaced: 'E S C Á N E R',
+    myTicketsSpaced: 'M I S   E N T R A D A S',
+    selectEvent: 'Seleccionar Evento',
+    allEvents: 'Todos los Eventos',
+    filterByEventHint: 'Filtra los escaneos a un evento específico, o déjalo vacío para escanear cualquier entrada',
+    tapToStartScanning: 'Toca el botón de abajo para comenzar a escanear entradas',
+    startScanning: 'Iniciar Escaneo',
+    stopScanning: 'Detener Escaneo',
+    cameraAccessDenied: 'Acceso a la cámara denegado. Por favor permite el acceso a la cámara para escanear códigos QR.',
+    validTicket: 'Entrada Válida',
+    invalidTicket: 'Entrada Inválida',
+    alreadyCheckedIn: 'Ya Registrado',
+    confirmCheckIn: 'Confirmar Registro',
+    scanAnother: 'Escanear Otro',
+    ticketCheckedIn: '¡Entrada registrada exitosamente!',
+    checkInFailed: 'Error al registrar entrada',
+    checkedInAt: 'Registrado a las',
+    viewAttendeeList: 'Ver Lista de Asistentes',
+    noTicketsYet: 'Sin Entradas Aún',
+    noTicketsDescription: 'Tus entradas compradas y RSVP aparecerán aquí',
+    browseEvents: 'Explorar Eventos',
+    showThisQRAtEntry: 'Muestra este código QR en la entrada del evento',
+    downloadQR: 'Descargar Código QR',
+    pastEvents: 'Eventos Pasados',
+    checkedIn: 'Registrado',
+    attended: 'Asistió',
+    notAttended: 'No Asistió',
+    ticket: 'entrada',
     // Auth Page
     register: 'Registrarse',
     usernameOrEmail: 'Nombre de Usuario o Correo',
