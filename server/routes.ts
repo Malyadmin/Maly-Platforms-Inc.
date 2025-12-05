@@ -4329,6 +4329,340 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
      }
   });
 
+  // --- Get All User Tickets Endpoint ---
+  app.get('/api/me/tickets', requireAuth, async (req: Request, res: Response) => {
+    const userId = (req.user as any)?.id;
+    
+    if (!userId || isNaN(userId)) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    try {
+      const tickets = await db
+        .select({
+          id: eventParticipants.id,
+          eventId: eventParticipants.eventId,
+          ticketTierId: eventParticipants.ticketTierId,
+          status: eventParticipants.status,
+          ticketQuantity: eventParticipants.ticketQuantity,
+          purchaseDate: eventParticipants.purchaseDate,
+          paymentStatus: eventParticipants.paymentStatus,
+          ticketIdentifier: eventParticipants.ticketIdentifier,
+          checkInStatus: eventParticipants.checkInStatus,
+          checkedInAt: eventParticipants.checkedInAt,
+          eventTitle: events.title,
+          eventDate: events.date,
+          eventLocation: events.location,
+          eventImage: events.imageUrl,
+          tierName: ticketTiers.name,
+        })
+        .from(eventParticipants)
+        .leftJoin(events, eq(eventParticipants.eventId, events.id))
+        .leftJoin(ticketTiers, eq(eventParticipants.ticketTierId, ticketTiers.id))
+        .where(and(
+          eq(eventParticipants.userId, userId),
+          or(
+            eq(eventParticipants.paymentStatus, 'completed'),
+            eq(eventParticipants.status, 'attending')
+          ),
+          isNotNull(eventParticipants.ticketIdentifier)
+        ))
+        .orderBy(desc(eventParticipants.purchaseDate));
+      
+      res.json(tickets);
+    } catch (error) {
+      console.error(`Error fetching tickets for user ${userId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch tickets' });
+    }
+  });
+
+  // --- Verify and Check-in Ticket Endpoint (for hosts) ---
+  app.post('/api/tickets/verify', requireAuth, async (req: Request, res: Response) => {
+    const hostId = (req.user as any)?.id;
+    const { ticketIdentifier, eventId } = req.body;
+    
+    if (!hostId || isNaN(hostId)) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    if (!ticketIdentifier) {
+      return res.status(400).json({ error: 'Ticket identifier is required' });
+    }
+    
+    try {
+      // Find the ticket by identifier
+      const [ticket] = await db
+        .select({
+          id: eventParticipants.id,
+          eventId: eventParticipants.eventId,
+          userId: eventParticipants.userId,
+          status: eventParticipants.status,
+          paymentStatus: eventParticipants.paymentStatus,
+          checkInStatus: eventParticipants.checkInStatus,
+          checkedInAt: eventParticipants.checkedInAt,
+          ticketQuantity: eventParticipants.ticketQuantity,
+          tierName: ticketTiers.name,
+        })
+        .from(eventParticipants)
+        .leftJoin(ticketTiers, eq(eventParticipants.ticketTierId, ticketTiers.id))
+        .where(eq(eventParticipants.ticketIdentifier, ticketIdentifier))
+        .limit(1);
+      
+      if (!ticket) {
+        return res.status(404).json({ 
+          valid: false, 
+          error: 'Ticket not found',
+          message: 'This QR code is not valid'
+        });
+      }
+      
+      // If eventId is provided, verify it matches
+      if (eventId && ticket.eventId !== parseInt(eventId)) {
+        return res.status(400).json({ 
+          valid: false, 
+          error: 'Wrong event',
+          message: 'This ticket is for a different event'
+        });
+      }
+      
+      // Verify the host owns this event
+      const [event] = await db
+        .select({
+          id: events.id,
+          title: events.title,
+          creatorId: events.creatorId,
+        })
+        .from(events)
+        .where(eq(events.id, ticket.eventId!))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ 
+          valid: false, 
+          error: 'Event not found'
+        });
+      }
+      
+      if (event.creatorId !== hostId) {
+        return res.status(403).json({ 
+          valid: false, 
+          error: 'Unauthorized',
+          message: 'You are not the host of this event'
+        });
+      }
+      
+      // Get attendee info
+      const [attendee] = await db
+        .select({
+          id: users.id,
+          fullName: users.fullName,
+          username: users.username,
+          profileImage: users.profileImage,
+        })
+        .from(users)
+        .where(eq(users.id, ticket.userId!))
+        .limit(1);
+      
+      // Check if already checked in
+      if (ticket.checkInStatus) {
+        return res.json({
+          valid: true,
+          alreadyCheckedIn: true,
+          checkedInAt: ticket.checkedInAt,
+          message: 'This ticket has already been checked in',
+          attendee: {
+            name: attendee?.fullName || attendee?.username || 'Unknown',
+            profileImage: attendee?.profileImage,
+          },
+          event: {
+            id: event.id,
+            title: event.title,
+          },
+          ticketInfo: {
+            tier: ticket.tierName || 'General',
+            quantity: ticket.ticketQuantity,
+          }
+        });
+      }
+      
+      // Verify payment status
+      if (ticket.paymentStatus !== 'completed' && ticket.status !== 'attending') {
+        return res.status(400).json({ 
+          valid: false, 
+          error: 'Invalid ticket',
+          message: 'This ticket payment is incomplete or invalid'
+        });
+      }
+      
+      // Return ticket info without checking in (preview mode)
+      res.json({
+        valid: true,
+        alreadyCheckedIn: false,
+        attendee: {
+          name: attendee?.fullName || attendee?.username || 'Unknown',
+          profileImage: attendee?.profileImage,
+        },
+        event: {
+          id: event.id,
+          title: event.title,
+        },
+        ticketInfo: {
+          tier: ticket.tierName || 'General',
+          quantity: ticket.ticketQuantity,
+          participantId: ticket.id,
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error verifying ticket:', error);
+      res.status(500).json({ 
+        valid: false, 
+        error: 'Failed to verify ticket' 
+      });
+    }
+  });
+
+  // --- Check-in Ticket Endpoint (confirm check-in) ---
+  app.post('/api/tickets/:participantId/check-in', requireAuth, async (req: Request, res: Response) => {
+    const hostId = (req.user as any)?.id;
+    const participantId = parseInt(req.params.participantId, 10);
+    
+    if (!hostId || isNaN(hostId)) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    if (isNaN(participantId)) {
+      return res.status(400).json({ error: 'Invalid participant ID' });
+    }
+    
+    try {
+      // Get the participant record
+      const [participant] = await db
+        .select({
+          id: eventParticipants.id,
+          eventId: eventParticipants.eventId,
+          checkInStatus: eventParticipants.checkInStatus,
+        })
+        .from(eventParticipants)
+        .where(eq(eventParticipants.id, participantId))
+        .limit(1);
+      
+      if (!participant) {
+        return res.status(404).json({ error: 'Ticket not found' });
+      }
+      
+      // Verify the host owns this event
+      const [event] = await db
+        .select({ creatorId: events.creatorId })
+        .from(events)
+        .where(eq(events.id, participant.eventId!))
+        .limit(1);
+      
+      if (!event || event.creatorId !== hostId) {
+        return res.status(403).json({ error: 'Unauthorized - you are not the host of this event' });
+      }
+      
+      if (participant.checkInStatus) {
+        return res.status(400).json({ error: 'Ticket already checked in' });
+      }
+      
+      // Update the check-in status
+      await db
+        .update(eventParticipants)
+        .set({
+          checkInStatus: true,
+          checkedInAt: new Date(),
+          checkedInBy: hostId,
+        })
+        .where(eq(eventParticipants.id, participantId));
+      
+      res.json({ 
+        success: true, 
+        message: 'Ticket checked in successfully',
+        checkedInAt: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error checking in ticket:', error);
+      res.status(500).json({ error: 'Failed to check in ticket' });
+    }
+  });
+
+  // --- Get Event Attendees with Check-in Status (for hosts) ---
+  app.get('/api/events/:eventId/attendees', requireAuth, async (req: Request, res: Response) => {
+    const hostId = (req.user as any)?.id;
+    const eventId = parseInt(req.params.eventId, 10);
+    
+    if (!hostId || isNaN(hostId)) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
+    
+    try {
+      // Verify the host owns this event
+      const [event] = await db
+        .select({ creatorId: events.creatorId, title: events.title })
+        .from(events)
+        .where(eq(events.id, eventId))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+      
+      if (event.creatorId !== hostId) {
+        return res.status(403).json({ error: 'Unauthorized - you are not the host of this event' });
+      }
+      
+      // Get all attendees
+      const attendees = await db
+        .select({
+          participantId: eventParticipants.id,
+          userId: eventParticipants.userId,
+          status: eventParticipants.status,
+          ticketQuantity: eventParticipants.ticketQuantity,
+          paymentStatus: eventParticipants.paymentStatus,
+          checkInStatus: eventParticipants.checkInStatus,
+          checkedInAt: eventParticipants.checkedInAt,
+          tierName: ticketTiers.name,
+          fullName: users.fullName,
+          username: users.username,
+          profileImage: users.profileImage,
+        })
+        .from(eventParticipants)
+        .leftJoin(users, eq(eventParticipants.userId, users.id))
+        .leftJoin(ticketTiers, eq(eventParticipants.ticketTierId, ticketTiers.id))
+        .where(and(
+          eq(eventParticipants.eventId, eventId),
+          or(
+            eq(eventParticipants.paymentStatus, 'completed'),
+            eq(eventParticipants.status, 'attending')
+          )
+        ))
+        .orderBy(desc(eventParticipants.purchaseDate));
+      
+      const checkedInCount = attendees.filter(a => a.checkInStatus).length;
+      const totalCount = attendees.length;
+      
+      res.json({
+        event: { id: eventId, title: event.title },
+        attendees,
+        stats: {
+          total: totalCount,
+          checkedIn: checkedInCount,
+          pending: totalCount - checkedInCount,
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error fetching attendees:', error);
+      res.status(500).json({ error: 'Failed to fetch attendees' });
+    }
+  });
+
   // --- Premium Subscription Routes ---
 
   // Create a checkout session for premium subscription

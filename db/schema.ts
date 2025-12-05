@@ -103,6 +103,8 @@ export const eventParticipants = pgTable("event_participants", {
   paymentStatus: text("payment_status").default("pending"), // pending, completed, refunded
   paymentIntentId: text("payment_intent_id"), // For Stripe integration
   checkInStatus: boolean("check_in_status").default(false), // For event check-in
+  checkedInAt: timestamp("checked_in_at"), // When the ticket was checked in
+  checkedInBy: integer("checked_in_by").references(() => users.id), // Who checked in the ticket
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   stripeCheckoutSessionId: text("stripe_checkout_session_id"), // Added for tracking checkout
