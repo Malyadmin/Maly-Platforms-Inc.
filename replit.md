@@ -50,6 +50,21 @@ Preferred communication style: Simple, everyday language.
 - Comprehensive input validation using Zod schemas.
 - Performance optimization includes fixing N+1 query problems, pagination, and database indexing.
 
+## Recent Changes (December 2025)
+
+### Signup Flow Redesign (December 5, 2025)
+- **5-Step Registration Flow**: Comprehensive multi-step signup with mandatory/optional field distinctions:
+  - Step 1 (Basic Account): Full Name, Username, Email, Password, Confirm Password (required), Phone Number (optional)
+  - Step 2 (Demographics): Age, Gender (required), Sexual Orientation (optional)
+  - Step 3 (Locations): Current Location (required), Born In, Lived In, Next Location (optional)
+  - Step 4 (Preferences): Vibes minimum 2, Intention minimum 1 (required), Profession (optional)
+  - Step 5 (Profile Completion): Profile Photo, Terms & Privacy acceptance (required), Bio (optional)
+- **Visual Indicators**: "* Optional" labels clearly mark non-required fields
+- **Step-Specific Instructions**: Each step includes encouraging instruction copy in both English and Spanish
+- **Validation**: Zod schema validation enforces all mandatory field requirements
+- **Post-Onboarding Welcome**: New users see a celebratory welcome modal upon first Discover page visit after registration
+- **Translation Coverage**: 40+ new translation keys added for complete bilingual support
+
 ## Recent Changes (November 2025)
 
 ### Appearance Settings & Light Mode (November 10, 2025)
