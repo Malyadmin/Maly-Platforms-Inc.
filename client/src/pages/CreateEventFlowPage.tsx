@@ -1028,18 +1028,21 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
   const form = useForm({
     resolver: zodResolver(step6Schema),
     defaultValues: {
-      requireApproval: data.requireApproval,
+      requireApproval: data.requireApproval || false,
       vibes: data.vibes || [],
     },
   });
 
   const [selectedVibes, setSelectedVibes] = useState<string[]>(data.vibes || []);
+  const [requireApproval, setRequireApproval] = useState<boolean>(data.requireApproval || false);
 
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
       vibes: selectedVibes,
+      requireApproval: requireApproval,
     };
+    console.log("Step 6 submission - requireApproval:", requireApproval, "vibes:", selectedVibes);
     onNext(submissionData);
   };
 
@@ -1098,7 +1101,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
               <p className="text-muted-foreground text-sm">Attendees must be approved before joining</p>
             </div>
             <Switch
-              {...form.register("requireApproval")}
+              checked={requireApproval}
+              onCheckedChange={(checked) => setRequireApproval(checked)}
               data-testid="switch-require-approval"
             />
           </div>
