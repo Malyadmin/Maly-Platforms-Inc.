@@ -12,7 +12,7 @@ import { DIGITAL_NOMAD_CITIES, CITIES_BY_REGION, VIBE_AND_MOOD_TAGS } from "@/li
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "@/lib/translations";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EventGridSkeleton } from "@/components/ui/content-skeleton";
 import { FirstEventModal } from "@/components/FirstEventModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { IOSEventCard } from "@/components/ui/ios-event-card";
@@ -611,25 +611,7 @@ export default function DiscoverPage() {
               )}
 
             {isLoading ? (
-              // Loading skeleton list
-              <div className="space-y-6">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="flex gap-4 p-2">
-                    <Skeleton className="w-32 h-32 flex-shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-4 w-1/3" />
-                      <div className="flex gap-2 mt-2">
-                        {[1, 2, 3, 4].map((_, i) => (
-                          <Skeleton key={i} className="w-8 h-8" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <EventGridSkeleton count={6} />
             ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-center">
                 <p className="text-lg text-muted-foreground mb-4">{t('noEventsMatchCriteria')}</p>

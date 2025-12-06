@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp, Check, X, Plus } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { InboxSkeleton } from '@/components/ui/content-skeleton';
 import { useTranslation } from '@/lib/translations';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
@@ -341,17 +341,8 @@ export default function InboxPage() {
       {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {loading ? (
-          <div className="space-y-4 p-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center space-x-3">
-                <Skeleton className="h-10 w-10 rounded-full bg-muted" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-[150px] bg-muted" />
-                  <Skeleton className="h-3 w-[100px] bg-muted" />
-                </div>
-                <Skeleton className="h-4 w-4 bg-muted" />
-              </div>
-            ))}
+          <div className="p-4">
+            <InboxSkeleton count={6} />
           </div>
         ) : (
           <div className="pb-20" data-testid="inbox-content">

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DIGITAL_NOMAD_CITIES, CITIES_BY_REGION, VIBE_AND_MOOD_TAGS, formatIntentionLabel } from "@/lib/constants";
 import { PremiumBadge } from "@/components/ui/premium-badge";
+import { UserGridSkeleton } from "@/components/ui/content-skeleton";
 
 // User interface matching the existing ConnectPage User type
 interface ConnectUser {
@@ -716,8 +717,8 @@ export function ConnectPage() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
         {isLoading ? (
-          <div className="text-center py-8">
-            <span className="text-muted-foreground">{t('loadingUsers')}</span>
+          <div className="px-4 py-3">
+            <UserGridSkeleton count={6} />
           </div>
         ) : (
           /* List View - Similar to Discover Page */

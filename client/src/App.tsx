@@ -51,7 +51,9 @@ import { LanguageProvider } from "./lib/language-context";
 import { QueryProvider } from "./lib/query-provider";
 import { UserProvider } from "./lib/user-provider";
 import { useUser } from "@/hooks/use-user";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { SplashScreen } from "./components/ui/splash-screen";
+import { PageTransition } from "./components/ui/page-transition";
 
 function AppContent() {
   const [location, setLocation] = useLocation();
@@ -191,12 +193,31 @@ function AppContent() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashMinTimePassed, setSplashMinTimePassed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSplashMinTimePassed(true);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (splashMinTimePassed) {
+      setShowSplash(false);
+    }
+  }, [splashMinTimePassed]);
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="nomad-theme">
       <QueryProvider>
         <UserProvider>
           <LanguageProvider>
-            <AppContent />
+            <SplashScreen isVisible={showSplash} />
+            <PageTransition>
+              <AppContent />
+            </PageTransition>
           </LanguageProvider>
         </UserProvider>
       </QueryProvider>
