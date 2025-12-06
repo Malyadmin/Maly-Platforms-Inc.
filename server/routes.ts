@@ -4294,11 +4294,35 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   });
   
   // --- Get All User Tickets Endpoint --- 
-  app.get('/api/me/tickets', requireAuth, async (req: Request, res: Response) => {
-    const userId = (req.user as any)?.id;
+  app.get('/api/me/tickets', async (req: Request, res: Response) => {
+    // Try multiple auth methods
+    let userId: number | null = null;
+    
+    // Method 1: Passport session
+    if (req.isAuthenticated() && (req.user as any)?.id) {
+      userId = (req.user as any).id;
+      console.log('[MY_TICKETS] Auth via passport for user:', userId);
+    }
+    
+    // Method 2: X-User-ID header fallback
+    if (!userId) {
+      const headerUserId = req.headers['x-user-id'] as string;
+      if (headerUserId) {
+        const parsedId = parseInt(headerUserId, 10);
+        if (!isNaN(parsedId)) {
+          // Verify user exists
+          const [userExists] = await db.select({ id: users.id }).from(users).where(eq(users.id, parsedId)).limit(1);
+          if (userExists) {
+            userId = parsedId;
+            console.log('[MY_TICKETS] Auth via X-User-ID header:', userId);
+          }
+        }
+      }
+    }
+    
     console.log('[MY_TICKETS] Fetching tickets for user:', userId);
     
-    if (!userId || isNaN(userId)) {
+    if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
     

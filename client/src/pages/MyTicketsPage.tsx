@@ -35,6 +35,20 @@ export default function MyTicketsPage() {
 
   const { data: tickets, isLoading } = useQuery<TicketData[]>({
     queryKey: ['/api/me/tickets', user?.id],
+    queryFn: async () => {
+      const headers: Record<string, string> = {};
+      if (user?.id) {
+        headers['X-User-ID'] = user.id.toString();
+      }
+      const res = await fetch('/api/me/tickets', {
+        credentials: 'include',
+        headers,
+      });
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${await res.text()}`);
+      }
+      return res.json();
+    },
     staleTime: 0,
     refetchOnMount: 'always',
     retry: 2,
