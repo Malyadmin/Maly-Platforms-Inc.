@@ -399,19 +399,11 @@ export default function CreatorDashboardPage() {
           <HamburgerMenu />
         </div>
         
-        {/* Dashboard title with gradient and Check-In button */}
-        <div className="px-5 pb-3 flex items-center justify-between">
+        {/* Dashboard title with gradient */}
+        <div className="px-5 pb-3">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             {t('dashboardSpaced')}
           </h2>
-          <Button
-            onClick={() => setLocation('/creator/check-in')}
-            className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white text-xs px-3 py-1 h-8"
-            data-testid="button-check-in"
-          >
-            <UserCheck className="w-4 h-4 mr-1" />
-            {t('checkIn.title')}
-          </Button>
         </div>
 
         {/* Filter Bar */}

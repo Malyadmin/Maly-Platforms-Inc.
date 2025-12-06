@@ -29,6 +29,7 @@ const menuSections: MenuSection[] = [
     titleKey: "creatorTools",
     itemKeys: [
       "creatorDashboard",
+      "checkInAttendees",
       "stripeConnect"
     ]
   },
@@ -72,6 +73,7 @@ export function HamburgerMenu() {
     "myTickets": "/my-tickets",
     "notificationPreferences": "/notification-preferences",
     "creatorDashboard": "/creator/dashboard",
+    "checkInAttendees": "/creator/check-in",
     "stripeConnect": "/stripe/connect",
     "aboutMaly": "/about",
     "termsAndConditions": "/terms",
