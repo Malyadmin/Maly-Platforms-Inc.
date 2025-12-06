@@ -4296,6 +4296,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
   // --- Get All User Tickets Endpoint --- 
   app.get('/api/me/tickets', requireAuth, async (req: Request, res: Response) => {
     const userId = (req.user as any)?.id;
+    console.log('[MY_TICKETS] Fetching tickets for user:', userId);
     
     if (!userId || isNaN(userId)) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -4318,6 +4319,8 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           isNotNull(eventParticipants.ticketIdentifier)
         ))
         .orderBy(desc(eventParticipants.purchaseDate));
+      
+      console.log('[MY_TICKETS] Found tickets:', userTickets.length, userTickets);
       
       // Enrich with event and tier details
       const enrichedTickets = await Promise.all(userTickets.map(async (ticket) => {
