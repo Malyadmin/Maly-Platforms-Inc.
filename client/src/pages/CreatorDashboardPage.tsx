@@ -288,7 +288,7 @@ export default function CreatorDashboardPage() {
       </div>
       <div className="text-right">
         <p className="text-foreground font-semibold">${(sale.amount / 100).toFixed(2)}</p>
-        <p className="text-xs text-green-400">{sale.status}</p>
+        <p className="text-xs text-muted-foreground">{sale.status}</p>
       </div>
     </div>
   );
@@ -533,11 +533,11 @@ export default function CreatorDashboardPage() {
               <div>
                 {/* Sales Summary Header */}
                 {data?.salesSummary && data.salesSummary.totalTicketsSold > 0 && (
-                  <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg p-4 mb-4 border border-purple-500/20">
+                  <div className="mt-4 mb-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-xs text-muted-foreground">{t('totalRevenue')}</p>
-                        <p className="text-xl font-bold text-green-400">${data.salesSummary.totalRevenue.toFixed(2)}</p>
+                        <p className="text-xl font-bold text-foreground">${data.salesSummary.totalRevenue.toFixed(2)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">{t('ticketsSold')}</p>
@@ -549,7 +549,7 @@ export default function CreatorDashboardPage() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">{t('yourEarnings')}</p>
-                        <p className="text-lg font-semibold text-green-400">${data.salesSummary.totalNetRevenue.toFixed(2)}</p>
+                        <p className="text-lg font-semibold text-foreground">${data.salesSummary.totalNetRevenue.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
