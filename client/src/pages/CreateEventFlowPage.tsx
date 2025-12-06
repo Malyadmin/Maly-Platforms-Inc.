@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_PRIVACY_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { useTranslation } from "@/lib/translations";
@@ -394,20 +394,15 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
     })),
     defaultValues: {
       isOnlineEvent: data.isOnlineEvent,
-      eventVisibility: data.eventVisibility,
       city: data.city,
       addressLine1: data.addressLine1,
       additionalInfo: data.additionalInfo,
       startDate: data.startDate,
       endDate: data.endDate,
-      addActivitySchedule: data.addActivitySchedule,
-      agendaItems: data.agendaItems,
     },
   });
 
-  const [agendaItems, setAgendaItems] = useState(data.agendaItems || []);
   const [isOnlineEvent, setIsOnlineEvent] = useState(data.isOnlineEvent);
-  const [addActivitySchedule, setAddActivitySchedule] = useState(data.addActivitySchedule);
   const [cityQuery, setCityQuery] = useState(data.city || "");
   const [citySuggestions, setCitySuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -474,29 +469,10 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
     setCitySuggestions([]);
   };
 
-  const addAgendaItem = () => {
-    const newItem = { time: "", description: "" };
-    setAgendaItems([...agendaItems, newItem]);
-  };
-
-  const removeAgendaItem = (index: number) => {
-    setAgendaItems(agendaItems.filter((_, i) => i !== index));
-  };
-
-  const updateAgendaItem = (index: number, field: string, value: string) => {
-    const updated = agendaItems.map((item, i) => 
-      i === index ? { ...item, [field]: value } : item
-    );
-    setAgendaItems(updated);
-  };
-
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
       isOnlineEvent,
-      addActivitySchedule,
-      agendaItems: addActivitySchedule ? agendaItems : [],
-      // Ensure city is included for online events
       city: isOnlineEvent ? "Online" : formData.city,
     };
     onNext(submissionData);
@@ -691,22 +667,17 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
   const form = useForm({
     resolver: zodResolver(step4Schema),
     defaultValues: {
-      addEventLineup: data.addEventLineup,
-      eventLineup: data.eventLineup,
       dressCode: data.dressCode,
       dressCodeDetails: data.dressCodeDetails,
     },
   });
 
-  const [addEventLineup, setAddEventLineup] = useState(data.addEventLineup);
   const [dressCode, setDressCode] = useState(data.dressCode);
 
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
-      addEventLineup,
       dressCode,
-      eventLineup: addEventLineup ? formData.eventLineup : [],
       dressCodeDetails: dressCode ? formData.dressCodeDetails : "",
     };
     onNext(submissionData);
@@ -817,7 +788,6 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       isPaidEvent: data.isPaidEvent,
       ticketTiers: data.ticketTiers || [],
       eventPrivacy: data.eventPrivacy,
-      whoShouldAttend: data.whoShouldAttend,
     },
   });
 
@@ -1058,16 +1028,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
   const form = useForm({
     resolver: zodResolver(step6Schema),
     defaultValues: {
-      spotsAvailable: data.spotsAvailable,
-      promotionOnly: data.promotionOnly,
-      contactsOnly: data.contactsOnly,
-      invitationOnly: data.invitationOnly,
       requireApproval: data.requireApproval,
-      genderExclusive: data.genderExclusive,
-      ageExclusiveMin: data.ageExclusiveMin,
-      ageExclusiveMax: data.ageExclusiveMax,
-      moodSpecific: data.moodSpecific,
-      interestsSpecific: data.interestsSpecific,
       vibes: data.vibes || [],
     },
   });
@@ -1212,30 +1173,17 @@ export default function CreateEventFlowPage() {
     imageURLs: [],
     videoURLs: [],
     isOnlineEvent: false,
-    eventVisibility: "public",
     city: "",
     addressLine1: "",
     additionalInfo: "",
     startDate: new Date(),
     endDate: new Date(),
-    addActivitySchedule: false,
-    agendaItems: [],
-    addEventLineup: false,
-    eventLineup: [],
     dressCode: false,
     dressCodeDetails: "",
     isPaidEvent: false,
     ticketTiers: [],
     eventPrivacy: "public",
-    whoShouldAttend: "",
-    spotsAvailable: "",
-    promotionOnly: false,
-    contactsOnly: false,
-    invitationOnly: false,
     requireApproval: false,
-    genderExclusive: "",
-    moodSpecific: "",
-    interestsSpecific: [],
     vibes: [],
     category: "Other",
   });
@@ -1280,13 +1228,8 @@ export default function CreateEventFlowPage() {
         time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
         price: eventData.isPaidEvent && eventData.ticketTiers?.length > 0 ? eventData.ticketTiers[0].price : 0,
         ticketTiers: eventData.isPaidEvent ? eventData.ticketTiers : [],
-        capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
-        eventPrivacy: eventData.eventPrivacy || "public", // Add the missing eventPrivacy field
-        itinerary: eventData.agendaItems?.map(item => ({
-          time: item.time,
-          activity: item.description,
-          location: eventData.location
-        })) || [],
+        eventPrivacy: eventData.eventPrivacy || "public",
+        requireApproval: eventData.requireApproval || false,
         tags: [
           ...(eventData.vibes || []),
           ...(eventData.dressCode ? ['Dress Code Required'] : []),

@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-// Base schemas for reusable components
-export const agendaItemSchema = z.object({
-  time: z.string().min(1, "Time is required"),
-  description: z.string().min(1, "Description is required"),
-});
-
 export const ticketTierSchema = z.object({
   name: z.string().min(1, "Tier name is required"),
   description: z.string().optional(),
@@ -28,18 +22,13 @@ export const eventCreationSchema = z.object({
   
   // Step 3: Event Details
   isOnlineEvent: z.boolean().default(false),
-  eventVisibility: z.string().default("public"),
   city: z.string().min(2, "City is required"),
   addressLine1: z.string().optional(),
   additionalInfo: z.string().optional(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
-  addActivitySchedule: z.boolean().default(false),
-  agendaItems: z.array(agendaItemSchema).default([]),
   
   // Step 4: Event Specifics (Optional)
-  addEventLineup: z.boolean().default(false),
-  eventLineup: z.array(z.number()).default([]), // User IDs
   dressCode: z.boolean().default(false),
   dressCodeDetails: z.string().optional(),
   
@@ -48,19 +37,9 @@ export const eventCreationSchema = z.object({
   ticketTiers: z.array(ticketTierSchema).default([]),
   deadline: z.coerce.date().optional(),
   eventPrivacy: z.enum(["public", "private", "friends", "rsvp"]).default("public"),
-  whoShouldAttend: z.string().optional(),
   
-  // Step 6: Advanced Audience Targeting
-  spotsAvailable: z.string().optional(),
-  promotionOnly: z.boolean().default(false),
-  contactsOnly: z.boolean().default(false),
-  invitationOnly: z.boolean().default(false),
+  // Step 6: Event Setup
   requireApproval: z.boolean().default(false),
-  genderExclusive: z.string().optional(),
-  ageExclusiveMin: z.coerce.number().optional(),
-  ageExclusiveMax: z.coerce.number().optional(),
-  moodSpecific: z.string().optional(),
-  interestsSpecific: z.array(z.string()).default([]),
   vibes: z.array(z.string()).default([]),
   
   // Additional fields for compatibility
@@ -89,19 +68,14 @@ export const step2Schema = eventCreationSchema.pick({
 
 export const step3Schema = eventCreationSchema.pick({
   isOnlineEvent: true,
-  eventVisibility: true,
   city: true,
   addressLine1: true,
   additionalInfo: true,
   startDate: true,
   endDate: true,
-  addActivitySchedule: true,
-  agendaItems: true,
 });
 
 export const step4Schema = eventCreationSchema.pick({
-  addEventLineup: true,
-  eventLineup: true,
   dressCode: true,
   dressCodeDetails: true,
 });
@@ -111,20 +85,10 @@ export const step5Schema = eventCreationSchema.pick({
   ticketTiers: true,
   deadline: true,
   eventPrivacy: true,
-  whoShouldAttend: true,
 });
 
 export const step6Schema = eventCreationSchema.pick({
-  spotsAvailable: true,
-  promotionOnly: true,
-  contactsOnly: true,
-  invitationOnly: true,
   requireApproval: true,
-  genderExclusive: true,
-  ageExclusiveMin: true,
-  ageExclusiveMax: true,
-  moodSpecific: true,
-  interestsSpecific: true,
   vibes: true,
 });
 
@@ -147,24 +111,11 @@ export enum EventCreationStep {
 }
 
 // Constants for UI
-export const GENDER_OPTIONS = [
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "non-binary", label: "Non-binary" },
-  { value: "all", label: "All genders" },
-];
-
 export const EVENT_PRIVACY_OPTIONS = [
   { value: "public", label: "Public" },
   { value: "private", label: "Private" },
   { value: "friends", label: "Friends only" },
   { value: "rsvp", label: "RSVP Required" },
-];
-
-export const EVENT_VISIBILITY_OPTIONS = [
-  { value: "public", label: "Anyone can find this event" },
-  { value: "link", label: "Only people with the link" },
-  { value: "invited", label: "Only invited people" },
 ];
 
 export const VIBE_OPTIONS = [
