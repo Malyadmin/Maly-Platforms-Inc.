@@ -31,9 +31,11 @@ export default function MyTicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
 
-  const { data: tickets, isLoading } = useQuery<TicketData[]>({
+  const { data: tickets, isLoading, error } = useQuery<TicketData[]>({
     queryKey: ['/api/me/tickets'],
   });
+  
+  console.log('[MY_TICKETS_PAGE] Query state:', { isLoading, hasData: !!tickets, ticketCount: tickets?.length, error: error?.message });
 
   const handleViewQR = async (ticket: TicketData) => {
     setSelectedTicket(ticket);
