@@ -43,6 +43,7 @@ import PaymentDisclaimerPage from "./pages/PaymentDisclaimerPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 import PaymentMethodsPage from "./pages/PaymentMethodsPage";
 import AppearancePage from "./pages/AppearancePage";
+import MyTicketsPage from "./pages/MyTicketsPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -136,6 +137,7 @@ function AppContent() {
             <Route path="/notification-preferences" component={NotificationPreferencesPage} />
             <Route path="/payment-methods" component={PaymentMethodsPage} />
             <Route path="/appearance" component={AppearancePage} />
+            <Route path="/my-tickets" component={MyTicketsPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -157,6 +159,7 @@ function AppContent() {
           <Route path="/notification-preferences" component={NotificationPreferencesPage} />
           <Route path="/payment-methods" component={PaymentMethodsPage} />
           <Route path="/appearance" component={AppearancePage} />
+          <Route path="/my-tickets" component={MyTicketsPage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
           <Route path="/companion" component={ChatbotPage} />

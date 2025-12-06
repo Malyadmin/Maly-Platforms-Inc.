@@ -578,6 +578,15 @@ type TranslationKey =
   | 'welcomeComplete'
   | 'welcomeCompleteMessage'
   | 'welcomeCompleteHint'
+  // MyTicketsPage strings
+  | 'myTickets'
+  | 'noTicketsYet'
+  | 'noTicketsDescription'
+  | 'browseEvents'
+  | 'viewQR'
+  | 'showQRAtEntry'
+  | 'ticket'
+  | 'tickets'
   // CreateEventFlowPage strings
   | 'createSpaced'
   | 'createYourEvent'
@@ -798,6 +807,14 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     conciergeGreeting: "Hi, I'm Maly — like your local friend with great taste. I'll help you know where to go, who to know, and what to do.",
     premiumAdPartner: 'Premium Ad Partner',
     letsGetStarted: "Let's Get Started!",
+    myTickets: "My Tickets",
+    noTicketsYet: "No Tickets Yet",
+    noTicketsDescription: "When you purchase tickets to events, they'll appear here with QR codes for entry.",
+    browseEvents: "Browse Events",
+    viewQR: "View QR",
+    showQRAtEntry: "Show this QR code at the event entrance for check-in.",
+    ticket: "ticket",
+    tickets: "tickets",
     'Party & Nightlife': 'Party & Nightlife',
     'Fashion & Style': 'Fashion & Style',
     'Networking & Business': 'Networking & Business',
@@ -1489,6 +1506,14 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     conciergeGreeting: "Hola, soy Maly — como tu amigo local con buen gusto. Te ayudaré a saber dónde ir, a quién conocer y qué hacer.",
     premiumAdPartner: 'Socio Premium de Publicidad',
     letsGetStarted: "¡Comencemos!",
+    myTickets: "Mis Entradas",
+    noTicketsYet: "Aún No Tienes Entradas",
+    noTicketsDescription: "Cuando compres entradas para eventos, aparecerán aquí con códigos QR para la entrada.",
+    browseEvents: "Ver Eventos",
+    viewQR: "Ver QR",
+    showQRAtEntry: "Muestra este código QR en la entrada del evento para el registro.",
+    ticket: "entrada",
+    tickets: "entradas",
     'Party & Nightlife': 'Fiesta y Vida Nocturna',
     'Fashion & Style': 'Moda y Estilo',
     'Networking & Business': 'Networking y Negocios',

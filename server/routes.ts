@@ -4293,6 +4293,71 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     }
   });
   
+  // --- Get All User Tickets Endpoint --- 
+  app.get('/api/me/tickets', requireAuth, async (req: Request, res: Response) => {
+    const userId = (req.user as any)?.id;
+    
+    if (!userId || isNaN(userId)) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    try {
+      const userTickets = await db
+        .select({
+          id: eventParticipants.id,
+          eventId: eventParticipants.eventId,
+          ticketIdentifier: eventParticipants.ticketIdentifier,
+          ticketQuantity: eventParticipants.ticketQuantity,
+          purchaseDate: eventParticipants.purchaseDate,
+          ticketTierId: eventParticipants.ticketTierId,
+        })
+        .from(eventParticipants)
+        .where(and(
+          eq(eventParticipants.userId, userId),
+          eq(eventParticipants.paymentStatus, 'completed'),
+          isNotNull(eventParticipants.ticketIdentifier)
+        ))
+        .orderBy(desc(eventParticipants.purchaseDate));
+      
+      // Enrich with event and tier details
+      const enrichedTickets = await Promise.all(userTickets.map(async (ticket) => {
+        const [event] = await db.select({
+          title: events.title,
+          image: events.image,
+          date: events.date,
+          location: events.location,
+        }).from(events).where(eq(events.id, ticket.eventId!)).limit(1);
+        
+        let tierName = null;
+        if (ticket.ticketTierId) {
+          const [tier] = await db.select({ name: ticketTiers.name })
+            .from(ticketTiers)
+            .where(eq(ticketTiers.id, ticket.ticketTierId))
+            .limit(1);
+          tierName = tier?.name || null;
+        }
+        
+        return {
+          id: ticket.id,
+          eventId: ticket.eventId,
+          eventTitle: event?.title || 'Unknown Event',
+          eventImage: event?.image || null,
+          eventDate: event?.date || null,
+          eventLocation: event?.location || null,
+          ticketIdentifier: ticket.ticketIdentifier,
+          ticketQuantity: ticket.ticketQuantity || 1,
+          purchaseDate: ticket.purchaseDate,
+          tierName,
+        };
+      }));
+      
+      res.json(enrichedTickets);
+    } catch (error) {
+      console.error(`Error fetching tickets for user ${userId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch tickets' });
+    }
+  });
+
   // --- Get Latest Ticket Endpoint --- 
   app.get('/api/me/latest-ticket', requireAuth, async (req: Request, res: Response) => {
      const userId = (req.user as any)?.id;
