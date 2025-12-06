@@ -553,32 +553,6 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             />
           </div>
 
-          {/* Event Visibility */}
-          <FormField
-            control={form.control}
-            name="eventVisibility"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-foreground font-medium">{t('eventVisibility')}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-visibility">
-                      <SelectValue placeholder={t('selectVisibility')} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {EVENT_VISIBILITY_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {/* Location Fields */}
           {!isOnlineEvent && (
             <>
@@ -679,67 +653,6 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             </div>
           </div>
 
-          {/* Activity Schedule Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-foreground font-medium">{t('activitySchedule')}</label>
-              <p className="text-muted-foreground text-sm">{t('addItinerary')}</p>
-            </div>
-            <Switch
-              checked={addActivitySchedule}
-              onCheckedChange={setAddActivitySchedule}
-              data-testid="switch-activity-schedule"
-            />
-          </div>
-
-          {/* Agenda Items */}
-          {addActivitySchedule && (
-            <div className="space-y-4">
-              <label className="text-foreground font-medium">{t('activitySchedule')}</label>
-              
-              {agendaItems.map((item, index) => (
-                <div key={index} className="p-4 border border-gray-700 rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Activity {index + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeAgendaItem(index)}
-                      className="text-red-500 hover:text-red-400"
-                      data-testid={`button-remove-agenda-${index}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="Time (e.g., 7:00 PM)"
-                      value={item.time}
-                      onChange={(e) => updateAgendaItem(index, "time", e.target.value)}
-                      className="bg-background border-gray-600 text-foreground placeholder-gray-500"
-                      data-testid={`input-agenda-time-${index}`}
-                    />
-                    <Input
-                      placeholder="Activity description"
-                      value={item.description}
-                      onChange={(e) => updateAgendaItem(index, "description", e.target.value)}
-                      className="bg-background border-gray-600 text-foreground placeholder-gray-500"
-                      data-testid={`input-agenda-description-${index}`}
-                    />
-                  </div>
-                </div>
-              ))}
-
-              <button
-                type="button"
-                onClick={addAgendaItem}
-                className="w-full border-2 border-dashed border-gray-600 rounded-lg p-4 text-center text-muted-foreground hover:border-gray-500 hover:text-gray-300 transition-colors"
-                data-testid="button-add-agenda"
-              >
-                <Plus className="w-5 h-5 mx-auto mb-2" />
-                {t('addActivity')}
-              </button>
-            </div>
-          )}
           </form>
         </Form>
 
@@ -837,35 +750,6 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
           >
-          {/* Event Lineup Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-foreground font-medium">Add Event Lineup</label>
-              <p className="text-muted-foreground text-sm">Feature hosts, performers, or speakers</p>
-            </div>
-            <Switch
-              checked={addEventLineup}
-              onCheckedChange={setAddEventLineup}
-              data-testid="switch-event-lineup"
-            />
-          </div>
-
-          {/* Event Lineup Details */}
-          {addEventLineup && (
-            <div className="space-y-4">
-              <label className="text-foreground font-medium">Event Lineup</label>
-              <div className="p-4 border border-gray-700 rounded-lg">
-                <p className="text-muted-foreground text-sm mb-4">
-                  Event lineup feature will allow you to showcase featured guests, performers, or speakers at your event.
-                </p>
-                <div className="text-center py-8 border-2 border-dashed border-gray-600 rounded-lg">
-                  <p className="text-gray-500">Lineup management coming soon</p>
-                  <p className="text-xs text-gray-600 mt-2">You'll be able to add and feature event hosts here</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Dress Code Toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -1136,17 +1020,6 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             )}
           />
 
-          {/* Who Should Attend */}
-          <div className="space-y-2">
-            <label className="text-foreground font-medium">Who Should Attend?</label>
-            <Textarea
-              {...form.register("whoShouldAttend")}
-              placeholder="Describe your ideal attendees (e.g., Digital nomads, entrepreneurs, creative professionals, etc.)"
-              rows={4}
-              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
-              data-testid="textarea-who-should-attend"
-            />
-          </div>
           </form>
         </Form>
 
@@ -1257,107 +1130,16 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
           >
-          {/* Available Spots */}
-          <div className="space-y-2">
-            <label className="text-foreground font-medium">Available Spots</label>
-            <Input
-              {...form.register("spotsAvailable")}
-              placeholder="e.g., 50 or unlimited"
-              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-spots-available"
+          {/* Requires Approval */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-foreground font-medium">{t('requiresApproval')}</label>
+              <p className="text-muted-foreground text-sm">Attendees must be approved before joining</p>
+            </div>
+            <Switch
+              {...form.register("requireApproval")}
+              data-testid="switch-require-approval"
             />
-          </div>
-
-          {/* Access Restrictions */}
-          <div className="space-y-4">
-            <label className="text-foreground font-medium">Access Restrictions</label>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-foreground">Promotion Only</span>
-                <Switch
-                  {...form.register("promotionOnly")}
-                  data-testid="switch-promotion-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-foreground">Contacts Only</span>
-                <Switch
-                  {...form.register("contactsOnly")}
-                  data-testid="switch-contacts-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-foreground">Invitation Only</span>
-                <Switch
-                  {...form.register("invitationOnly")}
-                  data-testid="switch-invitation-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-foreground">{t('requiresApproval')}</span>
-                <Switch
-                  {...form.register("requireApproval")}
-                  data-testid="switch-require-approval"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Gender Restrictions */}
-          <FormField
-            control={form.control}
-            name="genderExclusive"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-foreground font-medium">{t('genderRestrictions')}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-gender">
-                      <SelectValue placeholder="Select gender preference" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {GENDER_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Age Restrictions */}
-          <div className="space-y-4">
-            <label className="text-foreground font-medium">Age Restrictions</label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Minimum Age</label>
-                <Input
-                  {...form.register("ageExclusiveMin", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="18"
-                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
-                  data-testid="input-min-age"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Maximum Age</label>
-                <Input
-                  {...form.register("ageExclusiveMax", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="35"
-                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
-                  data-testid="input-max-age"
-                />
-              </div>
-            </div>
           </div>
 
           {/* Vibe Selection */}
