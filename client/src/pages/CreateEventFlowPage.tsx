@@ -1189,14 +1189,15 @@ export default function CreateEventFlowPage() {
   });
 
   const handleNext = (stepData: Partial<EventCreationData>) => {
-    setEventData((prev: EventCreationData) => ({ ...prev, ...stepData }));
+    const updatedEventData = { ...eventData, ...stepData };
+    setEventData(updatedEventData);
     
     // Move to next step
     if (currentStep < EventCreationStep.AudienceTargeting) {
       setCurrentStep((prev: EventCreationStep) => prev + 1);
     } else {
-      // Final step - submit the event
-      handleSubmitEvent();
+      // Final step - submit the event with the complete merged data
+      handleSubmitEvent(updatedEventData);
     }
   };
 
@@ -1209,8 +1210,9 @@ export default function CreateEventFlowPage() {
     }
   };
 
-  const handleSubmitEvent = async () => {
+  const handleSubmitEvent = async (finalEventData: EventCreationData) => {
     console.log("🚀 Starting event submission...");
+    console.log("📋 Final event data - vibes:", finalEventData.vibes, "requireApproval:", finalEventData.requireApproval);
     try {
       // No need to check localStorage - we rely on session-based authentication
       // The session cookie will be automatically sent with credentials: 'include'
@@ -1220,21 +1222,23 @@ export default function CreateEventFlowPage() {
       
       // Map our EventCreationData to the backend schema format
       const eventPayload = {
-        title: eventData.title,
-        description: eventData.summary, // Map summary to description
-        category: eventData.category || "Other",
-        location: eventData.isOnlineEvent ? "Online" : `${eventData.city}${eventData.addressLine1 ? ', ' + eventData.addressLine1 : ''}`,
-        date: eventData.startDate.toISOString(),
-        time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
-        price: eventData.isPaidEvent && eventData.ticketTiers?.length > 0 ? eventData.ticketTiers[0].price : 0,
-        ticketTiers: eventData.isPaidEvent ? eventData.ticketTiers : [],
-        eventPrivacy: eventData.eventPrivacy || "public",
-        requireApproval: eventData.requireApproval || false,
+        title: finalEventData.title,
+        description: finalEventData.summary, // Map summary to description
+        category: finalEventData.category || "Other",
+        location: finalEventData.isOnlineEvent ? "Online" : `${finalEventData.city}${finalEventData.addressLine1 ? ', ' + finalEventData.addressLine1 : ''}`,
+        date: finalEventData.startDate.toISOString(),
+        time: finalEventData.startDate.toTimeString().split(' ')[0], // Extract time part
+        price: finalEventData.isPaidEvent && finalEventData.ticketTiers?.length > 0 ? finalEventData.ticketTiers[0].price : 0,
+        ticketTiers: finalEventData.isPaidEvent ? finalEventData.ticketTiers : [],
+        eventPrivacy: finalEventData.eventPrivacy || "public",
+        isRsvp: finalEventData.requireApproval || false, // Backend expects isRsvp field
+        city: finalEventData.isOnlineEvent ? "Online" : finalEventData.city,
+        address: finalEventData.addressLine1 || '',
         tags: [
-          ...(eventData.vibes || []),
-          ...(eventData.dressCode ? ['Dress Code Required'] : []),
-          ...(eventData.isOnlineEvent ? ['Online Event'] : []),
-          ...(eventData.isPaidEvent ? ['Paid Event'] : ['Free Event'])
+          ...(finalEventData.vibes || []),
+          ...(finalEventData.dressCode ? ['Dress Code Required'] : []),
+          ...(finalEventData.isOnlineEvent ? ['Online Event'] : []),
+          ...(finalEventData.isPaidEvent ? ['Paid Event'] : ['Free Event'])
         ]
       };
 
@@ -1250,12 +1254,12 @@ export default function CreateEventFlowPage() {
       });
 
       // Add the main image (backend expects 'image' field name)
-      if (eventData.images && eventData.images.length > 0) {
-        formData.append('image', eventData.images[0]); // Use first image as main image
+      if (finalEventData.images && finalEventData.images.length > 0) {
+        formData.append('image', finalEventData.images[0]); // Use first image as main image
       }
 
       console.log("📦 Submitting event data:", eventPayload);
-      console.log("📸 Has images:", !!eventData.images && eventData.images.length > 0);
+      console.log("📸 Has images:", !!finalEventData.images && finalEventData.images.length > 0);
 
       // Make API call
       console.log("🌐 Making API call to /api/events...");
