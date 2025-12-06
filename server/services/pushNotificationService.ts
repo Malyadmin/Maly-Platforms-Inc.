@@ -4,13 +4,20 @@ import { pushSubscriptions, notificationPreferences } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 
 // Generate VAPID keys with: npx web-push generate-vapid-keys
-const VAPID_PUBLIC_KEY = (process.env.VAPID_PUBLIC_KEY || '').trim().replace(/^["']|["']$/g, '');
-const VAPID_PRIVATE_KEY = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
+const rawPublicKey = process.env.VAPID_PUBLIC_KEY || '';
+const rawPrivateKey = process.env.VAPID_PRIVATE_KEY || '';
+
+// Clean up VAPID keys - remove any quotes, whitespace, or equals padding
+const VAPID_PUBLIC_KEY = rawPublicKey.trim().replace(/^["']|["']$/g, '').replace(/=+$/, '');
+const VAPID_PRIVATE_KEY = rawPrivateKey.trim().replace(/^["']|["']$/g, '').replace(/=+$/, '');
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:support@maly.app';
+
+console.log(`[VAPID] Public key length: ${VAPID_PUBLIC_KEY.length}, first 20 chars: ${VAPID_PUBLIC_KEY.substring(0, 20)}`);
+console.log(`[VAPID] Private key length: ${VAPID_PRIVATE_KEY.length}`);
 
 let pushNotificationsEnabled = false;
 
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && VAPID_PUBLIC_KEY.length > 50) {
   try {
     webpush.setVapidDetails(
       VAPID_SUBJECT,
@@ -21,12 +28,14 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
     console.log('✓ Push notifications configured with VAPID keys');
   } catch (error: any) {
     console.error('⚠ Failed to configure VAPID keys:', error.message);
-    console.error('  Please ensure VAPID keys are valid URL-safe Base64 strings without quotes');
+    console.error('  Raw public key:', rawPublicKey.substring(0, 30) + '...');
+    console.error('  Cleaned public key:', VAPID_PUBLIC_KEY.substring(0, 30) + '...');
   }
 } else {
-  console.warn('⚠ VAPID keys not configured. Push notifications will not work.');
+  console.warn('⚠ VAPID keys not configured or invalid. Push notifications will not work.');
+  console.warn(`  Public key present: ${!!VAPID_PUBLIC_KEY}, length: ${VAPID_PUBLIC_KEY.length}`);
+  console.warn(`  Private key present: ${!!VAPID_PRIVATE_KEY}, length: ${VAPID_PRIVATE_KEY.length}`);
   console.warn('  Run: npx web-push generate-vapid-keys');
-  console.warn('  Then add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY to your .env file');
 }
 
 export interface PushNotificationPayload {
