@@ -320,10 +320,10 @@ export default function CheckInPage() {
       <div className="px-4 py-6">
         {!selectedEvent && !showPastEventAttendees && (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'scan' | 'past')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-white/10 mb-6">
+            <TabsList className="grid w-full grid-cols-2 bg-muted mb-6">
               <TabsTrigger 
                 value="scan" 
-                className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"
+                className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground"
                 data-testid="tab-scan"
               >
                 <QrCode className="w-4 h-4 mr-2" />
@@ -331,7 +331,7 @@ export default function CheckInPage() {
               </TabsTrigger>
               <TabsTrigger 
                 value="past"
-                className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"
+                className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground"
                 data-testid="tab-past"
               >
                 <History className="w-4 h-4 mr-2" />
@@ -343,48 +343,48 @@ export default function CheckInPage() {
               {eventsLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-24 w-full bg-white/10" />
+                    <Skeleton key={i} className="h-24 w-full" />
                   ))}
                 </div>
               ) : eventsData?.upcomingEvents.length === 0 ? (
                 <div className="text-center py-12">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-white/30" />
-                  <p className="text-white/60">{t('checkIn.noUpcomingEvents')}</p>
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">{t('checkIn.noUpcomingEvents')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-white/60 text-sm mb-4">{t('checkIn.selectEvent')}</p>
+                  <p className="text-muted-foreground text-sm mb-4">{t('checkIn.selectEvent')}</p>
                   {eventsData?.upcomingEvents.map((event) => (
                     <Card 
                       key={event.id}
-                      className="bg-white/5 border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                      className="bg-card border-border cursor-pointer hover:bg-muted transition-colors"
                       onClick={() => handleEventSelect(event)}
                       data-testid={`card-event-${event.id}`}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/10 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                             {event.image ? (
                               <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Calendar className="w-6 h-6 text-white/30" />
+                                <Calendar className="w-6 h-6 text-muted-foreground" />
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-white truncate">{event.title}</h3>
+                            <h3 className="font-semibold text-foreground truncate">{event.title}</h3>
                             {event.date && (
-                              <p className="text-sm text-white/60">
+                              <p className="text-sm text-muted-foreground">
                                 {format(new Date(event.date), 'MMM d, yyyy')}
                               </p>
                             )}
                             <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-white/40 flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <Users className="w-3 h-3" />
                                 {event.totalAttendees} {t('checkIn.total')}
                               </span>
-                              <span className="text-xs text-white/60 flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {event.checkedInCount} {t('checkIn.checkedInLabel')}
                               </span>
@@ -402,43 +402,43 @@ export default function CheckInPage() {
               {eventsLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-24 w-full bg-white/10" />
+                    <Skeleton key={i} className="h-24 w-full" />
                   ))}
                 </div>
               ) : eventsData?.pastEvents.length === 0 ? (
                 <div className="text-center py-12">
-                  <History className="w-16 h-16 mx-auto mb-4 text-white/30" />
-                  <p className="text-white/60">{t('checkIn.noPastEvents')}</p>
+                  <History className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">{t('checkIn.noPastEvents')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {eventsData?.pastEvents.map((event) => (
                     <Card 
                       key={event.id}
-                      className="bg-white/5 border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                      className="bg-card border-border cursor-pointer hover:bg-muted transition-colors"
                       onClick={() => setShowPastEventAttendees(event.id)}
                       data-testid={`card-past-event-${event.id}`}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/10 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                             {event.image ? (
                               <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Calendar className="w-6 h-6 text-white/30" />
+                                <Calendar className="w-6 h-6 text-muted-foreground" />
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-white truncate">{event.title}</h3>
+                            <h3 className="font-semibold text-foreground truncate">{event.title}</h3>
                             {event.date && (
-                              <p className="text-sm text-white/60">
+                              <p className="text-sm text-muted-foreground">
                                 {format(new Date(event.date), 'MMM d, yyyy')}
                               </p>
                             )}
                             <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-white/60 flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {event.checkedInCount}/{event.totalAttendees} {t('checkIn.attended')}
                               </span>
@@ -457,17 +457,17 @@ export default function CheckInPage() {
         {selectedEvent && !scannedData && (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <p className="text-white/60 text-sm">
-                {t('checkIn.scanningFor')} <span className="text-white font-medium">{selectedEvent.title}</span>
+              <p className="text-muted-foreground text-sm">
+                {t('checkIn.scanningFor')} <span className="text-foreground font-medium">{selectedEvent.title}</span>
               </p>
-              <p className="text-white/40 text-xs mt-1">
+              <p className="text-muted-foreground/70 text-xs mt-1">
                 {selectedEvent.checkedInCount}/{selectedEvent.totalAttendees} {t('checkIn.checkedInLabel')}
               </p>
             </div>
 
             <div 
               id={scannerContainerId}
-              className="w-full max-w-sm mx-auto aspect-square bg-white/5 rounded-xl overflow-hidden"
+              className="w-full max-w-sm mx-auto aspect-square bg-muted rounded-xl overflow-hidden"
             />
 
             {!isScanning && (
@@ -485,7 +485,7 @@ export default function CheckInPage() {
               <Button
                 onClick={stopScanner}
                 variant="outline"
-                className="w-full border-white/20 text-white hover:bg-white/10"
+                className="w-full border-border text-foreground hover:bg-muted"
                 data-testid="button-stop-scan"
               >
                 {t('checkIn.stopScanning')}
@@ -496,42 +496,42 @@ export default function CheckInPage() {
 
         {scannedData && (
           <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex flex-col items-center text-center">
-                  <Avatar className="w-24 h-24 mb-4 border-2 border-white/20">
+                  <Avatar className="w-24 h-24 mb-4 border-2 border-border">
                     <AvatarImage src={scannedData.attendee?.profileImage || undefined} />
-                    <AvatarFallback className="bg-white/10 text-white text-2xl">
+                    <AvatarFallback className="bg-muted text-foreground text-2xl">
                       {scannedData.attendee?.fullName?.charAt(0) || scannedData.attendee?.username?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
                   
-                  <h2 className="text-xl font-bold text-white mb-1">
+                  <h2 className="text-xl font-bold text-foreground mb-1">
                     {scannedData.attendee?.fullName || scannedData.attendee?.username || 'Unknown'}
                   </h2>
                   
                   {scannedData.attendee?.email && (
-                    <p className="text-white/60 text-sm mb-4">{scannedData.attendee.email}</p>
+                    <p className="text-muted-foreground text-sm mb-4">{scannedData.attendee.email}</p>
                   )}
 
                   <div className="w-full space-y-3 mt-4">
-                    <div className="flex justify-between items-center py-2 border-b border-white/10">
-                      <span className="text-white/60">{t('checkIn.event')}</span>
-                      <span className="text-white font-medium">{scannedData.event.title}</span>
+                    <div className="flex justify-between items-center py-2 border-b border-border">
+                      <span className="text-muted-foreground">{t('checkIn.event')}</span>
+                      <span className="text-foreground font-medium">{scannedData.event.title}</span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-white/10">
-                      <span className="text-white/60">{t('checkIn.tickets')}</span>
-                      <span className="text-white font-medium">{scannedData.participant.ticketQuantity}</span>
+                    <div className="flex justify-between items-center py-2 border-b border-border">
+                      <span className="text-muted-foreground">{t('checkIn.tickets')}</span>
+                      <span className="text-foreground font-medium">{scannedData.participant.ticketQuantity}</span>
                     </div>
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-white/60">{t('checkIn.status')}</span>
+                      <span className="text-muted-foreground">{t('checkIn.status')}</span>
                       {scannedData.alreadyCheckedIn ? (
-                        <span className="text-yellow-400 flex items-center gap-1">
+                        <span className="text-yellow-500 dark:text-yellow-400 flex items-center gap-1">
                           <CheckCircle2 className="w-4 h-4" />
                           {t('checkIn.alreadyCheckedIn')}
                         </span>
                       ) : (
-                        <span className="text-white flex items-center gap-1">
+                        <span className="text-foreground flex items-center gap-1">
                           <User className="w-4 h-4" />
                           {t('checkIn.readyToCheckIn')}
                         </span>
@@ -556,7 +556,7 @@ export default function CheckInPage() {
               <Button
                 onClick={handleScanAnother}
                 variant="outline"
-                className="w-full border-white/20 text-white hover:bg-white/10"
+                className="w-full border-border text-foreground hover:bg-muted"
                 data-testid="button-scan-another"
               >
                 <QrCode className="w-5 h-5 mr-2" />
@@ -567,7 +567,7 @@ export default function CheckInPage() {
             <Button
               onClick={handleScanAnother}
               variant="ghost"
-              className="w-full text-white/60 hover:text-white hover:bg-white/10"
+              className="w-full text-muted-foreground hover:text-foreground hover:bg-muted"
               data-testid="button-scan-new"
             >
               {t('checkIn.scanNewTicket')}
@@ -580,49 +580,49 @@ export default function CheckInPage() {
             {attendeesLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-16 w-full bg-white/10" />
+                  <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
             ) : attendeesData?.attendees.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 mx-auto mb-4 text-white/30" />
-                <p className="text-white/60">{t('checkIn.noAttendees')}</p>
+                <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">{t('checkIn.noAttendees')}</p>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-white/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {attendeesData?.attendees.filter(a => a.checkInStatus).length}/{attendeesData?.attendees.length} {t('checkIn.attendedEvent')}
                   </p>
                 </div>
                 {attendeesData?.attendees.map((attendee) => (
                   <Card 
                     key={attendee.participantId}
-                    className="bg-white/5 border-white/10"
+                    className="bg-card border-border"
                     data-testid={`card-attendee-${attendee.participantId}`}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
                         <Avatar className="w-12 h-12">
                           <AvatarImage src={attendee.user?.profileImage || undefined} />
-                          <AvatarFallback className="bg-white/10 text-white">
+                          <AvatarFallback className="bg-muted text-foreground">
                             {attendee.user?.fullName?.charAt(0) || attendee.user?.username?.charAt(0) || '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-white truncate">
+                          <h3 className="font-medium text-foreground truncate">
                             {attendee.user?.fullName || attendee.user?.username || 'Unknown'}
                           </h3>
                           {attendee.checkedInAt && (
-                            <p className="text-xs text-white/40">
+                            <p className="text-xs text-muted-foreground">
                               {t('checkIn.checkedInAt')} {format(new Date(attendee.checkedInAt), 'h:mm a')}
                             </p>
                           )}
                         </div>
                         {attendee.checkInStatus ? (
-                          <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0" />
+                          <CheckCircle2 className="w-6 h-6 text-green-500 dark:text-green-400 flex-shrink-0" />
                         ) : (
-                          <XCircle className="w-6 h-6 text-white/30 flex-shrink-0" />
+                          <XCircle className="w-6 h-6 text-muted-foreground flex-shrink-0" />
                         )}
                       </div>
                     </CardContent>
@@ -635,15 +635,15 @@ export default function CheckInPage() {
       </div>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent className="bg-zinc-900 border-white/10">
+        <AlertDialogContent className="bg-background border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">{t('checkIn.confirmTitle')}</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">
+            <AlertDialogTitle className="text-foreground">{t('checkIn.confirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               {t('checkIn.confirmMessage').replace('{name}', scannedData?.attendee?.fullName || scannedData?.attendee?.username || 'this attendee')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+            <AlertDialogCancel className="bg-muted border-border text-foreground hover:bg-muted/80">
               {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
