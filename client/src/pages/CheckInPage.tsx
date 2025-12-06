@@ -1,0 +1,652 @@
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUser } from '@/hooks/use-user';
+import { useLocation } from 'wouter';
+import { useTranslation } from '@/lib/translations';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { 
+  ArrowLeft, 
+  QrCode, 
+  Users, 
+  CheckCircle2, 
+  XCircle, 
+  Calendar,
+  MapPin,
+  User,
+  Camera,
+  History
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { Html5Qrcode } from 'html5-qrcode';
+
+interface CheckInEvent {
+  id: number;
+  title: string;
+  image: string | null;
+  date: string | null;
+  location: string | null;
+  city: string | null;
+  totalAttendees: number;
+  checkedInCount: number;
+  isPast: boolean;
+}
+
+interface Attendee {
+  participantId: number;
+  ticketIdentifier: string | null;
+  ticketQuantity: number;
+  checkInStatus: boolean;
+  checkedInAt: string | null;
+  purchaseDate: string | null;
+  user: {
+    id: number;
+    fullName: string | null;
+    username: string;
+    profileImage: string | null;
+    email: string;
+  } | null;
+}
+
+interface ValidateResponse {
+  valid: boolean;
+  alreadyCheckedIn: boolean;
+  checkedInAt: string | null;
+  participant: {
+    id: number;
+    ticketQuantity: number;
+    ticketIdentifier: string;
+  };
+  event: {
+    id: number;
+    title: string;
+    date: string | null;
+    location: string | null;
+  };
+  attendee: {
+    id: number;
+    fullName: string | null;
+    username: string;
+    profileImage: string | null;
+    email: string;
+  } | null;
+}
+
+export default function CheckInPage() {
+  const [, setLocation] = useLocation();
+  const { user } = useUser();
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  
+  const [activeTab, setActiveTab] = useState<'scan' | 'past'>('scan');
+  const [selectedEvent, setSelectedEvent] = useState<CheckInEvent | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedData, setScannedData] = useState<ValidateResponse | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showPastEventAttendees, setShowPastEventAttendees] = useState<number | null>(null);
+  
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerContainerId = 'qr-reader';
+
+  const { data: eventsData, isLoading: eventsLoading } = useQuery<{
+    upcomingEvents: CheckInEvent[];
+    pastEvents: CheckInEvent[];
+  }>({
+    queryKey: ['/api/creator/check-in/events'],
+    queryFn: async () => {
+      const headers: Record<string, string> = {};
+      if (user?.id) headers['X-User-ID'] = user.id.toString();
+      const res = await fetch('/api/creator/check-in/events', {
+        credentials: 'include',
+        headers,
+      });
+      if (!res.ok) throw new Error('Failed to fetch events');
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
+  const { data: attendeesData, isLoading: attendeesLoading } = useQuery<{
+    event: { id: number; title: string; date: string | null; location: string | null };
+    attendees: Attendee[];
+  }>({
+    queryKey: ['/api/creator/check-in/events', showPastEventAttendees, 'attendees'],
+    queryFn: async () => {
+      const headers: Record<string, string> = {};
+      if (user?.id) headers['X-User-ID'] = user.id.toString();
+      const res = await fetch(`/api/creator/check-in/events/${showPastEventAttendees}/attendees`, {
+        credentials: 'include',
+        headers,
+      });
+      if (!res.ok) throw new Error('Failed to fetch attendees');
+      return res.json();
+    },
+    enabled: !!showPastEventAttendees && !!user,
+  });
+
+  const validateMutation = useMutation({
+    mutationFn: async (ticketIdentifier: string) => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user?.id) headers['X-User-ID'] = user.id.toString();
+      const res = await fetch('/api/creator/check-in/validate', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({ ticketIdentifier, eventId: selectedEvent?.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to validate ticket');
+      return data as ValidateResponse;
+    },
+    onSuccess: (data) => {
+      setScannedData(data);
+      stopScanner();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('checkIn.invalidTicket'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const confirmMutation = useMutation({
+    mutationFn: async (ticketIdentifier: string) => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user?.id) headers['X-User-ID'] = user.id.toString();
+      const res = await fetch('/api/creator/check-in/confirm', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({ ticketIdentifier }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to confirm check-in');
+      return data;
+    },
+    onSuccess: () => {
+      setShowConfirmDialog(false);
+      toast({
+        title: t('checkIn.success'),
+        description: `${scannedData?.attendee?.fullName || scannedData?.attendee?.username} ${t('checkIn.checkedIn')}`,
+      });
+      setScannedData(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/creator/check-in/events'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('checkIn.error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const startScanner = async () => {
+    try {
+      if (scannerRef.current) {
+        await scannerRef.current.stop();
+      }
+      
+      const html5QrCode = new Html5Qrcode(scannerContainerId);
+      scannerRef.current = html5QrCode;
+      
+      await html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          validateMutation.mutate(decodedText);
+        },
+        () => {}
+      );
+      
+      setIsScanning(true);
+    } catch (error) {
+      console.error('Failed to start scanner:', error);
+      toast({
+        title: t('checkIn.cameraError'),
+        description: t('checkIn.cameraPermission'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+      } catch (e) {
+        console.log('Scanner already stopped');
+      }
+      scannerRef.current = null;
+    }
+    setIsScanning(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopScanner();
+    };
+  }, []);
+
+  const handleEventSelect = (event: CheckInEvent) => {
+    setSelectedEvent(event);
+    setScannedData(null);
+  };
+
+  const handleCheckIn = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const confirmCheckIn = () => {
+    if (scannedData?.participant.ticketIdentifier) {
+      confirmMutation.mutate(scannedData.participant.ticketIdentifier);
+    }
+  };
+
+  const handleScanAnother = () => {
+    setScannedData(null);
+    startScanner();
+  };
+
+  const handleBack = () => {
+    if (showPastEventAttendees) {
+      setShowPastEventAttendees(null);
+    } else if (scannedData) {
+      setScannedData(null);
+    } else if (selectedEvent) {
+      stopScanner();
+      setSelectedEvent(null);
+    } else {
+      setLocation('/creator/dashboard');
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-foreground">{t('common.loading')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black dark:bg-black">
+      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={handleBack}
+            className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors"
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-semibold text-white">
+            {showPastEventAttendees ? t('checkIn.attendeeList') : 
+             selectedEvent ? selectedEvent.title : t('checkIn.title')}
+          </h1>
+          <div className="w-10" />
+        </div>
+      </div>
+
+      <div className="px-4 py-6">
+        {!selectedEvent && !showPastEventAttendees && (
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'scan' | 'past')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-white/10 mb-6">
+              <TabsTrigger 
+                value="scan" 
+                className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"
+                data-testid="tab-scan"
+              >
+                <QrCode className="w-4 h-4 mr-2" />
+                {t('checkIn.scanTickets')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="past"
+                className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white"
+                data-testid="tab-past"
+              >
+                <History className="w-4 h-4 mr-2" />
+                {t('checkIn.pastEvents')}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="scan" className="mt-0">
+              {eventsLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full bg-white/10" />
+                  ))}
+                </div>
+              ) : eventsData?.upcomingEvents.length === 0 ? (
+                <div className="text-center py-12">
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-white/30" />
+                  <p className="text-white/60">{t('checkIn.noUpcomingEvents')}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-white/60 text-sm mb-4">{t('checkIn.selectEvent')}</p>
+                  {eventsData?.upcomingEvents.map((event) => (
+                    <Card 
+                      key={event.id}
+                      className="bg-white/5 border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                      onClick={() => handleEventSelect(event)}
+                      data-testid={`card-event-${event.id}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/10 flex-shrink-0">
+                            {event.image ? (
+                              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Calendar className="w-6 h-6 text-white/30" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white truncate">{event.title}</h3>
+                            {event.date && (
+                              <p className="text-sm text-white/60">
+                                {format(new Date(event.date), 'MMM d, yyyy')}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-white/40 flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {event.totalAttendees} {t('checkIn.total')}
+                              </span>
+                              <span className="text-xs text-green-400 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                {event.checkedInCount} {t('checkIn.checkedInLabel')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="past" className="mt-0">
+              {eventsLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full bg-white/10" />
+                  ))}
+                </div>
+              ) : eventsData?.pastEvents.length === 0 ? (
+                <div className="text-center py-12">
+                  <History className="w-16 h-16 mx-auto mb-4 text-white/30" />
+                  <p className="text-white/60">{t('checkIn.noPastEvents')}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {eventsData?.pastEvents.map((event) => (
+                    <Card 
+                      key={event.id}
+                      className="bg-white/5 border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                      onClick={() => setShowPastEventAttendees(event.id)}
+                      data-testid={`card-past-event-${event.id}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/10 flex-shrink-0">
+                            {event.image ? (
+                              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Calendar className="w-6 h-6 text-white/30" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white truncate">{event.title}</h3>
+                            {event.date && (
+                              <p className="text-sm text-white/60">
+                                {format(new Date(event.date), 'MMM d, yyyy')}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-green-400 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                {event.checkedInCount}/{event.totalAttendees} {t('checkIn.attended')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        )}
+
+        {selectedEvent && !scannedData && (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <p className="text-white/60 text-sm">
+                {t('checkIn.scanningFor')} <span className="text-white font-medium">{selectedEvent.title}</span>
+              </p>
+              <p className="text-white/40 text-xs mt-1">
+                {selectedEvent.checkedInCount}/{selectedEvent.totalAttendees} {t('checkIn.checkedInLabel')}
+              </p>
+            </div>
+
+            <div 
+              id={scannerContainerId}
+              className="w-full max-w-sm mx-auto aspect-square bg-white/5 rounded-xl overflow-hidden"
+            />
+
+            {!isScanning && (
+              <Button
+                onClick={startScanner}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white font-semibold py-6 text-lg"
+                data-testid="button-start-scan"
+              >
+                <Camera className="w-5 h-5 mr-2" />
+                {t('checkIn.startScanning')}
+              </Button>
+            )}
+
+            {isScanning && (
+              <Button
+                onClick={stopScanner}
+                variant="outline"
+                className="w-full border-white/20 text-white hover:bg-white/10"
+                data-testid="button-stop-scan"
+              >
+                {t('checkIn.stopScanning')}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {scannedData && (
+          <div className="space-y-6">
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <Avatar className="w-24 h-24 mb-4 border-2 border-white/20">
+                    <AvatarImage src={scannedData.attendee?.profileImage || undefined} />
+                    <AvatarFallback className="bg-white/10 text-white text-2xl">
+                      {scannedData.attendee?.fullName?.charAt(0) || scannedData.attendee?.username?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <h2 className="text-xl font-bold text-white mb-1">
+                    {scannedData.attendee?.fullName || scannedData.attendee?.username || 'Unknown'}
+                  </h2>
+                  
+                  {scannedData.attendee?.email && (
+                    <p className="text-white/60 text-sm mb-4">{scannedData.attendee.email}</p>
+                  )}
+
+                  <div className="w-full space-y-3 mt-4">
+                    <div className="flex justify-between items-center py-2 border-b border-white/10">
+                      <span className="text-white/60">{t('checkIn.event')}</span>
+                      <span className="text-white font-medium">{scannedData.event.title}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-white/10">
+                      <span className="text-white/60">{t('checkIn.tickets')}</span>
+                      <span className="text-white font-medium">{scannedData.participant.ticketQuantity}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-white/60">{t('checkIn.status')}</span>
+                      {scannedData.alreadyCheckedIn ? (
+                        <span className="text-yellow-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4" />
+                          {t('checkIn.alreadyCheckedIn')}
+                        </span>
+                      ) : (
+                        <span className="text-green-400 flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          {t('checkIn.readyToCheckIn')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {!scannedData.alreadyCheckedIn ? (
+              <Button
+                onClick={handleCheckIn}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white font-semibold py-6 text-lg"
+                disabled={confirmMutation.isPending}
+                data-testid="button-check-in"
+              >
+                <CheckCircle2 className="w-5 h-5 mr-2" />
+                {t('checkIn.confirmCheckIn')}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleScanAnother}
+                variant="outline"
+                className="w-full border-white/20 text-white hover:bg-white/10"
+                data-testid="button-scan-another"
+              >
+                <QrCode className="w-5 h-5 mr-2" />
+                {t('checkIn.scanAnother')}
+              </Button>
+            )}
+
+            <Button
+              onClick={handleScanAnother}
+              variant="ghost"
+              className="w-full text-white/60 hover:text-white hover:bg-white/10"
+              data-testid="button-scan-new"
+            >
+              {t('checkIn.scanNewTicket')}
+            </Button>
+          </div>
+        )}
+
+        {showPastEventAttendees && (
+          <div className="space-y-4">
+            {attendeesLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full bg-white/10" />
+                ))}
+              </div>
+            ) : attendeesData?.attendees.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto mb-4 text-white/30" />
+                <p className="text-white/60">{t('checkIn.noAttendees')}</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-white/60 text-sm">
+                    {attendeesData?.attendees.filter(a => a.checkInStatus).length}/{attendeesData?.attendees.length} {t('checkIn.attendedEvent')}
+                  </p>
+                </div>
+                {attendeesData?.attendees.map((attendee) => (
+                  <Card 
+                    key={attendee.participantId}
+                    className="bg-white/5 border-white/10"
+                    data-testid={`card-attendee-${attendee.participantId}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={attendee.user?.profileImage || undefined} />
+                          <AvatarFallback className="bg-white/10 text-white">
+                            {attendee.user?.fullName?.charAt(0) || attendee.user?.username?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-white truncate">
+                            {attendee.user?.fullName || attendee.user?.username || 'Unknown'}
+                          </h3>
+                          {attendee.checkedInAt && (
+                            <p className="text-xs text-white/40">
+                              {t('checkIn.checkedInAt')} {format(new Date(attendee.checkedInAt), 'h:mm a')}
+                            </p>
+                          )}
+                        </div>
+                        {attendee.checkInStatus ? (
+                          <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0" />
+                        ) : (
+                          <XCircle className="w-6 h-6 text-white/30 flex-shrink-0" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent className="bg-zinc-900 border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">{t('checkIn.confirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              {t('checkIn.confirmMessage').replace('{name}', scannedData?.attendee?.fullName || scannedData?.attendee?.username || 'this attendee')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCheckIn}
+              className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white"
+              disabled={confirmMutation.isPending}
+            >
+              {confirmMutation.isPending ? t('common.loading') : t('checkIn.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

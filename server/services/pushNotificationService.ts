@@ -4,17 +4,25 @@ import { pushSubscriptions, notificationPreferences } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 
 // Generate VAPID keys with: npx web-push generate-vapid-keys
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_PUBLIC_KEY = (process.env.VAPID_PUBLIC_KEY || '').trim().replace(/^["']|["']$/g, '');
+const VAPID_PRIVATE_KEY = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^["']|["']$/g, '');
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:support@maly.app';
 
+let pushNotificationsEnabled = false;
+
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    VAPID_SUBJECT,
-    VAPID_PUBLIC_KEY,
-    VAPID_PRIVATE_KEY
-  );
-  console.log('✓ Push notifications configured with VAPID keys');
+  try {
+    webpush.setVapidDetails(
+      VAPID_SUBJECT,
+      VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY
+    );
+    pushNotificationsEnabled = true;
+    console.log('✓ Push notifications configured with VAPID keys');
+  } catch (error: any) {
+    console.error('⚠ Failed to configure VAPID keys:', error.message);
+    console.error('  Please ensure VAPID keys are valid URL-safe Base64 strings without quotes');
+  }
 } else {
   console.warn('⚠ VAPID keys not configured. Push notifications will not work.');
   console.warn('  Run: npx web-push generate-vapid-keys');
@@ -35,6 +43,11 @@ export async function sendPushNotification(
   payload: PushNotificationPayload,
   notificationType: 'messages' | 'events' | 'rsvp' | 'tickets'
 ): Promise<void> {
+  if (!pushNotificationsEnabled) {
+    console.log(`[PUSH] Push notifications not enabled, skipping notification for user ${userId}`);
+    return;
+  }
+  
   try {
     console.log(`[PUSH] Attempting to send ${notificationType} notification to user ${userId}`);
     console.log(`[PUSH] Payload:`, JSON.stringify(payload));

@@ -5568,6 +5568,354 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     }
   });
 
+  // ============== CHECK-IN ENDPOINTS ==============
+  
+  // GET /api/creator/check-in/events - Get creator's events with check-in stats
+  app.get('/api/creator/check-in/events', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      console.log('[CHECK-IN] Fetching events for creator:', userId);
+      
+      const now = new Date();
+      
+      const creatorEvents = await db.select({
+        id: events.id,
+        title: events.title,
+        image: events.image,
+        date: events.date,
+        location: events.location,
+        city: events.city,
+      })
+      .from(events)
+      .where(eq(events.creatorId, userId))
+      .orderBy(desc(events.date));
+      
+      const eventsWithStats = await Promise.all(creatorEvents.map(async (event) => {
+        const participants = await db.select()
+          .from(eventParticipants)
+          .where(and(
+            eq(eventParticipants.eventId, event.id),
+            eq(eventParticipants.paymentStatus, 'completed')
+          ));
+        
+        const totalAttendees = participants.length;
+        const checkedInCount = participants.filter(p => p.checkInStatus === true).length;
+        const eventDate = event.date ? new Date(event.date) : null;
+        const isPast = eventDate ? eventDate < now : false;
+        
+        return {
+          ...event,
+          totalAttendees,
+          checkedInCount,
+          isPast,
+        };
+      }));
+      
+      const upcomingEvents = eventsWithStats.filter(e => !e.isPast);
+      const pastEvents = eventsWithStats.filter(e => e.isPast);
+      
+      res.json({ upcomingEvents, pastEvents });
+    } catch (error) {
+      console.error('[CHECK-IN] Error fetching events:', error);
+      res.status(500).json({ error: 'Failed to fetch events' });
+    }
+  });
+  
+  // GET /api/creator/check-in/events/:id/attendees - Get attendees for an event
+  app.get('/api/creator/check-in/events/:id/attendees', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const eventId = parseInt(req.params.id, 10);
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventId))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to view this event' });
+      }
+      
+      const participants = await db.select({
+        id: eventParticipants.id,
+        userId: eventParticipants.userId,
+        ticketQuantity: eventParticipants.ticketQuantity,
+        ticketIdentifier: eventParticipants.ticketIdentifier,
+        checkInStatus: eventParticipants.checkInStatus,
+        checkedInAt: eventParticipants.checkedInAt,
+        purchaseDate: eventParticipants.purchaseDate,
+      })
+      .from(eventParticipants)
+      .where(and(
+        eq(eventParticipants.eventId, eventId),
+        eq(eventParticipants.paymentStatus, 'completed')
+      ));
+      
+      const attendeesWithDetails = await Promise.all(participants.map(async (p) => {
+        const [user] = await db.select({
+          id: users.id,
+          fullName: users.fullName,
+          username: users.username,
+          profileImage: users.profileImage,
+          email: users.email,
+        })
+        .from(users)
+        .where(eq(users.id, p.userId!))
+        .limit(1);
+        
+        return {
+          participantId: p.id,
+          ticketIdentifier: p.ticketIdentifier,
+          ticketQuantity: p.ticketQuantity || 1,
+          checkInStatus: p.checkInStatus || false,
+          checkedInAt: p.checkedInAt,
+          purchaseDate: p.purchaseDate,
+          user: user || null,
+        };
+      }));
+      
+      res.json({
+        event: {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        attendees: attendeesWithDetails,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error fetching attendees:', error);
+      res.status(500).json({ error: 'Failed to fetch attendees' });
+    }
+  });
+  
+  // POST /api/creator/check-in/validate - Validate ticket and return attendee details
+  app.post('/api/creator/check-in/validate', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { ticketIdentifier, eventId } = req.body;
+      
+      if (!ticketIdentifier) {
+        return res.status(400).json({ error: 'Ticket identifier required' });
+      }
+      
+      console.log('[CHECK-IN] Validating ticket:', ticketIdentifier);
+      
+      const [participant] = await db.select()
+        .from(eventParticipants)
+        .where(eq(eventParticipants.ticketIdentifier, ticketIdentifier))
+        .limit(1);
+      
+      if (!participant) {
+        return res.status(404).json({ error: 'Invalid ticket - not found', valid: false });
+      }
+      
+      if (participant.paymentStatus !== 'completed') {
+        return res.status(400).json({ error: 'Ticket payment not completed', valid: false });
+      }
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, participant.eventId!))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found', valid: false });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to check in for this event', valid: false });
+      }
+      
+      if (eventId && event.id !== eventId) {
+        return res.status(400).json({ error: 'Ticket is for a different event', valid: false });
+      }
+      
+      const [attendeeUser] = await db.select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        email: users.email,
+      })
+      .from(users)
+      .where(eq(users.id, participant.userId!))
+      .limit(1);
+      
+      res.json({
+        valid: true,
+        alreadyCheckedIn: participant.checkInStatus || false,
+        checkedInAt: participant.checkedInAt,
+        participant: {
+          id: participant.id,
+          ticketQuantity: participant.ticketQuantity || 1,
+          ticketIdentifier: participant.ticketIdentifier,
+        },
+        event: {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        attendee: attendeeUser || null,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error validating ticket:', error);
+      res.status(500).json({ error: 'Failed to validate ticket', valid: false });
+    }
+  });
+  
+  // POST /api/creator/check-in/confirm - Confirm check-in
+  app.post('/api/creator/check-in/confirm', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { participantId, ticketIdentifier } = req.body;
+      
+      if (!participantId && !ticketIdentifier) {
+        return res.status(400).json({ error: 'Participant ID or ticket identifier required' });
+      }
+      
+      let participant;
+      
+      if (ticketIdentifier) {
+        [participant] = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.ticketIdentifier, ticketIdentifier))
+          .limit(1);
+      } else {
+        [participant] = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.id, participantId))
+          .limit(1);
+      }
+      
+      if (!participant) {
+        return res.status(404).json({ error: 'Ticket not found' });
+      }
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, participant.eventId!))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to check in for this event' });
+      }
+      
+      if (participant.checkInStatus) {
+        return res.status(400).json({ 
+          error: 'Already checked in',
+          checkedInAt: participant.checkedInAt,
+        });
+      }
+      
+      const now = new Date();
+      
+      await db.update(eventParticipants)
+        .set({
+          checkInStatus: true,
+          checkedInAt: now,
+          checkedInBy: userId,
+          updatedAt: now,
+        })
+        .where(eq(eventParticipants.id, participant.id));
+      
+      const [attendeeUser] = await db.select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+      })
+      .from(users)
+      .where(eq(users.id, participant.userId!))
+      .limit(1);
+      
+      console.log('[CHECK-IN] Successfully checked in:', participant.id, 'by creator:', userId);
+      
+      res.json({
+        success: true,
+        message: 'Check-in successful',
+        checkedInAt: now,
+        attendee: attendeeUser,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error confirming check-in:', error);
+      res.status(500).json({ error: 'Failed to confirm check-in' });
+    }
+  });
+
   console.log('[ROUTE DEBUG] Route registration completed. All routes should be available now.');
   return { app, httpServer };
 }
