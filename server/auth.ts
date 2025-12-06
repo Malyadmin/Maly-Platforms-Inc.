@@ -375,10 +375,35 @@ export function setupAuth(app: Express) {
         bio
       } = req.body;
       
-      // Handle the uploaded profile image (with Cloudinary support)
+      // Handle profile images - either from file upload or from pre-uploaded URLs
       let profileImage = null;
+      let profileImages: string[] = [];
       
-      if (req.file) {
+      // First check if images were pre-uploaded and URLs passed in body
+      if (req.body.profileImages) {
+        try {
+          const parsedImages = typeof req.body.profileImages === 'string' 
+            ? JSON.parse(req.body.profileImages) 
+            : req.body.profileImages;
+          if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+            profileImages = parsedImages;
+            profileImage = parsedImages[0]; // Use first image as main profile image
+            console.log(`Using ${profileImages.length} pre-uploaded profile images`);
+          }
+        } catch (e) {
+          console.error("Error parsing profileImages:", e);
+        }
+      }
+      
+      // Check for single profileImage URL in body (backward compatibility)
+      if (!profileImage && req.body.profileImage && typeof req.body.profileImage === 'string' && req.body.profileImage.startsWith('http')) {
+        profileImage = req.body.profileImage;
+        profileImages = [profileImage];
+        console.log(`Using pre-uploaded profile image URL: ${profileImage}`);
+      }
+      
+      // Handle file upload if no pre-uploaded URLs (with Cloudinary support)
+      if (!profileImage && req.file) {
         try {
           const result = await uploadToCloudinary(
             req.file.buffer, 
@@ -386,6 +411,7 @@ export function setupAuth(app: Express) {
             'image'
           );
           profileImage = result.secure_url;
+          profileImages = [profileImage];
           console.log(`Successfully uploaded profile image to Cloudinary: ${profileImage}`);
         } catch (cloudinaryError) {
           console.error("Error uploading to Cloudinary during registration:", cloudinaryError);
@@ -489,7 +515,8 @@ export function setupAuth(app: Express) {
         sexualOrientation: sexualOrientation || null,
         intention: intention || null,
         bio: bio || null,
-        currentMoods: processedMoods
+        currentMoods: processedMoods,
+        profileImages: profileImages.length > 0 ? profileImages : null
       };
 
       try {
