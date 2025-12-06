@@ -11,6 +11,7 @@ import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import QRCode from "qrcode";
+import { useUser } from "@/hooks/use-user";
 
 interface TicketData {
   id: number;
@@ -30,12 +31,17 @@ export default function MyTicketsPage() {
   const [, setLocation] = useLocation();
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const { user } = useUser();
 
-  const { data: tickets, isLoading, error } = useQuery<TicketData[]>({
-    queryKey: ['/api/me/tickets'],
+  const { data: tickets, isLoading } = useQuery<TicketData[]>({
+    queryKey: ['/api/me/tickets', user?.id],
+    staleTime: 0,
+    refetchOnMount: 'always',
+    retry: 2,
+    enabled: !!user,
   });
   
-  console.log('[MY_TICKETS_PAGE] Query state:', { isLoading, hasData: !!tickets, ticketCount: tickets?.length, error: error?.message });
+  console.log('[MY_TICKETS_PAGE] Query state:', { isLoading, hasData: !!tickets, ticketCount: tickets?.length, userId: user?.id });
 
   const handleViewQR = async (ticket: TicketData) => {
     setSelectedTicket(ticket);
@@ -119,19 +125,6 @@ export default function MyTicketsPage() {
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-32 w-full rounded-xl" />
               ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-12">
-              <Ticket className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">{t('pleaseLogin')}</h3>
-              <p className="text-muted-foreground text-sm mb-6">{t('loginToViewTickets')}</p>
-              <Button 
-                onClick={() => setLocation('/auth')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                data-testid="button-login"
-              >
-                {t('login')}
-              </Button>
             </div>
           ) : !tickets || tickets.length === 0 ? (
             <div className="text-center py-12">
