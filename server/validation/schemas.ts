@@ -16,7 +16,7 @@ export const createEventSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   date: z.string().refine((date) => !isNaN(Date.parse(date)), 'Invalid date format'),
   time: z.string().optional(),
-  ticketTiers: z.array(ticketTierSchema).min(1, 'At least one ticket tier is required'),
+  ticketTiers: z.array(ticketTierSchema).optional().default([]),
   capacity: z.number().min(1, 'Capacity must be at least 1').optional(),
   itinerary: z.array(z.object({
     time: z.string(),
