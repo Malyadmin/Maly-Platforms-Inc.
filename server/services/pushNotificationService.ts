@@ -62,13 +62,25 @@ export async function sendPushNotification(
     console.log(`[PUSH] Payload:`, JSON.stringify(payload));
     
     // Check if user has push notifications enabled for this type
-    const prefs = await db.query.notificationPreferences.findFirst({
+    let prefs = await db.query.notificationPreferences.findFirst({
       where: eq(notificationPreferences.userId, userId),
     });
 
+    // If no preferences exist, create default preferences with push enabled
     if (!prefs) {
-      console.log(`[PUSH] No notification preferences found for user ${userId}`);
-      return;
+      console.log(`[PUSH] No notification preferences found for user ${userId}, creating defaults with push enabled`);
+      const [newPrefs] = await db.insert(notificationPreferences).values({
+        userId,
+        inAppMessages: true,
+        inAppEvents: true,
+        inAppRsvp: true,
+        inAppTickets: true,
+        pushMessages: true,
+        pushEvents: true,
+        pushRsvp: true,
+        pushTickets: true,
+      }).returning();
+      prefs = newPrefs;
     }
 
     console.log(`[PUSH] User ${userId} notification preferences:`, prefs);
@@ -186,13 +198,17 @@ export async function sendRSVPNotification(
     declined: `Your RSVP for ${eventTitle} was declined`,
   };
 
+  // For hosts receiving new RSVP requests, link to Check-In Attendees page
+  // For attendees receiving status updates, link to My Tickets
+  const url = status === 'sent' ? '/check-in' : '/my-tickets';
+
   await sendPushNotification(userId, {
     title: titles[status],
     body: bodies[status],
     icon: '/icon-192.png',
     badge: '/badge-72.png',
-    data: { type: 'rsvp', url: status === 'sent' ? '/creator/dashboard' : '/inbox' },
-    url: status === 'sent' ? '/creator/dashboard' : '/inbox',
+    data: { type: 'rsvp', url },
+    url,
   }, 'rsvp');
 }
 
