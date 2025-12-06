@@ -582,6 +582,8 @@ type TranslationKey =
   | 'myTickets'
   | 'noTicketsYet'
   | 'noTicketsDescription'
+  | 'pleaseLogin'
+  | 'loginToViewTickets'
   | 'browseEvents'
   | 'viewQR'
   | 'showQRAtEntry'
@@ -810,6 +812,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     myTickets: "My Tickets",
     noTicketsYet: "No Tickets Yet",
     noTicketsDescription: "When you purchase tickets to events, they'll appear here with QR codes for entry.",
+    pleaseLogin: "Please Log In",
+    loginToViewTickets: "Log in to view your purchased tickets and QR codes.",
     browseEvents: "Browse Events",
     viewQR: "View QR",
     showQRAtEntry: "Show this QR code at the event entrance for check-in.",
@@ -1509,6 +1513,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     myTickets: "Mis Entradas",
     noTicketsYet: "Aún No Tienes Entradas",
     noTicketsDescription: "Cuando compres entradas para eventos, aparecerán aquí con códigos QR para la entrada.",
+    pleaseLogin: "Por Favor Inicia Sesión",
+    loginToViewTickets: "Inicia sesión para ver tus entradas compradas y códigos QR.",
     browseEvents: "Ver Eventos",
     viewQR: "Ver QR",
     showQRAtEntry: "Muestra este código QR en la entrada del evento para el registro.",

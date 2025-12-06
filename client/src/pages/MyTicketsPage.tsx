@@ -120,6 +120,19 @@ export default function MyTicketsPage() {
                 <Skeleton key={i} className="h-32 w-full rounded-xl" />
               ))}
             </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <Ticket className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">{t('pleaseLogin')}</h3>
+              <p className="text-muted-foreground text-sm mb-6">{t('loginToViewTickets')}</p>
+              <Button 
+                onClick={() => setLocation('/auth')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                data-testid="button-login"
+              >
+                {t('login')}
+              </Button>
+            </div>
           ) : !tickets || tickets.length === 0 ? (
             <div className="text-center py-12">
               <Ticket className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
