@@ -21,7 +21,6 @@ const menuSections: MenuSection[] = [
     titleKey: "accountAndProfile",
     itemKeys: [
       "editProfile",
-      "myTickets",
       "notificationPreferences"
     ]
   },
@@ -29,7 +28,6 @@ const menuSections: MenuSection[] = [
     titleKey: "creatorTools",
     itemKeys: [
       "creatorDashboard",
-      "qrScanner",
       "stripeConnect"
     ]
   },
@@ -70,10 +68,8 @@ export function HamburgerMenu() {
   const routeMap: Record<string, string> = {
     "aiConcierge": "/companion",
     "editProfile": "/profile-edit",
-    "myTickets": "/my-tickets",
     "notificationPreferences": "/notification-preferences",
     "creatorDashboard": "/creator/dashboard",
-    "qrScanner": "/creator/scanner",
     "stripeConnect": "/stripe/connect",
     "aboutMaly": "/about",
     "termsAndConditions": "/terms",

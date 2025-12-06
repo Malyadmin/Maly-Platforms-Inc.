@@ -71,7 +71,6 @@
     "express-session": "^1.18.1",
     "figma-api": "^2.0.1-beta",
     "framer-motion": "^11.13.1",
-    "html5-qrcode": "^2.3.8",
     "input-otp": "^1.2.4",
     "jest-environment-node": "^30.0.5",
     "jsonwebtoken": "^9.0.2",

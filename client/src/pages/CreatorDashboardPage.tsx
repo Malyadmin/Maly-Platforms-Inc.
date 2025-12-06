@@ -31,8 +31,7 @@ import {
   Check,
   X,
   CheckCircle2,
-  XCircle,
-  QrCode
+  XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -400,21 +399,11 @@ export default function CreatorDashboardPage() {
           <HamburgerMenu />
         </div>
         
-        {/* Dashboard title with gradient and QR Scanner button */}
-        <div className="px-5 pb-3 flex items-center justify-between">
+        {/* Dashboard title with gradient */}
+        <div className="px-5 pb-3">
           <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             {t('dashboardSpaced')}
           </h2>
-          <Button
-            onClick={() => setLocation('/qr-scanner')}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 border-purple-500/50 text-purple-400 hover:bg-purple-600/10"
-            data-testid="qr-scanner-button"
-          >
-            <QrCode className="h-4 w-4" />
-            <span className="text-xs">{t('qrScanner')}</span>
-          </Button>
         </div>
 
         {/* Filter Bar */}

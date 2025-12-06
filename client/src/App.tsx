@@ -43,8 +43,6 @@ import PaymentDisclaimerPage from "./pages/PaymentDisclaimerPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 import PaymentMethodsPage from "./pages/PaymentMethodsPage";
 import AppearancePage from "./pages/AppearancePage";
-import QRScannerPage from "./pages/QRScannerPage";
-import MyQRCodesPage from "./pages/MyQRCodesPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
@@ -130,8 +128,6 @@ function AppContent() {
             <Route path="/admin" component={AdminDashboardPage} />
             <Route path="/admin/payments" component={AdminPaymentsPage} />
             <Route path="/creator/dashboard" component={CreatorDashboardPage} />
-            <Route path="/creator/scanner" component={QRScannerPage} />
-            <Route path="/my-tickets" component={MyQRCodesPage} />
             <Route path="/stripe/connect" component={StripeConnectPage} />
             <Route path="/about" component={AboutMalyPage} />
             <Route path="/terms" component={TermsPage} />
@@ -177,8 +173,6 @@ function AppContent() {
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
           <Route path="/creator/dashboard" component={CreatorDashboardPage} />
-          <Route path="/creator/scanner" component={QRScannerPage} />
-          <Route path="/my-tickets" component={MyQRCodesPage} />
           <Route path="/stripe/connect" component={StripeConnectPage} />
           <Route path="/stripe/connect/success" component={StripeConnectSuccessPage} />
           <Route path="/stripe/connect/reauth" component={StripeConnectReauthPage} />
