@@ -52,6 +52,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (December 2025)
 
+### Loading Experience Improvements (December 6, 2025)
+- **Branded Splash Screen**: Animated MALY logo with gradient background displays on app launch for 2 seconds with smooth fade-out transition
+- **Skeleton Loaders**: Created reusable skeleton components (EventGridSkeleton, ProfileGridSkeleton, InboxSkeleton) for improved loading states
+- **Page Transitions**: Implemented smooth slide/fade animations using Framer Motion for all route changes
+- **Component Files**: 
+  - `client/src/components/ui/splash-screen.tsx` - Branded splash with animation
+  - `client/src/components/ui/page-transition.tsx` - Framer Motion page wrapper
+  - `client/src/components/ui/content-skeleton.tsx` - Reusable skeleton components
+
 ### Signup Flow Redesign (December 5, 2025)
 - **5-Step Registration Flow**: Comprehensive multi-step signup with mandatory/optional field distinctions:
   - Step 1 (Basic Account): Full Name, Username, Email, Password, Confirm Password (required), Phone Number (optional)

@@ -3027,6 +3027,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     path: '/ws/chat'
   });
 
+  // Handle WebSocket server errors to prevent crashes during port conflicts
+  wss.on('error', (error: Error) => {
+    console.error('WebSocket server error:', error.message);
+  });
+
   // Store active connections and their ping states
   const activeConnections = new Map<number, {
     ws: WebSocket;
