@@ -114,21 +114,17 @@ export default function MyTicketsPage() {
           <HamburgerMenu />
         </div>
         
-        <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setLocation('/discover')}
-                className="flex items-center text-foreground"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                {t('myTickets')}
-              </h2>
-            </div>
-          </div>
+        <div className="px-5 pb-3 flex items-center gap-3">
+          <button
+            onClick={() => setLocation('/discover')}
+            className="p-1 text-foreground hover:bg-foreground/10 rounded-full transition-colors"
+            data-testid="button-back"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+            {t('myTickets')}
+          </h2>
         </div>
       </div>
 

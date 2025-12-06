@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Html5Qrcode } from 'html5-qrcode';
+import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 
 interface CheckInEvent {
   id: number;
@@ -290,21 +291,29 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black dark:bg-black">
-      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
-        <div className="flex items-center justify-between px-4 py-3">
+    <div className="min-h-screen bg-background dark:bg-black">
+      <div className="sticky top-0 z-50 bg-background dark:bg-black border-b border-border">
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
+          <HamburgerMenu />
+        </div>
+        
+        <div className="px-5 pb-3 flex items-center gap-3">
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors"
+            className="p-1 text-foreground hover:bg-foreground/10 rounded-full transition-colors"
             data-testid="button-back"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-semibold text-white">
+          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
             {showPastEventAttendees ? t('checkIn.attendeeList') : 
              selectedEvent ? selectedEvent.title : t('checkIn.title')}
-          </h1>
-          <div className="w-10" />
+          </h2>
         </div>
       </div>
 
@@ -375,7 +384,7 @@ export default function CheckInPage() {
                                 <Users className="w-3 h-3" />
                                 {event.totalAttendees} {t('checkIn.total')}
                               </span>
-                              <span className="text-xs text-green-400 flex items-center gap-1">
+                              <span className="text-xs text-white/60 flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {event.checkedInCount} {t('checkIn.checkedInLabel')}
                               </span>
@@ -429,7 +438,7 @@ export default function CheckInPage() {
                               </p>
                             )}
                             <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-green-400 flex items-center gap-1">
+                              <span className="text-xs text-white/60 flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {event.checkedInCount}/{event.totalAttendees} {t('checkIn.attended')}
                               </span>
@@ -522,7 +531,7 @@ export default function CheckInPage() {
                           {t('checkIn.alreadyCheckedIn')}
                         </span>
                       ) : (
-                        <span className="text-green-400 flex items-center gap-1">
+                        <span className="text-white flex items-center gap-1">
                           <User className="w-4 h-4" />
                           {t('checkIn.readyToCheckIn')}
                         </span>
