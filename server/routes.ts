@@ -2623,13 +2623,19 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       // Add debug log to verify the data before the final step
       console.log('DEBUG: Tiers prepared for insertion:', tiersToInsert);
 
-      console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
-      const createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
-      console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
+      // Only insert ticket tiers if there are any (prevents "values() must be called with at least one value" error)
+      let createdTiers: any[] = [];
+      if (tiersToInsert.length > 0) {
+        console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
+        createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
+        console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
+      } else {
+        console.log('No ticket tiers to insert (free/RSVP event)');
+      }
 
       return res.status(201).json({
         success: true,
-        message: "Event published successfully with ticket tiers",
+        message: "Event published successfully",
         event: createdEvent,
         ticketTiers: createdTiers
       });
