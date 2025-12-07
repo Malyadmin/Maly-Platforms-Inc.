@@ -143,7 +143,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
                   className="flex items-center text-foreground"
                   data-testid="button-back"
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
               )}
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
@@ -317,7 +317,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
                 className="flex items-center text-foreground"
                 data-testid="button-back"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
@@ -442,7 +442,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
                 className="flex items-center text-foreground"
                 data-testid="button-back"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
@@ -569,7 +569,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
                 className="flex items-center text-foreground"
                 data-testid="button-back"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
@@ -720,7 +720,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                 className="flex items-center text-foreground"
                 data-testid="button-back"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>

@@ -308,10 +308,10 @@ export default function EventPage() {
                     setLocation('/discover');
                   }
                 }}
-                className="text-foreground/80 hover:text-foreground transition-colors"
+                className="text-foreground hover:text-foreground transition-colors"
                 data-testid="button-back"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
             </div>
@@ -359,7 +359,7 @@ export default function EventPage() {
               className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
               data-testid="button-share"
             >
-              <Share className="h-6 w-6" />
+              <Share className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -424,7 +424,7 @@ export default function EventPage() {
                   />
                 </svg>
               ) : (
-                <Heart className="w-5 h-5 fill-none stroke-gray-500 stroke-[1.5] transition-all" />
+                <Heart className="w-4 h-4 fill-none stroke-foreground stroke-[1.5] transition-all" />
               )}
             </button>
           )}
@@ -611,7 +611,7 @@ export default function EventPage() {
             <span>{event.attendingCount || 0} {t('xAttending')}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 stroke-gray-500 stroke-[1.5] fill-none" />
+            <Heart className="w-4 h-4 stroke-foreground stroke-[1.5] fill-none" />
             <span>{event.interestedCount || 0} {t('xInterested')}</span>
           </div>
         </div>

@@ -83,7 +83,7 @@ export function ShareDialog({ isOpen, onClose, title, description, url }: ShareD
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-full bg-accent">
-              <Share2 className="w-6 h-6" />
+              <Share2 className="w-4 h-4" />
             </div>
             <div>
               <DialogTitle>Share Event</DialogTitle>

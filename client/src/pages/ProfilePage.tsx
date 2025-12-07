@@ -396,7 +396,7 @@ export default function ProfilePage() {
               className="text-foreground/80 hover:text-foreground transition-colors"
               data-testid="button-back"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
@@ -434,7 +434,7 @@ export default function ProfilePage() {
             className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
             data-testid="button-share"
           >
-            <Share className="h-6 w-6" />
+            <Share className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-prev"
               >
-                <ChevronLeft className="h-6 w-6 text-foreground" />
+                <ChevronLeft className="h-4 w-4 text-foreground" />
               </button>
               <button
                 onClick={() => setCurrentProfileImageIndex((prev) => 
@@ -481,7 +481,7 @@ export default function ProfilePage() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 dark:bg-black/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-profile-image-next"
               >
-                <ChevronRight className="h-6 w-6 text-foreground" />
+                <ChevronRight className="h-4 w-4 text-foreground" />
               </button>
               <div className="absolute top-4 right-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm" data-testid="image-counter">
                 {currentProfileImageIndex + 1} / {profileImagesArray.length}

@@ -151,9 +151,9 @@ export function HamburgerMenu() {
         data-testid="button-theme-toggle"
       >
         {effectiveTheme === "dark" ? (
-          <Sun className="w-5 h-5 text-foreground" />
+          <Sun className="w-4 h-4 text-foreground" />
         ) : (
-          <Moon className="w-5 h-5 text-foreground" />
+          <Moon className="w-4 h-4 text-foreground" />
         )}
       </button>
       
@@ -166,7 +166,7 @@ export function HamburgerMenu() {
             className="text-foreground p-2 hover:bg-foreground/10"
             data-testid="hamburger-menu-button"
           >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
         </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -186,9 +186,9 @@ export function HamburgerMenu() {
                   {t(section.titleKey)}
                 </span>
                 {expandedSections.includes(section.titleKey) ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <ChevronUp className="h-4 w-4 text-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-4 w-4 text-foreground" />
                 )}
               </button>
               
@@ -220,9 +220,9 @@ export function HamburgerMenu() {
                 {t("language")}
               </span>
               {expandedSections.includes("language") ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                <ChevronUp className="h-4 w-4 text-foreground" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                <ChevronDown className="h-4 w-4 text-foreground" />
               )}
             </button>
             
@@ -253,7 +253,7 @@ export function HamburgerMenu() {
           <div className="border-t border-border">
             <button
               onClick={(e) => handleLogout(e)}
-              className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-500/10 transition-colors text-red-400"
+              className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-500/10 transition-colors text-foreground"
               data-testid="menu-logout"
               type="button"
             >

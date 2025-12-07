@@ -465,10 +465,10 @@ export default function EditProfilePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLocation(`/profile/${user?.username}`)}
-              className="text-foreground/80 hover:text-foreground transition-colors"
+              className="text-foreground hover:text-foreground transition-colors"
               data-testid="button-back-to-profile"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {t('editSpaced')}
@@ -517,14 +517,14 @@ export default function EditProfilePage() {
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-previous-image"
               >
-                <ChevronLeft className="h-6 w-6 text-foreground" />
+                <ChevronLeft className="h-4 w-4 text-foreground" />
               </button>
               <button
                 onClick={handleNextImage}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
                 data-testid="button-next-image"
               >
-                <ChevronRight className="h-6 w-6 text-foreground" />
+                <ChevronRight className="h-4 w-4 text-foreground" />
               </button>
               {/* Image counter */}
               <div className="absolute top-4 left-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm">
