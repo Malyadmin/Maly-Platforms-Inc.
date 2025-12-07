@@ -193,7 +193,7 @@ function AppContent() {
 }
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [splashMinTimePassed, setSplashMinTimePassed] = useState(false);
 
   useEffect(() => {
