@@ -596,9 +596,9 @@ export default function DiscoverPage() {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+      <div className="flex-1 overflow-auto">
         <main className="bg-background text-foreground pb-24">
-          <div className="px-4 py-3">
+          <div className="px-5 py-3">
             {/* Event Grid with Date Categories */}
             <div className="space-y-3">
               {/* Show event count below filter bar when it's visible */}

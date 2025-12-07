@@ -53,7 +53,7 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
 
   return (
     <div 
-      className="flex gap-4 cursor-pointer hover:bg-muted/30 p-2 rounded transition-colors"
+      className="flex gap-4 cursor-pointer hover:bg-muted/30 py-2 rounded transition-colors"
       onClick={() => setLocation(`/event/${event.id}`)}
       data-testid={`event-card-${event.id}`}
     >
