@@ -754,19 +754,12 @@ export function ConnectPage() {
                       onClick={() => handleUserClick(user)}
                     >
                       {user.profileImage ? (
-                        <>
-                          <img
-                            src={user.profileImage}
-                            alt={user.fullName || user.username}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <div className="absolute bottom-2 right-2 pointer-events-none z-10">
-                            <div className="bg-black/50 backdrop-blur-sm text-white/90 text-[10px] font-medium px-2 py-1 rounded-full">
-                              {t('demo')}
-                            </div>
-                          </div>
-                        </>
+                        <img
+                          src={user.profileImage}
+                          alt={user.fullName || user.username}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       ) : (
                         <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                           <span className="text-6xl font-bold text-foreground/40">
