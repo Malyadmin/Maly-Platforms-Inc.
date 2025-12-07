@@ -553,7 +553,7 @@ export default function EventPage() {
               {/* Ticket/Purchase Button */}
               {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
                 <Button 
-                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
                   onClick={() => setIsTicketModalOpen(true)}
                   data-testid="button-purchase-ticket"
                 >
@@ -562,7 +562,7 @@ export default function EventPage() {
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
-                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
                   onClick={() => accessRequestMutation.mutate()}
                   disabled={accessRequestMutation.isPending}
                   data-testid="button-request-access"
@@ -581,7 +581,7 @@ export default function EventPage() {
                 </Button>
               ) : (
                 <Button 
-                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
                   onClick={() => participateMutation.mutate(
                     participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
                   )}
@@ -679,7 +679,7 @@ export default function EventPage() {
                       }
                     }}
                     disabled={!selectedTierId || purchaseTicketMutation.isPending}
-                    className="flex-1 bg-white hover:bg-gray-100 text-black text-foreground disabled:opacity-50"
+                    className="flex-1 bg-white hover:bg-gray-100 text-black disabled:opacity-50"
                     data-testid="button-confirm-purchase"
                   >
                     {purchaseTicketMutation.isPending ? (
