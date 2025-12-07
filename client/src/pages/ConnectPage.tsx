@@ -830,7 +830,7 @@ export function ConnectPage() {
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
                             isConnected
-                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-white text-black text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-white text-black border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                               : "inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-border text-muted-foreground hover:bg-muted/50 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}
