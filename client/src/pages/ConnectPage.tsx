@@ -715,14 +715,14 @@ export function ConnectPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+      <main className="flex-1 overflow-auto pb-24">
         {isLoading ? (
-          <div className="px-4 py-3">
+          <div className="px-5 py-3">
             <UserGridSkeleton count={6} />
           </div>
         ) : (
           /* List View - Similar to Discover Page */
-          <div className="px-4 py-3">
+          <div className="px-5 py-3">
             <div className="space-y-3">
               {(users || []).map((user) => {
                 // Get connection status for this user
@@ -744,7 +744,7 @@ export function ConnectPage() {
                 return (
                   <div 
                     key={user.id}
-                    className="flex gap-4 p-2 hover:bg-muted/50 rounded-lg transition-colors"
+                    className="flex gap-4 py-2 hover:bg-muted/50 rounded-lg transition-colors"
                     data-testid={`user-card-${user.id}`}
                   >
                     {/* User Image */}

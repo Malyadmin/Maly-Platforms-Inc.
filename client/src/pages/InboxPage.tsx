@@ -226,7 +226,7 @@ export default function InboxPage() {
     profileLink?: string;
   }) => (
     <div
-      className="w-full flex items-center px-4 py-3 hover:bg-foreground/5 active:bg-foreground/10 transition-colors"
+      className="w-full flex items-center px-5 py-3 hover:bg-foreground/5 active:bg-foreground/10 transition-colors"
       data-testid={testId}
     >
       {profileLink ? (
@@ -339,7 +339,7 @@ export default function InboxPage() {
       </header>
 
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+      <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="p-4">
             <InboxSkeleton count={6} />
