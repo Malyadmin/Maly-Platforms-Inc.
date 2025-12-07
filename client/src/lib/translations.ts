@@ -806,7 +806,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     bestDayTrips: 'Best Day Trips',
     findingLocalInsights: 'Finding local insights...',
     askAnythingAbout: 'Ask anything about',
-    conciergeGreeting: "Hi, I'm Maly — like your local friend with great taste. I'll help you know where to go, who to know, and what to do.",
+    conciergeGreeting: "Hi, I’m Maly, your international concierge. Ask me where to go and what to do, and I’ll help you experience the best of any city.",
     premiumAdPartner: 'Premium Ad Partner',
     letsGetStarted: "Let's Get Started!",
     myTickets: "My Tickets",
@@ -1238,8 +1238,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     // NotificationPreferencesPage strings
     alertsSpaced: 'A L E R T S',
     cityGuide: 'City Guide',
-    welcomeConcierge: "Welcome to Maly's Concierge (Beta V1.5)",
-    conciergeBetaDescription: 'Restaurant Reservations, Hotel Bookings, and Community Curated Recs coming soon.',
+    welcomeConcierge: "WELCOME TO YOUR CONCIERGE (BETA V1.5)",
+    conciergeBetaDescription: 'Restaurant reservations, hotel bookings, and curated community recommendations are coming soon.',
     // SignupFlowPage strings
     signupSpaced: 'S I G N U P',
     createAccount: 'Create your account',
