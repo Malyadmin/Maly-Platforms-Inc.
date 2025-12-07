@@ -221,7 +221,7 @@ export default function CreatorDashboardPage() {
       
       <div className="grid grid-cols-3 gap-3">
         <button
-          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          className="rounded-lg p-3 hover:bg-foreground/10 transition-colors cursor-pointer text-left"
           onClick={() => setUserListModal({
             isOpen: true,
             eventId: event.id,
@@ -238,7 +238,7 @@ export default function CreatorDashboardPage() {
         </button>
         
         <button
-          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          className="rounded-lg p-3 hover:bg-foreground/10 transition-colors cursor-pointer text-left"
           onClick={() => setUserListModal({
             isOpen: true,
             eventId: event.id,
@@ -255,7 +255,7 @@ export default function CreatorDashboardPage() {
         </button>
         
         <button
-          className="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800 transition-colors cursor-pointer text-left"
+          className="rounded-lg p-3 hover:bg-foreground/10 transition-colors cursor-pointer text-left"
           onClick={() => setUserListModal({
             isOpen: true,
             eventId: event.id,

@@ -16,11 +16,6 @@ const Avatar = React.forwardRef<
     {...props}
   >
     {children}
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-      <div className="bg-black/70 text-white font-bold px-1 py-0.5 text-center rotate-[-15deg] text-[0.5rem] leading-tight whitespace-nowrap">
-        FOR DEMO ONLY
-      </div>
-    </div>
   </AvatarPrimitive.Root>
 ))
 Avatar.displayName = AvatarPrimitive.Root.displayName
