@@ -310,7 +310,7 @@ export default function CheckInPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
             {showPastEventAttendees ? t('checkIn.attendeeList') : 
              selectedEvent ? selectedEvent.title : t('checkIn.title')}
           </h2>
@@ -473,7 +473,7 @@ export default function CheckInPage() {
             {!isScanning && (
               <Button
                 onClick={startScanner}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white font-semibold py-6 text-lg"
+                className="w-full bg-white hover:bg-gray-100 text-black text-white font-semibold py-6 text-lg"
                 data-testid="button-start-scan"
               >
                 <Camera className="w-5 h-5 mr-2" />
@@ -545,7 +545,7 @@ export default function CheckInPage() {
             {!scannedData.alreadyCheckedIn ? (
               <Button
                 onClick={handleCheckIn}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white font-semibold py-6 text-lg"
+                className="w-full bg-white hover:bg-gray-100 text-black text-white font-semibold py-6 text-lg"
                 disabled={confirmMutation.isPending}
                 data-testid="button-check-in"
               >
@@ -648,7 +648,7 @@ export default function CheckInPage() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmCheckIn}
-              className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white"
+              className="bg-white text-black text-white"
               disabled={confirmMutation.isPending}
             >
               {confirmMutation.isPending ? t('common.loading') : t('checkIn.confirm')}

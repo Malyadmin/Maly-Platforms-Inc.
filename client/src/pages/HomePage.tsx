@@ -328,7 +328,7 @@ export default function HomePage() {
                 Connect
               </Button>
               <Button
-                className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white whitespace-nowrap px-2 md:px-4"
+                className="bg-white hover:bg-gray-100 text-black text-white whitespace-nowrap px-2 md:px-4"
                 onClick={() => setLocation("/create")}
               >
                 <Plus className="h-5 w-5 md:mr-2" />
@@ -517,7 +517,7 @@ export default function HomePage() {
                               </Button>
                               <Button
                                 variant="secondary"
-                                className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white w-full md:w-auto"
+                                className="bg-white hover:bg-gray-100 text-black text-white w-full md:w-auto"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setLocation(`/event/${featuredEvent.id}/tickets`);
@@ -608,7 +608,7 @@ export default function HomePage() {
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+                                    className="bg-white hover:bg-gray-100 text-black text-white"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setLocation(`/event/${event.id}/tickets`);
@@ -741,7 +741,7 @@ export default function HomePage() {
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+                                    className="bg-white hover:bg-gray-100 text-black text-white"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setLocation(`/event/${event.id}/tickets`);
@@ -893,7 +893,7 @@ export default function HomePage() {
               </Button>
               <Button 
                 type="submit" 
-                className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600"
+                className="bg-white text-black"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

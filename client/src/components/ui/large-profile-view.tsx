@@ -164,7 +164,7 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
           {/* Connect Button */}
           <Button
             onClick={handleConnect}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-foreground font-semibold py-3 rounded-xl mb-4"
+            className="w-full bg-white hover:bg-gray-100 text-black text-foreground font-semibold py-3 rounded-xl mb-4"
             data-testid={`connect-button-${user.id}`}
           >
             <Heart className="w-5 h-5 mr-2" />

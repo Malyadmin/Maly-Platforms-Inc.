@@ -43,7 +43,7 @@ export default function PaymentMethodsPage() {
     return (
       <div className="h-screen bg-background text-foreground flex flex-col items-center justify-center gap-4">
         <p>Please log in to view payment methods</p>
-        <Button onClick={() => setLocation('/auth')} className="bg-purple-600 hover:bg-purple-700">
+        <Button onClick={() => setLocation('/auth')} className="bg-white hover:bg-gray-100 text-black">
           Go to Login
         </Button>
       </div>
@@ -64,7 +64,7 @@ export default function PaymentMethodsPage() {
         </div>
         
         <div className="px-5 pb-3">
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             P A Y M E N T S
           </h2>
         </div>
@@ -74,9 +74,9 @@ export default function PaymentMethodsPage() {
       <div className="flex-1 overflow-y-auto pb-20 px-5">
         {/* How Payments Work Section */}
         <div className="mt-6">
-          <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-gray-900/20 to-gray-800/20 border border-gray-600/50 rounded-lg p-6">
             <div className="flex items-start gap-4">
-              <Shield className="h-8 w-8 text-purple-400 shrink-0 mt-1" />
+              <Shield className="h-8 w-8 text-foreground shrink-0 mt-1" />
               <div>
                 <h3 className="text-foreground font-semibold text-lg mb-2">Secure Payments</h3>
                 <p className="text-gray-300 text-sm leading-relaxed">
@@ -108,7 +108,7 @@ export default function PaymentMethodsPage() {
         {/* Payment History Section */}
         <div className="mt-8">
           <div className="flex items-center gap-2 mb-4">
-            <Receipt className="h-5 w-5 text-purple-400" />
+            <Receipt className="h-5 w-5 text-foreground" />
             <h3 className="text-foreground font-semibold text-lg">Recent Purchases</h3>
           </div>
 
@@ -125,7 +125,7 @@ export default function PaymentMethodsPage() {
               <p className="text-gray-500 text-xs mt-2">Your ticket purchases will appear here</p>
               <Button
                 onClick={() => setLocation('/events')}
-                className="mt-4 bg-purple-600 hover:bg-purple-700"
+                className="mt-4 bg-white hover:bg-gray-100 text-black"
                 size="sm"
               >
                 Browse Events
@@ -136,7 +136,7 @@ export default function PaymentMethodsPage() {
               {payments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 hover:border-purple-500/50 transition-colors"
+                  className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 hover:border-gray-600/50 transition-colors"
                   data-testid={`payment-${payment.id}`}
                 >
                   <div className="flex items-start justify-between">

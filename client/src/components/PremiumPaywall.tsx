@@ -75,7 +75,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           {/* Feature explanation */}
           <div className="text-center">
             <div className="bg-gray-900 rounded-lg p-4 mb-4">
-              <FeatureIcon className="h-12 w-12 text-purple-500 mx-auto mb-3" />
+              <FeatureIcon className="h-12 w-12 text-foreground mx-auto mb-3" />
               <h3 className="text-lg font-medium mb-2">{config.title}</h3>
               <p className="text-muted-foreground text-sm">
                 {config.description}
@@ -97,7 +97,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           </div>
 
           {/* Pricing */}
-          <div className="bg-purple-900/30 rounded-lg p-4 text-center">
+          <div className="bg-gray-800/50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold">$29<span className="text-lg font-normal text-muted-foreground">/month</span></div>
             <p className="text-sm text-muted-foreground mt-1">Cancel anytime</p>
           </div>
@@ -105,7 +105,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           {/* Action buttons */}
           <div className="space-y-3">
             <Button
-              className="w-full bg-purple-600 hover:bg-purple-700 text-foreground font-medium"
+              className="w-full bg-white hover:bg-gray-100 text-black text-foreground font-medium"
               onClick={handleUpgrade}
               disabled={isUpgrading}
               data-testid="upgrade-to-premium-button"

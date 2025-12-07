@@ -152,7 +152,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Event Summary */}
-      <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
+      <Card className="bg-gradient-to-r from-gray-700/20 to-gray-600/20 border-gray-600/30">
         <CardContent className="p-4">
           <div className="space-y-2">
             <h3 className="font-semibold text-foreground">{event.title}</h3>
@@ -228,7 +228,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
         <Button
           type="submit"
           disabled={!stripe || isProcessing || !clientSecret}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          className="flex-1 bg-white hover:bg-gray-100 text-black"
         >
           {isProcessing ? (
             <>

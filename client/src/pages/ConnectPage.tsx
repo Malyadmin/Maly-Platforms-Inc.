@@ -417,9 +417,9 @@ export function ConnectPage() {
         {/* Controls section */}
         <div className="px-5">
           <div className="flex items-center justify-between pb-3">
-            {/* Connect title with gradient - uppercase with extra letter spacing */}
+            {/* Connect title - uppercase with extra letter spacing */}
             <div>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
                 P E O P L E
               </h2>
               {selectedCity !== 'all' && (
@@ -472,7 +472,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('gender')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-gender"
               >
                 {t('gender')}
@@ -518,7 +518,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('location')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-location"
               >
                 {t('city')}
@@ -539,7 +539,7 @@ export function ConnectPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-accent"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
                       data-testid={`location-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -571,7 +571,7 @@ export function ConnectPage() {
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-foreground/10 last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-foreground/10 last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="location-option-add"
                   >
                     {t('addCity')}
@@ -584,7 +584,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('vibe')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibe"
               >
                 {t('vibe')}
@@ -619,7 +619,7 @@ export function ConnectPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('intention')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-intention"
               >
                 {t('intention')}
@@ -672,7 +672,7 @@ export function ConnectPage() {
             {getActiveFilters().length > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="ml-auto text-foreground hover:text-purple-400 transition-colors"
+                className="ml-auto text-foreground hover:text-foreground transition-colors"
                 data-testid="clear-all-filters"
               >
                 <X className="h-5 w-5" />
@@ -694,7 +694,7 @@ export function ConnectPage() {
                     <span className="truncate">{filter.label}</span>
                     <button
                       onClick={() => removeFilter(filter.type)}
-                      className="hover:text-purple-400 transition-colors flex-shrink-0"
+                      className="hover:text-foreground transition-colors flex-shrink-0"
                       data-testid={`remove-filter-${filter.type}`}
                     >
                       <X className="h-3 w-3" />
@@ -767,7 +767,7 @@ export function ConnectPage() {
                           </div>
                         </>
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-purple-900/80 to-blue-900/80 flex items-center justify-center">
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                           <span className="text-6xl font-bold text-foreground/40">
                             {(user.fullName || user.username).charAt(0).toUpperCase()}
                           </span>
@@ -779,7 +779,7 @@ export function ConnectPage() {
                     <div className="flex-1 flex flex-col justify-between pr-2 min-w-0">
                       {/* Name - aligned to top */}
                       <h3 
-                        className="text-sm sm:text-base md:text-lg font-bold text-foreground leading-tight cursor-pointer hover:text-purple-400 flex items-center gap-2 whitespace-nowrap overflow-hidden"
+                        className="text-sm sm:text-base md:text-lg font-bold text-foreground leading-tight cursor-pointer hover:text-foreground flex items-center gap-2 whitespace-nowrap overflow-hidden"
                         onClick={() => handleUserClick(user)}
                       >
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
@@ -829,7 +829,7 @@ export function ConnectPage() {
                           disabled={createConnectionMutation.isPending || removeConnectionMutation.isPending}
                           className={
                             isConnected
-                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-[#B57CFF] text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                              ? "inline-flex items-center justify-center gap-2 rounded-md bg-white text-black text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                               : "inline-flex items-center justify-center gap-2 rounded-md bg-transparent border border-border text-muted-foreground hover:bg-muted/50 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                           }
                           data-testid={`connect-button-${user.id}`}

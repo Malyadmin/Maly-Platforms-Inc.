@@ -47,7 +47,7 @@ const registerSchema = z.object({
 
 // Mood style definitions for consistent visual appearance
 const moodStyles = {
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-700/50",
   "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
   "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30",

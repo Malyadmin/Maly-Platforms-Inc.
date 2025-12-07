@@ -228,12 +228,12 @@ export default function PremiumPage() {
         <div className="max-w-3xl mx-auto">
           {loadingStatus ? (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+              <Loader2 className="w-8 h-8 animate-spin text-foreground" />
             </div>
           ) : premiumStatus?.isPremium ? (
             <div className="flex flex-col gap-8">
-              <div className="text-center mb-4 p-8 border border-purple-600/30 rounded-lg bg-purple-900/10">
-                <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <div className="text-center mb-4 p-8 border border-gray-600/50 rounded-lg bg-gray-800/50">
+                <Crown className="w-12 h-12 text-foreground mx-auto mb-4" />
                 <h2 className="text-3xl font-bold mb-2">Premium Active</h2>
                 {premiumStatus.expiresAt && (
                   <p className="text-muted-foreground mb-4">
@@ -278,7 +278,7 @@ export default function PremiumPage() {
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className="p-2 rounded-lg bg-accent/10">
-                          <feature.icon className="w-6 h-6 text-purple-400" />
+                          <feature.icon className="w-6 h-6 text-foreground" />
                         </div>
                         <div>
                           <h3 className="font-semibold mb-2">{feature.title}</h3>
@@ -293,14 +293,14 @@ export default function PremiumPage() {
               </div>
 
               <div className="flex flex-col md:flex-row gap-6 justify-center mb-8">
-                <Card className={`w-full md:w-1/2 p-6 ${subscriptionType === 'monthly' ? 'border-purple-500' : ''}`}>
+                <Card className={`w-full md:w-1/2 p-6 ${subscriptionType === 'monthly' ? 'border-foreground' : ''}`}>
                   <CardContent className="p-0 text-center">
                     <h3 className="font-semibold text-xl mb-2">Monthly</h3>
                     <div className="text-4xl font-bold mb-2">$29</div>
                     <div className="text-muted-foreground mb-4">per month</div>
                     <Button 
                       variant={subscriptionType === 'monthly' ? "default" : "outline"}
-                      className={subscriptionType === 'monthly' ? "bg-purple-900" : ""}
+                      className={subscriptionType === 'monthly' ? "bg-gray-900" : ""}
                       onClick={() => setSubscriptionType('monthly')}
                     >
                       {subscriptionType === 'monthly' ? <Check className="w-4 h-4 mr-2" /> : null}
@@ -309,7 +309,7 @@ export default function PremiumPage() {
                   </CardContent>
                 </Card>
                 
-                <Card className={`w-full md:w-1/2 p-6 ${subscriptionType === 'yearly' ? 'border-purple-500' : ''}`}>
+                <Card className={`w-full md:w-1/2 p-6 ${subscriptionType === 'yearly' ? 'border-foreground' : ''}`}>
                   <CardContent className="p-0 text-center">
                     <h3 className="font-semibold text-xl mb-2">Yearly</h3>
                     <div className="text-4xl font-bold mb-2">$290</div>
@@ -317,7 +317,7 @@ export default function PremiumPage() {
                     <div className="text-green-500 text-sm mb-4">Save $58</div>
                     <Button 
                       variant={subscriptionType === 'yearly' ? "default" : "outline"}
-                      className={subscriptionType === 'yearly' ? "bg-purple-900" : ""}
+                      className={subscriptionType === 'yearly' ? "bg-gray-900" : ""}
                       onClick={() => setSubscriptionType('yearly')}
                     >
                       {subscriptionType === 'yearly' ? <Check className="w-4 h-4 mr-2" /> : null}
@@ -331,7 +331,7 @@ export default function PremiumPage() {
                 <Button 
                   size="lg"
                   disabled={loading}
-                  className="bg-purple-900 hover:bg-purple-800 text-foreground border-0 px-8"
+                  className="bg-white hover:bg-gray-100 text-foreground border-0 px-8"
                   onClick={handleSubscribe}
                   data-testid="button-get-premium"
                 >

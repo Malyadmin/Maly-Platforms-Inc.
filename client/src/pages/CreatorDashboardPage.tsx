@@ -265,7 +265,7 @@ export default function CreatorDashboardPage() {
           data-testid={`interested-button-${event.id}`}
         >
           <div className="flex items-center gap-2 mb-1">
-            <Users className="h-4 w-4 text-purple-400" />
+            <Users className="h-4 w-4 text-foreground" />
             <span className="text-xs text-muted-foreground">{t('interested')}</span>
           </div>
           <p className="text-foreground text-xl font-semibold">{event.analytics?.interestedCount || 0}</p>
@@ -303,7 +303,7 @@ export default function CreatorDashboardPage() {
         <div className="flex-1">
           <p className="text-foreground font-medium text-sm" data-testid={`rsvp-user-name-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
           <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
-          <p className="text-purple-400 text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle || 'Unknown Event'}</p>
+          <p className="text-foreground text-xs mt-1" data-testid={`rsvp-event-title-${rsvp.id}`}>{rsvp.eventTitle || 'Unknown Event'}</p>
         </div>
       </div>
       
@@ -360,7 +360,7 @@ export default function CreatorDashboardPage() {
           <div className="flex-1">
             <p className="text-foreground font-medium text-sm" data-testid={`completed-rsvp-user-${rsvp.id}`}>{rsvp.userName || 'Unknown User'}</p>
             <p className="text-muted-foreground text-xs">{rsvp.userEmail || 'No email'}</p>
-            <p className="text-purple-400 text-xs mt-1">{rsvp.eventTitle || 'Unknown Event'}</p>
+            <p className="text-foreground text-xs mt-1">{rsvp.eventTitle || 'Unknown Event'}</p>
             <p className="text-gray-500 text-xs mt-1">
               {rsvp.updatedAt ? format(new Date(rsvp.updatedAt), 'MMM d, yyyy') : ''}
             </p>
@@ -378,7 +378,7 @@ export default function CreatorDashboardPage() {
     return (
       <div className="h-screen bg-background dark:bg-black text-foreground flex flex-col items-center justify-center gap-4">
         <p>{t('pleaseLoginToViewDashboard')}</p>
-        <Button onClick={() => setLocation('/auth')} className="bg-purple-600 hover:bg-purple-700">
+        <Button onClick={() => setLocation('/auth')} className="bg-white hover:bg-gray-100 text-black">
           {t('goToLogin')}
         </Button>
       </div>
@@ -401,7 +401,7 @@ export default function CreatorDashboardPage() {
         
         {/* Dashboard title with gradient */}
         <div className="px-5 pb-3">
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             {t('dashboardSpaced')}
           </h2>
         </div>
@@ -413,8 +413,8 @@ export default function CreatorDashboardPage() {
               onClick={() => setActiveFilter('events')}
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'events' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-events"
             >
@@ -424,8 +424,8 @@ export default function CreatorDashboardPage() {
               onClick={() => setActiveFilter('analytics')}
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'analytics' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-analytics"
             >
@@ -435,8 +435,8 @@ export default function CreatorDashboardPage() {
               onClick={() => setActiveFilter('sales')}
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'sales' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-sales"
             >
@@ -446,8 +446,8 @@ export default function CreatorDashboardPage() {
               onClick={() => setActiveFilter('rsvps')}
               className={`text-xs sm:text-sm transition-colors whitespace-nowrap ${
                 activeFilter === 'rsvps' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-rsvps"
             >
@@ -483,7 +483,7 @@ export default function CreatorDashboardPage() {
                     <p className="text-muted-foreground text-sm">{t('noEventsCreatedYet')}</p>
                     <Button
                       onClick={() => setLocation('/create-event')}
-                      className="mt-4 bg-purple-600 hover:bg-purple-700"
+                      className="mt-4 bg-white hover:bg-gray-100 text-black"
                     >
                       {t('createYourFirstEvent')}
                     </Button>
@@ -621,7 +621,7 @@ export default function CreatorDashboardPage() {
                         onClick={() => setRsvpSection('pending')}
                         className={`pb-3 transition-all ${
                           rsvpSection === 'pending'
-                            ? 'gradient-text border-b-2 border-purple-500'
+                            ? 'text-foreground border-b-2 border-foreground'
                             : 'text-muted-foreground hover:text-gray-300'
                         }`}
                         data-testid="tab-pending-rsvps"
@@ -632,7 +632,7 @@ export default function CreatorDashboardPage() {
                         onClick={() => setRsvpSection('completed')}
                         className={`pb-3 transition-all ${
                           rsvpSection === 'completed'
-                            ? 'gradient-text border-b-2 border-purple-500'
+                            ? 'text-foreground border-b-2 border-foreground'
                             : 'text-muted-foreground hover:text-gray-300'
                         }`}
                         data-testid="tab-completed-rsvps"

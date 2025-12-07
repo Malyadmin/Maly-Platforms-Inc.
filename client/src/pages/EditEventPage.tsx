@@ -525,7 +525,7 @@ export default function EditEventPage() {
         <div className="container mx-auto max-w-2xl p-4">
           <Button
             type="button"
-            className="w-full h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white transition-all duration-200"
+            className="w-full h-12 bg-white hover:bg-gray-100 text-black text-white transition-all duration-200"
             disabled={loading}
             onClick={updateEvent}
           >

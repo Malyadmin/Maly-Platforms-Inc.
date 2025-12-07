@@ -122,7 +122,7 @@ export default function MyTicketsPage() {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
             {t('myTickets')}
           </h2>
         </div>
@@ -143,7 +143,7 @@ export default function MyTicketsPage() {
               <p className="text-muted-foreground text-sm mb-6">{t('noTicketsDescription')}</p>
               <Button 
                 onClick={() => setLocation('/discover')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                className="bg-white hover:bg-gray-100 text-black text-white"
                 data-testid="button-browse-events"
               >
                 {t('browseEvents')}
@@ -191,7 +191,7 @@ export default function MyTicketsPage() {
                         <Button
                           size="sm"
                           onClick={() => handleViewQR(ticket)}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs h-7 px-3"
+                          className="bg-white hover:bg-gray-100 text-black text-white text-xs h-7 px-3"
                           data-testid={`button-view-qr-${ticket.id}`}
                         >
                           <QrCode className="w-3 h-3 mr-1" />

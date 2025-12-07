@@ -22,7 +22,7 @@ export default function PaymentDisclaimerPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             P A Y M E N T S
           </h1>
           
@@ -87,7 +87,7 @@ export default function PaymentDisclaimerPage() {
                       href="https://stripe.com/legal" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 underline"
+                      className="text-foreground hover:text-foreground underline"
                     >
                       Stripe's Terms of Service
                     </a>
@@ -96,7 +96,7 @@ export default function PaymentDisclaimerPage() {
                       href="https://stripe.com/privacy" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 underline"
+                      className="text-foreground hover:text-foreground underline"
                     >
                       Privacy Policy
                     </a>.

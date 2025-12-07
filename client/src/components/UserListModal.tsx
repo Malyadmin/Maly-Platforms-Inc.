@@ -55,7 +55,7 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
       case 'attending':
         return <UserCheck className="h-5 w-5 text-green-400" />;
       case 'interested':
-        return <Users className="h-5 w-5 text-purple-400" />;
+        return <Users className="h-5 w-5 text-foreground" />;
       case 'views':
         return <Eye className="h-5 w-5 text-blue-400" />;
       default:
@@ -99,7 +99,7 @@ export function UserListModal({ isOpen, onClose, eventId, type, count }: UserLis
               >
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={participant.profileImage || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-foreground">
+                  <AvatarFallback className="bg-gray-700 text-foreground">
                     {participant.fullName?.charAt(0)?.toUpperCase() || participant.username?.charAt(0)?.toUpperCase() || '?'}
                   </AvatarFallback>
                 </Avatar>

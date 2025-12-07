@@ -335,7 +335,7 @@ export default function DiscoverPage() {
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
         <DialogContent className="bg-card border-border max-w-sm mx-auto">
           <DialogHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-[#B57CFF] flex items-center justify-center">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-white text-black flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <DialogTitle className="text-xl font-semibold text-center text-foreground">
@@ -352,7 +352,7 @@ export default function DiscoverPage() {
           </div>
           <Button 
             onClick={() => setShowWelcomeModal(false)}
-            className="w-full mt-4 bg-[#B57CFF] text-white hover:from-purple-700 hover:to-pink-700"
+            className="w-full mt-4 bg-white text-black text-white hover:bg-gray-100"
             data-testid="button-welcome-close"
           >
             {t('letsGetStarted')}
@@ -377,7 +377,7 @@ export default function DiscoverPage() {
           <div className="flex items-center justify-between pb-3">
             {/* Explore title with gradient - uppercase with extra letter spacing */}
             <div>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
                 E V E N T S
               </h2>
               {selectedCity !== 'all' && (
@@ -429,7 +429,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('when')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-when"
               >
                 {t('when')}
@@ -463,7 +463,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('city')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-city"
               >
                 {t('city')}
@@ -483,7 +483,7 @@ export default function DiscoverPage() {
                     <button
                       key={city}
                       onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-muted"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
                       data-testid={`city-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {city}
@@ -515,7 +515,7 @@ export default function DiscoverPage() {
                   ))}
                   <button
                     onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-purple-400 hover:bg-muted last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
                     data-testid="city-option-add"
                   >
                     {t('addCity')}
@@ -528,7 +528,7 @@ export default function DiscoverPage() {
             <div className="relative">
               <button
                 onClick={() => toggleDropdown('vibes')}
-                className="text-foreground text-sm hover:text-purple-400 transition-colors flex items-center gap-1"
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
                 data-testid="filter-category-vibes"
               >
                 {t('vibes')}
@@ -550,7 +550,7 @@ export default function DiscoverPage() {
                       className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted flex items-center gap-2"
                       data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      {selectedEventTypes.includes(vibe) && <span className="text-purple-400">✓</span>}
+                      {selectedEventTypes.includes(vibe) && <span className="text-foreground">✓</span>}
                       {vibe}
                     </button>
                   ))}
@@ -562,7 +562,7 @@ export default function DiscoverPage() {
             {(selectedCity !== 'all' || selectedEventTypes.length > 0 || selectedTimeFilter !== 'Anytime') && (
               <button
                 onClick={clearAllFilters}
-                className="ml-auto text-foreground hover:text-purple-400 transition-colors"
+                className="ml-auto text-foreground hover:text-foreground transition-colors"
                 data-testid="clear-all-filters"
               >
                 <X className="h-5 w-5" />
@@ -583,7 +583,7 @@ export default function DiscoverPage() {
                     <span className="truncate">{type}</span>
                     <button
                       onClick={() => setSelectedEventTypes(prev => prev.filter(t => t !== type))}
-                      className="hover:text-purple-400 transition-colors flex-shrink-0"
+                      className="hover:text-foreground transition-colors flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </button>

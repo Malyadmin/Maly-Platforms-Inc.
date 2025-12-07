@@ -57,7 +57,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <BackButton onClick={onBack} className="text-foreground" />
             )}
-            <h2 className="text-accent-maly text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -115,7 +115,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -239,7 +239,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -351,7 +351,7 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           onClick={onSubmit}
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -495,7 +495,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -641,7 +641,7 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -700,7 +700,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -759,7 +759,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -841,7 +841,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -1002,7 +1002,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -1073,7 +1073,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <div className="px-5 pb-3">
           <div className="flex items-center gap-4">
             <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
           </div>
         </div>
       </div>
@@ -1117,14 +1117,14 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
                   key={vibe.value}
                   className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedVibes.includes(vibe.value)
-                      ? 'border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-[2px]'
+                      ? 'border-transparent bg-white p-[2px]'
                       : 'border-gray-600 hover:border-gray-500'
                   }`}
                   onClick={() => toggleVibe(vibe.value)}
                   data-testid={`vibe-option-${vibe.value}`}
                 >
                   <div className={`${selectedVibes.includes(vibe.value) ? 'bg-background rounded-md p-3 -m-[2px]' : ''}`}>
-                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'text-accent-maly' : 'text-gray-300'}`}>
+                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'text-foreground' : 'text-gray-300'}`}>
                       {vibe.label}
                     </div>
                   </div>
@@ -1149,7 +1149,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-create"
         >
           <ArrowRight className="h-5 w-5" />

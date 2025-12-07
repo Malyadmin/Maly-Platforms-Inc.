@@ -79,7 +79,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
               <div className="text-4xl font-bold text-foreground/40">
                 {initials}
               </div>

@@ -55,7 +55,7 @@ export function PaymentStats() {
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-foreground" />
       </div>
     );
   }
@@ -119,8 +119,8 @@ export function PaymentStats() {
               <p className="text-sm text-muted-foreground">Active Subscriptions</p>
               <h3 className="text-2xl font-bold mt-1">{stats.activeSubscriptionsCount}</h3>
             </div>
-            <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-              <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="bg-gray-200 dark:bg-gray-800/50 p-2 rounded-full">
+              <CreditCard className="w-5 h-5 text-foreground dark:text-foreground" />
             </div>
           </div>
         </div>

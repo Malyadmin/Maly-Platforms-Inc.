@@ -50,7 +50,7 @@ const moods = ["Party & Nightlife", "Networking & Business", "Adventure & Explor
 // Unified mood style definitions for consistent visual appearance
 const moodStyles = {
   // New vibe and mood tags
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
   "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30",
@@ -69,7 +69,7 @@ const moodStyles = {
   // Legacy tags for backward compatibility
   "Dating": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Parties": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Parties": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Adventure": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
   "Dining Out": "bg-green-500/20 text-green-500 hover:bg-green-500/30"
 } as const;
@@ -128,7 +128,7 @@ export default function ProfileSetupPage() {
   return (
     <div className="min-h-screen bg-[#121212] text-white p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2 gradient-text">Welcome to the Community</h1>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">Welcome to the Community</h1>
         <p className="text-lg text-white/60 mb-8">Let's set up your profile and help you connect with like-minded nomads.</p>
 
         <Form {...form}>

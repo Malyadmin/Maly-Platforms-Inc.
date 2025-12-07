@@ -145,7 +145,7 @@ export default function StripeConnectPage() {
               <ArrowLeft className="h-6 w-6" />
             </Button>
             
-            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               P A Y M E N T S
             </h1>
             
@@ -153,7 +153,7 @@ export default function StripeConnectPage() {
           </div>
         </header>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-foreground" />
         </div>
       </div>
     );
@@ -174,7 +174,7 @@ export default function StripeConnectPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase tracking-widest">
+          <h1 className="text-foreground text-lg font-medium uppercase tracking-widest">
             Payment Setup
           </h1>
           
@@ -235,7 +235,7 @@ export default function StripeConnectPage() {
             <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-purple-500" />
+                  <Shield className="h-5 w-5 text-foreground" />
                   <CardTitle className="text-lg text-white">Secure & Compliant</CardTitle>
                 </div>
               </CardHeader>
@@ -270,7 +270,7 @@ export default function StripeConnectPage() {
                       onClick={createConnectAccount} 
                       disabled={processing}
                       size="lg"
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      className="w-full bg-white hover:bg-gray-100 text-black"
                       data-testid="button-get-started"
                     >
                       {processing ? (
@@ -392,7 +392,7 @@ export default function StripeConnectPage() {
                         onClick={startOnboarding} 
                         disabled={processing}
                         size="lg"
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        className="w-full bg-white hover:bg-gray-100 text-black"
                         data-testid="button-complete-setup"
                       >
                         {processing ? (

@@ -146,7 +146,7 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
                   <ChevronLeft className="w-6 h-6" />
                 </button>
               )}
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -319,7 +319,7 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -444,7 +444,7 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -571,7 +571,7 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <Button
@@ -722,7 +722,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
             <button
@@ -793,7 +793,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                   I agree to the{" "}
                   <Dialog open={showTerms} onOpenChange={setShowTerms}>
                     <DialogTrigger asChild>
-                      <span className="text-purple-400 cursor-pointer underline">Terms and Conditions</span>
+                      <span className="text-foreground cursor-pointer underline">Terms and Conditions</span>
                     </DialogTrigger>
                     <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-foreground border-border">
                       <DialogHeader>
@@ -843,7 +843,7 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
                   I agree to the{" "}
                   <Dialog open={showPrivacy} onOpenChange={setShowPrivacy}>
                     <DialogTrigger asChild>
-                      <span className="text-purple-400 cursor-pointer underline">Privacy Policy</span>
+                      <span className="text-foreground cursor-pointer underline">Privacy Policy</span>
                     </DialogTrigger>
                     <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-foreground border-border">
                       <DialogHeader>

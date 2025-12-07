@@ -19,7 +19,7 @@ export default function TermsPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             T E R M S
           </h1>
           
@@ -123,7 +123,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold mb-3 text-foreground">10. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
               If you have any questions about these Terms & Conditions, please contact us at{" "}
-              <a href="mailto:legal@maly.app" className="text-purple-400 hover:underline">
+              <a href="mailto:legal@maly.app" className="text-foreground hover:underline">
                 legal@maly.app
               </a>
             </p>

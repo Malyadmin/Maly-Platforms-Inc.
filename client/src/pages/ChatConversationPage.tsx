@@ -230,7 +230,7 @@ export default function ChatConversationPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {t('chatsSpaced')}
             </h1>
           </div>
@@ -444,7 +444,7 @@ export default function ChatConversationPage() {
           <Button 
             type="submit" 
             disabled={!messageText.trim() || sendMessageMutation.isPending}
-            className="h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90"
+            className="h-10 rounded-full bg-white hover:bg-gray-100 text-black"
             data-testid="send-button"
           >
             <SendIcon className="h-4 w-4 text-white" />

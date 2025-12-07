@@ -207,7 +207,7 @@ export default function BrowseUsersPage() {
       <header className="sticky top-0 z-50 bg-[#121212]/95 backdrop-blur-sm supports-[backdrop-filter]:bg-[#121212]/60 border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-accent-maly">Connect in {selectedCity === 'all' ? 'All Cities' : selectedCity}</h1>
+            <h1 className="text-2xl font-bold text-foreground">Connect in {selectedCity === 'all' ? 'All Cities' : selectedCity}</h1>
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -387,7 +387,7 @@ export default function BrowseUsersPage() {
                           </Avatar>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-bold text-lg">{user.fullName || user.username}</h3>

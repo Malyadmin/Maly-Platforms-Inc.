@@ -19,7 +19,7 @@ import { PremiumBadge } from "@/components/ui/premium-badge";
 // Mood badge styles configuration
 const moodStyles = {
   // New vibe and mood tags
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
   "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30",
@@ -34,7 +34,7 @@ const moodStyles = {
   // Keep legacy styles for backward compatibility
   "Dating": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Parties": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Parties": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Adventure": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
   "Dining Out": "bg-green-500/20 text-green-500 hover:bg-green-500/30",
   "Working": "bg-slate-500/20 text-slate-500 hover:bg-slate-500/30",
@@ -398,7 +398,7 @@ export default function ProfilePage() {
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
             </h2>
           </div>
@@ -431,7 +431,7 @@ export default function ProfilePage() {
                 });
               }
             }}
-            className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
+            className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
             data-testid="button-share"
           >
             <Share className="h-6 w-6" />
@@ -490,7 +490,7 @@ export default function ProfilePage() {
           )}
         </div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+        <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
           <div className="text-7xl font-bold text-foreground/20">
             {profileData.username[0].toUpperCase()}
           </div>
@@ -543,7 +543,7 @@ export default function ProfilePage() {
                     <button 
                       onClick={() => removeConnectionMutation.mutate(profileData.id)}
                       disabled={removeConnectionMutation.isPending}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-500 text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-white hover:bg-gray-100 text-black text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                       data-testid="button-remove-contact"
                     >
                       {removeConnectionMutation.isPending ? (
@@ -585,7 +585,7 @@ export default function ProfilePage() {
               {profileData.bio.length > 100 && (
                 <button
                   onClick={() => setShowFullBio(!showFullBio)}
-                  className="text-sm text-purple-400 hover:underline"
+                  className="text-sm text-foreground hover:underline"
                 >
                   {showFullBio ? t('viewLess') : t('viewMore')}
                 </button>
@@ -646,7 +646,7 @@ export default function ProfilePage() {
                 handleMessageClick();
               }}
               disabled={createConversationMutation.isPending}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-foreground border-0"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-white hover:bg-gray-100 text-black border-0"
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (

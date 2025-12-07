@@ -295,7 +295,7 @@ export default function InboxPage() {
         
         {/* Chats title with gradient */}
         <div className="px-5 pb-3">
-          <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">C H A T S</h2>
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">C H A T S</h2>
         </div>
 
         {/* Filter Bar - Always Present */}
@@ -305,8 +305,8 @@ export default function InboxPage() {
               onClick={() => setActiveFilter('all')}
               className={`text-sm transition-colors ${
                 activeFilter === 'all' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-all"
             >
@@ -316,8 +316,8 @@ export default function InboxPage() {
               onClick={() => setActiveFilter('groups')}
               className={`text-sm transition-colors ${
                 activeFilter === 'groups' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-groups"
             >
@@ -327,8 +327,8 @@ export default function InboxPage() {
               onClick={() => setActiveFilter('contacts')}
               className={`text-sm transition-colors ${
                 activeFilter === 'contacts' 
-                  ? 'text-purple-400 font-medium' 
-                  : 'text-foreground hover:text-purple-400'
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
               }`}
               data-testid="filter-contacts"
             >

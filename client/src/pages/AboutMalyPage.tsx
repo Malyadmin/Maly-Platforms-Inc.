@@ -27,7 +27,7 @@ export default function AboutMalyPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               A B O U T
             </h1>
           </div>
@@ -74,7 +74,7 @@ export default function AboutMalyPage() {
             <h2 className="text-sm font-medium text-foreground tracking-wide uppercase mb-4">GET IN TOUCH</h2>
             <p className="text-foreground leading-relaxed">
               Have questions or feedback? We'd love to hear from you. Reach out to us at{" "}
-              <a href="mailto:hello@maly.app" className="text-purple-400 hover:underline">
+              <a href="mailto:hello@maly.app" className="text-foreground hover:underline">
                 hello@maly.app
               </a>
             </p>

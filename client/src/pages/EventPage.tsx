@@ -313,7 +313,7 @@ export default function EventPage() {
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
             </div>
             {/* Share Button - includes share token for private/friends events */}
             <Button
@@ -356,7 +356,7 @@ export default function EventPage() {
                   });
                 }
               }}
-              className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-purple-500' : 'text-foreground'}`}
+              className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
               data-testid="button-share"
             >
               <Share className="h-6 w-6" />
@@ -553,7 +553,7 @@ export default function EventPage() {
               {/* Ticket/Purchase Button */}
               {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
                   onClick={() => setIsTicketModalOpen(true)}
                   data-testid="button-purchase-ticket"
                 >
@@ -562,7 +562,7 @@ export default function EventPage() {
                 </Button>
               ) : event.requireApproval ? (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
                   onClick={() => accessRequestMutation.mutate()}
                   disabled={accessRequestMutation.isPending}
                   data-testid="button-request-access"
@@ -581,7 +581,7 @@ export default function EventPage() {
                 </Button>
               ) : (
                 <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-foreground text-sm py-2 px-6"
+                  className="bg-white hover:bg-gray-100 text-black text-foreground text-sm py-2 px-6"
                   onClick={() => participateMutation.mutate(
                     participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
                   )}
@@ -634,8 +634,8 @@ export default function EventPage() {
                     onClick={() => setSelectedTierId(tier.id)}
                     className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
                       selectedTierId === tier.id
-                        ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
-                        : 'border-border bg-muted/50 hover:border-purple-400 hover:bg-purple-400/10'
+                        ? 'border-foreground bg-gray-800/50 ring-2 ring-foreground/50'
+                        : 'border-border bg-muted/50 hover:border-foreground/80 hover:bg-gray-800/50'
                     }`}
                     data-testid={`modal-ticket-tier-${tier.id}`}
                   >
@@ -654,7 +654,7 @@ export default function EventPage() {
                       </div>
                     </div>
                     {selectedTierId === tier.id && (
-                      <div className="flex items-center gap-2 text-purple-300 text-sm">
+                      <div className="flex items-center gap-2 text-foreground text-sm">
                         <CheckCircle className="w-4 h-4" />
                         <span>{t('selected')}</span>
                       </div>
@@ -679,7 +679,7 @@ export default function EventPage() {
                       }
                     }}
                     disabled={!selectedTierId || purchaseTicketMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-foreground disabled:opacity-50"
+                    className="flex-1 bg-white hover:bg-gray-100 text-black text-foreground disabled:opacity-50"
                     data-testid="button-confirm-purchase"
                   >
                     {purchaseTicketMutation.isPending ? (

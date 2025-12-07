@@ -167,7 +167,7 @@ export default function ChatbotPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               C O N C I E R G E
             </h1>
           </div>
@@ -202,7 +202,7 @@ export default function ChatbotPage() {
                         <button
                           key={city}
                           onClick={() => { setSelectedCity(city); setShowCityDropdown(false); }}
-                          className={`w-full text-left px-6 py-2 text-sm hover:bg-accent ${selectedCity === city ? 'text-purple-400' : 'text-foreground'}`}
+                          className={`w-full text-left px-6 py-2 text-sm hover:bg-accent ${selectedCity === city ? 'text-foreground' : 'text-foreground'}`}
                         >
                           {city}
                         </button>
@@ -249,7 +249,7 @@ export default function ChatbotPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.role === "assistant"
-                        ? "bg-[#B57CFF]"
+                        ? "bg-white text-black"
                         : "bg-accent"
                     }`}
                   >
@@ -263,7 +263,7 @@ export default function ChatbotPage() {
                     className={`rounded-lg p-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
                         ? "bg-muted/30 glass"
-                        : "bg-[#B57CFF]"
+                        : "bg-white text-black"
                     }`}
                   >
                     <div className="text-sm">
@@ -301,7 +301,7 @@ export default function ChatbotPage() {
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-[#B57CFF] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
                     <Bot className="w-5 h-5" />
                   </div>
                   <div className="rounded-lg p-4 bg-muted/30 glass flex items-center gap-2">

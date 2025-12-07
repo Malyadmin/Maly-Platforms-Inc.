@@ -14,12 +14,12 @@ export function SplashScreen({ isVisible, onComplete }: SplashScreenProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-gradient-to-br from-purple-900 via-violet-800 to-pink-700"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
           data-testid="splash-screen"
         >
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
-              className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-500/30 to-transparent rounded-full blur-3xl"
+              className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/10 rounded-full blur-3xl"
               animate={{
                 scale: [1, 1.2, 1],
                 rotate: [0, 90, 0],
@@ -31,7 +31,7 @@ export function SplashScreen({ isVisible, onComplete }: SplashScreenProps) {
               }}
             />
             <motion.div
-              className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-pink-500/30 to-transparent rounded-full blur-3xl"
+              className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-white/5 rounded-full blur-3xl"
               animate={{
                 scale: [1.2, 1, 1.2],
                 rotate: [0, -90, 0],

@@ -230,7 +230,7 @@ export default function NotificationPreferencesPage() {
   }) => (
     <div className="space-y-3 p-4 bg-background/30 rounded-lg border border-gray-800">
       <div className="flex items-start space-x-3">
-        <Icon className="h-4 w-4 text-purple-400 mt-0.5" />
+        <Icon className="h-4 w-4 text-foreground mt-0.5" />
         <div className="flex-1">
           <h3 className="text-foreground text-sm font-medium">{title}</h3>
           <p className="text-xs text-muted-foreground">{description}</p>
@@ -265,7 +265,7 @@ export default function NotificationPreferencesPage() {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Loading preferences...</p>
         </div>
       </div>
@@ -287,7 +287,7 @@ export default function NotificationPreferencesPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase whitespace-nowrap" style={{ letterSpacing: '0.3em' }}>
+          <h1 className="text-foreground text-lg font-medium uppercase whitespace-nowrap" style={{ letterSpacing: '0.3em' }}>
             {t('alertsSpaced')}
           </h1>
           

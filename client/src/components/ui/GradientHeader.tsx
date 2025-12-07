@@ -82,7 +82,7 @@ export function GradientHeader({
           )}
           <div className="flex items-center gap-2">
             {showIcon && <Icon className="w-5 h-5 text-primary" aria-hidden="true" />}
-            <h1 className="text-lg font-medium uppercase bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent" style={{ letterSpacing: '0.3em' }}>
+            <h1 className="text-lg font-medium uppercase text-foreground" style={{ letterSpacing: '0.3em' }}>
               {typeof title === 'string' ? title.toUpperCase().split('').join(' ') : title}
             </h1>
           </div>

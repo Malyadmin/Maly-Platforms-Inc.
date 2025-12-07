@@ -440,7 +440,7 @@ export default function CreateEventPage() {
                   onClick={() => form.setValue("privacy", "public")}
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "public"
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-foreground bg-foreground/10"
                       : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
@@ -455,7 +455,7 @@ export default function CreateEventPage() {
                   onClick={() => form.setValue("privacy", "private")}
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "private"
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-foreground bg-foreground/10"
                       : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
@@ -470,7 +470,7 @@ export default function CreateEventPage() {
                   onClick={() => form.setValue("privacy", "friends")}
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
                     form.watch("privacy") === "friends"
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-foreground bg-foreground/10"
                       : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
@@ -491,12 +491,12 @@ export default function CreateEventPage() {
                   onClick={() => form.setValue("isRsvp", !form.watch("isRsvp"))}
                   className={`flex items-center gap-3 p-4 rounded-lg border transition-all w-full ${
                     form.watch("isRsvp")
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-foreground bg-foreground/10"
                       : "border-border bg-muted/20 hover:bg-muted/40"
                   }`}
                 >
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    form.watch("isRsvp") ? "border-purple-500 bg-purple-500" : "border-muted-foreground/40"
+                    form.watch("isRsvp") ? "border-foreground bg-foreground" : "border-muted-foreground/40"
                   }`}>
                     {form.watch("isRsvp") && <span className="text-white text-xs">✓</span>}
                   </div>
@@ -513,7 +513,7 @@ export default function CreateEventPage() {
               <div className="flex gap-4">
                 <Button
                   type="button"
-                  className="flex-1 h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+                  className="flex-1 h-12 bg-white hover:bg-gray-100 text-black text-white"
                   disabled={loading}
                   onClick={publishEvent}
                 >
@@ -541,7 +541,7 @@ export default function CreateEventPage() {
         <div className="container mx-auto max-w-2xl p-4">
           <Button
             type="button"
-            className="w-full h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white transition-all duration-200"
+            className="w-full h-12 bg-white hover:bg-gray-100 text-black text-white transition-all duration-200"
             disabled={loading}
             onClick={publishEvent}
           >

@@ -15,9 +15,9 @@ import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { useTranslation } from "@/lib/translations";
 
 const moodStyles = {
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30 border-purple-500/30",
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50 border-gray-600/50",
   "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30 border-pink-500/30",
-  "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/30",
+  "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-gray-600/30",
   "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/30",
   "Outdoor & Nature": "bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 border-emerald-500/30",
   "Wellness & Fitness": "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30 border-teal-500/30",
@@ -303,7 +303,7 @@ export default function EditProfilePage() {
           {!isEditing && (
             <button
               onClick={() => handleEditClick(field, value)}
-              className="text-purple-400 hover:text-purple-300 transition-colors"
+              className="text-foreground hover:text-foreground transition-colors"
               data-testid={`button-edit-${field}`}
             >
               <Pencil className="h-4 w-4" />
@@ -317,7 +317,7 @@ export default function EditProfilePage() {
               <Textarea
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
-                className="bg-gray-900/50 border-purple-500/30 text-foreground min-h-[100px]"
+                className="bg-gray-900/50 border-gray-600/50 text-foreground min-h-[100px]"
                 autoFocus
                 data-testid={`input-${field}`}
               />
@@ -326,14 +326,14 @@ export default function EditProfilePage() {
                 value={tempValue}
                 onChange={(value) => setTempValue(value)}
                 placeholder={`Enter ${label.toLowerCase()}`}
-                className="bg-gray-900/50 border-purple-500/30 text-foreground"
+                className="bg-gray-900/50 border-gray-600/50 text-foreground"
                 type="city"
               />
             ) : (
               <Input
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
-                className="bg-gray-900/50 border-purple-500/30 text-foreground"
+                className="bg-gray-900/50 border-gray-600/50 text-foreground"
                 autoFocus
                 data-testid={`input-${field}`}
               />
@@ -379,7 +379,7 @@ export default function EditProfilePage() {
           {!isEditing && (
             <button
               onClick={() => handleEditClick("currentMoods", profileData.currentMoods)}
-              className="text-purple-400 hover:text-purple-300 transition-colors"
+              className="text-foreground hover:text-foreground transition-colors"
               data-testid="button-edit-currentMoods"
             >
               <Pencil className="h-4 w-4" />
@@ -443,7 +443,7 @@ export default function EditProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-foreground" />
       </div>
     );
   }
@@ -470,7 +470,7 @@ export default function EditProfilePage() {
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
               {t('editSpaced')}
             </h2>
           </div>
@@ -488,10 +488,10 @@ export default function EditProfilePage() {
                 alt="Profile"
                 className="w-full h-full object-cover object-center"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+              <div className="absolute inset-0 bg-black/60"></div>
             </div>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
+            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
               <div className="text-9xl font-bold text-foreground/20">
                 {user.username[0].toUpperCase()}
               </div>
@@ -540,7 +540,7 @@ export default function EditProfilePage() {
                 <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                   {profileData.fullName || user.username}
                 </h1>
-                <label className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full cursor-pointer transition-colors shadow-lg">
+                <label className="p-2 bg-white hover:bg-gray-100 text-black rounded-full cursor-pointer transition-colors shadow-lg">
                   <Pencil className="h-4 w-4 text-foreground" />
                   <input
                     type="file"

@@ -19,7 +19,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
               <div
                 className={`h-2 flex-1 rounded-full transition-all duration-300 ${
                   isCompleted
-                    ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500'
+                    ? 'bg-white'
                     : isCurrent
                     ? 'bg-white'
                     : 'bg-gray-600'
@@ -30,7 +30,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
               {index < totalSteps - 1 && (
                 <div
                   className={`h-0.5 w-2 transition-all duration-300 ${
-                    isCompleted ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500' : 'bg-gray-600'
+                    isCompleted ? 'bg-white' : 'bg-gray-600'
                   }`}
                 />
               )}

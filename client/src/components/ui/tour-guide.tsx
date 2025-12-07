@@ -66,7 +66,7 @@ export function TourGuide() {
         },
         buttonNext: {
           backgroundColor: 'transparent',
-          backgroundImage: 'linear-gradient(to right, #15B79E, #0EA5E9, #A855F7)',
+          backgroundImage: 'linear-gradient(to right, #FFFFFF, #FFFFFF)',
           border: 'none',
           padding: '8px 16px',
           fontSize: '14px',

@@ -183,7 +183,7 @@ export default function OndaLindaFestivalPage() {
               <p className="text-xl font-semibold">${festival.price}</p>
             </div>
             <Button 
-              className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+              className="bg-white hover:bg-gray-100 text-black text-white"
               onClick={() => setLocation(`/event/${festival.id}/tickets`)}
             >
               Get Tickets
@@ -263,7 +263,7 @@ export default function OndaLindaFestivalPage() {
 
         <div className="flex flex-col gap-4 pt-4">
           <Button 
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            className="w-full bg-white hover:bg-gray-100 text-black text-white"
             onClick={() => participateMutation.mutate("attending")}
           >
             I'll be attending

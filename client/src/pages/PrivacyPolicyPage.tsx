@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           
-          <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             P R I V A C Y
           </h1>
           
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-xl font-bold mb-3 text-foreground">10. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
               If you have any questions about this Privacy Policy or our data practices, please contact us at{" "}
-              <a href="mailto:privacy@maly.app" className="text-purple-400 hover:underline">
+              <a href="mailto:privacy@maly.app" className="text-foreground hover:underline">
                 privacy@maly.app
               </a>
             </p>
