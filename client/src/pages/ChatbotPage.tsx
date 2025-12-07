@@ -167,9 +167,12 @@ export default function ChatbotPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              C O N C I E R G E
-            </h1>
+            <div>
+              <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+                C O N C I E R G E
+              </h1>
+              <p className="text-muted-foreground text-xs mt-1">Get local insights, tailored to your vibe.</p>
+            </div>
           </div>
         </div>
       </header>

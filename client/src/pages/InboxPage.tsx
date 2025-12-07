@@ -296,6 +296,7 @@ export default function InboxPage() {
         {/* Chats title with gradient */}
         <div className="px-5 pb-3">
           <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">C H A T S</h2>
+          <p className="text-muted-foreground text-xs mt-1">Stay connected to make plans in real life.</p>
         </div>
 
         {/* Filter Bar - Always Present */}

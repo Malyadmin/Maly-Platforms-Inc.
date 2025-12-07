@@ -422,6 +422,7 @@ export function ConnectPage() {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
                 P E O P L E
               </h2>
+              <p className="text-muted-foreground text-xs mt-1">Find your tribe for intentional connection and belonging.</p>
               {selectedCity !== 'all' && (
                 <p className="text-foreground text-sm mt-1">{selectedCity}</p>
               )}
