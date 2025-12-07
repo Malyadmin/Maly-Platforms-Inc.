@@ -583,16 +583,16 @@ export default function CreatorDashboardPage() {
                         </div>
                         
                         <div className="grid grid-cols-3 gap-3 text-center">
-                          <div className="bg-gray-800/50 rounded-lg p-2">
+                          <div className="p-2">
                             <p className="text-lg font-semibold text-foreground">{event.analytics?.ticketsSold || 0}</p>
                             <p className="text-xs text-muted-foreground">{t('tickets')}</p>
                           </div>
-                          <div className="bg-gray-800/50 rounded-lg p-2">
-                            <p className="text-lg font-semibold text-white">${(event.analytics?.grossRevenue || 0).toFixed(2)}</p>
+                          <div className="p-2">
+                            <p className="text-lg font-semibold text-foreground">${(event.analytics?.grossRevenue || 0).toFixed(2)}</p>
                             <p className="text-xs text-muted-foreground">{t('revenue')}</p>
                           </div>
-                          <div className="bg-gray-800/50 rounded-lg p-2">
-                            <p className="text-lg font-semibold text-white">${(event.analytics?.netRevenue || 0).toFixed(2)}</p>
+                          <div className="p-2">
+                            <p className="text-lg font-semibold text-foreground">${(event.analytics?.netRevenue || 0).toFixed(2)}</p>
                             <p className="text-xs text-muted-foreground">{t('earnings')}</p>
                           </div>
                         </div>
