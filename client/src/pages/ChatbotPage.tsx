@@ -168,7 +168,7 @@ export default function ChatbotPage() {
               <ChevronLeft className="h-5 w-5" />
             </button>
             <h1 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {t('conciergeSpaced')}
+              C O N C I E R G E
             </h1>
           </div>
         </div>
