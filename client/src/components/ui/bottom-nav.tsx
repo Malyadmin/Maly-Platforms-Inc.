@@ -9,11 +9,11 @@ import {
 import { useTranslation } from "@/lib/translations";
 
 export const mainNavItems = [
-  { icon: Globe, label: 'explore', href: "/discover" },
-  { icon: Users, label: 'connect', href: "/connect" },
-  { icon: Plus, label: 'create', href: "/create" },
-  { icon: MessageCircle, label: 'chats', href: "/inbox" },
-  { icon: Bot, label: 'concierge', href: "/companion" }
+  { icon: Globe, label: 'explore', displayLabel: 'EVENTS', href: "/discover" },
+  { icon: Users, label: 'connect', displayLabel: 'PEOPLE', href: "/connect" },
+  { icon: Plus, label: 'create', displayLabel: 'CREATE', href: "/create" },
+  { icon: MessageCircle, label: 'chats', displayLabel: 'CHATS', href: "/inbox" },
+  { icon: Bot, label: 'concierge', displayLabel: 'CONCIERGE', href: "/companion" }
 ] as const;
 
 export function BottomNav() {
@@ -24,7 +24,7 @@ export function BottomNav() {
     <>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="flex justify-around items-center h-20 px-2">
-          {mainNavItems.map(({ icon: Icon, label, href }) => {
+          {mainNavItems.map(({ icon: Icon, displayLabel, href }) => {
             const isActive = location === href;
             
             return (
@@ -43,7 +43,7 @@ export function BottomNav() {
                     isActive ? 'text-foreground' : 'text-muted-foreground'
                   }`}
                 >
-                  {t(label)}
+                  {displayLabel}
                 </span>
               </Link>
             );
@@ -52,7 +52,7 @@ export function BottomNav() {
       </nav>
 
       <nav className="hidden md:flex fixed left-0 top-0 bottom-0 z-[100] w-16 bg-background border-r border-border flex-col items-center py-8">
-        {mainNavItems.map(({ icon: Icon, label, href }) => {
+        {mainNavItems.map(({ icon: Icon, displayLabel, href }) => {
           const isActive = location === href;
           return (
             <Link 
@@ -66,7 +66,7 @@ export function BottomNav() {
             >
               <Icon className="w-6 h-6 transition-transform" />
               <span className="text-[11px] font-normal tracking-wide uppercase opacity-0 group-hover:opacity-100 absolute left-16 bg-card text-card-foreground px-3 py-2 rounded-md whitespace-nowrap border border-border transition-all duration-200 translate-x-2 group-hover:translate-x-0">
-                {t(label)}
+                {displayLabel}
               </span>
             </Link>
           );
