@@ -250,14 +250,18 @@ export default function ChatbotPage() {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
                       message.role === "assistant"
-                        ? "bg-white text-black"
+                        ? "bg-white"
                         : "bg-accent"
                     }`}
                   >
                     {message.role === "assistant" ? (
-                      <Bot className="w-5 h-5" />
+                      <img 
+                        src="https://res.cloudinary.com/dwmolc54p/image/upload/v1765146570/avatars/maly_ai_agent_avatar.jpg" 
+                        alt="MALY AI" 
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <User className="w-5 h-5" />
                     )}
@@ -304,8 +308,12 @@ export default function ChatbotPage() {
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
-                    <Bot className="w-5 h-5" />
+                  <div className="w-8 h-8 rounded-full bg-white overflow-hidden flex items-center justify-center">
+                    <img 
+                      src="https://res.cloudinary.com/dwmolc54p/image/upload/v1765146570/avatars/maly_ai_agent_avatar.jpg" 
+                      alt="MALY AI" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="rounded-lg p-4 bg-muted/30 glass flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
