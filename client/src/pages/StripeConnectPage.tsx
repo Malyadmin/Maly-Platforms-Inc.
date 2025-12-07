@@ -134,22 +134,27 @@ export default function StripeConnectPage() {
     return (
       <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
         <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-14 w-auto logo-adaptive"
+            />
+            <HamburgerMenu />
+          </div>
+          <div className="px-5 pb-3 flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => window.history.back()}
-              className="text-white p-2 hover:bg-foreground/10"
+              className="text-foreground p-1 hover:bg-foreground/10"
               data-testid="button-back"
             >
-              <ArrowLeft className="h-6 w-6" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-            
-            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              P A Y M E N T S
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+              Payment Setup
             </h1>
-            
-            <HamburgerMenu />
           </div>
         </header>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -163,22 +168,27 @@ export default function StripeConnectPage() {
     <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
-        <div className="flex items-center justify-between px-5 py-4">
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
+          <HamburgerMenu />
+        </div>
+        <div className="px-5 pb-3 flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-white p-2 hover:bg-foreground/10"
+            className="text-foreground p-1 hover:bg-foreground/10"
             data-testid="button-back"
           >
-            <ArrowLeft className="h-6 w-6" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          
-          <h1 className="text-foreground text-lg font-medium uppercase tracking-widest">
+          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
             Payment Setup
           </h1>
-          
-          <HamburgerMenu />
         </div>
       </header>
 

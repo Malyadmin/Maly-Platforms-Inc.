@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_PRIVACY_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_PRIVACY_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { useTranslation } from "@/lib/translations";
@@ -26,6 +26,11 @@ interface Step1Props {
 
 function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
   const { t } = useTranslation();
+  const { toast } = useToast();
+  // Initialize from data - this ensures images persist when navigating back
+  const [selectedImages, setSelectedImages] = useState<File[]>(() => data.images || []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(() => data.imageURLs || []);
+  
   const form = useForm({
     resolver: zodResolver(step1Schema),
     defaultValues: {
@@ -34,8 +39,60 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
     },
   });
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const totalImages = selectedImages.length + files.length;
+      if (totalImages > 6) {
+        toast({
+          variant: "destructive",
+          title: t('tooManyImages'),
+          description: t('maxImagesAllowed')
+        });
+        return;
+      }
+
+      const newImages = [...selectedImages, ...files];
+      setSelectedImages(newImages);
+
+      // Create previews
+      const newPreviews = [...imagePreviews];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          setImagePreviews([...newPreviews]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
+  };
+
   const onSubmit = (formData: any) => {
-    onNext(formData);
+    // Require at least one image
+    if (selectedImages.length === 0 && imagePreviews.length === 0) {
+      toast({
+        variant: "destructive",
+        title: t('validationError'),
+        description: t('atLeastOneImage')
+      });
+      return;
+    }
+    
+    onNext({
+      ...formData,
+      images: selectedImages,
+      eventImageURL: imagePreviews[0] || "",
+      imageURLs: imagePreviews,
+      videoURLs: [],
+    });
   };
 
   return (
@@ -69,16 +126,107 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       <ProgressBar currentStep={EventCreationStep.BasicInfo} totalSteps={6} />
 
       {/* Content */}
-      <div className="p-6 space-y-8">
+      <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">{t('createYourEvent')}</h2>
         </div>
 
+        {/* Image Upload Section */}
+        <div className="space-y-4">
+          <div>
+            <label className="text-foreground font-medium">{t('eventFlyer')}</label>
+            <p className="text-muted-foreground text-xs mt-1">{t('firstPictureFlyer')}</p>
+          </div>
+          
+          {/* Main Image Upload Area */}
+          <div className="relative">
+            {imagePreviews.length > 0 ? (
+              <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-gray-600 relative">
+                <img
+                  src={imagePreviews[0]}
+                  alt="Event flyer"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(0)}
+                  className="absolute top-2 right-2 bg-red-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <label
+                className="aspect-video border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+                htmlFor="main-image-upload-step1"
+              >
+                <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground text-sm">{t('uploadEventImage')}</p>
+                <input
+                  id="main-image-upload-step1"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  data-testid="input-main-image"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Additional Images Grid */}
+          {imagePreviews.length > 0 && (
+            <div className="grid grid-cols-6 gap-2">
+              {Array.from({ length: 6 }, (_, index) => {
+                const hasImage = imagePreviews[index];
+                
+                return (
+                  <div key={index} className="aspect-square relative">
+                    {hasImage ? (
+                      <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
+                        <img
+                          src={imagePreviews[index]}
+                          alt={`Event image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        className="w-full h-full border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+                        htmlFor={`image-upload-step1-${index}`}
+                      >
+                        <Plus className="w-4 h-4 text-muted-foreground" />
+                        <input
+                          id={`image-upload-step1-${index}`}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         <form 
           id="step1-form" 
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8"
+          className="space-y-6"
         >
           <div className="space-y-2">
             <label className="text-foreground font-medium">{t('eventTitle')}</label>
@@ -98,7 +246,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             <Textarea
               {...form.register("summary")}
               placeholder={t('briefOverview')}
-              rows={5}
+              rows={4}
               className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
               data-testid="textarea-summary"
             />
@@ -131,241 +279,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
   );
 }
 
-// Step 2: Build Event Gallery Component
-interface Step2Props {
-  data: EventCreationData;
-  onNext: (data: Partial<EventCreationData>) => void;
-  onBack: () => void;
-}
-
-function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
-  const { t } = useTranslation();
-  const [selectedImages, setSelectedImages] = useState<File[]>(data.images || []);
-  const [imagePreviews, setImagePreviews] = useState<string[]>(data.imageURLs || []);
-  const { toast } = useToast();
-
-  const form = useForm({
-    resolver: zodResolver(step2Schema.extend({
-      images: z.array(z.any()).min(1, "At least one image is required"),
-    })),
-    defaultValues: {
-      images: data.images || [],
-      eventImageURL: data.eventImageURL || "",
-      imageURLs: data.imageURLs || [],
-      videoURLs: data.videoURLs || [],
-    },
-  });
-
-  // Initialize previews from existing data
-  useEffect(() => {
-    if (data.imageURLs && data.imageURLs.length > 0 && imagePreviews.length === 0) {
-      setImagePreviews(data.imageURLs);
-    }
-  }, [data.imageURLs]);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      const totalImages = selectedImages.length + files.length;
-      if (totalImages > 6) {
-        toast({
-          variant: "destructive",
-          title: t('tooManyImages'),
-          description: t('maxImagesAllowed')
-        });
-        return;
-      }
-
-      const newImages = [...selectedImages, ...files];
-      setSelectedImages(newImages);
-
-      // Create previews
-      const newPreviews = [...imagePreviews];
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          setImagePreviews([...newPreviews]);
-        };
-        reader.readAsDataURL(file);
-      });
-
-      form.setValue("images", newImages);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const newImages = selectedImages.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setSelectedImages(newImages);
-    setImagePreviews(newPreviews);
-    form.setValue("images", newImages);
-  };
-
-  const onSubmit = async () => {
-    // Trigger form validation
-    const isValid = await form.trigger();
-    
-    if (!isValid) {
-      toast({
-        variant: "destructive", 
-        title: t('validationError'),
-        description: t('atLeastOneImage')
-      });
-      return;
-    }
-
-    const formData = {
-      images: selectedImages,
-      eventImageURL: imagePreviews[0] || "",
-      imageURLs: imagePreviews,
-      videoURLs: [],
-    };
-    onNext(formData);
-  };
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <div className="border-b border-gray-800">
-        {/* MALY logo on left */}
-        <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img 
-            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
-            alt="MÁLY" 
-            className="h-14 w-auto logo-adaptive"
-          />
-        </div>
-        
-        {/* Controls section */}
-        <div className="px-5 pb-3">
-          <div className="flex items-center gap-4">
-            <BackButton onClick={onBack} className="text-foreground" />
-            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
-          </div>
-        </div>
-      </div>
-      
-      {/* Progress Bar */}
-      <ProgressBar currentStep={EventCreationStep.Gallery} totalSteps={6} />
-
-      {/* Content */}
-      <div className="p-6 space-y-6">
-        <div>
-          <h2 className="text-2xl font-light mb-2">{t('buildYourEventGallery')}</h2>
-          <p className="text-muted-foreground text-sm mb-1">{t('addHighResPhotos')}</p>
-          <p className="text-muted-foreground text-sm">{t('firstPictureFlyer')}</p>
-        </div>
-
-        {/* Main Image Upload Area */}
-        <div className="relative">
-          {imagePreviews.length > 0 ? (
-            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600">
-              <img
-                src={imagePreviews[0]}
-                alt="Event flyer"
-                className="w-full h-full object-cover"
-              />
-              <button
-                onClick={() => removeImage(0)}
-                className="absolute top-2 right-2 bg-red-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs"
-              >
-                ×
-              </button>
-            </div>
-          ) : (
-            <label
-              className="aspect-square border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
-              htmlFor="main-image-upload"
-            >
-              <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                <ImageIcon className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <input
-                id="main-image-upload"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-                data-testid="input-main-image"
-              />
-            </label>
-          )}
-        </div>
-
-        {/* Additional Images Grid */}
-        <div className="grid grid-cols-6 gap-2">
-          {Array.from({ length: 6 }, (_, index) => {
-            const isFirst = index === 0;
-            const hasImage = imagePreviews[index];
-            
-            return (
-              <div key={index} className="aspect-square relative">
-                {hasImage ? (
-                  <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
-                    <img
-                      src={imagePreviews[index]}
-                      alt={`Event image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className={`w-full h-full border-2 border-dashed ${isFirst ? 'border-yellow-400' : 'border-gray-600'} rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors`}
-                    htmlFor={`image-upload-${index}`}
-                  >
-                    <Plus className={`w-4 h-4 ${isFirst ? 'text-yellow-400' : 'text-muted-foreground'}`} />
-                    <input
-                      id={`image-upload-${index}`}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Requirements */}
-        <div className="space-y-1 text-xs text-muted-foreground">
-          <p>• Up to 6 pictures, 1 mandatory</p>
-          <p>• 1 video up to (file size)</p>
-          <p>• Recommended (image size)</p>
-          <p>• Maximum file size</p>
-        </div>
-
-        {/* Bottom spacing for mobile */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
-        <button
-          onClick={onSubmit}
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-next"
-        >
-          <ArrowRight className="h-5 w-5" />
-          {t('next')}
-        </button>
-      </div>
-      
-      {/* Bottom Navigation */}
-      <BottomNav />
-    </div>
-  );
-}
+// Note: Step2 (Gallery) has been removed - image upload is now integrated into Step1
 
 // Step 3: Event Details Component
 interface Step3Props {
@@ -1198,9 +1112,14 @@ export default function CreateEventFlowPage() {
     const updatedEventData = { ...eventData, ...stepData };
     setEventData(updatedEventData);
     
-    // Move to next step
+    // Move to next step (skip Gallery step since image upload is now in BasicInfo)
     if (currentStep < EventCreationStep.AudienceTargeting) {
-      setCurrentStep((prev: EventCreationStep) => prev + 1);
+      if (currentStep === EventCreationStep.BasicInfo) {
+        // Skip Gallery (step 2) and go directly to EventDetails (step 3)
+        setCurrentStep(EventCreationStep.EventDetails);
+      } else {
+        setCurrentStep((prev: EventCreationStep) => prev + 1);
+      }
     } else {
       // Final step - submit the event with the complete merged data
       handleSubmitEvent(updatedEventData);
@@ -1209,7 +1128,12 @@ export default function CreateEventFlowPage() {
 
   const handleBack = () => {
     if (currentStep > EventCreationStep.BasicInfo) {
-      setCurrentStep((prev: EventCreationStep) => prev - 1);
+      if (currentStep === EventCreationStep.EventDetails) {
+        // Skip Gallery (step 2) and go back to BasicInfo (step 1)
+        setCurrentStep(EventCreationStep.BasicInfo);
+      } else {
+        setCurrentStep((prev: EventCreationStep) => prev - 1);
+      }
     } else {
       // Go back to main page
       setLocation("/");
@@ -1317,14 +1241,7 @@ export default function CreateEventFlowPage() {
           />
         );
       
-      case EventCreationStep.Gallery:
-        return (
-          <Step2BuildGallery
-            data={eventData}
-            onNext={handleNext}
-            onBack={handleBack}
-          />
-        );
+      // Note: Gallery step (Step2) is skipped - image upload is now in Step1
       
       case EventCreationStep.EventDetails:
         return (

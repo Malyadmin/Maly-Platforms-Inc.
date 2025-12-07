@@ -182,7 +182,7 @@ export function HamburgerMenu() {
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
                 data-testid={`menu-section-${section.titleKey}`}
               >
-                <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes(section.titleKey) ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                <span className="text-xs font-semibold tracking-wider text-foreground">
                   {t(section.titleKey)}
                 </span>
                 {expandedSections.includes(section.titleKey) ? (
@@ -197,7 +197,7 @@ export function HamburgerMenu() {
                   {section.itemKeys.map((itemKey) => (
                     <button
                       key={itemKey}
-                      className="w-full text-left px-8 py-2.5 text-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground transition-colors"
+                      className="w-full text-left px-8 py-2.5 text-sm text-foreground hover:bg-foreground/10 transition-colors"
                       data-testid={`menu-item-${itemKey}`}
                       onClick={() => handleMenuItemClick(itemKey)}
                     >
@@ -216,7 +216,7 @@ export function HamburgerMenu() {
               className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent transition-colors group"
               data-testid="menu-section-language"
             >
-              <span className={`text-xs font-semibold tracking-wider transition-all ${expandedSections.includes("language") ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+              <span className="text-xs font-semibold tracking-wider text-foreground">
                 {t("language")}
               </span>
               {expandedSections.includes("language") ? (
@@ -231,10 +231,10 @@ export function HamburgerMenu() {
                 {languageOptions.map((option) => (
                   <button
                     key={option.code}
-                    className={`w-full text-left px-8 py-2.5 text-sm transition-colors ${
+                    className={`w-full text-left px-8 py-2.5 text-sm text-foreground transition-colors ${
                       language === option.code 
-                        ? 'text-foreground font-semibold' 
-                        : 'text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
+                        ? 'font-semibold' 
+                        : 'hover:bg-foreground/10'
                     }`}
                     data-testid={`menu-language-${option.code}`}
                     onClick={() => {
