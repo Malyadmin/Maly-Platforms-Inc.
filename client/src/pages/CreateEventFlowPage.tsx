@@ -134,7 +134,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
         {/* Image Upload Section */}
         <div className="space-y-4">
           <div>
-            <label className="text-foreground font-medium">{t('eventFlyer')}</label>
+            <label className="text-foreground font-medium">{t('Event Flyer')}</label>
             <p className="text-muted-foreground text-xs mt-1">{t('firstPictureFlyer')}</p>
           </div>
           
@@ -163,7 +163,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
                 <div className="bg-gray-800 rounded-lg p-4 mb-4">
                   <ImageIcon className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground text-sm">{t('uploadEventImage')}</p>
+                <p className="text-muted-foreground text-sm">{t('Upload Image')}</p>
                 <input
                   id="main-image-upload-step1"
                   type="file"
