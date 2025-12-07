@@ -321,7 +321,7 @@ export default function ChatbotPage() {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={`${t('askAnythingAbout')} ${selectedCity}...`}
+                  placeholder={`How can I help you explore ${selectedCity} today?`}
                   disabled={isLoading}
                   className="bg-muted/20 border-border glass-hover focus-visible"
                   aria-label="Type your message"
