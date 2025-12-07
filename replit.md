@@ -52,6 +52,32 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (December 2025)
 
+### Typography & Branding Update (December 7, 2025)
+- **Monochrome Color Palette**: Implemented luxury-tech aesthetic with clean monochrome design
+  - Primary text: #FFFFFF (pure white)
+  - Secondary text: rgba(255,255,255,0.75)
+  - Meta text: rgba(255,255,255,0.55)
+  - Accent color: #B57CFF (used sparingly, no gradients)
+  - Backgrounds: #0D0D0D to #171717
+- **Typography System**: Added Inter font with consistent typography tokens
+  - Page titles: 30px Light, uppercase, letter-spacing +5%
+  - Section labels: 14px Medium, uppercase
+  - Event titles: 16px Medium
+  - Event meta: 13px Regular
+  - Navigation labels: 11px Regular
+  - Button text: 14px Medium, uppercase
+- **Spacing System**: Consistent spacing variables
+  - Text stack: 4-6px
+  - Between cards: 20px
+  - Between sections: 32px
+  - Page padding: 20px
+- **Component Updates**: 
+  - `button.tsx` - Removed gradients, solid color buttons
+  - `bottom-nav.tsx` - Updated nav label sizing (11px)
+  - `page-header.tsx` - Updated page title styling (28-32px Light)
+  - `event-card.tsx` / `ios-event-card.tsx` - Updated typography and spacing
+  - `layout.tsx` - Removed gradient inbox icon
+
 ### Loading Experience Improvements (December 6, 2025)
 - **Branded Splash Screen**: Animated MALY logo with gradient background displays on app launch for 2 seconds with smooth fade-out transition
 - **Skeleton Loaders**: Created reusable skeleton components (EventGridSkeleton, ProfileGridSkeleton, InboxSkeleton) for improved loading states
