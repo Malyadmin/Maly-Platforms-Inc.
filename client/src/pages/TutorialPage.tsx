@@ -53,7 +53,7 @@ export default function TutorialPage() {
           animate="visible"
           variants={fadeIn}
         >
-          <h1 className="text-4xl font-bold mb-4 gradient-text">Welcome to Neumada</h1>
+          <h1 className="text-4xl font-bold mb-4 text-accent-maly">Welcome to Neumada</h1>
           <p className="text-lg text-muted-foreground">
             Your digital nomad community platform
           </p>
@@ -92,7 +92,7 @@ export default function TutorialPage() {
                     animate="visible"
                   >
                     <motion.h2 
-                      className="text-2xl font-semibold flex items-center gap-2 gradient-text"
+                      className="text-2xl font-semibold flex items-center gap-2 text-accent-maly"
                       variants={fadeIn}
                     >
                       <Globe className="w-6 h-6" />
@@ -157,7 +157,7 @@ export default function TutorialPage() {
               <Card className="glass">
                 <CardContent className="p-6 space-y-8">
                   <motion.section className="space-y-4" variants={stagger} initial="hidden" animate="visible">
-                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 gradient-text" variants={fadeIn}>
+                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 text-accent-maly" variants={fadeIn}>
                       <Users className="w-6 h-6" />
                       User Discovery & Matching
                     </motion.h2>
@@ -199,7 +199,7 @@ export default function TutorialPage() {
               <Card className="glass">
                 <CardContent className="p-6 space-y-8">
                   <motion.section className="space-y-4" variants={stagger} initial="hidden" animate="visible">
-                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 gradient-text" variants={fadeIn}>
+                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 text-accent-maly" variants={fadeIn}>
                       <Bot className="w-6 h-6" />
                       AI Travel Companion
                     </motion.h2>
@@ -237,7 +237,7 @@ export default function TutorialPage() {
               <Card className="glass">
                 <CardContent className="p-6 space-y-8">
                   <motion.section className="space-y-4" variants={stagger} initial="hidden" animate="visible">
-                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 gradient-text" variants={fadeIn}>
+                    <motion.h2 className="text-2xl font-semibold flex items-center gap-2 text-accent-maly" variants={fadeIn}>
                       <Calendar className="w-6 h-6" />
                       Events System
                     </motion.h2>

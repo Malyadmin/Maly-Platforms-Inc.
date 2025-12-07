@@ -300,7 +300,7 @@ export default function PremiumPage() {
                     <div className="text-muted-foreground mb-4">per month</div>
                     <Button 
                       variant={subscriptionType === 'monthly' ? "default" : "outline"}
-                      className={subscriptionType === 'monthly' ? "bg-gradient-to-r from-purple-900 via-purple-800 to-black" : ""}
+                      className={subscriptionType === 'monthly' ? "bg-purple-900" : ""}
                       onClick={() => setSubscriptionType('monthly')}
                     >
                       {subscriptionType === 'monthly' ? <Check className="w-4 h-4 mr-2" /> : null}
@@ -317,7 +317,7 @@ export default function PremiumPage() {
                     <div className="text-green-500 text-sm mb-4">Save $58</div>
                     <Button 
                       variant={subscriptionType === 'yearly' ? "default" : "outline"}
-                      className={subscriptionType === 'yearly' ? "bg-gradient-to-r from-purple-900 via-purple-800 to-black" : ""}
+                      className={subscriptionType === 'yearly' ? "bg-purple-900" : ""}
                       onClick={() => setSubscriptionType('yearly')}
                     >
                       {subscriptionType === 'yearly' ? <Check className="w-4 h-4 mr-2" /> : null}
@@ -331,7 +331,7 @@ export default function PremiumPage() {
                 <Button 
                   size="lg"
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-900 via-purple-800 to-black hover:from-purple-800 hover:via-purple-700 hover:to-gray-900 text-foreground border-0 px-8"
+                  className="bg-purple-900 hover:bg-purple-800 text-foreground border-0 px-8"
                   onClick={handleSubscribe}
                   data-testid="button-get-premium"
                 >

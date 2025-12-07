@@ -249,7 +249,7 @@ export default function ChatbotPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.role === "assistant"
-                        ? "bg-gradient-to-r from-purple-600 to-pink-500"
+                        ? "bg-[#B57CFF]"
                         : "bg-accent"
                     }`}
                   >
@@ -263,7 +263,7 @@ export default function ChatbotPage() {
                     className={`rounded-lg p-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
                         ? "bg-muted/30 glass"
-                        : "bg-gradient-to-r from-purple-600 to-pink-500"
+                        : "bg-[#B57CFF]"
                     }`}
                   >
                     <div className="text-sm">
@@ -301,7 +301,7 @@ export default function ChatbotPage() {
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[#B57CFF] flex items-center justify-center">
                     <Bot className="w-5 h-5" />
                   </div>
                   <div className="rounded-lg p-4 bg-muted/30 glass flex items-center gap-2">

@@ -207,7 +207,7 @@ export default function BrowseUsersPage() {
       <header className="sticky top-0 z-50 bg-[#121212]/95 backdrop-blur-sm supports-[backdrop-filter]:bg-[#121212]/60 border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold gradient-text">Connect in {selectedCity === 'all' ? 'All Cities' : selectedCity}</h1>
+            <h1 className="text-2xl font-bold text-accent-maly">Connect in {selectedCity === 'all' ? 'All Cities' : selectedCity}</h1>
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"

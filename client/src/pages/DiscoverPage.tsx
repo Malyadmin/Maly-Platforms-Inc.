@@ -335,7 +335,7 @@ export default function DiscoverPage() {
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
         <DialogContent className="bg-card border-border max-w-sm mx-auto">
           <DialogHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-[#B57CFF] flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <DialogTitle className="text-xl font-semibold text-center text-foreground">
@@ -352,7 +352,7 @@ export default function DiscoverPage() {
           </div>
           <Button 
             onClick={() => setShowWelcomeModal(false)}
-            className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+            className="w-full mt-4 bg-[#B57CFF] text-white hover:from-purple-700 hover:to-pink-700"
             data-testid="button-welcome-close"
           >
             {t('letsGetStarted')}

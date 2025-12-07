@@ -57,7 +57,7 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <BackButton onClick={onBack} className="text-foreground" />
             )}
-            <h2 className="gradient-text text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+            <h2 className="text-accent-maly text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
           </div>
         </div>
       </div>
@@ -111,11 +111,11 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -348,10 +348,10 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           onClick={onSubmit}
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -637,11 +637,11 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -755,11 +755,11 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -998,11 +998,11 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -1124,7 +1124,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
                   data-testid={`vibe-option-${vibe.value}`}
                 >
                   <div className={`${selectedVibes.includes(vibe.value) ? 'bg-background rounded-md p-3 -m-[2px]' : ''}`}>
-                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'gradient-text' : 'text-gray-300'}`}>
+                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'text-accent-maly' : 'text-gray-300'}`}>
                       {vibe.label}
                     </div>
                   </div>
@@ -1145,11 +1145,11 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       </div>
 
       {/* Fixed Create Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-gradient-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#B57CFF] hover:bg-[#A856E8] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-create"
         >
           <ArrowRight className="h-5 w-5" />
