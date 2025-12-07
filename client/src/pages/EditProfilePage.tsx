@@ -1,401 +1,599 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { useUser } from "@/hooks/use-user";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Upload } from "lucide-react";
-import { members } from "@/lib/members-data";
-import { DIGITAL_NOMAD_CITIES } from "@/lib/constants";
-import { useLocation } from "wouter"; // Replace next/router with wouter
+import { Pencil, Loader2, X, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { useTranslation } from "@/lib/translations";
 
-const profileSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  age: z.number().min(18, "Must be at least 18 years old"),
-  bio: z.string().min(10, "Bio must be at least 10 characters"),
-  profession: z.string().min(2, "Profession is required"),
-  location: z.string(),
-  interests: z.array(z.string()).min(1, "Select at least one interest"),
-  currentMoods: z.array(z.enum(["Dating", "Networking", "Parties", "Adventure", "Dining Out"])).optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-const interests = [
-  "Digital Marketing",
-  "Software Development",
-  "Content Creation",
-  "Photography",
-  "Entrepreneurship",
-  "Remote Work",
-  "Travel",
-  "Fitness",
-  "Languages",
-  "Art & Design",
-  "Music",
-  "Food & Cuisine",
-];
-
-const moods = ["Dating", "Networking", "Parties", "Adventure", "Dining Out"] as const;
-
-// Mood badge styles configuration
 const moodStyles = {
-  "Dating": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
-  "Networking": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Parties": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
-  "Adventure": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
-  "Dining Out": "bg-green-500/20 text-green-500 hover:bg-green-500/30"
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50 border-gray-600/50",
+  "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30 border-pink-500/30",
+  "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-gray-600/30",
+  "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/30",
+  "Outdoor & Nature": "bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 border-emerald-500/30",
+  "Wellness & Fitness": "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30 border-teal-500/30",
+  "Creative & Artsy": "bg-violet-500/20 text-violet-500 hover:bg-violet-500/30 border-violet-500/30",
+  "Single & Social": "bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 border-rose-500/30",
+  "Chill & Recharge": "bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30 border-cyan-500/30",
+  "Adventure & Exploring": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30 border-orange-500/30",
+  "Spiritual & Intentional": "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border-amber-500/30",
+  "Dancing & Music": "bg-fuchsia-500/20 text-fuchsia-500 hover:bg-fuchsia-500/30 border-fuchsia-500/30",
+  "Volunteering & Service": "bg-lime-500/20 text-lime-500 hover:bg-lime-500/30 border-lime-500/30",
+  "Fundraiser": "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30 border-yellow-500/30",
+  "Community Service": "bg-sky-500/20 text-sky-500 hover:bg-sky-500/30 border-sky-500/30",
 } as const;
 
+interface ProfileData {
+  fullName: string;
+  location: string;
+  profession: string;
+  bio: string;
+  currentMoods: string[];
+  birthLocation: string;
+  livedLocation: string;
+  nextLocation: string;
+  age: number | null;
+  profileImage: string | null;
+  profileImages?: string[];
+}
+
 export default function EditProfilePage() {
+  const { t } = useTranslation();
+  const [, setLocation] = useLocation();
+  const { user, updateProfile, refreshUser } = useUser();
   const { toast } = useToast();
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
-  const [, navigate] = useLocation(); // Use wouter's useLocation for navigation
-
-  // For demo, use first member as current user
-  const currentUser = members[0];
-
-  // Handle back navigation
-  const handleBack = () => {
-    navigate('/profile'); // Navigate to profile page
-  };
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      fullName: currentUser.name,
-      age: currentUser.age,
-      bio: currentUser.bio,
-      profession: currentUser.occupation,
-      location: currentUser.location,
-      interests: currentUser.interests,
-      currentMoods: (currentUser.currentMoods && currentUser.currentMoods.length > 0) 
-        ? currentUser.currentMoods 
-        : ["Networking"], // Default to Networking if no mood is set
-    },
+  
+  const [profileData, setProfileData] = useState<ProfileData>({
+    fullName: "",
+    location: "",
+    profession: "",
+    bio: "",
+    currentMoods: [],
+    birthLocation: "",
+    livedLocation: "",
+    nextLocation: "",
+    age: null,
+    profileImage: null,
   });
+  
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<any>("");
+  const [tempMoods, setTempMoods] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hasNewImages, setHasNewImages] = useState(false);
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        fullName: user.fullName || "",
+        location: user.location || "",
+        profession: user.profession || "",
+        bio: user.bio || "",
+        currentMoods: user.currentMoods || [],
+        birthLocation: user.birthLocation || "",
+        livedLocation: user.livedLocation || "",
+        nextLocation: user.nextLocation || "",
+        age: user.age,
+        profileImage: user.profileImage || null,
+        profileImages: user.profileImages || [],
+      });
+      
+      const images = user.profileImages && user.profileImages.length > 0 
+        ? user.profileImages 
+        : user.profileImage 
+        ? [user.profileImage] 
+        : [];
+      
+      setImagePreviews(images);
+      setCurrentImageIndex(0);
+      setHasNewImages(false);
+    }
+  }, [user]);
+
+  const handleEditClick = (field: string, currentValue: any) => {
+    setEditingField(field);
+    if (field === "currentMoods") {
+      setTempMoods(currentValue || []);
+    } else {
+      setTempValue(currentValue || "");
     }
   };
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    setIsLoading(true);
+  const handleCancelEdit = () => {
+    setEditingField(null);
+    setTempValue("");
+    setTempMoods([]);
+  };
+
+  const handleSaveField = async (field: string) => {
+    const updatedValue = field === "currentMoods" ? tempMoods : tempValue;
+    const updatedData = {
+      ...profileData,
+      [field]: updatedValue,
+    };
+    
+    setProfileData(updatedData);
+    setIsSaving(true);
+    
     try {
-      // Create headers object
-      const headers = new Headers({
-        'Content-Type': 'application/json'
+      localStorage.removeItem('maly_user_data');
+      localStorage.removeItem('maly_user_verified_at');
+      
+      await updateProfile(updatedData);
+
+      toast({
+        title: t('profileUpdated'),
+        description: t('profileUpdatedDescription'),
+      });
+
+      await refreshUser();
+      setEditingField(null);
+      setTempValue("");
+      setTempMoods([]);
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('images', file);
       });
       
-      // Add session ID if it exists
-      const sessionId = localStorage.getItem('maly_session_id');
-      if (sessionId) {
-        headers.append('X-Session-ID', sessionId);
+      const response = await fetch('/api/upload-profile-images', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
       }
       
+      const data = await response.json();
+      
+      if (data.success && data.profileImages) {
+        setImagePreviews(prev => [...prev, ...data.profileImages]);
+        setCurrentImageIndex(imagePreviews.length);
+        setHasNewImages(true);
+        
+        toast({
+          title: t('imagesUploaded'),
+          description: `${data.profileImages.length} ${t('imagesUploadedDescription')}`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: t('uploadError'),
+        description: error.message || t('uploadError'),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+    
+    if (currentImageIndex >= imagePreviews.length - 1) {
+      setCurrentImageIndex(Math.max(0, imagePreviews.length - 2));
+    }
+    
+    if (imagePreviews.length <= 1) {
+      setHasNewImages(false);
+    }
+  };
+
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : imagePreviews.length - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev < imagePreviews.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleSaveImages = async () => {
+    setIsSaving(true);
+    try {
+      const updatedData = {
+        ...profileData,
+        profileImage: imagePreviews[0] ?? null,
+        profileImages: imagePreviews.slice(),
+      };
+      
+      localStorage.removeItem('maly_user_data');
+      localStorage.removeItem('maly_user_verified_at');
+      
+      await updateProfile(updatedData);
+
+      toast({
+        title: t('profileImagesUpdated'),
+        description: `${imagePreviews.length} ${t('imagesUploadedDescription')}`,
+      });
+
+      await refreshUser();
+      setProfileData(updatedData);
+      setHasNewImages(false);
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
       const response = await fetch('/api/profile', {
         method: 'POST',
-        headers,
-        credentials: 'include', // Important for auth
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
       });
 
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
 
-      const result = await response.json();
-      
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
+        title: t('profileUpdated'),
+        description: t('profileUpdatedDescription'),
       });
-      
-      // Refresh the page to show updated data
-      window.location.reload();
+
+      await refreshUser();
+      setLocation(`/profile/${user?.username}`);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#121212] text-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 gradient-text">Edit Profile</h1>
+  const toggleMood = (mood: string) => {
+    setTempMoods(prev =>
+      prev.includes(mood) ? prev.filter(m => m !== mood) : [...prev, mood]
+    );
+  };
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Profile Image Section */}
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <Avatar className="h-24 w-24 ring-2 ring-primary/10">
-                  <AvatarImage 
-                    src={imagePreview || currentUser.image} 
-                    alt="Profile picture"
-                  />
-                  <AvatarFallback>
-                    {currentUser.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <label 
-                  htmlFor="profile-image" 
-                  className="absolute -bottom-2 -right-2 p-1.5 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  <Upload className="h-4 w-4" />
-                  <input
-                    id="profile-image"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">Profile Picture</h2>
-                <p className="text-sm text-muted-foreground">
-                  Upload a photo that best represents you
-                </p>
-              </div>
-            </div>
+  const renderEditableField = (
+    label: string,
+    field: keyof ProfileData,
+    multiline: boolean = false
+  ) => {
+    const value = profileData[field];
+    const isEditing = editingField === field;
+    const isLocationField = ["location", "birthLocation", "livedLocation", "nextLocation"].includes(field);
 
-            {/* Current Mood - Primary CTA */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-primary/30 shadow-lg">
-              <h2 className="text-2xl font-bold gradient-text">How are you feeling today?</h2>
-              
-              <div className="w-full">
-                <div className="flex flex-wrap gap-3 mt-2">
-                  {moods.map(mood => (
-                    <div
-                      key={mood}
-                      className={`cursor-pointer flex-grow text-center py-3 px-4 rounded-lg transition-all ${
-                        (form.watch("currentMoods") || []).includes(mood)
-                          ? `${moodStyles[mood]} border-2 border-white/20 shadow-md transform scale-105` 
-                          : "bg-white/5 hover:bg-white/10"
-                      }`}
-                      onClick={async () => {
-                        // Get current moods
-                        const currentMoods = form.watch("currentMoods") || [];
-                        
-                        // Toggle the selected mood (add if not present, remove if present)
-                        const updatedMoods = currentMoods.includes(mood) 
-                          ? currentMoods.filter(m => m !== mood)
-                          : [...currentMoods, mood];
-                        
-                        // Update form value
-                        form.setValue("currentMoods", updatedMoods);
-                        
-                        // Save immediately via POST request
-                        try {
-                          // Create headers object
-                          const headers = new Headers({
-                            'Content-Type': 'application/json'
-                          });
-                          
-                          // Add session ID if it exists
-                          const sessionId = localStorage.getItem('maly_session_id');
-                          if (sessionId) {
-                            headers.append('X-Session-ID', sessionId);
-                          }
-                          
-                          const response = await fetch('/api/profile', {
-                            method: 'POST',
-                            headers,
-                            credentials: 'include',
-                            body: JSON.stringify({ currentMoods: updatedMoods })
-                          });
-                          
-                          if (!response.ok) {
-                            throw new Error('Failed to update mood');
-                          }
-                          
-                          toast({
-                            title: "Mood Updated",
-                            description: "Your mood has been updated!",
-                          });
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: "Failed to update your mood. Please try again.",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    >
-                      {mood}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Basic Information */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your name" {...field} className="bg-white/5 border-white/10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-foreground/60 text-sm">{label}</p>
+          {!isEditing && (
+            <button
+              onClick={() => handleEditClick(field, value)}
+              className="text-foreground hover:text-foreground transition-colors"
+              data-testid={`button-edit-${field}`}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        
+        {isEditing ? (
+          <div className="mt-2 space-y-2">
+            {multiline ? (
+              <Textarea
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="bg-gray-900/50 border-gray-600/50 text-foreground min-h-[100px]"
+                autoFocus
+                data-testid={`input-${field}`}
               />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          {...field} 
-                          className="bg-white/5 border-white/10"
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Location</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            {...field} 
-                            className="pl-9 bg-white/5 border-white/10" 
-                            placeholder="Where are you based?"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Bio & Profession */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <FormField
-                control={form.control}
-                name="profession"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Profession</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="What do you do?" 
-                        {...field}
-                        className="bg-white/5 border-white/10"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            ) : isLocationField ? (
+              <LocationAutocomplete
+                value={tempValue}
+                onChange={(value) => setTempValue(value)}
+                placeholder={`Enter ${label.toLowerCase()}`}
+                className="bg-gray-900/50 border-gray-600/50 text-foreground"
+                type="city"
               />
-
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Tell us about yourself..."
-                        className="min-h-[100px] bg-white/5 border-white/10"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-white/60">
-                      Share your story and what brings you here
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            ) : (
+              <Input
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="bg-gray-900/50 border-gray-600/50 text-foreground"
+                autoFocus
+                data-testid={`input-${field}`}
               />
-            </div>
-
-            {/* Interests */}
-            <div className="space-y-4 glass p-6 rounded-lg border border-white/10">
-              <div>
-                <FormLabel>Interests</FormLabel>
-                <FormDescription className="text-white/60">Select your interests and expertise areas</FormDescription>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {interests.map(interest => (
-                    <Badge
-                      key={interest}
-                      variant={selectedInterests.includes(interest) ? "default" : "outline"}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => {
-                        const newInterests = selectedInterests.includes(interest)
-                          ? selectedInterests.filter(i => i !== interest)
-                          : [...selectedInterests, interest];
-                        setSelectedInterests(newInterests);
-                        form.setValue("interests", newInterests);
-                      }}
-                    >
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-                <FormMessage>{form.formState.errors.interests?.message}</FormMessage>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <Button type="submit" size="lg" className="interactive-hover" disabled={isLoading}> {/* Disable button while loading */}
-                {isLoading ? "Saving..." : "Save Changes"} {/* Show loading indicator */}
+            )}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleSaveField(field)}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid={`button-save-${field}`}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Save
               </Button>
-              <Button type="button" variant="outline" size="lg" className="glass-hover" onClick={handleBack}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="border-gray-600"
+                data-testid={`button-cancel-${field}`}
+              >
+                <X className="h-4 w-4 mr-1" />
                 Cancel
               </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        ) : (
+          <p className="text-foreground text-base mt-1">
+            {value || <span className="text-gray-500">{t('notSet')}</span>}
+          </p>
+        )}
       </div>
+    );
+  };
+
+  const renderVibeField = () => {
+    const isEditing = editingField === "currentMoods";
+
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-foreground/60 text-sm">Vibe</p>
+          {!isEditing && (
+            <button
+              onClick={() => handleEditClick("currentMoods", profileData.currentMoods)}
+              className="text-foreground hover:text-foreground transition-colors"
+              data-testid="button-edit-currentMoods"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {isEditing ? (
+          <div className="mt-2 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              {VIBE_AND_MOOD_TAGS.map((mood) => (
+                <button
+                  key={mood}
+                  onClick={() => toggleMood(mood)}
+                  className={`py-2 px-3 rounded-lg text-sm transition-all border ${
+                    tempMoods.includes(mood)
+                      ? "bg-transparent border-white/50 text-foreground hover:border-white/70"
+                      : "bg-transparent text-muted-foreground border-gray-500/40 hover:bg-white/10"
+                  }`}
+                  data-testid={`vibe-option-${mood}`}
+                >
+                  {mood}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleSaveField("currentMoods")}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="button-save-currentMoods"
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="border-gray-600"
+                data-testid="button-cancel-currentMoods"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-foreground text-base mt-1">
+            {profileData.currentMoods.length > 0 ? (
+              <span>{profileData.currentMoods.join(", ")}</span>
+            ) : (
+              <span className="text-gray-500">{t('noVibesSelected')}</span>
+            )}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
+      {/* Header */}
+      <header className="bg-background text-foreground shrink-0 z-50">
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
+          <HamburgerMenu />
+        </div>
+        
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLocation(`/profile/${user?.username}`)}
+              className="text-foreground hover:text-foreground transition-colors"
+              data-testid="button-back-to-profile"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {t('editSpaced')}
+            </h2>
+          </div>
+        </div>
+      </header>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+        {/* Profile Image Section */}
+        <div className="relative w-full h-[50vh] mb-6">
+          {imagePreviews.length > 0 ? (
+            <div className="absolute inset-0">
+              <img 
+                src={imagePreviews[currentImageIndex]}
+                alt="Profile"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-black/60"></div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+              <div className="text-9xl font-bold text-foreground/20">
+                {user.username[0].toUpperCase()}
+              </div>
+            </div>
+          )}
+          
+          {/* Remove image button */}
+          {imagePreviews.length > 0 && (
+            <button
+              onClick={() => handleRemoveImage(currentImageIndex)}
+              className="absolute top-4 right-4 p-2 bg-red-600 hover:bg-red-700 rounded-full transition-colors shadow-lg z-10"
+              data-testid="button-remove-image"
+            >
+              <X className="h-5 w-5 text-foreground" />
+            </button>
+          )}
+          
+          {/* Navigation buttons for multiple images */}
+          {imagePreviews.length > 1 && (
+            <>
+              <button
+                onClick={handlePreviousImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
+                data-testid="button-previous-image"
+              >
+                <ChevronLeft className="h-4 w-4 text-foreground" />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/50 hover:bg-background/70 rounded-full transition-colors"
+                data-testid="button-next-image"
+              >
+                <ChevronRight className="h-4 w-4 text-foreground" />
+              </button>
+              {/* Image counter */}
+              <div className="absolute top-4 left-4 px-3 py-1 bg-background/60 rounded-full text-foreground text-sm">
+                {currentImageIndex + 1} / {imagePreviews.length}
+              </div>
+            </>
+          )}
+
+          {/* Name overlay */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                  {profileData.fullName || user.username}
+                </h1>
+                <label className="p-2 bg-white hover:bg-gray-100 text-black rounded-full cursor-pointer transition-colors shadow-lg">
+                  <Pencil className="h-4 w-4 text-foreground" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageChange}
+                    data-testid="input-profile-image"
+                  />
+                </label>
+              </div>
+              {/* Save button for new images */}
+              {hasNewImages && (
+                <Button
+                  onClick={handleSaveImages}
+                  disabled={isSaving}
+                  className="bg-green-600 hover:bg-green-700 text-foreground"
+                  data-testid="button-save-images"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {t('savingImages')}
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      {t('saveImages')}
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Editable Fields */}
+        <div className="container mx-auto px-6 space-y-6">
+          <div className="max-w-2xl mx-auto space-y-4">
+            {renderEditableField(t('fullName'), "fullName")}
+            {renderEditableField(t('location'), "location")}
+            {renderEditableField(t('occupation'), "profession")}
+            {renderEditableField(t('bio'), "bio", true)}
+            {renderVibeField()}
+            {renderEditableField(t('born'), "birthLocation")}
+            {renderEditableField(t('lived'), "livedLocation")}
+            {renderEditableField(t('upcoming'), "nextLocation")}
+          </div>
+
+        </div>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
 import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useQuery } from "@tanstack/react-query";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 // Define a schema for itinerary items
 const itineraryItemSchema = z.object({
@@ -130,6 +131,7 @@ export default function EditEventPage() {
         title: event.title,
         description: event.description,
         location: event.location,
+        address: event.address || "",
         date: new Date(event.date).toISOString(),
         price: eventPrice,
         isPrivate: event.isPrivate === true,
@@ -315,7 +317,7 @@ export default function EditEventPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/10 transition-colors">
+                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-foreground/10 transition-colors">
                     <div className="flex flex-col items-center gap-2">
                       <Plus className="w-8 h-8 text-white/60" />
                       <span className="text-sm text-white/60">
@@ -381,7 +383,7 @@ export default function EditEventPage() {
                     className={`h-auto min-h-8 px-3 py-1.5 text-sm whitespace-normal break-words ${
                       selectedTags.includes(tag)
                         ? ""
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        : "bg-white/5 border-white/10 hover:bg-foreground/10"
                     }`}
                     onClick={() => {
                       setSelectedTags((prev) =>
@@ -403,7 +405,7 @@ export default function EditEventPage() {
                 value={form.watch("location")}
                 onValueChange={(value) => form.setValue("location", value)}
               >
-                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10">
+                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10">
                   <SelectValue placeholder="Select a city" />
                 </SelectTrigger>
                 <SelectContent>
@@ -421,10 +423,19 @@ export default function EditEventPage() {
             
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Event Address</h3>
-              <Input
-                {...form.register("address")}
-                className="bg-white/5 border-0 h-12"
-                placeholder="Enter exact event address"
+              <Controller
+                name="address"
+                control={form.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <LocationAutocomplete
+                    value={field.value || ""}
+                    onChange={(value) => field.onChange(value)}
+                    placeholder="Enter exact event address"
+                    className="bg-white/5 border-0 h-12"
+                    type="address"
+                  />
+                )}
               />
               {form.formState.errors.address && (
                 <p className="text-red-500 text-xs">{form.formState.errors.address.message}</p>
@@ -438,7 +449,7 @@ export default function EditEventPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 justify-start text-left font-normal"
+                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10 justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {form.watch("date") ? (
@@ -514,7 +525,7 @@ export default function EditEventPage() {
         <div className="container mx-auto max-w-2xl p-4">
           <Button
             type="button"
-            className="w-full h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white transition-all duration-200"
+            className="w-full h-12 bg-white hover:bg-gray-100 text-black text-white transition-all duration-200"
             disabled={loading}
             onClick={updateEvent}
           >

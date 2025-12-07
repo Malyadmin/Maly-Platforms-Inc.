@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, ImageIcon } from "lucide-react";
+import { Plus, ImageIcon, Edit3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProfileGalleryProps {
@@ -54,27 +54,37 @@ export function ProfileGallery({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-white mb-2">Build your profile gallery</h3>
-        <p className="text-gray-400 text-sm mb-1">Add high resolution photos to your profile</p>
-        <p className="text-gray-400 text-sm">First picture will be your main profile photo</p>
+        <h3 className="text-lg font-medium text-foreground mb-2">Build your profile gallery</h3>
+        <p className="text-muted-foreground text-sm mb-1">Add high resolution photos to your profile</p>
+        <p className="text-muted-foreground text-sm">First picture will be your main profile photo</p>
       </div>
 
       {/* Main Image Upload Area */}
       <div className="relative">
         {imagePreviews.length > 0 ? (
-          <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600">
-            <img
-              src={imagePreviews[0]}
-              alt="Main profile photo"
-              className="w-full h-full object-cover"
-            />
-            <button
-              onClick={() => removeImage(0)}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-              data-testid="remove-main-image"
-            >
-              ×
-            </button>
+          <div className="relative group">
+            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600 relative">
+              <img
+                src={imagePreviews[0]}
+                alt="Main profile photo"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div className="bg-black/70 text-white font-bold px-2 py-1 text-center rotate-[-15deg] text-xs sm:text-sm whitespace-nowrap">
+                  FOR DEMO ONLY
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-2 right-2 flex gap-2 z-20">
+              <button
+                type="button"
+                onClick={() => removeImage(0)}
+                className="bg-red-500 text-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                data-testid="remove-main-image"
+              >
+                ×
+              </button>
+            </div>
           </div>
         ) : (
           <label
@@ -82,7 +92,7 @@ export function ProfileGallery({
             htmlFor="main-image-upload"
           >
             <div className="bg-gray-800 rounded-lg p-4 mb-4">
-              <ImageIcon className="w-8 h-8 text-gray-400" />
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
             </div>
             <input
               id="main-image-upload"
@@ -106,15 +116,20 @@ export function ProfileGallery({
           return (
             <div key={index} className="aspect-square relative">
               {hasImage ? (
-                <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
+                <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600 relative">
                   <img
                     src={imagePreviews[index]}
                     alt={`Profile image ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <div className="bg-black/70 text-white font-bold px-1 py-0.5 text-center rotate-[-15deg] text-[0.5rem] leading-tight whitespace-nowrap">
+                      FOR DEMO ONLY
+                    </div>
+                  </div>
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                    className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs z-20"
                     data-testid={`remove-image-${index}`}
                   >
                     ×
@@ -125,7 +140,7 @@ export function ProfileGallery({
                   className={`w-full h-full border-2 border-dashed ${isFirst ? 'border-blue-400' : 'border-gray-600'} rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors`}
                   htmlFor={`image-upload-${index}`}
                 >
-                  <Plus className={`w-4 h-4 ${isFirst ? 'text-blue-400' : 'text-gray-400'}`} />
+                  <Plus className={`w-4 h-4 ${isFirst ? 'text-blue-400' : 'text-muted-foreground'}`} />
                   <input
                     id={`image-upload-${index}`}
                     type="file"
@@ -143,7 +158,7 @@ export function ProfileGallery({
       </div>
 
       {/* Requirements */}
-      <div className="space-y-1 text-xs text-gray-400">
+      <div className="space-y-1 text-xs text-muted-foreground">
         <p>• Up to {maxImages} pictures</p>
         <p>• Recommended high resolution</p>
         <p>• First image becomes your main profile photo</p>

@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { useLocation } from "wouter";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ChevronLeft, RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2 } from "lucide-react";
+import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EventCreationStep, eventCreationSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_VISIBILITY_OPTIONS, EVENT_PRIVACY_OPTIONS, GENDER_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
+import { EventCreationStep, eventCreationSchema, step1Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_PRIVACY_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { useTranslation } from "@/lib/translations";
 
 // Step 1: Basic Info Component
 interface Step1Props {
@@ -23,157 +25,19 @@ interface Step1Props {
 }
 
 function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  // Initialize from data - this ensures images persist when navigating back
+  const [selectedImages, setSelectedImages] = useState<File[]>(() => data.images || []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(() => data.imageURLs || []);
+  
   const form = useForm({
     resolver: zodResolver(step1Schema),
     defaultValues: {
       title: data.title || "",
-      tagline: data.tagline || "",
       summary: data.summary || "",
     },
   });
-
-  const onSubmit = (formData: any) => {
-    onNext(formData);
-  };
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <div className="py-4 border-b border-gray-800">
-        {/* MALY logo centered at top */}
-        <div className="flex justify-center pb-3">
-          <img 
-            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
-            alt="MÁLY" 
-            className="h-12 w-auto"
-          />
-        </div>
-        
-        {/* Controls section */}
-        <div className="px-4">
-          <div className="flex items-center justify-between">
-            {/* Create title on left */}
-            <div className="flex items-center">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="flex items-center text-white mr-4"
-                  data-testid="button-back"
-                >
-                  <ChevronLeft className="w-5 h-5 mr-1" />
-                  Back
-                </button>
-              )}
-              <h2 className="text-white text-lg font-medium">Create</h2>
-            </div>
-            
-            {/* Next button on right */}
-            <button
-              type="submit"
-              form="step1-form"
-              className="text-white font-medium"
-              data-testid="button-next"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Progress Bar */}
-      <ProgressBar currentStep={EventCreationStep.BasicInfo} totalSteps={6} />
-
-      {/* Content */}
-      <div className="p-6 space-y-8">
-        <div>
-          <h2 className="text-2xl font-light mb-2">Create your event</h2>
-          <p className="text-gray-400 text-sm">Promote or share remarkable experiences</p>
-        </div>
-
-
-        <form 
-          id="step1-form" 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8"
-        >
-          <div className="space-y-2">
-            <label className="text-white font-medium">Event Title</label>
-            <Input
-              {...form.register("title")}
-              placeholder="Concise and engaging"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-title"
-            />
-            {form.formState.errors.title && (
-              <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-white font-medium">Event Tagline (optional)</label>
-            <Input
-              {...form.register("tagline")}
-              placeholder="Short and catchy"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-tagline"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-white font-medium">Event Summary / Invitation</label>
-            <Textarea
-              {...form.register("summary")}
-              placeholder="A brief overview of your event. Use ChatGPT or similar if you need assistance."
-              rows={5}
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
-              data-testid="textarea-summary"
-            />
-            {form.formState.errors.summary && (
-              <p className="text-red-500 text-sm">{form.formState.errors.summary.message}</p>
-            )}
-          </div>
-        </form>
-
-        {/* Bottom spacing for mobile */}
-        <div className="h-20"></div>
-      </div>
-      
-      {/* Bottom Navigation */}
-      <BottomNav />
-    </div>
-  );
-}
-
-// Step 2: Build Event Gallery Component
-interface Step2Props {
-  data: EventCreationData;
-  onNext: (data: Partial<EventCreationData>) => void;
-  onBack: () => void;
-}
-
-function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
-  const [selectedImages, setSelectedImages] = useState<File[]>(data.images || []);
-  const [imagePreviews, setImagePreviews] = useState<string[]>(data.imageURLs || []);
-  const { toast } = useToast();
-
-  const form = useForm({
-    resolver: zodResolver(step2Schema.extend({
-      images: z.array(z.any()).min(1, "At least one image is required"),
-    })),
-    defaultValues: {
-      images: data.images || [],
-      eventImageURL: data.eventImageURL || "",
-      imageURLs: data.imageURLs || [],
-      videoURLs: data.videoURLs || [],
-    },
-  });
-
-  // Initialize previews from existing data
-  useEffect(() => {
-    if (data.imageURLs && data.imageURLs.length > 0 && imagePreviews.length === 0) {
-      setImagePreviews(data.imageURLs);
-    }
-  }, [data.imageURLs]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -182,8 +46,8 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
       if (totalImages > 6) {
         toast({
           variant: "destructive",
-          title: "Too many images",
-          description: "Maximum 6 images allowed"
+          title: t('tooManyImages'),
+          description: t('maxImagesAllowed')
         });
         return;
       }
@@ -201,8 +65,6 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
         };
         reader.readAsDataURL(file);
       });
-
-      form.setValue("images", newImages);
     }
   };
 
@@ -211,156 +73,204 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
     setSelectedImages(newImages);
     setImagePreviews(newPreviews);
-    form.setValue("images", newImages);
   };
 
-  const onSubmit = async () => {
-    // Trigger form validation
-    const isValid = await form.trigger();
-    
-    if (!isValid) {
+  const onSubmit = (formData: any) => {
+    // Require at least one image
+    if (selectedImages.length === 0 && imagePreviews.length === 0) {
       toast({
-        variant: "destructive", 
-        title: "Validation Error",
-        description: "At least one image is required to continue"
+        variant: "destructive",
+        title: t('validationError'),
+        description: t('atLeastOneImage')
       });
       return;
     }
-
-    const formData = {
+    
+    onNext({
+      ...formData,
       images: selectedImages,
       eventImageURL: imagePreviews[0] || "",
       imageURLs: imagePreviews,
       videoURLs: [],
-    };
-    onNext(formData);
+    });
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button
-          onClick={onBack}
-          className="flex items-center text-white"
-          data-testid="button-back"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </button>
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="border-b border-gray-800">
+        {/* MALY logo on left */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-        <button
-          onClick={onSubmit}
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <BackButton onClick={onBack} className="text-foreground" />
+            )}
+            <div>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+              <p className="text-muted-foreground text-xs mt-1">Publish and share curated experiences, from paid to free to private.</p>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
-      <ProgressBar currentStep={EventCreationStep.Gallery} totalSteps={6} />
+      <ProgressBar currentStep={EventCreationStep.BasicInfo} totalSteps={6} />
 
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Build your event gallery</h2>
-          <p className="text-gray-400 text-sm mb-1">Add high resolution photos or flyer to your event</p>
-          <p className="text-gray-400 text-sm">First picture will be your event flyer</p>
+          <h2 className="text-2xl font-light mb-2">{t('createYourEvent')}</h2>
         </div>
 
-        {/* Main Image Upload Area */}
-        <div className="relative">
-          {imagePreviews.length > 0 ? (
-            <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600">
-              <img
-                src={imagePreviews[0]}
-                alt="Event flyer"
-                className="w-full h-full object-cover"
-              />
-              <button
-                onClick={() => removeImage(0)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-              >
-                ×
-              </button>
-            </div>
-          ) : (
-            <label
-              className="aspect-square border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
-              htmlFor="main-image-upload"
-            >
-              <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                <ImageIcon className="w-8 h-8 text-gray-400" />
+        {/* Image Upload Section */}
+        <div className="space-y-4">
+          <div>
+            <label className="text-foreground font-medium">{t('Event Flyer')}</label>
+            <p className="text-muted-foreground text-xs mt-1">{t('firstPictureFlyer')}</p>
+          </div>
+          
+          {/* Main Image Upload Area */}
+          <div className="relative">
+            {imagePreviews.length > 0 ? (
+              <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-gray-600 relative">
+                <img
+                  src={imagePreviews[0]}
+                  alt="Event flyer"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(0)}
+                  className="absolute top-2 right-2 bg-red-500 text-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                >
+                  ×
+                </button>
               </div>
-              <input
-                id="main-image-upload"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-                data-testid="input-main-image"
-              />
-            </label>
+            ) : (
+              <label
+                className="aspect-video border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+                htmlFor="main-image-upload-step1"
+              >
+                <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground text-sm">{t('Upload Image')}</p>
+                <input
+                  id="main-image-upload-step1"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  data-testid="input-main-image"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Additional Images Grid */}
+          {imagePreviews.length > 0 && (
+            <div className="grid grid-cols-6 gap-2">
+              {Array.from({ length: 6 }, (_, index) => {
+                const hasImage = imagePreviews[index];
+                
+                return (
+                  <div key={index} className="aspect-square relative">
+                    {hasImage ? (
+                      <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
+                        <img
+                          src={imagePreviews[index]}
+                          alt={`Event image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        className="w-full h-full border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+                        htmlFor={`image-upload-step1-${index}`}
+                      >
+                        <Plus className="w-4 h-4 text-muted-foreground" />
+                        <input
+                          id={`image-upload-step1-${index}`}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* Additional Images Grid */}
-        <div className="grid grid-cols-6 gap-2">
-          {Array.from({ length: 6 }, (_, index) => {
-            const isFirst = index === 0;
-            const hasImage = imagePreviews[index];
-            
-            return (
-              <div key={index} className="aspect-square relative">
-                {hasImage ? (
-                  <div className="w-full h-full rounded-lg overflow-hidden border border-gray-600">
-                    <img
-                      src={imagePreviews[index]}
-                      alt={`Event image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className={`w-full h-full border-2 border-dashed ${isFirst ? 'border-yellow-400' : 'border-gray-600'} rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors`}
-                    htmlFor={`image-upload-${index}`}
-                  >
-                    <Plus className={`w-4 h-4 ${isFirst ? 'text-yellow-400' : 'text-gray-400'}`} />
-                    <input
-                      id={`image-upload-${index}`}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <form 
+          id="step1-form" 
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          <div className="space-y-2">
+            <label className="text-foreground font-medium">{t('eventTitle')}</label>
+            <Input
+              {...form.register("title")}
+              placeholder={t('conciseAndEngaging')}
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
+              data-testid="input-title"
+            />
+            {form.formState.errors.title && (
+              <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>
+            )}
+          </div>
 
-        {/* Requirements */}
-        <div className="space-y-1 text-xs text-gray-400">
-          <p>• Up to 6 pictures, 1 mandatory</p>
-          <p>• 1 video up to (file size)</p>
-          <p>• Recommended (image size)</p>
-          <p>• Maximum file size</p>
-        </div>
+          <div className="space-y-2">
+            <label className="text-foreground font-medium">{t('eventSummary')}</label>
+            <Textarea
+              {...form.register("summary")}
+              placeholder={t('briefOverview')}
+              rows={4}
+              className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
+              data-testid="textarea-summary"
+            />
+            {form.formState.errors.summary && (
+              <p className="text-red-500 text-sm">{form.formState.errors.summary.message}</p>
+            )}
+          </div>
+        </form>
 
         {/* Bottom spacing for mobile */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+        <button
+          type="submit"
+          form="step1-form"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          data-testid="button-next"
+        >
+          <ArrowRight className="h-5 w-5" />
+          {t('next')}
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -368,6 +278,8 @@ function Step2BuildGallery({ data, onNext, onBack }: Step2Props) {
     </div>
   );
 }
+
+// Note: Step2 (Gallery) has been removed - image upload is now integrated into Step1
 
 // Step 3: Event Details Component
 interface Step3Props {
@@ -377,6 +289,7 @@ interface Step3Props {
 }
 
 function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step3Schema.extend({
       city: z.string().optional(),
@@ -397,72 +310,110 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
     })),
     defaultValues: {
       isOnlineEvent: data.isOnlineEvent,
-      eventVisibility: data.eventVisibility,
       city: data.city,
       addressLine1: data.addressLine1,
       additionalInfo: data.additionalInfo,
       startDate: data.startDate,
       endDate: data.endDate,
-      addActivitySchedule: data.addActivitySchedule,
-      agendaItems: data.agendaItems,
     },
   });
 
-  const [agendaItems, setAgendaItems] = useState(data.agendaItems || []);
   const [isOnlineEvent, setIsOnlineEvent] = useState(data.isOnlineEvent);
-  const [addActivitySchedule, setAddActivitySchedule] = useState(data.addActivitySchedule);
+  const [cityQuery, setCityQuery] = useState(data.city || "");
+  const [citySuggestions, setCitySuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const addAgendaItem = () => {
-    const newItem = { time: "", description: "" };
-    setAgendaItems([...agendaItems, newItem]);
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const searchCities = async (query: string) => {
+    if (query.length < 2) {
+      setCitySuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const apiKey = import.meta.env.VITE_GEOAPIFY_API_KEY;
+    if (!apiKey) {
+      console.error("Geoapify API key not configured");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&type=city&format=json&apiKey=${apiKey}`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        setCitySuggestions(data.results);
+        setShowSuggestions(true);
+      } else {
+        setCitySuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error("Error fetching city suggestions:", error);
+      setCitySuggestions([]);
+    }
   };
 
-  const removeAgendaItem = (index: number) => {
-    setAgendaItems(agendaItems.filter((_, i) => i !== index));
+  const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCityQuery(value);
+    form.setValue("city", value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      searchCities(value);
+    }, 300);
   };
 
-  const updateAgendaItem = (index: number, field: string, value: string) => {
-    const updated = agendaItems.map((item, i) => 
-      i === index ? { ...item, [field]: value } : item
-    );
-    setAgendaItems(updated);
+  const selectCity = (city: any) => {
+    const cityName = city.city || city.name || city.formatted;
+    setCityQuery(cityName);
+    form.setValue("city", cityName);
+    setShowSuggestions(false);
+    setCitySuggestions([]);
   };
 
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
       isOnlineEvent,
-      addActivitySchedule,
-      agendaItems: addActivitySchedule ? agendaItems : [],
-      // Ensure city is included for online events
       city: isOnlineEvent ? "Online" : formData.city,
     };
     onNext(submissionData);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button
-          onClick={onBack}
-          className="flex items-center text-white"
-          data-testid="button-back"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </button>
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="border-b border-gray-800">
+        {/* MALY logo on left */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-        <button
-          type="submit"
-          form="step3-form"
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-4">
+            <BackButton onClick={onBack} className="text-foreground" />
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
@@ -471,8 +422,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Event details</h2>
-          <p className="text-gray-400 text-sm">Set your event location and schedule</p>
+          <h2 className="text-2xl font-light mb-2">{t('eventDetails')}</h2>
+          <p className="text-muted-foreground text-sm">{t('setLocationSchedule')}</p>
         </div>
 
         <Form {...form}>
@@ -484,8 +435,8 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Online Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Online Event</label>
-              <p className="text-gray-400 text-sm">Event will be hosted virtually</p>
+              <label className="text-foreground font-medium">{t('onlineEvent')}</label>
+              <p className="text-muted-foreground text-sm">{t('hostedVirtually')}</p>
             </div>
             <Switch
               checked={isOnlineEvent}
@@ -494,68 +445,65 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             />
           </div>
 
-          {/* Event Visibility */}
-          <FormField
-            control={form.control}
-            name="eventVisibility"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-white font-medium">Event Visibility</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-visibility">
-                      <SelectValue placeholder="Select visibility" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {EVENT_VISIBILITY_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {/* Location Fields */}
           {!isOnlineEvent && (
             <>
-              <div className="space-y-2">
-                <label className="text-white font-medium flex items-center">
+              <div className="space-y-2 relative">
+                <label className="text-foreground font-medium flex items-center">
                   <MapPin className="w-4 h-4 mr-2" />
-                  City
+                  {t('city')}
                 </label>
                 <Input
-                  {...form.register("city")}
-                  placeholder="Enter city name"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  value={cityQuery}
+                  onChange={handleCityInputChange}
+                  onFocus={() => cityQuery.length >= 2 && citySuggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder={t('startTypingCity')}
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-city"
+                  autoComplete="off"
                 />
+                {showSuggestions && citySuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {citySuggestions.map((city, index) => (
+                      <div
+                        key={index}
+                        onClick={() => selectCity(city)}
+                        className="px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0"
+                        data-testid={`city-suggestion-${index}`}
+                      >
+                        <div className="text-foreground text-sm">
+                          {city.city || city.name}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {city.country}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {form.formState.errors.city && (
                   <p className="text-red-500 text-sm">{form.formState.errors.city.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Address / Venue</label>
+                <label className="text-foreground font-medium">{t('venueAddress')}</label>
                 <Input
                   {...form.register("addressLine1")}
-                  placeholder="Enter venue or address"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                  placeholder={t('addressPlaceholder')}
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                   data-testid="input-address"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Additional Location Info</label>
+                <label className="text-foreground font-medium">{t('additionalLocationInfo')}</label>
                 <Textarea
                   {...form.register("additionalInfo")}
-                  placeholder="Floor, room number, landmark, etc."
+                  placeholder={t('optionalFloorNotes')}
                   rows={3}
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                  className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                   data-testid="textarea-additional-info"
                 />
               </div>
@@ -565,14 +513,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           {/* Date and Time */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-white font-medium flex items-center">
+              <label className="text-foreground font-medium flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
-                Start Date & Time
+                {t('startDateTime')}
               </label>
               <Input
                 {...form.register("startDate")}
                 type="datetime-local"
-                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                className="bg-background border-gray-700 text-foreground focus:border-gray-500"
                 data-testid="input-start-date"
               />
               {form.formState.errors.startDate && (
@@ -581,14 +529,14 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-white font-medium flex items-center">
+              <label className="text-foreground font-medium flex items-center">
                 <Clock className="w-4 h-4 mr-2" />
-                End Date & Time
+                {t('endDateTime')}
               </label>
               <Input
                 {...form.register("endDate")}
                 type="datetime-local"
-                className="bg-black border-gray-700 text-white focus:border-gray-500"
+                className="bg-background border-gray-700 text-foreground focus:border-gray-500"
                 data-testid="input-end-date"
               />
               {form.formState.errors.endDate && (
@@ -597,72 +545,24 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
             </div>
           </div>
 
-          {/* Activity Schedule Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-white font-medium">Add Activity Schedule</label>
-              <p className="text-gray-400 text-sm">Create a detailed agenda for your event</p>
-            </div>
-            <Switch
-              checked={addActivitySchedule}
-              onCheckedChange={setAddActivitySchedule}
-              data-testid="switch-activity-schedule"
-            />
-          </div>
-
-          {/* Agenda Items */}
-          {addActivitySchedule && (
-            <div className="space-y-4">
-              <label className="text-white font-medium">Event Agenda</label>
-              
-              {agendaItems.map((item, index) => (
-                <div key={index} className="p-4 border border-gray-700 rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Activity {index + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeAgendaItem(index)}
-                      className="text-red-500 hover:text-red-400"
-                      data-testid={`button-remove-agenda-${index}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="Time (e.g., 7:00 PM)"
-                      value={item.time}
-                      onChange={(e) => updateAgendaItem(index, "time", e.target.value)}
-                      className="bg-black border-gray-600 text-white placeholder-gray-500"
-                      data-testid={`input-agenda-time-${index}`}
-                    />
-                    <Input
-                      placeholder="Activity description"
-                      value={item.description}
-                      onChange={(e) => updateAgendaItem(index, "description", e.target.value)}
-                      className="bg-black border-gray-600 text-white placeholder-gray-500"
-                      data-testid={`input-agenda-description-${index}`}
-                    />
-                  </div>
-                </div>
-              ))}
-
-              <button
-                type="button"
-                onClick={addAgendaItem}
-                className="w-full border-2 border-dashed border-gray-600 rounded-lg p-4 text-center text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
-                data-testid="button-add-agenda"
-              >
-                <Plus className="w-5 h-5 mx-auto mb-2" />
-                Add Activity
-              </button>
-            </div>
-          )}
           </form>
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+        <button
+          type="submit"
+          form="step3-form"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          data-testid="button-next"
+        >
+          <ArrowRight className="h-5 w-5" />
+          {t('next')}
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -679,53 +579,46 @@ interface Step4Props {
 }
 
 function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step4Schema),
     defaultValues: {
-      addEventLineup: data.addEventLineup,
-      eventLineup: data.eventLineup,
       dressCode: data.dressCode,
       dressCodeDetails: data.dressCodeDetails,
     },
   });
 
-  const [addEventLineup, setAddEventLineup] = useState(data.addEventLineup);
   const [dressCode, setDressCode] = useState(data.dressCode);
 
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
-      addEventLineup,
       dressCode,
-      eventLineup: addEventLineup ? formData.eventLineup : [],
       dressCodeDetails: dressCode ? formData.dressCodeDetails : "",
     };
     onNext(submissionData);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button
-          onClick={onBack}
-          className="flex items-center text-white"
-          data-testid="button-back"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </button>
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="border-b border-gray-800">
+        {/* MALY logo on left */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-        <button
-          type="submit"
-          form="step4-form"
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-4">
+            <BackButton onClick={onBack} className="text-foreground" />
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
@@ -735,7 +628,7 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-light mb-2">Event specifics</h2>
-          <p className="text-gray-400 text-sm">Add lineup and dress code details</p>
+          <p className="text-muted-foreground text-sm">Add lineup and dress code details</p>
         </div>
 
         <Form {...form}>
@@ -744,40 +637,11 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
           >
-          {/* Event Lineup Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-white font-medium">Add Event Lineup</label>
-              <p className="text-gray-400 text-sm">Feature hosts, performers, or speakers</p>
-            </div>
-            <Switch
-              checked={addEventLineup}
-              onCheckedChange={setAddEventLineup}
-              data-testid="switch-event-lineup"
-            />
-          </div>
-
-          {/* Event Lineup Details */}
-          {addEventLineup && (
-            <div className="space-y-4">
-              <label className="text-white font-medium">Event Lineup</label>
-              <div className="p-4 border border-gray-700 rounded-lg">
-                <p className="text-gray-400 text-sm mb-4">
-                  Event lineup feature will allow you to showcase featured guests, performers, or speakers at your event.
-                </p>
-                <div className="text-center py-8 border-2 border-dashed border-gray-600 rounded-lg">
-                  <p className="text-gray-500">Lineup management coming soon</p>
-                  <p className="text-xs text-gray-600 mt-2">You'll be able to add and feature event hosts here</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Dress Code Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Dress Code</label>
-              <p className="text-gray-400 text-sm">Set specific attire requirements</p>
+              <label className="text-foreground font-medium">Dress Code</label>
+              <p className="text-muted-foreground text-sm">Set specific attire requirements</p>
             </div>
             <Switch
               checked={dressCode}
@@ -789,12 +653,12 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           {/* Dress Code Details */}
           {dressCode && (
             <div className="space-y-2">
-              <label className="text-white font-medium">Dress Code Details</label>
+              <label className="text-foreground font-medium">Dress Code Details</label>
               <Textarea
                 {...form.register("dressCodeDetails")}
                 placeholder="Describe the dress code (e.g., Cocktail attire, Business casual, Themed costume, etc.)"
                 rows={3}
-                className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                 data-testid="textarea-dress-code"
               />
             </div>
@@ -803,7 +667,20 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+        <button
+          type="submit"
+          form="step4-form"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          data-testid="button-next"
+        >
+          <ArrowRight className="h-5 w-5" />
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -820,13 +697,13 @@ interface Step5Props {
 }
 
 function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step5Schema),
     defaultValues: {
       isPaidEvent: data.isPaidEvent,
       ticketTiers: data.ticketTiers || [],
       eventPrivacy: data.eventPrivacy,
-      whoShouldAttend: data.whoShouldAttend,
     },
   });
 
@@ -864,28 +741,25 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button
-          onClick={onBack}
-          className="flex items-center text-white"
-          data-testid="button-back"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </button>
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="border-b border-gray-800">
+        {/* MALY logo on left */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-        <button
-          type="submit"
-          form="step5-form"
-          className="text-white font-medium"
-          data-testid="button-next"
-        >
-          Next
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-4">
+            <BackButton onClick={onBack} className="text-foreground" />
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
@@ -894,8 +768,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Pricing & audience</h2>
-          <p className="text-gray-400 text-sm">Set pricing and define your target audience</p>
+          <h2 className="text-2xl font-light mb-2">{t('ticketingSetup')}</h2>
+          <p className="text-muted-foreground text-sm">{t('setTicketPrices')}</p>
         </div>
 
         <Form {...form}>
@@ -907,8 +781,8 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {/* Paid Event Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-white font-medium">Paid Event</label>
-              <p className="text-gray-400 text-sm">Charge admission for your event</p>
+              <label className="text-foreground font-medium">{t('eventPaid')}</label>
+              <p className="text-muted-foreground text-sm">{t('setTicketPrices')}</p>
             </div>
             <Switch
               checked={isPaidEvent}
@@ -921,11 +795,11 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           {isPaidEvent && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">Ticket Tiers</label>
+                <label className="text-foreground font-medium">{t('addTicketTier')}</label>
                 <Button
                   type="button"
                   onClick={addTier}
-                  className="bg-gray-800 hover:bg-gray-700 text-white"
+                  className="bg-gray-800 hover:bg-gray-700 text-foreground"
                   data-testid="button-add-tier"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -934,7 +808,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
               </div>
               
               {fields.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   <p>No ticket tiers yet. Add a tier to get started.</p>
                 </div>
               )}
@@ -942,7 +816,7 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
               {fields.map((field, index) => (
                 <div key={field.id} className="p-4 border border-gray-700 rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-white font-medium">Tier {index + 1}</h4>
+                    <h4 className="text-foreground font-medium">Tier {index + 1}</h4>
                     <Button
                       type="button"
                       onClick={() => remove(index)}
@@ -956,48 +830,48 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <label className="text-white text-sm">Name</label>
+                      <label className="text-foreground text-sm">Name</label>
                       <Input
                         {...form.register(`ticketTiers.${index}.name`)}
                         placeholder="e.g., Early Bird, VIP"
-                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                         data-testid={`input-tier-name-${index}`}
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-white text-sm">Price</label>
+                      <label className="text-foreground text-sm">Price</label>
                       <Input
                         {...form.register(`ticketTiers.${index}.price`)}
                         type="number"
                         min="0"
                         step="0.01"
                         placeholder="0.00"
-                        className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                        className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                         data-testid={`input-tier-price-${index}`}
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-white text-sm">Description (optional)</label>
+                    <label className="text-foreground text-sm">Description (optional)</label>
                     <Textarea
                       {...form.register(`ticketTiers.${index}.description`)}
                       placeholder="What's included in this tier?"
                       rows={2}
-                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
+                      className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500 resize-none"
                       data-testid={`textarea-tier-description-${index}`}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-white text-sm">Quantity (optional)</label>
+                    <label className="text-foreground text-sm">Quantity (optional)</label>
                     <Input
                       {...form.register(`ticketTiers.${index}.quantity`)}
                       type="number"
                       min="1"
                       placeholder="Leave empty for unlimited"
-                      className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
+                      className="bg-background border-gray-700 text-foreground placeholder-gray-500 focus:border-gray-500"
                       data-testid={`input-tier-quantity-${index}`}
                     />
                   </div>
@@ -1012,10 +886,10 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             name="eventPrivacy"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-white font-medium">Event Privacy</FormLabel>
+                <FormLabel className="text-foreground font-medium">Event Privacy</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-privacy">
+                    <SelectTrigger className="bg-background border-gray-700 text-foreground" data-testid="select-privacy">
                       <SelectValue placeholder="Select privacy level" />
                     </SelectTrigger>
                   </FormControl>
@@ -1032,22 +906,24 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
             )}
           />
 
-          {/* Who Should Attend */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Who Should Attend?</label>
-            <Textarea
-              {...form.register("whoShouldAttend")}
-              placeholder="Describe your ideal attendees (e.g., Digital nomads, entrepreneurs, creative professionals, etc.)"
-              rows={4}
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500 resize-none"
-              data-testid="textarea-who-should-attend"
-            />
-          </div>
           </form>
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Next Button */}
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+        <button
+          type="submit"
+          form="step5-form"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          data-testid="button-next"
+        >
+          <ArrowRight className="h-5 w-5" />
+          Next
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -1064,30 +940,25 @@ interface Step6Props {
 }
 
 function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step6Schema),
     defaultValues: {
-      spotsAvailable: data.spotsAvailable,
-      promotionOnly: data.promotionOnly,
-      contactsOnly: data.contactsOnly,
-      invitationOnly: data.invitationOnly,
-      requireApproval: data.requireApproval,
-      genderExclusive: data.genderExclusive,
-      ageExclusiveMin: data.ageExclusiveMin,
-      ageExclusiveMax: data.ageExclusiveMax,
-      moodSpecific: data.moodSpecific,
-      interestsSpecific: data.interestsSpecific,
+      requireApproval: data.requireApproval || false,
       vibes: data.vibes || [],
     },
   });
 
   const [selectedVibes, setSelectedVibes] = useState<string[]>(data.vibes || []);
+  const [requireApproval, setRequireApproval] = useState<boolean>(data.requireApproval || false);
 
   const onSubmit = (formData: any) => {
     const submissionData = {
       ...formData,
       vibes: selectedVibes,
+      requireApproval: requireApproval,
     };
+    console.log("Step 6 submission - requireApproval:", requireApproval, "vibes:", selectedVibes);
     onNext(submissionData);
   };
 
@@ -1102,28 +973,25 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button
-          onClick={onBack}
-          className="flex items-center text-white"
-          data-testid="button-back"
-        >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
-        </button>
-        <div className="text-center">
-          <h1 className="text-lg font-medium tracking-wide">M Ā L Y</h1>
+      <div className="border-b border-gray-800">
+        {/* MALY logo on left */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-        <button
-          type="submit"
-          form="step6-form"
-          className="text-white font-medium"
-          data-testid="button-create"
-        >
-          Create
-        </button>
+        
+        {/* Controls section */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center gap-4">
+            <BackButton onClick={onBack} className="text-foreground" />
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('createSpaced')}</h2>
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
@@ -1132,8 +1000,8 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       {/* Content */}
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-light mb-2">Audience targeting</h2>
-          <p className="text-gray-400 text-sm">Fine-tune who can discover and attend your event</p>
+          <h2 className="text-2xl font-light mb-2">{t('eventSetup')}</h2>
+          <p className="text-muted-foreground text-sm">{t('privacySettings')}</p>
         </div>
 
         <Form {...form}>
@@ -1142,142 +1010,45 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
           >
-          {/* Available Spots */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Available Spots</label>
-            <Input
-              {...form.register("spotsAvailable")}
-              placeholder="e.g., 50 or unlimited"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-spots-available"
-            />
-          </div>
-
-          {/* Access Restrictions */}
-          <div className="space-y-4">
-            <label className="text-white font-medium">Access Restrictions</label>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-white">Promotion Only</span>
-                <Switch
-                  {...form.register("promotionOnly")}
-                  data-testid="switch-promotion-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-white">Contacts Only</span>
-                <Switch
-                  {...form.register("contactsOnly")}
-                  data-testid="switch-contacts-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-white">Invitation Only</span>
-                <Switch
-                  {...form.register("invitationOnly")}
-                  data-testid="switch-invitation-only"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-white">Require Approval</span>
-                <Switch
-                  {...form.register("requireApproval")}
-                  data-testid="switch-require-approval"
-                />
-              </div>
+          {/* Requires Approval */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-foreground font-medium">{t('requiresApproval')}</label>
+              <p className="text-muted-foreground text-sm">Attendees must be approved before joining</p>
             </div>
-          </div>
-
-          {/* Gender Restrictions */}
-          <FormField
-            control={form.control}
-            name="genderExclusive"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-white font-medium">Gender Restriction</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="bg-black border-gray-700 text-white" data-testid="select-gender">
-                      <SelectValue placeholder="Select gender preference" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {GENDER_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Age Restrictions */}
-          <div className="space-y-4">
-            <label className="text-white font-medium">Age Restrictions</label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-gray-400">Minimum Age</label>
-                <Input
-                  {...form.register("ageExclusiveMin", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="18"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-                  data-testid="input-min-age"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-gray-400">Maximum Age</label>
-                <Input
-                  {...form.register("ageExclusiveMax", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="35"
-                  className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-                  data-testid="input-max-age"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Mood Specific */}
-          <div className="space-y-2">
-            <label className="text-white font-medium">Mood Specific</label>
-            <Input
-              {...form.register("moodSpecific")}
-              placeholder="e.g., Adventurous, Social, Creative"
-              className="bg-black border-gray-700 text-white placeholder-gray-500 focus:border-gray-500"
-              data-testid="input-mood-specific"
+            <Switch
+              checked={requireApproval}
+              onCheckedChange={(checked) => setRequireApproval(checked)}
+              data-testid="switch-require-approval"
             />
           </div>
 
           {/* Vibe Selection */}
           <div className="space-y-4">
-            <label className="text-white font-medium">Event Vibes</label>
-            <p className="text-xs text-gray-400">Select the vibes that best match your event (multiple selection allowed)</p>
+            <label className="text-foreground font-medium">{t('requiredVibes')}</label>
+            <p className="text-xs text-muted-foreground">{t('selectVibes')}</p>
             <div className="grid grid-cols-2 gap-3">
               {VIBE_OPTIONS.map((vibe) => (
                 <div
                   key={vibe.value}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedVibes.includes(vibe.value)
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                      : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                      ? 'border-transparent bg-white p-[2px]'
+                      : 'border-gray-600 hover:border-gray-500'
                   }`}
                   onClick={() => toggleVibe(vibe.value)}
                   data-testid={`vibe-option-${vibe.value}`}
                 >
-                  <div className="text-sm font-medium">{vibe.label}</div>
+                  <div className={`${selectedVibes.includes(vibe.value) ? 'bg-background rounded-md p-3 -m-[2px]' : ''}`}>
+                    <div className={`text-sm font-medium ${selectedVibes.includes(vibe.value) ? 'text-foreground' : 'text-gray-300'}`}>
+                      {vibe.label}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
             {selectedVibes.length > 0 && (
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-muted-foreground">
                 Selected: {selectedVibes.length} vibe{selectedVibes.length !== 1 ? 's' : ''}
               </div>
             )}
@@ -1286,7 +1057,20 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
         </Form>
 
         {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Create Button */}
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+        <button
+          type="submit"
+          form="step6-form"
+          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          data-testid="button-create"
+        >
+          <ArrowRight className="h-5 w-5" />
+          {t('createEvent')}
+        </button>
       </div>
       
       {/* Bottom Navigation */}
@@ -1309,57 +1093,56 @@ export default function CreateEventFlowPage() {
     imageURLs: [],
     videoURLs: [],
     isOnlineEvent: false,
-    eventVisibility: "public",
     city: "",
     addressLine1: "",
     additionalInfo: "",
     startDate: new Date(),
     endDate: new Date(),
-    addActivitySchedule: false,
-    agendaItems: [],
-    addEventLineup: false,
-    eventLineup: [],
     dressCode: false,
     dressCodeDetails: "",
     isPaidEvent: false,
     ticketTiers: [],
     eventPrivacy: "public",
-    whoShouldAttend: "",
-    spotsAvailable: "",
-    promotionOnly: false,
-    contactsOnly: false,
-    invitationOnly: false,
     requireApproval: false,
-    genderExclusive: "",
-    moodSpecific: "",
-    interestsSpecific: [],
     vibes: [],
     category: "Other",
   });
 
   const handleNext = (stepData: Partial<EventCreationData>) => {
-    setEventData((prev: EventCreationData) => ({ ...prev, ...stepData }));
+    const updatedEventData = { ...eventData, ...stepData };
+    setEventData(updatedEventData);
     
-    // Move to next step
+    // Move to next step (skip Gallery step since image upload is now in BasicInfo)
     if (currentStep < EventCreationStep.AudienceTargeting) {
-      setCurrentStep((prev: EventCreationStep) => prev + 1);
+      if (currentStep === EventCreationStep.BasicInfo) {
+        // Skip Gallery (step 2) and go directly to EventDetails (step 3)
+        setCurrentStep(EventCreationStep.EventDetails);
+      } else {
+        setCurrentStep((prev: EventCreationStep) => prev + 1);
+      }
     } else {
-      // Final step - submit the event
-      handleSubmitEvent();
+      // Final step - submit the event with the complete merged data
+      handleSubmitEvent(updatedEventData);
     }
   };
 
   const handleBack = () => {
     if (currentStep > EventCreationStep.BasicInfo) {
-      setCurrentStep((prev: EventCreationStep) => prev - 1);
+      if (currentStep === EventCreationStep.EventDetails) {
+        // Skip Gallery (step 2) and go back to BasicInfo (step 1)
+        setCurrentStep(EventCreationStep.BasicInfo);
+      } else {
+        setCurrentStep((prev: EventCreationStep) => prev - 1);
+      }
     } else {
       // Go back to main page
       setLocation("/");
     }
   };
 
-  const handleSubmitEvent = async () => {
+  const handleSubmitEvent = async (finalEventData: EventCreationData) => {
     console.log("🚀 Starting event submission...");
+    console.log("📋 Final event data - vibes:", finalEventData.vibes, "requireApproval:", finalEventData.requireApproval);
     try {
       // No need to check localStorage - we rely on session-based authentication
       // The session cookie will be automatically sent with credentials: 'include'
@@ -1369,26 +1152,23 @@ export default function CreateEventFlowPage() {
       
       // Map our EventCreationData to the backend schema format
       const eventPayload = {
-        title: eventData.title,
-        description: eventData.summary, // Map summary to description
-        category: eventData.category || "Other",
-        location: eventData.isOnlineEvent ? "Online" : `${eventData.city}${eventData.addressLine1 ? ', ' + eventData.addressLine1 : ''}`,
-        date: eventData.startDate.toISOString(),
-        time: eventData.startDate.toTimeString().split(' ')[0], // Extract time part
-        price: eventData.isPaidEvent && eventData.ticketTiers?.length > 0 ? eventData.ticketTiers[0].price : 0,
-        ticketTiers: eventData.isPaidEvent ? eventData.ticketTiers : [],
-        capacity: eventData.spotsAvailable ? parseInt(eventData.spotsAvailable) : undefined,
-        eventPrivacy: eventData.eventPrivacy || "public", // Add the missing eventPrivacy field
-        itinerary: eventData.agendaItems?.map(item => ({
-          time: item.time,
-          activity: item.description,
-          location: eventData.location
-        })) || [],
+        title: finalEventData.title,
+        description: finalEventData.summary, // Map summary to description
+        category: finalEventData.category || "Other",
+        location: finalEventData.isOnlineEvent ? "Online" : `${finalEventData.city}${finalEventData.addressLine1 ? ', ' + finalEventData.addressLine1 : ''}`,
+        date: finalEventData.startDate.toISOString(),
+        time: finalEventData.startDate.toTimeString().split(' ')[0], // Extract time part
+        price: finalEventData.isPaidEvent && finalEventData.ticketTiers?.length > 0 ? finalEventData.ticketTiers[0].price : 0,
+        ticketTiers: finalEventData.isPaidEvent ? finalEventData.ticketTiers : [],
+        eventPrivacy: finalEventData.eventPrivacy || "public",
+        isRsvp: finalEventData.requireApproval || false, // Backend expects isRsvp field
+        city: finalEventData.isOnlineEvent ? "Online" : finalEventData.city,
+        address: finalEventData.addressLine1 || '',
         tags: [
-          ...(eventData.vibes || []),
-          ...(eventData.dressCode ? ['Dress Code Required'] : []),
-          ...(eventData.isOnlineEvent ? ['Online Event'] : []),
-          ...(eventData.isPaidEvent ? ['Paid Event'] : ['Free Event'])
+          ...(finalEventData.vibes || []),
+          ...(finalEventData.dressCode ? ['Dress Code Required'] : []),
+          ...(finalEventData.isOnlineEvent ? ['Online Event'] : []),
+          ...(finalEventData.isPaidEvent ? ['Paid Event'] : ['Free Event'])
         ]
       };
 
@@ -1404,12 +1184,12 @@ export default function CreateEventFlowPage() {
       });
 
       // Add the main image (backend expects 'image' field name)
-      if (eventData.images && eventData.images.length > 0) {
-        formData.append('image', eventData.images[0]); // Use first image as main image
+      if (finalEventData.images && finalEventData.images.length > 0) {
+        formData.append('image', finalEventData.images[0]); // Use first image as main image
       }
 
       console.log("📦 Submitting event data:", eventPayload);
-      console.log("📸 Has images:", !!eventData.images && eventData.images.length > 0);
+      console.log("📸 Has images:", !!finalEventData.images && finalEventData.images.length > 0);
 
       // Make API call
       console.log("🌐 Making API call to /api/events...");
@@ -1432,8 +1212,8 @@ export default function CreateEventFlowPage() {
       console.log("✅ Event created successfully:", createdEvent);
 
       toast({
-        title: "Event Created!",
-        description: `"${eventData.title}" has been created successfully.`
+        title: "Congratulations!",
+        description: "Your event was successfully posted and is now live!"
       });
 
       // Redirect to the created event or back to discover
@@ -1461,14 +1241,7 @@ export default function CreateEventFlowPage() {
           />
         );
       
-      case EventCreationStep.Gallery:
-        return (
-          <Step2BuildGallery
-            data={eventData}
-            onNext={handleNext}
-            onBack={handleBack}
-          />
-        );
+      // Note: Gallery step (Step2) is skipped - image upload is now in Step1
       
       case EventCreationStep.EventDetails:
         return (
@@ -1508,7 +1281,7 @@ export default function CreateEventFlowPage() {
       
       default:
         return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-xl mb-4">Step {currentStep} - Coming Soon</h2>
               <Button onClick={handleBack} className="bg-white text-black">

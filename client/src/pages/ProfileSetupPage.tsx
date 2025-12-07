@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Upload } from "lucide-react";
 import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -48,7 +50,7 @@ const moods = ["Party & Nightlife", "Networking & Business", "Adventure & Explor
 // Unified mood style definitions for consistent visual appearance
 const moodStyles = {
   // New vibe and mood tags
-  "Party & Nightlife": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Fashion & Style": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking & Business": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
   "Dining & Drinks": "bg-green-500/20 text-green-500 hover:bg-green-500/30",
@@ -59,11 +61,15 @@ const moodStyles = {
   "Chill & Recharge": "bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30",
   "Adventure & Exploring": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
   "Spiritual & Intentional": "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30",
+  "Dancing & Music": "bg-fuchsia-500/20 text-fuchsia-500 hover:bg-fuchsia-500/30",
+  "Volunteering & Service": "bg-lime-500/20 text-lime-500 hover:bg-lime-500/30",
+  "Fundraiser": "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30",
+  "Community Service": "bg-sky-500/20 text-sky-500 hover:bg-sky-500/30",
   
   // Legacy tags for backward compatibility
   "Dating": "bg-pink-500/20 text-pink-500 hover:bg-pink-500/30",
   "Networking": "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30",
-  "Parties": "bg-purple-500/20 text-purple-500 hover:bg-purple-500/30",
+  "Parties": "bg-gray-800/50 text-foreground hover:bg-gray-800/50",
   "Adventure": "bg-orange-500/20 text-orange-500 hover:bg-orange-500/30",
   "Dining Out": "bg-green-500/20 text-green-500 hover:bg-green-500/30"
 } as const;
@@ -122,7 +128,7 @@ export default function ProfileSetupPage() {
   return (
     <div className="min-h-screen bg-[#121212] text-white p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2 gradient-text">Welcome to the Community</h1>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">Welcome to the Community</h1>
         <p className="text-lg text-white/60 mb-8">Let's set up your profile and help you connect with like-minded nomads.</p>
 
         <Form {...form}>
@@ -206,14 +212,13 @@ export default function ProfileSetupPage() {
                       <FormItem>
                         <FormLabel>Current Location</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                              {...field} 
-                              className="pl-9 bg-white/5 border-white/10" 
-                              placeholder="Where are you based?"
-                            />
-                          </div>
+                          <LocationAutocomplete
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            placeholder="Where are you based?"
+                            className="bg-white/5 border-white/10"
+                            type="city"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -330,15 +335,11 @@ export default function ProfileSetupPage() {
               </div>
 
               <div className="flex gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="lg" 
-                  className="flex-1 glass-hover"
+                <BackButton 
+                  variant="outline"
+                  className="glass-hover"
                   onClick={() => setCurrentStep(1)}
-                >
-                  Back
-                </Button>
+                />
                 <Button type="submit" size="lg" className="flex-1 interactive-hover">
                   Complete Profile
                 </Button>

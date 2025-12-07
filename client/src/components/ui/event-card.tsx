@@ -33,29 +33,34 @@ export function EventCard({
 }: EventCardProps) {
   const { t } = useTranslation();
   return (
-    <Card className="overflow-hidden bg-black/40 border-white/10 backdrop-blur-sm">
+    <Card className="overflow-hidden bg-card border-border rounded-sm">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={imageUrl}
           alt={title}
           className="object-cover w-full h-full"
         />
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/60">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div className="bg-black/70 text-white font-medium px-4 py-2 text-center rotate-[-15deg] text-sm uppercase tracking-wide whitespace-nowrap">
+            FOR DEMO ONLY
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/70">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col gap-1">
+              <p className="text-[13px] font-normal text-white/75">
                 {format(date, "EEE, MMM d, h:mm a")}
               </p>
-              <h3 className="text-lg font-semibold text-white mt-1">{title}</h3>
+              <h3 className="text-[16px] font-medium text-white leading-tight">{title}</h3>
             </div>
-            <div className="text-right text-white z-10">
+            <div className="text-right text-white z-10 flex-shrink-0">
               {price === "0" ? (
-                <p className="font-semibold text-white text-lg">{t('free')}</p>
+                <p className="font-medium text-white text-[14px]">{t('free')}</p>
               ) : (
-                <>
-                  <p className="font-semibold text-white text-lg">${price}</p>
-                  <p className="text-sm text-white/60">{t('perPerson')}</p>
-                </>
+                <div className="flex flex-col gap-0.5">
+                  <p className="font-medium text-white text-[14px]">${price}</p>
+                  <p className="text-[13px] text-white/75">{t('perPerson')}</p>
+                </div>
               )}
             </div>
           </div>
@@ -75,12 +80,12 @@ export function EventCard({
               </Avatar>
             ))}
             {interestedCount > 4 && (
-              <div className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-sm text-primary">
+              <div className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-[13px] text-muted-foreground">
                 +{interestedCount - 4}
               </div>
             )}
           </div>
-          <p className="text-sm text-white/60">
+          <p className="text-[13px] text-muted-foreground">
             {interestedCount} {t('interested')}
           </p>
         </div>

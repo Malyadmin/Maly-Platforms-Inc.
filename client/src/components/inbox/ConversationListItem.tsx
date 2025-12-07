@@ -54,7 +54,7 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
           {/* Group chat indicator */}
           {isGroupChat && (
             <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
-              <Users className="h-3 w-3 text-white" />
+              <Users className="h-3 w-3 text-foreground" />
             </div>
           )}
         </div>

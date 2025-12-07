@@ -89,6 +89,14 @@ export function setupAuth(app: Express) {
   // Initialize PostgreSQL Session store
   const PgSession = pgSession(session);
 
+  // Always trust the proxy in Replit environment
+  app.set("trust proxy", 1);
+
+  // Detect Replit environment 
+  const isReplit = !!process.env.REPL_ID;
+  
+  // For Replit preview/webview to work, we need sameSite: 'none', secure: true, and partitioned: true
+  // This allows cookies to work in the embedded iframe preview (Chrome CHIPS support)
   const sessionSettings: session.SessionOptions = {
     store: new PgSession({
       pool: pgPool,                // PostgreSQL connection pool
@@ -103,28 +111,12 @@ export function setupAuth(app: Express) {
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: isReplit ? 'none' as const : 'lax' as const,
       path: '/',
-      secure: process.env.NODE_ENV === "production"
-    }
+      secure: isReplit ? true : process.env.NODE_ENV === "production",
+      partitioned: isReplit ? true : undefined  // Chrome CHIPS support for iframe
+    } as session.CookieOptions
   };
-
-  // Always trust the proxy in Replit environment
-  app.set("trust proxy", 1);
-
-  // Detect Replit environment 
-  const isReplit = !!process.env.REPL_ID;
-  const isHTTPS = process.env.HTTPS === 'true';
-
-  // Configure cookie security based on environment
-  if (isReplit || isHTTPS || app.get("env") === "production") {
-    // Use secure cookies in Replit environment or production
-    sessionSettings.cookie = { 
-      ...sessionSettings.cookie,
-      sameSite: 'none', // Required for cross-site cookie access (including webview)
-      secure: true // Needed for sameSite: 'none'
-    };
-  }
   
   // Log session configuration for debugging
   console.log("Using PostgreSQL session store with table:", "session");
@@ -213,11 +205,17 @@ export function setupAuth(app: Express) {
         currentMoods,
         age,
         gender,
-        nextLocation
+        nextLocation,
+        phoneNumber,
+        birthLocation,
+        livedLocation,
+        sexualOrientation,
+        intention,
+        bio
       } = req.body;
       
-      // Handle the uploaded profile image
-      const profileImage = req.file ? getFileUrl(req.file.filename) : null;
+      // Handle the uploaded profile image (basic storage, cloudinary is used in register-redirect)
+      const profileImage = req.file ? `/uploads/${req.file.filename}` : null;
 
       if (!username || !password || !email) {
         return res.status(400).send("Username, email, and password are required");
@@ -272,7 +270,14 @@ export function setupAuth(app: Express) {
         profession: profession || null,
         age: age ? Number(age) : null,
         gender: gender || null,
-        nextLocation: nextLocation || null
+        nextLocation: nextLocation || null,
+        phoneNumber: phoneNumber || null,
+        birthLocation: birthLocation || null,
+        livedLocation: livedLocation || null,
+        sexualOrientation: sexualOrientation || null,
+        intention: intention || null,
+        bio: bio || null,
+        currentMoods: processedMoods
       };
 
       // Create user with extended fields
@@ -361,21 +366,52 @@ export function setupAuth(app: Express) {
         currentMoods,
         age,
         gender,
-        nextLocation
+        nextLocation,
+        phoneNumber,
+        birthLocation,
+        livedLocation,
+        sexualOrientation,
+        intention,
+        bio
       } = req.body;
       
-      // Handle the uploaded profile image (with Cloudinary support)
+      // Handle profile images - either from file upload or from pre-uploaded URLs
       let profileImage = null;
+      let profileImages: string[] = [];
       
-      if (req.file) {
+      // First check if images were pre-uploaded and URLs passed in body
+      if (req.body.profileImages) {
+        try {
+          const parsedImages = typeof req.body.profileImages === 'string' 
+            ? JSON.parse(req.body.profileImages) 
+            : req.body.profileImages;
+          if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+            profileImages = parsedImages;
+            profileImage = parsedImages[0]; // Use first image as main profile image
+            console.log(`Using ${profileImages.length} pre-uploaded profile images`);
+          }
+        } catch (e) {
+          console.error("Error parsing profileImages:", e);
+        }
+      }
+      
+      // Check for single profileImage URL in body (backward compatibility)
+      if (!profileImage && req.body.profileImage && typeof req.body.profileImage === 'string' && req.body.profileImage.startsWith('http')) {
+        profileImage = req.body.profileImage;
+        profileImages = [profileImage];
+        console.log(`Using pre-uploaded profile image URL: ${profileImage}`);
+      }
+      
+      // Handle file upload if no pre-uploaded URLs (with Cloudinary support)
+      if (!profileImage && req.file) {
         try {
           const result = await uploadToCloudinary(
             req.file.buffer, 
             req.file.originalname, 
-            'image',
-            `profiles/${username}`
+            'image'
           );
           profileImage = result.secure_url;
+          profileImages = [profileImage];
           console.log(`Successfully uploaded profile image to Cloudinary: ${profileImage}`);
         } catch (cloudinaryError) {
           console.error("Error uploading to Cloudinary during registration:", cloudinaryError);
@@ -449,12 +485,38 @@ export function setupAuth(app: Express) {
         }
       }
 
+      // Process currentMoods similar to interests
+      let processedMoods: string[] | null = null;
+      if (currentMoods) {
+        if (typeof currentMoods === 'string') {
+          if (currentMoods.startsWith('[') && currentMoods.endsWith(']')) {
+            try {
+              processedMoods = JSON.parse(currentMoods);
+            } catch (e) {
+              processedMoods = currentMoods.split(',').map((m: string) => m.trim());
+            }
+          } else {
+            processedMoods = currentMoods.split(',').map((m: string) => m.trim());
+          }
+        } else if (Array.isArray(currentMoods)) {
+          processedMoods = currentMoods;
+        }
+      }
+
       // Create additional user metadata
       const userData = {
         profession: profession || null,
         age: age ? Number(age) : null,
         gender: gender || null,
-        nextLocation: nextLocation || null
+        nextLocation: nextLocation || null,
+        phoneNumber: phoneNumber || null,
+        birthLocation: birthLocation || null,
+        livedLocation: livedLocation || null,
+        sexualOrientation: sexualOrientation || null,
+        intention: intention || null,
+        bio: bio || null,
+        currentMoods: processedMoods,
+        profileImages: profileImages.length > 0 ? profileImages : null
       };
 
       try {
@@ -487,8 +549,8 @@ export function setupAuth(app: Express) {
               return res.redirect('/auth?error=Session+error');
             }
 
-            console.log("Registration successful, redirecting to homepage");
-            return res.redirect('/');
+            console.log("Registration successful, redirecting to discover page");
+            return res.redirect('/discover');
           });
         });
       } catch (dbError) {
@@ -607,27 +669,29 @@ export function setupAuth(app: Express) {
 
           console.log("Login successful, redirecting to homepage with session:", req.sessionID);
 
+          // Detect if we're in Replit environment for cookie settings
+          const isReplitEnv = !!process.env.REPL_ID;
+          const cookieOptions = {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            httpOnly: true,
+            sameSite: isReplitEnv ? 'none' as const : 'lax' as const,
+            secure: isReplitEnv ? true : false,
+            partitioned: isReplitEnv ? true : undefined
+          };
+
           // Set cookies with different names to maximize persistence
           // Main session ID cookie
-          res.cookie('maly_session_id', sessionId, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            httpOnly: true,
-            sameSite: 'lax' // Use 'lax' instead of 'none' to improve persistence
-          });
+          res.cookie('maly_session_id', sessionId, cookieOptions);
           
           // Backup session ID cookie
-          res.cookie('sessionId', sessionId, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            httpOnly: true,
-            sameSite: 'lax'
-          });
+          res.cookie('sessionId', sessionId, cookieOptions);
           
           // Set x-session-id header
           res.setHeader('x-session-id', sessionId);
 
           // Add a timestamp to break browser caching and include session ID in URL
           const timestamp = Date.now();
-          return res.redirect(`/?sessionId=${sessionId}&ts=${timestamp}`);
+          return res.redirect(`/discover?sessionId=${sessionId}&ts=${timestamp}`);
         });
       });
     })(req, res, next);
@@ -650,31 +714,22 @@ export function setupAuth(app: Express) {
           // Continue anyway as the user is already logged out
         }
 
+        // Detect if we're in Replit environment for cookie settings
+        const isReplitEnv = !!process.env.REPL_ID;
+        const clearCookieOptions = {
+          path: '/',
+          httpOnly: true,
+          sameSite: isReplitEnv ? 'none' as const : 'lax' as const,
+          secure: isReplitEnv ? true : false
+        };
+
         // Clear all the session cookies we've set
-        res.clearCookie('maly_session', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
-        
-        res.clearCookie('maly_session_id', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
-        
-        res.clearCookie('sessionId', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
+        res.clearCookie('maly_session', clearCookieOptions);
+        res.clearCookie('maly_session_id', clearCookieOptions);
+        res.clearCookie('sessionId', clearCookieOptions);
         
         // Also clear the default Express session cookie
-        res.clearCookie('connect.sid', {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax'
-        });
+        res.clearCookie('connect.sid', clearCookieOptions);
 
         console.log("Logout successful for user:", username);
         res.json({ message: "Logged out successfully" });
@@ -705,6 +760,43 @@ export function setupAuth(app: Express) {
 
   // Helper function to get userId from request in various ways
   // The getUserIdFromRequest and isAuthenticated functions have been moved to server/middleware/auth.middleware.ts
+
+  // Development-only auto-login endpoint for testing in Replit preview
+  app.get("/api/dev/auto-login", async (req, res) => {
+    // Only allow in development/Replit environment
+    if (!process.env.REPL_ID) {
+      return res.status(403).json({ error: "Only available in development" });
+    }
+    
+    try {
+      // Find djluna user
+      const [djlunaUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, "djluna"))
+        .limit(1);
+      
+      if (!djlunaUser) {
+        return res.status(404).json({ error: "djluna user not found" });
+      }
+      
+      // Log in as djluna using Passport
+      req.login(djlunaUser, (err) => {
+        if (err) {
+          console.error("Auto-login error:", err);
+          return res.status(500).json({ error: "Login failed" });
+        }
+        
+        console.log("Auto-logged in as djluna (dev mode)");
+        
+        // Redirect to home page
+        res.redirect("/");
+      });
+    } catch (error) {
+      console.error("Auto-login error:", error);
+      res.status(500).json({ error: "Auto-login failed" });
+    }
+  });
 
   // Add a dedicated auth check endpoint
   app.get("/api/auth/check", async (req, res) => {

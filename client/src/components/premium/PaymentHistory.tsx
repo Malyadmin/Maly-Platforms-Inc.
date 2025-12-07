@@ -90,7 +90,7 @@ export function PaymentHistory() {
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-foreground" />
       </div>
     );
   }

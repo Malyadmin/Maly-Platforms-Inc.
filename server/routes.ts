@@ -10,7 +10,7 @@ import { getCoordinates } from './services/mapboxService';
 import { WebSocketServer, WebSocket } from 'ws';
 import { sendMessage, getConversations, getMessages, markMessageAsRead, markAllMessagesAsRead, getOrCreateEventGroupChat, addUserToEventGroupChat, sendMessageToConversation, getConversationMessages, getOrCreateDirectConversation, markConversationAsRead } from './services/messagingService';
 import { db } from "../db";
-import { userCities, users, events, userConnections, eventParticipants, payments, subscriptions, ticketTiers } from "../db/schema";
+import { userCities, users, events, userContacts, eventParticipants, payments, subscriptions, ticketTiers, notificationPreferences, pushSubscriptions } from "../db/schema";
 import { eq, ne, gte, lte, and, or, desc, inArray } from "drizzle-orm";
 import { stripe } from './lib/stripe';
 import Stripe from 'stripe';
@@ -46,6 +46,8 @@ import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 import { requireAdmin } from './middleware/adminAuth';
 // Import validation schemas
 import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema } from './validation/schemas';
+// Import push notification service
+import { sendRSVPNotification, sendTicketConfirmation, sendEventNotification } from './services/pushNotificationService';
 
 const categories = [
   "Retail",
@@ -851,6 +853,135 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   app.post('/api/stripe/connect/verify-account', checkAuthentication, verifyAccount);
   app.post('/api/webhooks/stripe/connect', express.raw({ type: 'application/json' }), handleConnectWebhook);
 
+  // Notification preferences routes
+  app.get('/api/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      
+      let prefs = await db.query.notificationPreferences.findFirst({
+        where: eq(notificationPreferences.userId, userId),
+      });
+
+      // Create default preferences if they don't exist
+      if (!prefs) {
+        const [newPrefs] = await db.insert(notificationPreferences)
+          .values({
+            userId,
+            inAppMessages: true,
+            inAppEvents: true,
+            inAppRsvp: true,
+            inAppTickets: true,
+            pushMessages: false,
+            pushEvents: false,
+            pushRsvp: false,
+            pushTickets: false,
+          })
+          .returning();
+        prefs = newPrefs;
+      }
+
+      res.json(prefs);
+    } catch (error) {
+      console.error('Error getting notification preferences:', error);
+      res.status(500).json({ error: 'Failed to get notification preferences' });
+    }
+  });
+
+  app.put('/api/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      const {
+        inAppMessages,
+        inAppEvents,
+        inAppRsvp,
+        inAppTickets,
+        pushMessages,
+        pushEvents,
+        pushRsvp,
+        pushTickets,
+      } = req.body;
+
+      // Check if preferences exist
+      const existing = await db.query.notificationPreferences.findFirst({
+        where: eq(notificationPreferences.userId, userId),
+      });
+
+      let updated;
+      if (existing) {
+        [updated] = await db.update(notificationPreferences)
+          .set({
+            inAppMessages,
+            inAppEvents,
+            inAppRsvp,
+            inAppTickets,
+            pushMessages,
+            pushEvents,
+            pushRsvp,
+            pushTickets,
+            updatedAt: new Date(),
+          })
+          .where(eq(notificationPreferences.userId, userId))
+          .returning();
+      } else {
+        [updated] = await db.insert(notificationPreferences)
+          .values({
+            userId,
+            inAppMessages,
+            inAppEvents,
+            inAppRsvp,
+            inAppTickets,
+            pushMessages,
+            pushEvents,
+            pushRsvp,
+            pushTickets,
+          })
+          .returning();
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+      res.status(500).json({ error: 'Failed to update notification preferences' });
+    }
+  });
+
+  app.get('/api/notifications/vapid-key', (req, res) => {
+    const { getVapidPublicKey } = require('./services/pushNotificationService');
+    res.json({ publicKey: getVapidPublicKey() });
+  });
+
+  app.post('/api/notifications/subscribe', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      const { endpoint, keys } = req.body;
+
+      // Check if subscription already exists
+      const existing = await db.query.pushSubscriptions.findFirst({
+        where: and(
+          eq(pushSubscriptions.userId, userId),
+          eq(pushSubscriptions.endpoint, endpoint)
+        ),
+      });
+
+      if (existing) {
+        return res.json({ message: 'Already subscribed' });
+      }
+
+      // Save subscription
+      await db.insert(pushSubscriptions).values({
+        userId,
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      });
+
+      res.json({ message: 'Subscribed successfully' });
+    } catch (error) {
+      console.error('Error saving push subscription:', error);
+      res.status(500).json({ error: 'Failed to subscribe' });
+    }
+  });
+
   // Referral endpoints
   // Get user's referral code
   app.get('/api/referral/code', requireAuth, async (req, res) => {
@@ -1026,6 +1157,47 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
+  // Public multiple images upload endpoint (for registration)
+  app.post("/api/upload-images-public", uploadImage.array('images', 7), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+
+      const uploadedUrls: string[] = [];
+
+      try {
+        // Upload each image to Cloudinary
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          const result = await uploadToCloudinary(
+            file.buffer, 
+            file.originalname, 
+            'image'
+          );
+          uploadedUrls.push(result.secure_url);
+          console.log(`Uploaded public image ${i + 1} to Cloudinary: ${result.secure_url}`);
+        }
+      } catch (cloudinaryError) {
+        console.error("Error uploading to Cloudinary:", cloudinaryError);
+        return res.status(500).json({ error: "Failed to upload images to Cloudinary" });
+      }
+
+      return res.json({ 
+        success: true, 
+        message: `${uploadedUrls.length} images uploaded successfully`,
+        imageUrls: uploadedUrls
+      });
+    } 
+    catch (error) {
+      console.error("Public images upload error:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to upload images" 
+      });
+    }
+  });
+
   // API endpoint for city suggestions
   app.post("/api/suggest-city", async (req: Request, res: Response) => {
     try {
@@ -1082,7 +1254,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         });
       }
       
-      const { location: city, gender, minAge, maxAge, moods, interests, name, limit, offset } = validationResult.data;
+      const { location: city, gender, minAge, maxAge, moods, interests, intention, name, limit, offset } = validationResult.data;
       
       // Comprehensive debug logging to see all query parameters
       console.log("Full request query object:", req.query);
@@ -1124,6 +1296,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       if (gender && gender !== 'all') {
         whereConditions.push(eq(users.gender, gender));
       }
+      
+      if (intention && intention !== 'all') {
+        whereConditions.push(sql`${users.intention} ILIKE ${'%' + intention + '%'}`);
+      }
 
       if (minAge !== undefined) {
         whereConditions.push(gte(users.age, minAge));
@@ -1153,7 +1329,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         profileImages: users.profileImages,
         location: users.location,
         birthLocation: users.birthLocation,
+        livedLocation: users.livedLocation,
         nextLocation: users.nextLocation,
+        intention: users.intention,
         interests: users.interests,
         currentMoods: users.currentMoods,
         profession: users.profession,
@@ -1298,6 +1476,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         availableTickets: events.availableTickets,
         tags: events.tags,
         isPrivate: events.isPrivate,
+        privacy: events.privacy,
+        shareToken: events.shareToken,
+        isRsvp: events.isRsvp,
+        requireApproval: events.requireApproval,
         isBusinessEvent: events.isBusinessEvent,
         timeFrame: events.timeFrame,
         stripeProductId: events.stripeProductId,
@@ -1327,18 +1509,50 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       let dbEvents = await query;
       console.log(`Found ${dbEvents.length} events in database before filtering`);
 
-      // Map events to include properly structured creator objects
-      const eventsWithCreators = dbEvents.map(event => {
-        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, ...eventData } = event;
+      // Fetch ticket tiers for all events
+      const eventIds = dbEvents.map(e => e.id);
+      let allTicketTiers: any[] = [];
+      if (eventIds.length > 0) {
+        allTicketTiers = await db.select()
+          .from(ticketTiers)
+          .where(inArray(ticketTiers.eventId, eventIds));
+      }
+
+      // Filter out friends-only events (they should not appear on explore)
+      // Private events will appear but will be marked for blurring in the UI
+      const filteredEvents = dbEvents.filter(event => {
+        const eventPrivacy = event.privacy || 'public';
+        // Hide friends-only events from the public listing
+        if (eventPrivacy === 'friends') {
+          // Only show to the creator
+          return event.creatorId === currentUserId;
+        }
+        return true;
+      });
+
+      // Map events to include properly structured creator objects and ticket tiers
+      const eventsWithCreators = filteredEvents.map(event => {
+        const { creatorUserId, creatorUsername, creatorFullName, creatorProfileImage, shareToken, ...eventData } = event;
+        
+        // Get ticket tiers for this event
+        const eventTicketTiers = allTicketTiers.filter(tier => tier.eventId === event.id);
+        
+        const eventPrivacy = event.privacy || 'public';
+        const isBlurred = eventPrivacy === 'private' && event.creatorId !== currentUserId;
         
         return {
           ...eventData,
+          privacy: eventPrivacy,
+          isBlurred: isBlurred, // Flag for UI to show blurred version
+          // Don't expose shareToken in listings - only for hosts
+          shareToken: event.creatorId === currentUserId ? shareToken : null,
           creator: creatorUserId ? {
             id: creatorUserId,
             username: creatorUsername,
             fullName: creatorFullName,
             profileImage: creatorProfileImage
-          } : null
+          } : null,
+          ticketTiers: eventTicketTiers
         };
       });
 
@@ -1373,7 +1587,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
   });
 
   // RSVP Management Endpoints - Must come before parameterized routes
-  // GET /api/events/applications - Fetch all pending applications across all events for current user
+  // GET /api/events/applications - Fetch all applications (pending and completed) across all events for current user
   app.get('/api/events/applications', requireAuth, async (req, res) => {
     try {
       const currentUser = req.user as any;
@@ -1387,7 +1601,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         return res.status(401).json({ error: "Invalid user ID" });
       }
 
-      // Fetch all pending applications for events created by the current user
+      // Fetch all events created by the current user
       const userEvents = await db.select({ id: events.id })
         .from(events)
         .where(eq(events.creatorId, userId));
@@ -1396,12 +1610,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       if (eventIds.length === 0) {
         return res.json({
-          applications: [],
-          totalPending: 0
+          pending: [],
+          completed: [],
+          totalPending: 0,
+          totalCompleted: 0
         });
       }
 
-      // Get pending applications for these events
+      // Get pending applications
       const pendingApplications = await db.select()
         .from(eventParticipants)
         .where(
@@ -1412,40 +1628,295 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         )
         .orderBy(desc(eventParticipants.createdAt));
 
-      // Get additional details for each application
-      const applications = [];
+      // Get completed applications (recently approved/rejected in last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const completedApplications = await db.select()
+        .from(eventParticipants)
+        .where(
+          and(
+            inArray(eventParticipants.eventId, eventIds),
+            inArray(eventParticipants.status, ['attending', 'interested', 'rejected']),
+            gte(eventParticipants.updatedAt, thirtyDaysAgo)
+          )
+        )
+        .orderBy(desc(eventParticipants.updatedAt));
+
+      // Get details for pending applications
+      const pendingWithDetails = [];
       for (const app of pendingApplications) {
         const userResult = await db.select().from(users).where(eq(users.id, app.userId));
         const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
         const user = userResult[0];
         const event = eventResult[0];
         
-        applications.push({
-          id: app.id,
-          eventId: app.eventId,
-          userId: app.userId,
-          status: app.status,
-          ticketQuantity: app.ticketQuantity,
-          purchaseDate: app.purchaseDate,
-          createdAt: app.createdAt,
-          username: user?.username,
-          fullName: user?.fullName,
-          profileImage: user?.profileImage,
-          email: user?.email,
-          bio: user?.bio,
-          location: user?.location,
-          eventTitle: event?.title,
-          eventImage: event?.image
-        });
+        // Only include if event requires RSVP approval
+        if (event && (event.isRsvp || event.requireApproval)) {
+          pendingWithDetails.push({
+            id: app.id,
+            eventId: app.eventId,
+            userId: app.userId,
+            status: app.status,
+            ticketQuantity: app.ticketQuantity,
+            purchaseDate: app.purchaseDate,
+            createdAt: app.createdAt,
+            updatedAt: app.updatedAt,
+            username: user?.username,
+            fullName: user?.fullName,
+            userName: user?.fullName || user?.username || 'Unknown User',
+            userImage: user?.profileImage,
+            userEmail: user?.email,
+            profileImage: user?.profileImage,
+            email: user?.email,
+            bio: user?.bio,
+            location: user?.location,
+            eventTitle: event?.title,
+            eventImage: event?.image
+          });
+        }
+      }
+
+      // Get details for completed applications (only show rejected or recently updated RSVP events)
+      const completedWithDetails = [];
+      for (const app of completedApplications) {
+        const userResult = await db.select().from(users).where(eq(users.id, app.userId));
+        const eventResult = await db.select().from(events).where(eq(events.id, app.eventId));
+        const user = userResult[0];
+        const event = eventResult[0];
+        
+        // Only include if:
+        // 1. Event requires RSVP approval AND
+        // 2. Status is 'rejected' OR the record was updated (meaning it was approved from pending)
+        if (event && (event.isRsvp || event.requireApproval)) {
+          const wasApproved = app.updatedAt && app.createdAt && 
+            new Date(app.updatedAt).getTime() > new Date(app.createdAt).getTime();
+          
+          if (app.status === 'rejected' || wasApproved) {
+            completedWithDetails.push({
+              id: app.id,
+              eventId: app.eventId,
+              userId: app.userId,
+              status: app.status,
+              ticketQuantity: app.ticketQuantity,
+              purchaseDate: app.purchaseDate,
+              createdAt: app.createdAt,
+              updatedAt: app.updatedAt,
+              username: user?.username,
+              fullName: user?.fullName,
+              userName: user?.fullName || user?.username || 'Unknown User',
+              userImage: user?.profileImage,
+              userEmail: user?.email,
+              profileImage: user?.profileImage,
+              email: user?.email,
+              bio: user?.bio,
+              location: user?.location,
+              eventTitle: event?.title,
+              eventImage: event?.image
+            });
+          }
+        }
       }
 
       return res.json({
-        applications,
-        totalPending: applications.length
+        pending: pendingWithDetails,
+        completed: completedWithDetails,
+        totalPending: pendingWithDetails.length,
+        totalCompleted: completedWithDetails.length
       });
     } catch (error) {
       console.error("Error fetching all applications:", error);
       res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  // GET /api/creator/dashboard - Comprehensive creator dashboard data
+  app.get('/api/creator/dashboard', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      
+      if (!currentUser || !currentUser.id) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userId = parseInt(currentUser.id);
+      console.log('[CREATOR_DASHBOARD] Fetching events for user ID:', userId);
+      
+      // Fetch all events where user is the host/creator
+      const userEvents = await db.select()
+        .from(events)
+        .where(eq(events.creatorId, userId))
+        .orderBy(desc(events.createdAt));
+
+      console.log('[CREATOR_DASHBOARD] Found', userEvents.length, 'events for user', userId);
+
+      // Fetch analytics and sales for each event
+      const eventsWithAnalytics = await Promise.all(userEvents.map(async (event) => {
+        // Get all participants for this event
+        const participants = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.eventId, event.id));
+
+        const interestedCount = participants.filter(p => p.status === 'interested').length;
+        const attendingCount = participants.filter(p => p.status === 'attending' || p.status === 'approved').length;
+        const pendingCount = participants.filter(p => p.status === 'pending_approval' || p.status === 'pending_access').length;
+        
+        // Get completed ticket sales for this event
+        const completedSales = participants.filter(p => p.paymentStatus === 'completed');
+        const ticketsSold = completedSales.reduce((sum, p) => sum + (p.ticketQuantity || 1), 0);
+
+        // Get ticket tiers for this event to calculate revenue
+        const eventTiers = await db.select()
+          .from(ticketTiers)
+          .where(eq(ticketTiers.eventId, event.id));
+        
+        // Calculate total revenue from completed sales
+        let eventRevenue = 0;
+        for (const sale of completedSales) {
+          const tier = eventTiers.find(t => t.id === sale.ticketTierId);
+          if (tier) {
+            const tierPrice = parseFloat(tier.price || '0');
+            eventRevenue += tierPrice * (sale.ticketQuantity || 1);
+          }
+        }
+        
+        // Calculate net revenue (after 3% platform fee)
+        const platformFee = eventRevenue * 0.03;
+        const netRevenue = eventRevenue - platformFee;
+
+        // Get view count for this event
+        const viewCount = event.viewCount || 0;
+
+        return {
+          ...event,
+          ticketTiers: eventTiers,
+          analytics: {
+            interestedCount,
+            attendingCount,
+            pendingCount,
+            totalViews: viewCount,
+            ticketsSold,
+            grossRevenue: eventRevenue,
+            platformFee,
+            netRevenue
+          }
+        };
+      }));
+
+      // Calculate total sales across all events
+      const totalRevenue = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.grossRevenue || 0), 0);
+      const totalTicketsSold = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.ticketsSold || 0), 0);
+      const totalPlatformFees = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.platformFee || 0), 0);
+      const totalNetRevenue = eventsWithAnalytics.reduce((sum, e) => sum + (e.analytics.netRevenue || 0), 0);
+
+      return res.json({
+        events: eventsWithAnalytics,
+        pendingRSVPs: [],
+        totalEvents: userEvents.length,
+        totalPendingRSVPs: 0,
+        salesSummary: {
+          totalRevenue,
+          totalTicketsSold,
+          totalPlatformFees,
+          totalNetRevenue
+        }
+      });
+    } catch (error) {
+      console.error("[CREATOR_DASHBOARD] Error:", error);
+      res.status(500).json({ error: "Failed to fetch creator dashboard data" });
+    }
+  });
+
+  // Get list of users who are attending an event
+  app.get('/api/events/:eventId/participants/attending', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      const { eventId } = req.params;
+      const eventIdNum = parseInt(eventId);
+
+      // Verify the event exists and user is the creator
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view participant lists' });
+      }
+
+      // Fetch attending participants with user details
+      const participants = await db.select({
+        userId: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        status: eventParticipants.status
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .where(
+        and(
+          eq(eventParticipants.eventId, eventIdNum),
+          or(
+            eq(eventParticipants.status, 'attending'),
+            eq(eventParticipants.status, 'approved')
+          )
+        )
+      );
+
+      return res.json({ participants });
+    } catch (error) {
+      console.error('Error fetching attending participants:', error);
+      res.status(500).json({ error: 'Failed to fetch attending participants' });
+    }
+  });
+
+  // Get list of users who are interested in an event
+  app.get('/api/events/:eventId/participants/interested', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as any;
+      const { eventId } = req.params;
+      const eventIdNum = parseInt(eventId);
+
+      // Verify the event exists and user is the creator
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventIdNum))
+        .limit(1);
+
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      if (event.creatorId !== currentUser.id) {
+        return res.status(403).json({ error: 'Only event creators can view participant lists' });
+      }
+
+      // Fetch interested participants with user details
+      const participants = await db.select({
+        userId: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        status: eventParticipants.status
+      })
+      .from(eventParticipants)
+      .innerJoin(users, eq(eventParticipants.userId, users.id))
+      .where(
+        and(
+          eq(eventParticipants.eventId, eventIdNum),
+          eq(eventParticipants.status, 'interested')
+        )
+      );
+
+      return res.json({ participants });
+    } catch (error) {
+      console.error('Error fetching interested participants:', error);
+      res.status(500).json({ error: 'Failed to fetch interested participants' });
     }
   });
 
@@ -1470,6 +1941,50 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
       if (dbEvent && dbEvent.length > 0) {
         const event = dbEvent[0];
+        
+        // Check privacy and access control
+        const eventPrivacy = event.privacy || 'public';
+        const requestToken = req.query.token as string | undefined;
+        const isHost = currentUserId === event.creatorId;
+        
+        // For private and friends-only events, check access
+        if ((eventPrivacy === 'private' || eventPrivacy === 'friends') && !isHost) {
+          // Check if user has a valid share token
+          const hasValidToken = requestToken && event.shareToken && requestToken === event.shareToken;
+          
+          if (!hasValidToken) {
+            // For private events, return limited info with isBlurred flag
+            if (eventPrivacy === 'private') {
+              return res.json({
+                id: event.id,
+                title: 'Private Event',
+                description: 'This is a private event. Request access from the host.',
+                date: event.date,
+                location: event.location,
+                city: event.city,
+                image: event.image,
+                privacy: eventPrivacy,
+                isBlurred: true,
+                isPrivate: true,
+                creatorId: event.creatorId,
+                accessDenied: true
+              });
+            }
+            // For friends-only events without token, deny access completely
+            if (eventPrivacy === 'friends') {
+              return res.status(403).json({ 
+                error: "Access denied. This event is only accessible via invite link.",
+                accessDenied: true,
+                privacy: 'friends'
+              });
+            }
+          }
+        }
+        
+        // Increment view count
+        await db.update(events)
+          .set({ viewCount: (event.viewCount || 0) + 1 })
+          .where(eq(events.id, eventId));
         
         // Get both attending and interested participants for this event
         const eventParticipantsList = await db.select({
@@ -1577,6 +2092,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
 
                 // Transform snake_case to camelCase for frontend compatibility
                 isPrivate: event.isPrivate,
+                privacy: event.privacy || 'public',
+                // Only expose shareToken to the host
+                shareToken: isHost ? event.shareToken : null,
                 requireApproval: event.requireApproval,
                 // Keep flat properties for backward compatibility
                 creatorName: creator.fullName || creator.username,
@@ -1609,6 +2127,9 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           ticketType: calculatedTicketType, // Use calculated ticket type
           // Transform snake_case to camelCase for frontend compatibility
           isPrivate: event.isPrivate,
+          privacy: event.privacy || 'public',
+          // Only expose shareToken to the host
+          shareToken: isHost ? event.shareToken : null,
           requireApproval: event.requireApproval,
           attendingUsers,
           interestedUsers,
@@ -1959,6 +2480,13 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         ticketType = 'paid';
       }
 
+      // Determine privacy setting (default to public)
+      const privacy = req.body.privacy || 'public';
+      const isRsvp = req.body.isRsvp === 'true' || req.body.isRsvp === true;
+      
+      // Generate share token for private and friends-only events
+      const shareToken = (privacy === 'private' || privacy === 'friends') ? uuidv4() : null;
+
       // Create event data object with all required fields from schema
       const eventData = {
         title: req.body.title,
@@ -1979,13 +2507,15 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         videoUrls: videoUrls, // Add video URLs array
 
         creatorId: currentUser.id,
-        isPrivate: req.body.eventPrivacy === 'private',
-        requireApproval: req.body.eventPrivacy === 'rsvp' || req.body.eventPrivacy === 'private', // Set requireApproval to true for RSVP or private events
-        isRsvp: req.body.eventPrivacy === 'rsvp', // Set isRsvp to true for RSVP events
+        isPrivate: privacy === 'private' || privacy === 'friends', // Backward compatibility
+        privacy: privacy, // New privacy field: public, private, friends
+        shareToken: shareToken, // Token for sharing private/friends events
+        requireApproval: isRsvp || privacy === 'private', // Set requireApproval for RSVP or private events
+        isRsvp: isRsvp, // RSVP flag from form
         createdAt: new Date(),
         isBusinessEvent: req.body.organizerType === 'business',
         timeFrame: req.body.timeFrame || '',
-        itinerary: itinerary, // Add the parsed itinerary data
+        itinerary: [], // Keep empty for now
         stripeProductId: null,
         stripePriceId: null
       };
@@ -2002,6 +2532,25 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       const createdEvent = result[0];
       const eventId = createdEvent.id; // Capture the event ID explicitly
       console.log(`Event successfully saved to database with ID: ${eventId}`);
+
+      // Send push notifications to users with matching city/vibes
+      try {
+        const matchedUsers = await findMatches({
+          city: createdEvent.city,
+          vibes: createdEvent.tags || [],
+        });
+        await Promise.all(
+          matchedUsers.map(async (match) => {
+            try {
+              await sendEventNotification(match.userId, createdEvent.title, createdEvent.city);
+            } catch (notifyError) {
+              console.warn('Push notify failed for user', match.userId, notifyError);
+            }
+          })
+        );
+      } catch (error) {
+        console.warn('Error sending event matching notifications:', error);
+      }
 
       // Create Stripe Products and Prices for each ticket tier
       const stripeTiers = [];
@@ -2074,13 +2623,19 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       // Add debug log to verify the data before the final step
       console.log('DEBUG: Tiers prepared for insertion:', tiersToInsert);
 
-      console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
-      const createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
-      console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
+      // Only insert ticket tiers if there are any (prevents "values() must be called with at least one value" error)
+      let createdTiers: any[] = [];
+      if (tiersToInsert.length > 0) {
+        console.log(`Inserting ${tiersToInsert.length} ticket tiers into database`);
+        createdTiers = await db.insert(ticketTiers).values(tiersToInsert).returning();
+        console.log(`Successfully created ${createdTiers.length} ticket tiers in database`);
+      } else {
+        console.log('No ticket tiers to insert (free/RSVP event)');
+      }
 
       return res.status(201).json({
         success: true,
-        message: "Event published successfully with ticket tiers",
+        message: "Event published successfully",
         event: createdEvent,
         ticketTiers: createdTiers
       });
@@ -2472,6 +3027,11 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     path: '/ws/chat'
   });
 
+  // Handle WebSocket server errors to prevent crashes during port conflicts
+  wss.on('error', (error: Error) => {
+    console.error('WebSocket server error:', error.message);
+  });
+
   // Store active connections and their ping states
   const activeConnections = new Map<number, {
     ws: WebSocket;
@@ -2766,6 +3326,10 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       if (safeFields.currentMoods && Array.isArray(safeFields.currentMoods)) {
         safeFields.currentMoods = safeFields.currentMoods.length > 0 ? safeFields.currentMoods : [];
       }
+
+      if (safeFields.profileImages && Array.isArray(safeFields.profileImages)) {
+        safeFields.profileImages = safeFields.profileImages.length > 0 ? safeFields.profileImages : [];
+      }
       
       // Handle location fields specifically
       if (safeFields.currentLocation) {
@@ -2813,6 +3377,7 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           username: true,
           fullName: true,
           profileImage: true,
+          profileImages: true,
           bio: true,
           location: true,
           birthLocation: true,
@@ -2893,229 +3458,123 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  // Connection related endpoints
+  // Contacts related endpoints - simplified from connection requests
 
-  // Send a connection request
-  app.post('/api/connections/request', isAuthenticated, async (req: Request, res: Response) => {
+  // Add a contact (one-way, no approval needed)
+  app.post('/api/contacts', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
+      const { contactUserId } = req.body;
 
-      const { targetUserId } = req.body;
-
-      if (!targetUserId) {
-        return res.status(400).json({ error: 'Target user ID is required' });
+      if (!contactUserId) {
+        return res.status(400).json({ error: 'Contact user ID is required' });
       }
 
-      // Check if request already exists
-      const existingConnection = await db.query.userConnections.findFirst({
+      // Check if contact already exists
+      const existingContact = await db.query.userContacts.findFirst({
         where: and(
-          eq(userConnections.followerId, currentUser.id),
-          eq(userConnections.followingId, targetUserId)
+          eq(userContacts.ownerId, currentUser.id),
+          eq(userContacts.contactId, contactUserId)
         )
       });
 
-      if (existingConnection) {
-        return res.status(400).json({ 
-          error: 'Connection request already exists', 
-          status: existingConnection.status 
+      if (existingContact) {
+        return res.status(200).json({ 
+          message: 'Contact already added',
+          contact: existingContact 
         });
       }
 
-      // Create new connection request
-      const newConnection = await db.insert(userConnections).values({
-        followerId: currentUser.id,
-        followingId: targetUserId,
-        status: 'pending',
+      // Add contact immediately
+      const newContact = await db.insert(userContacts).values({
+        ownerId: currentUser.id,
+        contactId: contactUserId,
         createdAt: new Date()
       }).returning();
 
       res.status(201).json({
-        message: 'Connection request sent successfully',
-        connection: newConnection[0]
+        message: 'Contact added successfully',
+        contact: newContact[0]
       });
     } catch (error) {
-      console.error('Error sending connection request:', error);
-      res.status(500).json({ error: 'Failed to send connection request' });
+      console.error('Error adding contact:', error);
+      res.status(500).json({ error: 'Failed to add contact' });
     }
   });
 
-  // Get pending connection requests (received by current user)
-  app.get('/api/connections/pending', isAuthenticated, async (req: Request, res: Response) => {
+  // Get all contacts for current user
+  app.get('/api/contacts', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
 
-      // Get all pending requests where the current user is the target
-      const pendingRequests = await db.query.userConnections.findMany({
-        where: and(
-          eq(userConnections.followingId, currentUser.id),
-          eq(userConnections.status, 'pending')
-        ),
+      const contacts = await db.query.userContacts.findMany({
+        where: eq(userContacts.ownerId, currentUser.id),
         with: {
-          follower: true
+          contact: true
         }
       });
 
-      // Format the response
-      const formattedRequests = pendingRequests.map(request => {
-        if (!request.follower) {
-          console.error('Missing follower data in connection request:', request);
+      const formattedContacts = contacts.map(contact => {
+        if (!contact.contact) {
+          console.error('Missing contact user data:', contact);
           return null;
         }
 
         return {
-          id: request.follower.id,
-          username: request.follower.username,
-          fullName: request.follower.fullName,
-          profileImage: request.follower.profileImage,
-          requestDate: request.createdAt,
-          status: request.status
+          id: contact.contact.id,
+          username: contact.contact.username,
+          fullName: contact.contact.fullName,
+          profileImage: contact.contact.profileImage,
+          addedDate: contact.createdAt
         };
-      }).filter(Boolean) as Array<{
-        id: number;
-        username: string;
-        fullName: string | null;
-        profileImage: string | null;
-        requestDate: Date | null;
-        status: string;
-      }>;
+      }).filter(Boolean);
 
-      res.json(formattedRequests);
+      res.json(formattedContacts);
     } catch (error) {
-      console.error('Error fetching pending connection requests:', error);
-      res.status(500).json({ error: 'Failed to fetch pending connection requests' });
+      console.error('Error fetching contacts:', error);
+      res.status(500).json({ error: 'Failed to fetch contacts' });
     }
   });
 
-  // Accept or decline a connection request
-  app.put('/api/connections/:userId', isAuthenticated, async (req: Request, res: Response) => {
+  // Remove a contact
+  app.delete('/api/contacts/:contactId', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
+      const { contactId } = req.params;
 
-      const { userId } = req.params;
-      const { status } = req.body;
-
-      if (!status || (status !== 'accepted' && status !== 'declined')) {
-        return res.status(400).json({ error: 'Valid status (accepted or declined) is required' });
-      }
-
-      // Update the connection status
-      const updatedConnection = await db
-        .update(userConnections)
-        .set({ status })
+      await db
+        .delete(userContacts)
         .where(
           and(
-            eq(userConnections.followerId, parseInt(userId)),
-            eq(userConnections.followingId, currentUser.id),
-            eq(userConnections.status, 'pending')
+            eq(userContacts.ownerId, currentUser.id),
+            eq(userContacts.contactId, parseInt(contactId))
           )
-        )
-        .returning();
+        );
 
-      if (!updatedConnection || updatedConnection.length === 0) {
-        return res.status(404).json({ error: 'Connection request not found' });
-      }
-
-      res.json({
-        message: `Connection request ${status}`,
-        connection: updatedConnection[0]
-      });
+      res.json({ message: 'Contact removed successfully' });
     } catch (error) {
-      console.error('Error updating connection request:', error);
-      res.status(500).json({ error: 'Failed to update connection request' });
+      console.error('Error removing contact:', error);
+      res.status(500).json({ error: 'Failed to remove contact' });
     }
   });
 
-  // Get all connections (accepted only)
-  app.get('/api/connections', isAuthenticated, async (req: Request, res: Response) => {
+  // Check if user is in contacts
+  app.get('/api/contacts/check/:userId', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const currentUser = req.user as Express.User;
-
-      // Get connections where current user is either follower or following
-      const connections = await db.query.userConnections.findMany({
-        where: and(
-          or(
-            eq(userConnections.followerId, currentUser.id),
-            eq(userConnections.followingId, currentUser.id)
-          ),
-          eq(userConnections.status, 'accepted')
-        ),
-        with: {
-          follower: true,
-          following: true
-        }
-      });
-
-      // Format the response to show the other user in each connection
-      const formattedConnections = connections.map(connection => {
-        const isFollower = connection.followerId === currentUser.id;
-        const otherUser = isFollower ? connection.following : connection.follower;
-
-        if (!otherUser) {
-          console.error('Missing related user data in connection:', connection);
-          return null;
-        }
-
-        return {
-          id: otherUser.id,
-          username: otherUser.username,
-          fullName: otherUser.fullName,
-          profileImage: otherUser.profileImage,
-          connectionDate: connection.createdAt,
-          connectionType: isFollower ? 'following' : 'follower'
-        };
-      }).filter(Boolean) as Array<{
-        id: number;
-        username: string;
-        fullName: string | null;
-        profileImage: string | null;
-        connectionDate: Date | null;
-        connectionType: string;
-      }>;
-
-      res.json(formattedConnections);
-    } catch (error) {
-      console.error('Error fetching connections:', error);
-      res.status(500).json({ error: 'Failed to fetch connections' });
-    }
-  });
-
-  // Check connection status between current user and another user
-  app.get('/api/connections/status/:userId', isAuthenticated, async (req: Request, res: Response) => {
-    try {
-      const currentUser = req.user as Express.User;
-
       const { userId } = req.params;
-      const targetUserId = parseInt(userId);
 
-      // Check outgoing connection (current user -> target user)
-      const outgoingConnection = await db.query.userConnections.findFirst({
+      const contact = await db.query.userContacts.findFirst({
         where: and(
-          eq(userConnections.followerId, currentUser.id),
-          eq(userConnections.followingId, targetUserId)
+          eq(userContacts.ownerId, currentUser.id),
+          eq(userContacts.contactId, parseInt(userId))
         )
       });
 
-      // Check incoming connection (target user -> current user)
-      const incomingConnection = await db.query.userConnections.findFirst({
-        where: and(
-          eq(userConnections.followerId, targetUserId),
-          eq(userConnections.followingId, currentUser.id)
-        )
-      });
-
-      res.json({
-        outgoing: outgoingConnection ? {
-          status: outgoingConnection.status,
-          date: outgoingConnection.createdAt
-        } : null,
-        incoming: incomingConnection ? {
-          status: incomingConnection.status,
-          date: incomingConnection.createdAt
-        } : null
-      });
+      res.json({ isContact: !!contact });
     } catch (error) {
-      console.error('Error checking connection status:', error);
-      res.status(500).json({ error: 'Failed to check connection status' });
+      console.error('Error checking contact status:', error);
+      res.status(500).json({ error: 'Failed to check contact status' });
     }
   });
 
@@ -3167,6 +3626,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         status: 'pending_access',
         createdAt: new Date()
       }).returning();
+
+      // Send push notification to event host
+      try {
+        await sendRSVPNotification(event.creatorId, event.title, 'sent');
+      } catch (error) {
+        console.warn('Error sending RSVP notification to host:', error);
+        // Don't fail the request if notification fails
+      }
 
       res.status(201).json({
         message: 'Access request sent successfully',
@@ -3558,6 +4025,18 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
              }
              console.log(`Successfully processed checkout for session: ${stripeCheckoutSessionId}, Ticket ID: ${ticketIdentifier}`);
 
+            // Send ticket confirmation push notification
+            try {
+              const [eventInfo] = await db.select({ title: events.title }).from(events).where(eq(events.id, eventId));
+              if (eventInfo) {
+                const ticketQuantity = participant.ticketQuantity ?? quantity;
+                await sendTicketConfirmation(userId, eventInfo.title, ticketQuantity);
+              }
+            } catch (notifError) {
+              console.warn('Error sending ticket confirmation notification:', notifError);
+              // Don't fail webhook if notification fails
+            }
+
         } catch (dbError) { // Keep simple catch, handle error below
             console.error(`Database error processing webhook for session ${stripeCheckoutSessionId}:`);
              if (dbError instanceof Error) {
@@ -3762,7 +4241,7 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         createdAt: new Date(),
       });
 
-      return res.json({ sessionId: session.id });
+      return res.json({ sessionId: session.id, url: session.url });
     } catch (error) {
       console.error('Error creating checkout session:', error);
       return res.status(500).json({ 
@@ -3825,6 +4304,98 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
     }
   });
   
+  // --- Get All User Tickets Endpoint --- 
+  app.get('/api/me/tickets', async (req: Request, res: Response) => {
+    // Try multiple auth methods
+    let userId: number | null = null;
+    
+    // Method 1: Passport session
+    if (req.isAuthenticated() && (req.user as any)?.id) {
+      userId = (req.user as any).id;
+      console.log('[MY_TICKETS] Auth via passport for user:', userId);
+    }
+    
+    // Method 2: X-User-ID header fallback
+    if (!userId) {
+      const headerUserId = req.headers['x-user-id'] as string;
+      if (headerUserId) {
+        const parsedId = parseInt(headerUserId, 10);
+        if (!isNaN(parsedId)) {
+          // Verify user exists
+          const [userExists] = await db.select({ id: users.id }).from(users).where(eq(users.id, parsedId)).limit(1);
+          if (userExists) {
+            userId = parsedId;
+            console.log('[MY_TICKETS] Auth via X-User-ID header:', userId);
+          }
+        }
+      }
+    }
+    
+    console.log('[MY_TICKETS] Fetching tickets for user:', userId);
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    try {
+      const userTickets = await db
+        .select({
+          id: eventParticipants.id,
+          eventId: eventParticipants.eventId,
+          ticketIdentifier: eventParticipants.ticketIdentifier,
+          ticketQuantity: eventParticipants.ticketQuantity,
+          purchaseDate: eventParticipants.purchaseDate,
+          ticketTierId: eventParticipants.ticketTierId,
+        })
+        .from(eventParticipants)
+        .where(and(
+          eq(eventParticipants.userId, userId),
+          eq(eventParticipants.paymentStatus, 'completed'),
+          isNotNull(eventParticipants.ticketIdentifier)
+        ))
+        .orderBy(desc(eventParticipants.purchaseDate));
+      
+      console.log('[MY_TICKETS] Found tickets:', userTickets.length, userTickets);
+      
+      // Enrich with event and tier details
+      const enrichedTickets = await Promise.all(userTickets.map(async (ticket) => {
+        const [event] = await db.select({
+          title: events.title,
+          image: events.image,
+          date: events.date,
+          location: events.location,
+        }).from(events).where(eq(events.id, ticket.eventId!)).limit(1);
+        
+        let tierName = null;
+        if (ticket.ticketTierId) {
+          const [tier] = await db.select({ name: ticketTiers.name })
+            .from(ticketTiers)
+            .where(eq(ticketTiers.id, ticket.ticketTierId))
+            .limit(1);
+          tierName = tier?.name || null;
+        }
+        
+        return {
+          id: ticket.id,
+          eventId: ticket.eventId,
+          eventTitle: event?.title || 'Unknown Event',
+          eventImage: event?.image || null,
+          eventDate: event?.date || null,
+          eventLocation: event?.location || null,
+          ticketIdentifier: ticket.ticketIdentifier,
+          ticketQuantity: ticket.ticketQuantity || 1,
+          purchaseDate: ticket.purchaseDate,
+          tierName,
+        };
+      }));
+      
+      res.json(enrichedTickets);
+    } catch (error) {
+      console.error(`Error fetching tickets for user ${userId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch tickets' });
+    }
+  });
+
   // --- Get Latest Ticket Endpoint --- 
   app.get('/api/me/latest-ticket', requireAuth, async (req: Request, res: Response) => {
      const userId = (req.user as any)?.id;
@@ -4456,6 +5027,41 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
       return res.status(500).json({ error: 'Failed to get payment history' });
     }
   });
+
+  // Get user's ticket purchase history
+  app.get('/api/user/payment-history', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+      
+      // Fetch ticket payments with event details
+      const ticketPayments = await db
+        .select({
+          id: payments.id,
+          amount: payments.amount,
+          currency: payments.currency,
+          status: payments.status,
+          purchaseDate: payments.createdAt,
+          eventParticipantId: payments.eventParticipantId,
+          eventTitle: events.title,
+          eventDate: events.date,
+          ticketQuantity: eventParticipants.ticketQuantity,
+        })
+        .from(payments)
+        .leftJoin(eventParticipants, eq(payments.eventParticipantId, eventParticipants.id))
+        .leftJoin(events, eq(eventParticipants.eventId, events.id))
+        .where(eq(payments.userId, userId))
+        .orderBy(desc(payments.createdAt));
+      
+      return res.json(ticketPayments);
+    } catch (error) {
+      console.error('Error getting ticket payment history:', error);
+      return res.status(500).json({ error: 'Failed to get payment history' });
+    }
+  });
   
   // Get details for a specific subscription including payment history
   app.get('/api/me/subscriptions/:id', requireAuth, async (req, res) => {
@@ -4850,13 +5456,17 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         });
       }
 
-      // Update the application status based on original request type
+      // Update the application status based on original request type and event settings
       let finalStatus = 'rejected';
       if (status === 'approved') {
-        if (application.status === 'pending_approval') {
+        // For RSVP events, all approvals should be "attending"
+        // For private (non-RSVP) events, approvals can be "interested"
+        if (existingEvent.isRsvp || existingEvent.requireApproval) {
           finalStatus = 'attending'; // RSVP approval → attending
         } else if (application.status === 'pending_access') {
-          finalStatus = 'interested'; // Access approval → interested (can upgrade to attending later)
+          finalStatus = 'interested'; // Access approval for non-RSVP private events → interested
+        } else {
+          finalStatus = 'attending'; // Default to attending
         }
       }
       
@@ -4899,6 +5509,15 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
           console.error("Error adding user to event group chat:", error);
           // Don't fail the approval if group chat fails
         }
+      }
+
+      // Send push notification to applicant
+      try {
+        const notificationStatus = status === 'approved' ? 'approved' : 'declined';
+        await sendRSVPNotification(userIdNum, existingEvent.title, notificationStatus as 'approved' | 'declined');
+      } catch (error) {
+        console.warn('Error sending RSVP notification:', error);
+        // Don't fail the application update if notification fails
       }
 
       // Get user details for response
@@ -4957,6 +5576,354 @@ app.post('/api/events/:eventId/participate', isAuthenticated, async (req: Reques
         message: 'No JWT token provided, but access granted (optional endpoint)',
         timestamp: new Date().toISOString()
       });
+    }
+  });
+
+  // ============== CHECK-IN ENDPOINTS ==============
+  
+  // GET /api/creator/check-in/events - Get creator's events with check-in stats
+  app.get('/api/creator/check-in/events', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      console.log('[CHECK-IN] Fetching events for creator:', userId);
+      
+      const now = new Date();
+      
+      const creatorEvents = await db.select({
+        id: events.id,
+        title: events.title,
+        image: events.image,
+        date: events.date,
+        location: events.location,
+        city: events.city,
+      })
+      .from(events)
+      .where(eq(events.creatorId, userId))
+      .orderBy(desc(events.date));
+      
+      const eventsWithStats = await Promise.all(creatorEvents.map(async (event) => {
+        const participants = await db.select()
+          .from(eventParticipants)
+          .where(and(
+            eq(eventParticipants.eventId, event.id),
+            eq(eventParticipants.paymentStatus, 'completed')
+          ));
+        
+        const totalAttendees = participants.length;
+        const checkedInCount = participants.filter(p => p.checkInStatus === true).length;
+        const eventDate = event.date ? new Date(event.date) : null;
+        const isPast = eventDate ? eventDate < now : false;
+        
+        return {
+          ...event,
+          totalAttendees,
+          checkedInCount,
+          isPast,
+        };
+      }));
+      
+      const upcomingEvents = eventsWithStats.filter(e => !e.isPast);
+      const pastEvents = eventsWithStats.filter(e => e.isPast);
+      
+      res.json({ upcomingEvents, pastEvents });
+    } catch (error) {
+      console.error('[CHECK-IN] Error fetching events:', error);
+      res.status(500).json({ error: 'Failed to fetch events' });
+    }
+  });
+  
+  // GET /api/creator/check-in/events/:id/attendees - Get attendees for an event
+  app.get('/api/creator/check-in/events/:id/attendees', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const eventId = parseInt(req.params.id, 10);
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, eventId))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to view this event' });
+      }
+      
+      const participants = await db.select({
+        id: eventParticipants.id,
+        userId: eventParticipants.userId,
+        ticketQuantity: eventParticipants.ticketQuantity,
+        ticketIdentifier: eventParticipants.ticketIdentifier,
+        checkInStatus: eventParticipants.checkInStatus,
+        checkedInAt: eventParticipants.checkedInAt,
+        purchaseDate: eventParticipants.purchaseDate,
+      })
+      .from(eventParticipants)
+      .where(and(
+        eq(eventParticipants.eventId, eventId),
+        eq(eventParticipants.paymentStatus, 'completed')
+      ));
+      
+      const attendeesWithDetails = await Promise.all(participants.map(async (p) => {
+        const [user] = await db.select({
+          id: users.id,
+          fullName: users.fullName,
+          username: users.username,
+          profileImage: users.profileImage,
+          email: users.email,
+        })
+        .from(users)
+        .where(eq(users.id, p.userId!))
+        .limit(1);
+        
+        return {
+          participantId: p.id,
+          ticketIdentifier: p.ticketIdentifier,
+          ticketQuantity: p.ticketQuantity || 1,
+          checkInStatus: p.checkInStatus || false,
+          checkedInAt: p.checkedInAt,
+          purchaseDate: p.purchaseDate,
+          user: user || null,
+        };
+      }));
+      
+      res.json({
+        event: {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        attendees: attendeesWithDetails,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error fetching attendees:', error);
+      res.status(500).json({ error: 'Failed to fetch attendees' });
+    }
+  });
+  
+  // POST /api/creator/check-in/validate - Validate ticket and return attendee details
+  app.post('/api/creator/check-in/validate', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { ticketIdentifier, eventId } = req.body;
+      
+      if (!ticketIdentifier) {
+        return res.status(400).json({ error: 'Ticket identifier required' });
+      }
+      
+      console.log('[CHECK-IN] Validating ticket:', ticketIdentifier);
+      
+      const [participant] = await db.select()
+        .from(eventParticipants)
+        .where(eq(eventParticipants.ticketIdentifier, ticketIdentifier))
+        .limit(1);
+      
+      if (!participant) {
+        return res.status(404).json({ error: 'Invalid ticket - not found', valid: false });
+      }
+      
+      if (participant.paymentStatus !== 'completed') {
+        return res.status(400).json({ error: 'Ticket payment not completed', valid: false });
+      }
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, participant.eventId!))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found', valid: false });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to check in for this event', valid: false });
+      }
+      
+      if (eventId && event.id !== eventId) {
+        return res.status(400).json({ error: 'Ticket is for a different event', valid: false });
+      }
+      
+      const [attendeeUser] = await db.select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+        email: users.email,
+      })
+      .from(users)
+      .where(eq(users.id, participant.userId!))
+      .limit(1);
+      
+      res.json({
+        valid: true,
+        alreadyCheckedIn: participant.checkInStatus || false,
+        checkedInAt: participant.checkedInAt,
+        participant: {
+          id: participant.id,
+          ticketQuantity: participant.ticketQuantity || 1,
+          ticketIdentifier: participant.ticketIdentifier,
+        },
+        event: {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        attendee: attendeeUser || null,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error validating ticket:', error);
+      res.status(500).json({ error: 'Failed to validate ticket', valid: false });
+    }
+  });
+  
+  // POST /api/creator/check-in/confirm - Confirm check-in
+  app.post('/api/creator/check-in/confirm', async (req: Request, res: Response) => {
+    try {
+      let userId: number | null = null;
+      
+      if (req.isAuthenticated() && (req.user as any)?.id) {
+        userId = (req.user as any).id;
+      }
+      
+      if (!userId) {
+        const headerUserId = req.headers['x-user-id'] as string;
+        if (headerUserId) {
+          userId = parseInt(headerUserId, 10);
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { participantId, ticketIdentifier } = req.body;
+      
+      if (!participantId && !ticketIdentifier) {
+        return res.status(400).json({ error: 'Participant ID or ticket identifier required' });
+      }
+      
+      let participant;
+      
+      if (ticketIdentifier) {
+        [participant] = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.ticketIdentifier, ticketIdentifier))
+          .limit(1);
+      } else {
+        [participant] = await db.select()
+          .from(eventParticipants)
+          .where(eq(eventParticipants.id, participantId))
+          .limit(1);
+      }
+      
+      if (!participant) {
+        return res.status(404).json({ error: 'Ticket not found' });
+      }
+      
+      const [event] = await db.select()
+        .from(events)
+        .where(eq(events.id, participant.eventId!))
+        .limit(1);
+      
+      if (!event) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+      
+      if (event.creatorId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to check in for this event' });
+      }
+      
+      if (participant.checkInStatus) {
+        return res.status(400).json({ 
+          error: 'Already checked in',
+          checkedInAt: participant.checkedInAt,
+        });
+      }
+      
+      const now = new Date();
+      
+      await db.update(eventParticipants)
+        .set({
+          checkInStatus: true,
+          checkedInAt: now,
+          checkedInBy: userId,
+          updatedAt: now,
+        })
+        .where(eq(eventParticipants.id, participant.id));
+      
+      const [attendeeUser] = await db.select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        profileImage: users.profileImage,
+      })
+      .from(users)
+      .where(eq(users.id, participant.userId!))
+      .limit(1);
+      
+      console.log('[CHECK-IN] Successfully checked in:', participant.id, 'by creator:', userId);
+      
+      res.json({
+        success: true,
+        message: 'Check-in successful',
+        checkedInAt: now,
+        attendee: attendeeUser,
+      });
+    } catch (error) {
+      console.error('[CHECK-IN] Error confirming check-in:', error);
+      res.status(500).json({ error: 'Failed to confirm check-in' });
     }
   });
 

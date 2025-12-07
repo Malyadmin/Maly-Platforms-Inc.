@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { 
-  ChevronLeft, 
   UserCircle, 
   Camera, 
   MapPin, 
@@ -35,9 +34,10 @@ import {
   Smile,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { CITIES_BY_REGION, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { useTranslation } from "@/lib/translations";
 import { ProfileGallery } from "@/components/ui/profile-gallery";
+import { PageHeader } from "@/components/ui/page-header";
 
 const profileSchema = z.object({
   username: z.string().optional(),
@@ -67,6 +67,7 @@ export default function ProfileEditPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [saveButtonClicked, setSaveButtonClicked] = useState(false);
   const { t } = useTranslation();
   
   const genderOptions = [
@@ -228,24 +229,13 @@ export default function ProfileEditPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-black/40 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground hover:bg-accent"
-              onClick={() => setLocation(`/profile/${user?.username}`)}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <UserCircle className="w-6 h-6" />
-              <h1 className="text-lg font-semibold">{t("editProfile")}</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title={t("editProfile")}
+        icon={UserCircle}
+        backButtonFallbackPath={`/profile/${user?.username}`}
+        forceUsePathFallback={true}
+        className="bg-black/40"
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
@@ -418,9 +408,23 @@ export default function ProfileEditPage() {
                               <SelectValue placeholder={t("selectYourCurrentLocation")} />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            {DIGITAL_NOMAD_CITIES.map(city => (
-                              <SelectItem key={city} value={city}>{city}</SelectItem>
+                          <SelectContent className="max-h-[300px]">
+                            {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                              <div key={region}>
+                                <div className="px-2 py-1.5 text-xs font-semibold text-foreground uppercase">
+                                  {region}
+                                </div>
+                                {Object.entries(countries).map(([country, cities]) => (
+                                  <div key={country}>
+                                    <div className="px-3 py-1 text-xs text-muted-foreground">
+                                      {country}
+                                    </div>
+                                    {cities.map((city) => (
+                                      <SelectItem key={city} value={city} className="pl-6">{city}</SelectItem>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
                             ))}
                           </SelectContent>
                         </Select>
@@ -504,28 +508,17 @@ export default function ProfileEditPage() {
                       {VIBE_AND_MOOD_TAGS.map(tag => {
                         const isInterest = selectedInterests.includes(tag);
                         const isMood = selectedMoods.includes(tag);
-                        
-                        // Determine badge style based on selection states
-                        let variant = "outline";
-                        let className = "cursor-pointer hover:opacity-80 transition-opacity";
-                        
-                        if (isInterest && isMood) {
-                          // Tag is selected as both interest and mood
-                          variant = "default";
-                          className += " ring-2 ring-primary ring-opacity-50";
-                        } else if (isInterest) {
-                          // Tag is selected as interest only
-                          variant = "default";
-                        } else if (isMood) {
-                          // Tag is selected as mood only
-                          variant = "secondary";
-                        }
+                        const isSelected = isInterest || isMood;
                         
                         return (
                           <Badge
                             key={tag}
-                            variant={variant as any}
-                            className={className}
+                            variant="outline"
+                            className={`cursor-pointer transition-all ${
+                              isSelected 
+                                ? 'bg-transparent border-white/50 hover:border-white/70' 
+                                : 'bg-transparent border-gray-500/40 hover:bg-white/10'
+                            }`}
                             onClick={() => {
                               // Toggle selection for both interest and mood at once
                               const newInterests = isInterest
@@ -556,21 +549,6 @@ export default function ProfileEditPage() {
                   </div>
                 </div>
               </Card>
-
-              <div className="flex justify-end space-x-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setLocation(`/profile/${user?.username}`)}
-                >
-                  {t("cancel")}
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? t("saving") : t("saveChanges")}
-                </Button>
-              </div>
             </form>
           </Form>
         </div>

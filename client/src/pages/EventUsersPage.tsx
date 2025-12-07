@@ -1,7 +1,6 @@
 import { useParams, useLocation, useSearch } from "wouter";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft } from "lucide-react";
 
 export default function EventUsersPage() {
   const { id } = useParams();
@@ -20,14 +19,7 @@ export default function EventUsersPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation(`/event/${id}`)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
-          </Button>
+          <BackButton onClick={() => setLocation(`/event/${id}`)} />
         </div>
       </header>
 
@@ -40,7 +32,7 @@ export default function EventUsersPage() {
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent/5 cursor-pointer"
+              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-foreground/10/5 cursor-pointer"
               onClick={() => setLocation(`/profile/${user.username}`)}
             >
               <Avatar className="h-12 w-12">

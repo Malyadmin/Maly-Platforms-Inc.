@@ -3,11 +3,12 @@ import { useLocation } from "wouter";
 import { format } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { useTranslation } from "@/lib/translations";
-import { ChevronLeft, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Timeline } from "@/components/ui/timeline";
 
 interface EventUser {
@@ -131,15 +132,10 @@ export default function OndaLindaFestivalPage() {
     <div className="min-h-screen bg-black text-white">
       <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white/60"
+          <BackButton 
+            className="text-white hover:bg-foreground/10"
             onClick={() => setLocation("/")}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-sm font-medium">Back</h1>
+          />
         </div>
       </header>
 
@@ -187,7 +183,7 @@ export default function OndaLindaFestivalPage() {
               <p className="text-xl font-semibold">${festival.price}</p>
             </div>
             <Button 
-              className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+              className="bg-white hover:bg-gray-100 text-black text-white"
               onClick={() => setLocation(`/event/${festival.id}/tickets`)}
             >
               Get Tickets
@@ -267,7 +263,7 @@ export default function OndaLindaFestivalPage() {
 
         <div className="flex flex-col gap-4 pt-4">
           <Button 
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            className="w-full bg-white hover:bg-gray-100 text-black text-white"
             onClick={() => participateMutation.mutate("attending")}
           >
             I'll be attending

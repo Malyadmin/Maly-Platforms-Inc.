@@ -49,7 +49,7 @@ export function ItineraryFormField({ name }: ItineraryFormFieldProps) {
       </div>
 
       {fields.length === 0 && (
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-foreground/60">
           {t('noScheduleItems')}
         </p>
       )}
@@ -60,7 +60,7 @@ export function ItineraryFormField({ name }: ItineraryFormFieldProps) {
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 h-6 w-6 text-white/60 hover:text-white"
+            className="absolute top-2 right-2 h-6 w-6 text-foreground/60 hover:text-foreground"
             onClick={() => remove(index)}
           >
             <X className="h-4 w-4" />
@@ -68,7 +68,7 @@ export function ItineraryFormField({ name }: ItineraryFormFieldProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor={`${name}.${index}.startTime`} className="text-xs text-white/60">
+              <Label htmlFor={`${name}.${index}.startTime`} className="text-xs text-foreground/60">
                 {t('startTime')}
               </Label>
               <Input
@@ -79,7 +79,7 @@ export function ItineraryFormField({ name }: ItineraryFormFieldProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`${name}.${index}.endTime`} className="text-xs text-white/60">
+              <Label htmlFor={`${name}.${index}.endTime`} className="text-xs text-foreground/60">
                 {t('endTime')}
               </Label>
               <Input
@@ -92,7 +92,7 @@ export function ItineraryFormField({ name }: ItineraryFormFieldProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`${name}.${index}.description`} className="text-xs text-white/60">
+            <Label htmlFor={`${name}.${index}.description`} className="text-xs text-foreground/60">
               {t('description')}
             </Label>
             <Textarea

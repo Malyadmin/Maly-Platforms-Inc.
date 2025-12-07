@@ -2,9 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Maly App</title>
     <meta name="description" content="Discover and promote vibe-aligned events, people, and places worldwide." />
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Maly" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Maly" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Apple Touch Icons - All Required Sizes for PWA Builder -->
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icon-167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icon-120.png" />
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="/splash-screen.png" />
+    
+    <!-- Standard Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

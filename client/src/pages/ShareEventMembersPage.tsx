@@ -164,7 +164,7 @@ export default function ShareEventMembersPage() {
         {/* Selected Count */}
         {selectedMembers.length > 0 && (
           <div className="fixed bottom-24 left-0 right-0 px-6">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 text-center">
+            <div className="bg-accent backdrop-blur-sm rounded-lg px-4 py-3 text-center">
               <p className="text-white">
                 {selectedMembers.length} member{selectedMembers.length !== 1 ? 's' : ''} selected
               </p>

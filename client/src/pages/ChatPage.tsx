@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { ArrowLeft, SendIcon, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, ChevronLeft } from 'lucide-react';
 
 export default function ChatPage() {
   const [match, params] = useRoute('/chat/:id');
@@ -176,7 +176,7 @@ export default function ChatPage() {
       return message.isRead ? (
         <CheckCircle className="h-4 w-4 text-green-500 ml-1" />
       ) : (
-        <CheckCircle className="h-4 w-4 text-gray-400 ml-1" />
+        <CheckCircle className="h-4 w-4 text-muted-foreground ml-1" />
       );
     }
     return null;
@@ -283,10 +283,12 @@ export default function ChatPage() {
                   </Button>
                   <Button
                     variant="outline"
+                    size="icon"
                     onClick={() => setLocation('/inbox')}
-                    className="flex-1"
+                    aria-label="Back to inbox"
                   >
-                    Back to Inbox
+                    <ChevronLeft className="h-5 w-5" />
+                    <span className="sr-only">Back to Inbox</span>
                   </Button>
                 </div>
               </div>
@@ -316,7 +318,7 @@ export default function ChatPage() {
                 ) : messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
-                      <SendIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <SendIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-medium">No messages yet</h3>
                       <p className="text-sm text-gray-500 mt-2">
                         Send a message to start a conversation

@@ -4,6 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["imagemagick"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -66,3 +67,8 @@ defaultBucketID = "replit-objstore-f945c3eb-851b-40c9-a101-b3bdbdc28497"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+VITE_VAPID_PUBLIC_KEY = "BF3dvVB4WAhfCq3F6xAwafRuW8iqU7sYcFK7HXttLA-k3cwMAwDttEIq1FCAkDMA55IcezTsbdo7X72J5DXRTYI"

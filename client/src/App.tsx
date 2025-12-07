@@ -17,7 +17,7 @@ import ChatConversationPage from "./pages/ChatConversationPage";
 import PremiumPage from "./pages/PremiumPage";
 import PremiumSuccessPage from "./pages/PremiumSuccessPage";
 import InboxPage from "./pages/InboxPage";
-import ProfileEditPage from "./pages/ProfileEditPage";
+import EditProfilePage from "./pages/EditProfilePage";
 import TranslatorPage from "./pages/TranslatorPage";
 import OndaLindaFestivalPage from "./pages/OndaLindaFestivalPage";
 import ProfileGeneratorPage from "./pages/ProfileGeneratorPage";
@@ -27,20 +27,33 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import CreatorDashboardPage from "./pages/CreatorDashboardPage";
 import AiEventDemoPage from "./pages/AiEventDemoPage.jsx";
 import AuthPage from "./pages/AuthPage";
+import SignupFlowPage from "./pages/SignupFlowPage";
 import StripeConnectPage from "./pages/StripeConnectPage";
 import StripeConnectSuccessPage from "./pages/StripeConnectSuccessPage";
 import StripeConnectReauthPage from "./pages/StripeConnectReauthPage";
 import ShareEventMembersPage from "./pages/ShareEventMembersPage";
 import SelectPeopleToInvitePage from "./pages/SelectPeopleToInvitePage";
+import AboutMalyPage from "./pages/AboutMalyPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import PaymentDisclaimerPage from "./pages/PaymentDisclaimerPage";
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+import PaymentMethodsPage from "./pages/PaymentMethodsPage";
+import AppearancePage from "./pages/AppearancePage";
+import MyTicketsPage from "./pages/MyTicketsPage";
+import CheckInPage from "./pages/CheckInPage";
 import { Layout } from "./components/ui/layout";
 import { ThemeProvider } from "./lib/theme-provider";
 import { LanguageProvider } from "./lib/language-context";
 import { QueryProvider } from "./lib/query-provider";
 import { UserProvider } from "./lib/user-provider";
 import { useUser } from "@/hooks/use-user";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { SplashScreen } from "./components/ui/splash-screen";
+import { PageTransition } from "./components/ui/page-transition";
 
 function AppContent() {
   const [location, setLocation] = useLocation();
@@ -67,8 +80,8 @@ function AppContent() {
     }
     
     // Don't perform redundant auth checks - defer to the Layout component
-    // Skip check if we're already on the auth page or during loading
-    if (location.startsWith('/auth') || location.startsWith('/payment-') || location.startsWith('/stripe/connect') || isLoading) {
+    // Skip check if we're already on the auth page, signup page, or during loading
+    if (location.startsWith('/auth') || location.startsWith('/signup') || location.startsWith('/payment-') || location.startsWith('/stripe/connect') || isLoading) {
       return;
     }
     
@@ -80,8 +93,8 @@ function AppContent() {
   }, [user, isLoading, location, setLocation]);
 
   // Determine if we should show the layout based on the current route
-  // Exclude DiscoverPage, ConnectPage, InboxPage, and CreateEventFlowPage from Layout to prevent duplicate headers
-  const showLayout = !location.startsWith('/auth') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/create');
+  // Exclude pages with their own headers from Layout to prevent duplicate headers
+  const showLayout = !location.startsWith('/auth') && !location.startsWith('/signup') && !location.startsWith('/payment-') && !location.startsWith('/stripe/connect') && !location.startsWith('/discover') && !location.startsWith('/connect') && !location.startsWith('/inbox') && !location.startsWith('/profile') && !location.startsWith('/event') && !location.startsWith('/create') && !location.startsWith('/creator') && !location.startsWith('/companion') && !location.startsWith('/chat') && !location.startsWith('/about') && !location.startsWith('/terms') && !location.startsWith('/privacy') && !location.startsWith('/my-tickets') && location !== '/payment-methods' && location !== '/notification-preferences' && location !== '/appearance';
 
   return (
     <>
@@ -110,14 +123,24 @@ function AppContent() {
             <Route path="/premium" component={PremiumPage} />
             <Route path="/premium-success" component={PremiumSuccessPage} />
             <Route path="/inbox" component={InboxPage} />
-            <Route path="/profile-edit" component={ProfileEditPage} />
+            <Route path="/profile-edit" component={EditProfilePage} />
             <Route path="/translator" component={TranslatorPage} />
             <Route path="/profile-setup" component={ProfileGeneratorPage} />
             <Route path="/replit-profile" component={ReplitProfilePage} />
             <Route path="/ai-events" component={AiEventDemoPage} />
             <Route path="/admin" component={AdminDashboardPage} />
             <Route path="/admin/payments" component={AdminPaymentsPage} />
+            <Route path="/creator/dashboard" component={CreatorDashboardPage} />
+            <Route path="/creator/check-in" component={CheckInPage} />
             <Route path="/stripe/connect" component={StripeConnectPage} />
+            <Route path="/about" component={AboutMalyPage} />
+            <Route path="/terms" component={TermsPage} />
+            <Route path="/privacy" component={PrivacyPolicyPage} />
+            <Route path="/payment-disclaimer" component={PaymentDisclaimerPage} />
+            <Route path="/notification-preferences" component={NotificationPreferencesPage} />
+            <Route path="/payment-methods" component={PaymentMethodsPage} />
+            <Route path="/appearance" component={AppearancePage} />
+            <Route path="/my-tickets" component={MyTicketsPage} />
             <Route path="/:rest*">
               {() => <div className="text-center p-8">404 - Page Not Found</div>}
             </Route>
@@ -129,11 +152,34 @@ function AppContent() {
           <Route path="/discover" component={DiscoverPage} />
           <Route path="/connect" component={ConnectPage} />
           <Route path="/inbox" component={InboxPage} />
+          <Route path="/profile" component={ProfilePage} />
+          <Route path="/profile-edit" component={EditProfilePage} />
+          <Route path="/profile/:username" component={ProfilePage} />
+          <Route path="/about" component={AboutMalyPage} />
+          <Route path="/terms" component={TermsPage} />
+          <Route path="/privacy" component={PrivacyPolicyPage} />
+          <Route path="/payment-disclaimer" component={PaymentDisclaimerPage} />
+          <Route path="/notification-preferences" component={NotificationPreferencesPage} />
+          <Route path="/payment-methods" component={PaymentMethodsPage} />
+          <Route path="/appearance" component={AppearancePage} />
+          <Route path="/my-tickets" component={MyTicketsPage} />
           <Route path="/create" component={CreateEventFlowPage} />
           <Route path="/create-flow" component={CreateEventFlowPage} />
+          <Route path="/companion" component={ChatbotPage} />
+          <Route path="/chat/:id" component={ChatPage} />
+          <Route path="/chat/conversation/:conversationId" component={ChatConversationPage} />
+          <Route path="/event/onda-linda-festival" component={OndaLindaFestivalPage} />
+          <Route path="/event/:id/tickets" component={EventTicketsPage} />
+          <Route path="/event/:id/invite" component={SelectPeopleToInvitePage} />
+          <Route path="/event/:id" component={EventPage} />
+          <Route path="/edit-event/:id" component={EditEventPage} />
+          <Route path="/share-event-members" component={ShareEventMembersPage} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/signup" component={SignupFlowPage} />
           <Route path="/payment-success" component={PaymentSuccessPage} />
           <Route path="/payment-cancel" component={PaymentCancelPage} />
+          <Route path="/creator/dashboard" component={CreatorDashboardPage} />
+          <Route path="/creator/check-in" component={CheckInPage} />
           <Route path="/stripe/connect" component={StripeConnectPage} />
           <Route path="/stripe/connect/success" component={StripeConnectSuccessPage} />
           <Route path="/stripe/connect/reauth" component={StripeConnectReauthPage} />
@@ -147,12 +193,31 @@ function AppContent() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(false);
+  const [splashMinTimePassed, setSplashMinTimePassed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSplashMinTimePassed(true);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (splashMinTimePassed) {
+      setShowSplash(false);
+    }
+  }, [splashMinTimePassed]);
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="nomad-theme">
       <QueryProvider>
         <UserProvider>
           <LanguageProvider>
-            <AppContent />
+            <SplashScreen isVisible={showSplash} />
+            <PageTransition>
+              <AppContent />
+            </PageTransition>
           </LanguageProvider>
         </UserProvider>
       </QueryProvider>

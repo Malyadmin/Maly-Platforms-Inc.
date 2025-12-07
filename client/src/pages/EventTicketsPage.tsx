@@ -25,6 +25,19 @@ const getStripe = () => {
   return stripePromise;
 };
 
+// Ticket Tier interface
+interface TicketTier {
+  id: number;
+  eventId: number;
+  name: string;
+  description: string | null;
+  price: string;
+  quantity: number | null;
+  stripePriceId: string | null;
+  stripeProductId: string | null;
+  isActive: boolean;
+}
+
 // Event interface
 interface Event {
   id: number;
@@ -38,6 +51,7 @@ interface Event {
   imageUrl: string;
   creatorId: number;
   creatorName?: string;
+  ticketTiers?: TicketTier[];
 }
 
 export default function EventTicketsPage() {
@@ -47,6 +61,7 @@ export default function EventTicketsPage() {
   const [quantity, setQuantity] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
   const { t } = useTranslation();
 
   // Fetch event details
@@ -69,12 +84,21 @@ export default function EventTicketsPage() {
     }
   }, [user, setLocation, isLoading]);
 
+  // Auto-select first active tier when event loads
+  useEffect(() => {
+    if (event?.ticketTiers && event.ticketTiers.length > 0 && !selectedTierId) {
+      const firstActiveTier = event.ticketTiers.find(tier => tier.isActive);
+      if (firstActiveTier) {
+        setSelectedTierId(firstActiveTier.id);
+      }
+    }
+  }, [event, selectedTierId]);
+
+  // Get selected tier
+  const selectedTier = event?.ticketTiers?.find(tier => tier.id === selectedTierId);
+
   // Calculate totals
-  const subtotal = event && event.price ? 
-    typeof event.price === 'string' ? 
-      parseFloat(event.price) * quantity : 
-      event.price * quantity : 
-    0;
+  const subtotal = selectedTier ? parseFloat(selectedTier.price) * quantity : 0;
   
   const fees = subtotal * 0.05; // 5% service fee
   const total = subtotal + fees;
@@ -93,7 +117,10 @@ export default function EventTicketsPage() {
 
   // Handle purchase
   const handlePurchase = async () => {
-    if (!event || !event.id) return;
+    if (!event || !event.id || !selectedTierId) {
+      setError('Please select a ticket tier');
+      return;
+    }
     setError(null);
     setIsProcessing(true);
 
@@ -110,7 +137,8 @@ export default function EventTicketsPage() {
         sessionIdPrefix: sessionId ? sessionId.substring(0, 5) + '...' : 'none',
         hasUserId: !!userId,
         authenticated: !!user,
-        userObjectAvailable: !!userObj
+        userObjectAvailable: !!userObj,
+        selectedTierId: selectedTierId
       });
       
       // 1. Create Checkout Session on the backend
@@ -123,7 +151,7 @@ export default function EventTicketsPage() {
         },
         credentials: 'include', // Include cookies for authentication
         body: JSON.stringify({ 
-          eventId: event.id, 
+          ticketTierId: selectedTierId,
           quantity,
           userId: userObj?.id || userId, // Include userId in body as well for additional verification
         }),
@@ -206,30 +234,72 @@ export default function EventTicketsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
+          {event.ticketTiers && event.ticketTiers.length > 0 && (
+            <div className="mb-6">
+              <Label className="mb-3 block">Select Ticket Tier</Label>
+              <div className="space-y-3">
+                {event.ticketTiers
+                  .filter(tier => tier.isActive)
+                  .map(tier => (
+                    <div
+                      key={tier.id}
+                      onClick={() => setSelectedTierId(tier.id)}
+                      className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                        selectedTierId === tier.id
+                          ? 'border-white bg-white/5'
+                          : 'border-gray-500/40 hover:border-gray-400'
+                      }`}
+                      data-testid={`ticket-tier-${tier.id}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-lg">{tier.name}</h3>
+                          {tier.description && (
+                            <p className="text-sm text-white/60 mt-1">{tier.description}</p>
+                          )}
+                          {tier.quantity && (
+                            <p className="text-xs text-white/40 mt-1">
+                              {tier.quantity} tickets available
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold">${parseFloat(tier.price).toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mb-4 mt-6">
             <div className="w-full max-w-xs">
               <Label htmlFor="quantity">{t('ticketQuantity')}</Label>
               <Input
                 id="quantity"
                 type="number"
                 min={1}
-                max={event.availableTickets || 10}
+                max={selectedTier?.quantity || 10}
                 value={quantity}
                 onChange={handleQuantityChange}
                 className="mt-1"
+                data-testid="input-quantity"
               />
-              {event.availableTickets && (
+              {selectedTier?.quantity && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {event.availableTickets} {t('ticketsAvailable')}
+                  {selectedTier.quantity} {t('ticketsAvailable')}
                 </p>
               )}
             </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold">
-                ${typeof event.price === 'string' ? parseFloat(event.price).toFixed(2) : event.price.toFixed(2)}
-              </p>
-              <p className="text-sm text-muted-foreground">{t('perTicket')}</p>
-            </div>
+            {selectedTier && (
+              <div className="text-right">
+                <p className="text-lg font-semibold">
+                  ${parseFloat(selectedTier.price).toFixed(2)}
+                </p>
+                <p className="text-sm text-muted-foreground">{t('perTicket')}</p>
+              </div>
+            )}
           </div>
           
           <div className="border-t pt-4 mt-4">
@@ -265,7 +335,8 @@ export default function EventTicketsPage() {
           <Button
             className="w-full font-semibold"
             onClick={handlePurchase}
-            disabled={isProcessing}
+            disabled={isProcessing || !selectedTierId}
+            data-testid="button-purchase"
           >
             {isProcessing ? (
               <>

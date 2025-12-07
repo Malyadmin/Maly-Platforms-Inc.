@@ -149,7 +149,7 @@ export default function AdminPaymentsPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                className="text-muted-foreground hover:text-white hover:bg-foreground/10"
                 onClick={() => setLocation("/admin")}
               >
                 <ChevronLeft className="w-5 h-5" />

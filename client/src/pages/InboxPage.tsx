@@ -7,10 +7,11 @@ import { Conversation } from '@/types/inbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MessageSquare, Search, XCircle, ChevronRight, UserPlus, Calendar, Users, ChevronDown, ChevronUp, Check, X, Plus } from 'lucide-react';
+import { InboxSkeleton } from '@/components/ui/content-skeleton';
 import { useTranslation } from '@/lib/translations';
 import { BottomNav } from '@/components/ui/bottom-nav';
+import { HamburgerMenu } from '@/components/ui/hamburger-menu';
 
 interface ConnectionRequest {
   id: number;
@@ -48,23 +49,14 @@ export default function InboxPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
-  const [requestsExpanded, setRequestsExpanded] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'groups' | 'contacts'>('all');
   const { user } = useUser();
   const { conversations, loading: conversationsLoading, error, fetchConversations, markAllAsRead, connectSocket } = useMessages();
   const { showNotification } = useMessageNotifications();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
-  // Fetch connection requests
-  const { data: connectionRequests = [], isLoading: connectionRequestsLoading } = useQuery<ConnectionRequest[]>({
-    queryKey: ['/api/connections/pending'],
-    queryFn: async () => {
-      const response = await fetch('/api/connections/pending');
-      if (!response.ok) throw new Error('Failed to fetch pending connection requests');
-      return response.json();
-    },
-    enabled: !!user?.id,
-  });
+  // No more connection requests - contacts are added instantly
 
 
   // Fetch RSVP requests (for events the user created)
@@ -113,16 +105,16 @@ export default function InboxPage() {
     },
   });
 
-  // Fetch connections (users who are connected with the current user)
+  // Fetch contacts (users in the current user's contacts list)
   const {
     data: connections = [],
     isLoading: connectionsLoading,
     error: connectionsError
   } = useQuery<ConnectionUser[]>({
-    queryKey: ["connections"],
+    queryKey: ["contacts"],
     queryFn: async () => {
-      const response = await fetch("/api/connections");
-      if (!response.ok) throw new Error("Failed to fetch connections");
+      const response = await fetch("/api/contacts");
+      if (!response.ok) throw new Error("Failed to fetch contacts");
       return response.json();
     },
     enabled: !!user,
@@ -186,20 +178,20 @@ export default function InboxPage() {
     }
   };
 
-  const loading = conversationsLoading || connectionRequestsLoading || rsvpRequestsLoading || connectionsLoading;
+  const loading = conversationsLoading || rsvpRequestsLoading || connectionsLoading;
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white px-4 py-8">
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-center justify-center py-12">
-          <MessageSquare className="h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-white">You need to sign in</h3>
-          <p className="text-sm text-gray-500 mt-2">Sign in to view your messages</p>
+          <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium text-foreground">{t('youNeedToSignIn')}</h3>
+          <p className="text-sm text-gray-500 mt-2">{t('signInToViewMessages')}</p>
           <Button
             className="mt-4"
             onClick={() => setLocation('/auth')}
           >
-            Sign In
+            {t('signIn')}
           </Button>
         </div>
       </div>
@@ -222,7 +214,8 @@ export default function InboxPage() {
     avatar, 
     onPress, 
     showChevron = true,
-    testId
+    testId,
+    profileLink
   }: {
     title: string;
     subtitle: string;
@@ -230,264 +223,233 @@ export default function InboxPage() {
     onPress: () => void;
     showChevron?: boolean;
     testId?: string;
+    profileLink?: string;
   }) => (
-    <button
-      onClick={onPress}
-      className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
+    <div
+      className="w-full flex items-center px-5 py-3 hover:bg-foreground/5 active:bg-foreground/10 transition-colors"
       data-testid={testId}
     >
-      <Avatar className="h-10 w-10 mr-3">
-        <AvatarImage src={avatar} alt={title} />
-        <AvatarFallback className="bg-gray-700 text-gray-300">
-          <UserPlus className="h-5 w-5" />
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 text-left">
-        <h4 className="text-white font-medium text-sm">{title}</h4>
-        <p className="text-gray-400 text-xs">{subtitle}</p>
-      </div>
-      {showChevron && <ChevronRight className="h-4 w-4 text-gray-400" />}
-    </button>
+      {profileLink ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setLocation(profileLink);
+          }}
+          className="mr-3"
+          data-testid={`${testId}-avatar`}
+        >
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={avatar} alt={title} />
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              <UserPlus className="h-5 w-5" />
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      ) : (
+        <Avatar className="h-10 w-10 mr-3">
+          <AvatarImage src={avatar} alt={title} />
+          <AvatarFallback className="bg-muted text-muted-foreground">
+            <UserPlus className="h-5 w-5" />
+          </AvatarFallback>
+        </Avatar>
+      )}
+      <button onClick={onPress} className="flex-1 text-left flex items-center">
+        <div className="flex-1">
+          <h4 className="text-foreground font-medium text-sm">{title}</h4>
+          <p className="text-muted-foreground text-xs">{subtitle}</p>
+        </div>
+        {showChevron && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+      </button>
+    </div>
   );
 
   // Helper function to render section headers
   const renderSectionHeader = (title: string, count: number) => (
     <div className="flex items-center justify-between px-4 py-2">
-      <h3 className="text-white font-medium text-base">{title}</h3>
-      <span className="text-white font-medium text-base">{count}</span>
+      <h3 className="text-foreground font-medium text-base">{title}</h3>
+      <span className="text-foreground font-medium text-base">{count}</span>
     </div>
   );
 
   // Helper function to render empty state
   const renderEmptyState = (message: string) => (
     <div className="px-4 py-2">
-      <p className="text-gray-400 text-sm">{message}</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <div className="py-4 border-b border-gray-800">
-        {/* MALY logo centered at top */}
-        <div className="flex justify-center pb-3">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Header - Fixed at top */}
+      <header className="bg-background text-foreground shrink-0 z-50">
+        {/* Top bar with MÁLY logo on left and hamburger menu on right */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-12 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
+          <HamburgerMenu />
         </div>
         
-        {/* Inbox title on left */}
-        <div className="px-5">
-          <h2 className="text-white text-lg font-medium" data-testid="inbox-title">Inbox</h2>
+        {/* Chats title with gradient */}
+        <div className="px-5 pb-3">
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">C H A T S</h2>
+          <p className="text-muted-foreground text-xs mt-1">Stay connected to make plans in real life.</p>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="space-y-4 p-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex items-center space-x-3">
-              <Skeleton className="h-10 w-10 rounded-full bg-gray-700" />
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-4 w-[150px] bg-gray-700" />
-                <Skeleton className="h-3 w-[100px] bg-gray-700" />
-              </div>
-              <Skeleton className="h-4 w-4 bg-gray-700" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-8 pb-20" data-testid="inbox-content">
-          {/* Direct Messages Section */}
-          <div className="space-y-2">
-            {renderSectionHeader('Direct Messages', directMessages.length)}
-            {directMessages.length === 0 ? (
-              renderEmptyState('No direct messages yet')
-            ) : (
-              <div>
-                {directMessages.map((conversation) => {
-                  const displayName = conversation.otherParticipant 
-                    ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'Unknown User')
-                    : 'Unknown User';
-                  
-                  const displaySubtitle = conversation.lastMessage?.content 
-                    ? conversation.lastMessage.content 
-                    : 'No messages yet';
-
-                  const avatarUrl = conversation.otherParticipant?.profileImage;
-                  
-                  return renderInboxItem({
-                    title: displayName,
-                    subtitle: displaySubtitle,
-                    avatar: avatarUrl,
-                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                    testId: `conversation-${conversation.id}`
-                  });
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Group Chats Section */}
-          <div className="space-y-2">
-            {renderSectionHeader('Group Chats', groupChats.length)}
-            {groupChats.length === 0 ? (
-              renderEmptyState('No group chats yet')
-            ) : (
-              <div>
-                {groupChats.map((conversation) => {
-                  // Format group chat title as "Event Name Group Thread"
-                  const displayName = conversation.type === 'event' && conversation.title 
-                    ? conversation.title.replace(' - Event Chat', ' Group Thread')
-                    : (conversation.title || 'Group Chat');
-                  
-                  const displaySubtitle = conversation.lastMessage?.content 
-                    ? conversation.lastMessage.content 
-                    : `${conversation.participantCount} members`;
-                  
-                  return renderInboxItem({
-                    title: displayName,
-                    subtitle: displaySubtitle,
-                    avatar: undefined, // Group chats don't have profile images
-                    onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
-                    testId: `group-conversation-${conversation.id}`
-                  });
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* My Connections Section */}
-          <div className="space-y-2">
-            {renderSectionHeader('My Connections', connections.length)}
-            {connections.length === 0 ? (
-              renderEmptyState('No connections yet')
-            ) : (
-              <div>
-                {connections.slice(0, 5).map((connection) => {
-                  return renderInboxItem({
-                    title: connection.fullName || connection.username,
-                    subtitle: 'Connected',
-                    avatar: connection.profileImage || undefined,
-                    onPress: () => setLocation(`/profile/${connection.username}`),
-                    testId: `connection-${connection.id}`
-                  });
-                })}
-                {connections.length > 5 && (
-                  <button
-                    onClick={() => setLocation('/connections')}
-                    className="w-full flex items-center px-4 py-3 hover:bg-gray-900 active:bg-gray-800 transition-colors"
-                    data-testid="view-all-connections"
-                  >
-                    <div className="flex-1 text-left">
-                      <h4 className="text-blue-400 font-medium text-sm">View All Connections</h4>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-blue-400" />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Requests Section (Dropdown) */}
-          <div className="space-y-2">
+        {/* Filter Bar - Always Present */}
+        <div className="bg-background border-b border-border">
+          <div className="px-5 py-3 flex items-center justify-between">
             <button
-              onClick={() => setRequestsExpanded(!requestsExpanded)}
-              className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-900 active:bg-gray-800 transition-colors"
-              data-testid="requests-dropdown"
+              onClick={() => setActiveFilter('all')}
+              className={`text-sm transition-colors ${
+                activeFilter === 'all' 
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
+              }`}
+              data-testid="filter-all"
             >
-              <h3 className="text-white font-medium text-base">Requests</h3>
-              <div className="flex items-center gap-2">
-                <span className="text-white font-medium text-base">{connectionRequests.length + rsvpRequests.length}</span>
-                {requestsExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
-                )}
-              </div>
+              {t('all')}
             </button>
-            
-            {requestsExpanded && (
-              <div className="space-y-4">
-                {/* Connection Requests */}
-                {connectionRequests.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="px-4">
-                      <h4 className="text-gray-300 font-medium text-sm">Connection Requests</h4>
-                    </div>
-                    <div>
-                      {connectionRequests.map((request) => 
-                        renderInboxItem({
-                          title: request.fullName || request.username || 'Unknown User',
-                          subtitle: 'Wants to connect',
-                          avatar: request.profileImage,
-                          onPress: () => setLocation(`/profile/${request.username || request.id}`),
-                          testId: `connection-request-${request.id}`
-                        })
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                {/* RSVP Requests */}
-                {rsvpRequests.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="px-4">
-                      <h4 className="text-gray-300 font-medium text-sm">RSVP Requests</h4>
-                    </div>
-                    <div>
-                      {rsvpRequests.map((request) => (
-                        <div key={request.id} className="w-full flex items-center px-4 py-3 border-b border-gray-800 last:border-b-0" data-testid={`rsvp-request-${request.id}`}>
-                          <Avatar className="h-10 w-10 mr-3">
-                            <AvatarImage src={request.userImage} alt={request.userName} />
-                            <AvatarFallback className="bg-gray-700 text-gray-300">
-                              <UserPlus className="h-5 w-5" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <h4 className="text-white font-medium text-sm">{request.userName}</h4>
-                            <p className="text-gray-400 text-xs">Wants to join {request.eventTitle}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                              onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'approved' })}
-                              disabled={handleRSVPMutation.isPending}
-                              data-testid={`accept-rsvp-${request.id}`}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                              onClick={() => handleRSVPMutation.mutate({ eventId: request.eventId, userId: request.userId, action: 'rejected' })}
-                              disabled={handleRSVPMutation.isPending}
-                              data-testid={`decline-rsvp-${request.id}`}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Empty state for requests */}
-                {connectionRequests.length === 0 && rsvpRequests.length === 0 && (
-                  <div className="px-4 py-2">
-                    <p className="text-gray-400 text-sm">No pending requests</p>
-                  </div>
-                )}
-              </div>
-            )}
+            <button
+              onClick={() => setActiveFilter('groups')}
+              className={`text-sm transition-colors ${
+                activeFilter === 'groups' 
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
+              }`}
+              data-testid="filter-groups"
+            >
+              {t('groups')}
+            </button>
+            <button
+              onClick={() => setActiveFilter('contacts')}
+              className={`text-sm transition-colors ${
+                activeFilter === 'contacts' 
+                  ? 'text-foreground font-medium' 
+                  : 'text-foreground hover:text-foreground'
+              }`}
+              data-testid="filter-contacts"
+            >
+              {t('contacts')}
+            </button>
           </div>
+        </div>
+      </header>
+
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="p-4">
+            <InboxSkeleton count={6} />
+          </div>
+        ) : (
+          <div className="pb-20" data-testid="inbox-content">
+          {/* All Filter - Show All Messages in a Simple List */}
+          {activeFilter === 'all' && (
+            <div>
+              {filteredConversations.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-muted-foreground text-sm">{t('noMessagesYet')}</p>
+                </div>
+              ) : (
+                <div>
+                  {filteredConversations.map((conversation) => {
+                    // Handle both direct messages and group chats
+                    const displayName = conversation.type === 'direct' && conversation.otherParticipant 
+                      ? (conversation.otherParticipant.fullName || conversation.otherParticipant.username || t('unknownUser'))
+                      : conversation.type === 'event' && conversation.title 
+                        ? conversation.title.replace(' - Event Chat', ` ${t('groupThread')}`)
+                        : (conversation.title || t('groupChat'));
+                    
+                    const displaySubtitle = conversation.lastMessage?.content 
+                      ? conversation.lastMessage.content 
+                      : conversation.type === 'direct'
+                        ? t('noMessagesYet')
+                        : `${conversation.participantCount} ${t('members')}`;
+
+                    const avatarUrl = conversation.type === 'direct' 
+                      ? conversation.otherParticipant?.profileImage
+                      : undefined;
+                    
+                    const profileLink = conversation.type === 'direct' && conversation.otherParticipant
+                      ? `/profile/${conversation.otherParticipant.username || conversation.otherParticipant.id}?from=/inbox`
+                      : undefined;
+                    
+                    return renderInboxItem({
+                      title: displayName,
+                      subtitle: displaySubtitle,
+                      avatar: avatarUrl,
+                      onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                      testId: `conversation-${conversation.id}`,
+                      profileLink
+                    });
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Groups Filter - Show Only Group Chats */}
+          {activeFilter === 'groups' && (
+            <div className="space-y-2">
+              {groupChats.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-muted-foreground text-sm">{t('noGroupChatsYet')}</p>
+                </div>
+              ) : (
+                <div>
+                  {groupChats.map((conversation) => {
+                    const displayName = conversation.type === 'event' && conversation.title 
+                      ? conversation.title.replace(' - Event Chat', ` ${t('groupThread')}`)
+                      : (conversation.title || t('groupChat'));
+                    
+                    const displaySubtitle = conversation.lastMessage?.content 
+                      ? conversation.lastMessage.content 
+                      : `${conversation.participantCount} ${t('members')}`;
+                    
+                    return renderInboxItem({
+                      title: displayName,
+                      subtitle: displaySubtitle,
+                      avatar: undefined,
+                      onPress: () => setLocation(`/chat/conversation/${conversation.id}`),
+                      testId: `group-conversation-${conversation.id}`
+                    });
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Contacts Filter - Show Only Connections */}
+          {activeFilter === 'contacts' && (
+            <div className="space-y-2">
+              {connections.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-muted-foreground text-sm">{t('noConnectionsYet')}</p>
+                </div>
+              ) : (
+                <div>
+                  {connections.map((connection) => {
+                    return renderInboxItem({
+                      title: connection.fullName || connection.username,
+                      subtitle: t('connected'),
+                      avatar: connection.profileImage || undefined,
+                      onPress: () => setLocation(`/profile/${connection.username || connection.id}`),
+                      testId: `connection-${connection.id}`,
+                      profileLink: `/profile/${connection.username || connection.id}?from=/inbox`
+                    });
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
+      </div>
+      {/* Scrollable content area end */}
       
       {/* Bottom Navigation */}
       <BottomNav />

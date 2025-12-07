@@ -3,42 +3,28 @@ import {
   Globe, 
   Users,
   Plus,
-  Inbox,
-  UserCircle
+  MessageCircle,
+  Bot
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useTranslation } from "@/lib/translations";
-import { useUser } from "@/hooks/use-user";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 
-// Main navigation items - iOS style 5 tabs
 export const mainNavItems = [
-  { icon: Globe, label: 'discover', href: "/discover" },
-  { icon: Users, label: 'connect', href: "/connect" },
-  { icon: Plus, label: 'create', href: "/create" },
-  { icon: Inbox, label: 'inbox', href: "/inbox" },
-  { icon: UserCircle, label: 'profile', href: "/profile" }
+  { icon: Globe, label: 'explore', displayLabel: 'EVENTS', href: "/discover" },
+  { icon: Users, label: 'connect', displayLabel: 'PEOPLE', href: "/connect" },
+  { icon: Plus, label: 'create', displayLabel: 'CREATE', href: "/create" },
+  { icon: MessageCircle, label: 'chats', displayLabel: 'CHATS', href: "/inbox" },
+  { icon: Bot, label: 'concierge', displayLabel: 'CONCIERGE', href: "/companion" }
 ] as const;
 
-// No more menu items needed since inbox and profile are in main nav
-
 export function BottomNav() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const { t } = useTranslation();
 
   return (
     <>
-      {/* Mobile Bottom Navigation - iOS Style */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-black border-t border-gray-800 shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="flex justify-around items-center h-20 px-2">
-          {mainNavItems.map(({ icon: Icon, label, href }) => {
+          {mainNavItems.map(({ icon: Icon, displayLabel, href }) => {
             const isActive = location === href;
             
             return (
@@ -47,9 +33,17 @@ export function BottomNav() {
                 href={href}
                 className="relative flex flex-col items-center justify-center gap-1 py-2"
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-white/60'}`} />
-                <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-white/60'}`}>
-                  {t(label)}
+                <Icon 
+                  className={`w-5 h-5 transition-colors ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  }`} 
+                />
+                <span 
+                  className={`text-[11px] font-normal tracking-wide uppercase transition-colors ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  }`}
+                >
+                  {displayLabel}
                 </span>
               </Link>
             );
@@ -57,23 +51,22 @@ export function BottomNav() {
         </div>
       </nav>
 
-      {/* Desktop Side Navigation - Keep simplified */}
-      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 z-[100] w-16 bg-black border-r border-gray-800 shadow-lg flex-col items-center py-8">
-        {mainNavItems.map(({ icon: Icon, label, href }) => {
+      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 z-[100] w-16 bg-background border-r border-border flex-col items-center py-8">
+        {mainNavItems.map(({ icon: Icon, displayLabel, href }) => {
           const isActive = location === href;
           return (
             <Link 
               key={href} 
               href={href}
-              className={`relative flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-lg transition-all duration-300 ease-out mb-4 group ${
+              className={`relative flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-md transition-all duration-200 ease-out mb-4 group ${
                 isActive 
-                  ? "text-white scale-105" 
-                  : "text-white/60 hover:text-white"
+                  ? "text-foreground" 
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-6 h-6 transition-transform" />
-              <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 absolute left-16 bg-black text-white px-2 py-1 rounded whitespace-nowrap border border-gray-800 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                {t(label)}
+              <span className="text-[11px] font-normal tracking-wide uppercase opacity-0 group-hover:opacity-100 absolute left-16 bg-card text-card-foreground px-3 py-2 rounded-md whitespace-nowrap border border-border transition-all duration-200 translate-x-2 group-hover:translate-x-0">
+                {displayLabel}
               </span>
             </Link>
           );

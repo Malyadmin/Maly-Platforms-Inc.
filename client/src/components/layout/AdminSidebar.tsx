@@ -45,7 +45,7 @@ export function AdminSidebar() {
               key={item.href}
               onClick={() => setLocation(item.href)}
               className={cn(
-                "flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-accent/50 transition-colors",
+                "flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-foreground/10/50 transition-colors",
                 isActive(item.href)
                   ? "bg-accent/50 font-medium text-foreground"
                   : "text-muted-foreground"

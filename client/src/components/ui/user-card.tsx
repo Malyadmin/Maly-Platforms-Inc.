@@ -79,8 +79,8 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-b from-purple-900/80 via-blue-900/80 to-black/90 flex items-center justify-center">
-              <div className="text-4xl font-bold text-white/40">
+            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+              <div className="text-4xl font-bold text-foreground/40">
                 {initials}
               </div>
             </div>
@@ -91,7 +91,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
           
           {/* User Info Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-2">
-            <h3 className="text-white font-semibold text-sm leading-tight truncate">
+            <h3 className="text-foreground font-semibold text-sm leading-tight truncate">
               {displayName}
             </h3>
             {user.location && (
@@ -111,7 +111,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
   // Default horizontal layout
   return (
     <div 
-      className={`flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer ${className}`}
+      className={`flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-foreground/10 transition-colors cursor-pointer ${className}`}
       onClick={onClick}
       data-testid={`user-card-${user.id}`}
     >
@@ -122,7 +122,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
             src={currentImage || undefined} 
             alt={displayName}
           />
-          <AvatarFallback className="bg-gray-700 text-white text-sm font-medium">
+          <AvatarFallback className="bg-gray-700 text-foreground text-sm font-medium">
             {initials}
           </AvatarFallback>
         </Avatar>
@@ -132,14 +132,14 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
           <>
             <button
               onClick={handlePreviousImage}
-              className="absolute -left-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-6 h-6 flex items-center justify-center transition-colors"
+              className="absolute -left-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-6 h-6 flex items-center justify-center transition-colors"
               data-testid={`prev-image-${user.id}`}
             >
               <ChevronLeft className="w-3 h-3" />
             </button>
             <button
               onClick={handleNextImage}
-              className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-6 h-6 flex items-center justify-center transition-colors"
+              className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-foreground rounded-full w-6 h-6 flex items-center justify-center transition-colors"
               data-testid={`next-image-${user.id}`}
             >
               <ChevronRight className="w-3 h-3" />
@@ -162,12 +162,12 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
 
       {/* User Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-white font-semibold text-base leading-tight">
+        <h3 className="text-foreground font-semibold text-base leading-tight">
           {displayName}
         </h3>
         {user.location && (
           <div className="flex items-center gap-1 mt-1">
-            <MapPin className="h-3 w-3 text-gray-400" />
+            <MapPin className="h-3 w-3 text-muted-foreground" />
             <span className="text-gray-300 text-sm truncate">
               {user.location}
             </span>

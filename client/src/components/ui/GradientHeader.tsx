@@ -6,8 +6,11 @@ import {
   UserCircle, 
   PlusCircle, 
   Globe, 
-  Inbox as InboxIcon 
+  Inbox as InboxIcon,
+  Moon,
+  Sun
 } from "lucide-react";
+import { useTheme } from "@/lib/theme-provider";
 
 // Define mapping for page titles to icons
 const iconMap = {
@@ -26,6 +29,8 @@ interface GradientHeaderProps {
   backButtonFallbackPath?: string;
   forceUsePathFallback?: boolean;
   className?: string;
+  showIcon?: boolean;
+  showThemeToggle?: boolean;
 }
 
 export function GradientHeader({ 
@@ -34,8 +39,12 @@ export function GradientHeader({
   showBackButton = true,
   backButtonFallbackPath = "/discover",
   forceUsePathFallback = false,
-  className = ""
+  className = "",
+  showIcon = true,
+  showThemeToggle = true
 }: GradientHeaderProps) {
+  const { theme, setTheme } = useTheme();
+  
   // Get the appropriate icon based on title, defaulting to discover icon
   let Icon = iconMap.discover;
   
@@ -51,9 +60,18 @@ export function GradientHeader({
   // Auto-detect if we're on profile page to force fallback
   const isProfilePage = location.startsWith('/profile/');
   const shouldForcePathFallback = forceUsePathFallback || isProfilePage;
+  
+  // Determine current effective theme
+  const effectiveTheme = theme === "system" 
+    ? (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : theme;
+  
+  const toggleTheme = () => {
+    setTheme(effectiveTheme === "dark" ? "light" : "dark");
+  };
 
   return (
-    <header className={`sticky top-0 z-10 bg-black border-b border-border ${className}`}>
+    <header className={`sticky top-0 z-10 bg-background border-b border-border ${className}`}>
       <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-4 overflow-visible w-full">
           {showBackButton && (
@@ -63,16 +81,27 @@ export function GradientHeader({
             />
           )}
           <div className="flex items-center gap-2">
-            <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
-            <h1 className="text-sm font-medium uppercase tracking-[.5em] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              {title}
+            {showIcon && <Icon className="w-5 h-5 text-primary" aria-hidden="true" />}
+            <h1 className="text-lg font-medium uppercase text-foreground" style={{ letterSpacing: '0.3em' }}>
+              {typeof title === 'string' ? title.toUpperCase().split('').join(' ') : title}
             </h1>
           </div>
-          {children && (
-            <div className="ml-auto flex items-center flex-shrink-0 gap-2">
-              {children}
-            </div>
-          )}
+          <div className="ml-auto flex items-center flex-shrink-0 gap-2">
+            {showThemeToggle && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-foreground/10 transition-colors"
+                aria-label="Toggle theme"
+              >
+                {effectiveTheme === "dark" ? (
+                  <Sun className="w-5 h-5 text-foreground" />
+                ) : (
+                  <Moon className="w-5 h-5 text-foreground" />
+                )}
+              </button>
+            )}
+            {children}
+          </div>
         </div>
       </div>
     </header>

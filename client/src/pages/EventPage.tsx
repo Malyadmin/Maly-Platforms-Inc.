@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, PencilIcon, MapPin, Building, CreditCard, Lock, X } from "lucide-react";
+import { MessageSquare, UserPlus2, Star, Users, CheckCircle, XCircle, Loader2, Share2, Share, PencilIcon, MapPin, Building, CreditCard, Lock, Heart, ChevronRight, ChevronLeft } from "lucide-react";
 
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import { z } from "zod";
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BottomNav } from "@/components/ui/bottom-nav";
 // Define the Event type with all fields
 const TicketTierSchema = z.object({
   id: z.number(),
@@ -32,7 +33,7 @@ const EventSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   date: z.string().or(z.date()),
-  category: z.string(),
+  category: z.string().optional(),
   price: z.string().nullable(),
   ticketType: z.string().nullable(),
   image: z.string().nullable(),
@@ -42,8 +43,13 @@ const EventSchema = z.object({
   creatorId: z.number().nullable(),
   tags: z.array(z.string()).nullable(),
   isPrivate: z.boolean().optional(),
+  privacy: z.enum(['public', 'private', 'friends']).optional(),
+  shareToken: z.string().nullable().optional(),
+  isBlurred: z.boolean().optional(),
+  accessDenied: z.boolean().optional(),
   isRsvp: z.boolean().optional(),
   requireApproval: z.boolean().optional(),
+  dressCode: z.string().nullable().optional(),
   creator: z.object({
     id: z.number(),
     username: z.string(),
@@ -65,6 +71,10 @@ export default function EventPage() {
   const [translatedEvent, setTranslatedEvent] = useState<Event | null>(null);
   const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [showAllVibes, setShowAllVibes] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showDressCode, setShowDressCode] = useState(false);
+  const [shareClicked, setShareClicked] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -101,8 +111,8 @@ export default function EventPage() {
     onError: (error: any) => {
       console.error("Purchase ticket error:", error);
       toast({
-        title: "Purchase Failed",
-        description: error.message || "Failed to initiate ticket purchase. Please try again.",
+        title: t('purchaseFailed'),
+        description: error.message || t('failedInitiateTicketPurchase'),
         variant: "destructive",
       });
     }
@@ -166,15 +176,15 @@ export default function EventPage() {
       queryClient.invalidateQueries({ queryKey: [`/api/events/${id}/participation/status`] });
       queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
       toast({
-        title: "Success",
-        description: "Successfully updated participation status",
+        title: t('success'),
+        description: t('successfullyUpdatedParticipation'),
       });
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to update participation status",
+        title: t('error'),
+        description: t('failedToUpdateParticipation'),
       });
     },
   });
@@ -195,15 +205,15 @@ export default function EventPage() {
     },
     onSuccess: () => {
       toast({
-        title: "Access Request Sent",
-        description: "Your request has been sent to the event host for approval",
+        title: t('accessRequestSent'),
+        description: t('accessRequestSentDescription'),
       });
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to send access request",
+        title: t('error'),
+        description: error.message || t('failedToSendAccessRequest'),
       });
     },
   });
@@ -265,7 +275,7 @@ export default function EventPage() {
 
   if (isLoading || !event) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white/60">
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
         {t('loading')}
       </div>
     );
@@ -274,123 +284,200 @@ export default function EventPage() {
   const displayEvent = translatedEvent || event;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* iOS-style Header with Close and Share */}
-      <div className="absolute top-0 left-0 right-0 z-50 p-4 pt-12">
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={() => setLocation('/discover')}
-            className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm"
-          >
-            Close
-          </button>
-          <button className="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-            Share
-          </button>
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Header - Fixed at top */}
+      <header className="bg-background text-foreground shrink-0 z-50">
+        {/* Top bar with MÁLY logo */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <img 
+            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+            alt="MÁLY" 
+            className="h-14 w-auto logo-adaptive"
+          />
         </div>
-      </div>
+        
+        {/* Bottom bar with Explore title and Back button */}
+        <div className="px-5 pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    window.history.back();
+                  } else {
+                    setLocation('/discover');
+                  }
+                }}
+                className="text-foreground hover:text-foreground transition-colors"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
+            </div>
+            {/* Share Button - includes share token for private/friends events */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                setShareClicked(true);
+                // Build share URL with token if host and event is private/friends
+                const isHost = user?.id === event?.creatorId;
+                let shareUrl = window.location.href;
+                
+                // Add share token for private/friends events when host shares
+                if (isHost && event?.shareToken && (event?.privacy === 'private' || event?.privacy === 'friends')) {
+                  const baseUrl = window.location.origin + `/event/${event.id}`;
+                  shareUrl = `${baseUrl}?token=${event.shareToken}`;
+                }
+                
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: event?.title || t('events'),
+                      text: `${t('checkOutThisEvent')} ${event?.title || t('events')}`,
+                      url: shareUrl,
+                    });
+                  } catch (err) {
+                    if ((err as Error).name !== 'AbortError') {
+                      console.error('Error sharing:', err);
+                      toast({
+                        title: t('shareFailed'),
+                        description: t('unableToShareEvent'),
+                        variant: "destructive",
+                      });
+                    }
+                  }
+                } else {
+                  navigator.clipboard.writeText(shareUrl);
+                  toast({
+                    title: t('linkCopied'),
+                    description: t('eventLinkCopied'),
+                  });
+                }
+              }}
+              className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
+              data-testid="button-share"
+            >
+              <Share className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      {/* Large Event Image */}
-      {event.image && (
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto pb-24" style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
+        {/* Large Event Image */}
+        {event.image && (
         <div className="relative h-96 overflow-hidden">
           <img
             src={event.image}
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          {/* MÁLY logo overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-black/30 px-8 py-4 rounded-lg backdrop-blur-sm">
-              <h1 className="text-white text-3xl font-bold tracking-[0.3em]" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>MÁLY</h1>
+          {/* Demo pill badge - bottom right */}
+          <div className="absolute bottom-3 right-3 pointer-events-none z-10">
+            <div className="bg-black/50 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full">
+              {t('forDemoOnly')}
             </div>
           </div>
         </div>
       )}
 
       {/* Event Details */}
-      <div className="px-6 py-8 space-y-8">
-        {/* Event Title */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-          <div className="flex items-center gap-4 mb-4">
-            {(() => {
-              // Check if event has ticket tiers
-              if (event.ticketTiers && event.ticketTiers.length > 0) {
-                const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
-                if (hasPaidTiers) {
-                  const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
-                  const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
-                  const priceRange = minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
-                  return (
-                    <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                      💳 {priceRange}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                      ✓ Free Event
-                    </div>
-                  );
-                }
-              }
-              // Fallback to original logic for events without tiers
-              else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
-                return (
-                  <div className="flex items-center gap-2 bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm">
-                    💳 ${event.price}
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="flex items-center gap-2 bg-green-600/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                    ✓ Free Event
-                  </div>
-                );
-              }
-            })()}
-            <div className="flex items-center gap-2 text-blue-400">
-              <button
-                onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
-                className="flex items-center gap-2 hover:underline cursor-pointer"
-                data-testid="event-creator-link"
-              >
-                {event?.creator?.profileImage ? (
-                  <img
-                    src={event.creator.profileImage}
-                    alt={event.creator.fullName}
-                    className="w-6 h-6 rounded-full"
+      <div className="px-5 py-4 space-y-4">
+        {/* Event Title with Save Button */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-xl font-semibold text-foreground flex-1">{event.title}</h1>
+          {user && event.creatorId !== user.id && (
+            <button
+              className="flex-shrink-0 p-2 rounded-lg transition-colors bg-transparent hover:bg-muted/50"
+              onClick={() => participateMutation.mutate(
+                participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
+              )}
+              disabled={participateMutation.isPending}
+              data-testid="button-interested"
+            >
+              {participationStatus?.status === 'interested' ? (
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="transition-all"
+                >
+                  <defs>
+                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#9333ea" />
+                      <stop offset="50%" stopColor="#db2777" />
+                      <stop offset="100%" stopColor="#ef4444" />
+                    </linearGradient>
+                  </defs>
+                  <path 
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+                    fill="url(#heartGradient)"
+                    stroke="url(#heartGradient)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
-                ) : (
-                  <span>👤</span>
-                )}
-                <span>{event?.creator?.fullName || event?.creator?.username || 'Unknown Host'}</span>
-              </button>
-            </div>
-          </div>
+                </svg>
+              ) : (
+                <Heart className="w-4 h-4 fill-none stroke-foreground stroke-[1.5] transition-all" />
+              )}
+            </button>
+          )}
         </div>
-
-        {/* Date & Time Section */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">📅</span>
-            <div>
-              <h3 className="text-white font-semibold">Date & Time</h3>
-              <p className="text-white text-lg font-medium">{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
-              <p className="text-white/70">{format(new Date(event.date), "h:mm a")}</p>
+        
+        {/* Hosted by */}
+        <button
+          onClick={() => event?.creator?.username && setLocation(`/profile/${event.creator.username}`)}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          data-testid="event-creator-link"
+        >
+          {event?.creator?.profileImage ? (
+            <img
+              src={event.creator.profileImage}
+              alt={event.creator.fullName}
+              className="w-5 h-5 rounded-full"
+            />
+          ) : (
+            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+              <span className="text-foreground text-xs">{event?.creator?.fullName?.charAt(0) || event?.creator?.username?.charAt(0)}</span>
             </div>
+          )}
+          <span className="text-sm text-foreground/80">{t('hostedBy')} {event?.creator?.fullName || event?.creator?.username || t('unknownHost')}</span>
+        </button>
+
+        {/* Date, Time, Price, Address */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-foreground">{format(new Date(event.date), "EEEE, MMMM d, yyyy 'at' h:mm a")}</p>
           </div>
-        </div>
-
-        {/* Location Section */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">✈️</span>
-            <div>
-              <h3 className="text-white font-semibold">Location</h3>
-              <p className="text-white text-lg font-medium">{event.location}</p>
-              <p className="text-white/70">{event.address || event.location}</p>
-            </div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-foreground">
+              {(() => {
+                if (event.ticketTiers && event.ticketTiers.length > 0) {
+                  const hasPaidTiers = event.ticketTiers.some(tier => parseFloat(tier.price) > 0);
+                  if (hasPaidTiers) {
+                    const minPrice = Math.min(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                    const maxPrice = Math.max(...event.ticketTiers.map(tier => parseFloat(tier.price)));
+                    return minPrice === maxPrice ? `$${minPrice.toFixed(2)}` : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+                  } else {
+                    return t('free');
+                  }
+                } else if (event.ticketType === 'paid' && event.price && parseFloat(event.price) > 0) {
+                  return `$${event.price}`;
+                } else {
+                  return t('free');
+                }
+              })()}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-foreground/60" />
+            <p className="text-sm text-foreground/80">{event.address || event.location}</p>
           </div>
         </div>
 
@@ -399,190 +486,143 @@ export default function EventPage() {
           <div 
             ref={mapContainer} 
             className="h-48 w-full rounded-lg"
-            style={{ minHeight: '300px' }}
           />
         ) : (
-          <div className="h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-            <p className="text-white/60">Location coordinates not available</p>
+          <div className="h-48 bg-muted rounded-lg flex items-center justify-center">
+            <p className="text-sm text-foreground/60">{t('locationCoordinatesNotAvailable')}</p>
           </div>
         )}
 
-        {/* About This Event Section */}
+        {/* Vibes - Show 3, expand with > */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {(showAllVibes ? event.tags : event.tags.slice(0, 3)).map((tag, index) => (
+                <span key={index} className="bg-white/20 text-foreground px-3 py-1 rounded-full text-xs">
+                  {tag}
+                </span>
+              ))}
+              {event.tags.length > 3 && (
+                <button
+                  onClick={() => setShowAllVibes(!showAllVibes)}
+                  className="flex items-center gap-1 text-foreground/80 hover:text-foreground text-xs"
+                >
+                  <ChevronRight className={`w-4 h-4 transition-transform ${showAllVibes ? 'rotate-90' : ''}`} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Dress Code - Collapsible */}
+        {event.dressCode && (
+          <div className="space-y-2">
+            <button
+              onClick={() => setShowDressCode(!showDressCode)}
+              className="flex items-center gap-2 text-foreground/80 hover:text-foreground text-sm"
+            >
+              <span>{t('dressCode')}</span>
+              <ChevronRight className={`w-4 h-4 transition-transform ${showDressCode ? 'rotate-90' : ''}`} />
+            </button>
+            {showDressCode && (
+              <p className="text-sm text-foreground/80 pl-6">{event.dressCode}</p>
+            )}
+          </div>
+        )}
+
+        {/* Description Preview */}
         <div className="space-y-2">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">☰</span>
-            <h3 className="text-white font-semibold">About This Event</h3>
-          </div>
-          <p className="text-white/80 leading-relaxed">{event.description}</p>
-        </div>
-
-        {/* Event Vibes Section */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-lg">✨</span>
-            <h3 className="text-white font-semibold">Event Vibes</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {event.tags?.map((tag, index) => (
-              <span key={index} className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                {tag}
-              </span>
-            )) || (
-              <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                Wellness & Movement
-              </span>
-            )}
-          </div>
+          <p className={`text-sm text-foreground/80 leading-relaxed ${showFullDescription ? '' : 'line-clamp-3'}`}>
+            {event.description}
+          </p>
+          {event.description && event.description.length > 150 && (
+            <button
+              onClick={() => setShowFullDescription(!showFullDescription)}
+              className="text-sm text-foreground hover:underline"
+            >
+              {showFullDescription ? t('viewLess') : t('viewMore')}
+            </button>
+          )}
         </div>
 
 
-        {/* Participation Section */}
+        {/* Ticket CTA, Share, and Save Button */}
         {user && event.creatorId !== user.id && (
-          <div className="pt-4 space-y-4">
-            {event.requireApproval ? (
-              /* RSVP/Private Event - Show Request Access Button or Status */
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-yellow-400 bg-yellow-400/10 px-4 py-2 rounded-lg">
-                  <Lock className="w-4 h-4" />
-                  <span className="text-sm">This event requires host approval to attend</span>
-                </div>
-                
-                {/* Show current RSVP status if user has one */}
-                {rsvpStatus?.status ? (
-                  <div className="space-y-3">
-                    {rsvpStatus.status === 'pending_approval' || rsvpStatus.status === 'pending_access' ? (
-                      <div className="flex items-center gap-2 text-orange-400 bg-orange-400/10 px-4 py-2 rounded-lg">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Your request is pending approval</span>
-                      </div>
-                    ) : rsvpStatus.status === 'attending' ? (
-                      <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-2 rounded-lg">
-                        <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm">You are attending this event</span>
-                      </div>
-                    ) : rsvpStatus.status === 'rejected' ? (
-                      <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-2 rounded-lg">
-                        <XCircle className="w-4 h-4" />
-                        <span className="text-sm">Your request was declined</span>
-                      </div>
-                    ) : rsvpStatus.status === 'interested' ? (
-                      <div className="flex items-center gap-2 text-blue-400 bg-blue-400/10 px-4 py-2 rounded-lg">
-                        <Star className="w-4 h-4" />
-                        <span className="text-sm">You are interested in this event</span>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  /* Show request button if no status */
-                  <Button 
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                    onClick={() => accessRequestMutation.mutate()}
-                    disabled={accessRequestMutation.isPending}
-                    data-testid="button-request-access"
-                  >
-                    {accessRequestMutation.isPending ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Sending Request...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 mr-2" />
-                        Request Access
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-            ) : (
-              /* Public Event - Show Regular Participation Buttons */
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 text-white/60 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>{event.attendingCount || 0} attending</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    <span>{event.interestedCount || 0} interested</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-3">
-                  {/* Purchase button for paid events */}
-                  {event.ticketType === 'paid' && (
-                    <Button 
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                      onClick={() => setIsTicketModalOpen(true)}
-                      data-testid="button-purchase-ticket"
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Purchase Tickets
-                    </Button>
+          <div className="pt-2 space-y-3">
+            <div className="flex items-center gap-2">
+              {/* Ticket/Purchase Button */}
+              {event.ticketType === 'paid' || (event.ticketTiers && event.ticketTiers.length > 0) ? (
+                <Button 
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
+                  onClick={() => setIsTicketModalOpen(true)}
+                  data-testid="button-purchase-ticket"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  {t('getTickets')}
+                </Button>
+              ) : event.requireApproval ? (
+                <Button 
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
+                  onClick={() => accessRequestMutation.mutate()}
+                  disabled={accessRequestMutation.isPending}
+                  data-testid="button-request-access"
+                >
+                  {accessRequestMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t('requesting')}
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      {t('request')}
+                    </>
                   )}
-                  
-                  <Button 
-                    className={`w-full ${
-                      participationStatus?.status === 'attending' 
-                        ? 'bg-green-600 hover:bg-green-700' 
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                    } text-white`}
-                    onClick={() => participateMutation.mutate(
-                      participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
-                    )}
-                    disabled={participateMutation.isPending}
-                    data-testid="button-attending"
-                  >
-                    {participateMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : participationStatus?.status === 'attending' ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Cancel Attendance
-                      </>
-                    ) : (
-                      "I'll be attending"
-                    )}
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className={`w-full ${
-                      participationStatus?.status === 'interested'
-                        ? 'bg-yellow-600/20 border-yellow-600 text-yellow-400 hover:bg-yellow-600/30'
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                    onClick={() => participateMutation.mutate(
-                      participationStatus?.status === 'interested' ? 'not_participating' : 'interested'
-                    )}
-                    disabled={participateMutation.isPending}
-                    data-testid="button-interested"
-                  >
-                    {participateMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : participationStatus?.status === 'interested' ? (
-                      <>
-                        <Star className="w-4 h-4 mr-2" />
-                        No longer interested
-                      </>
-                    ) : (
-                      "I'm interested"
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-            )}
+                </Button>
+              ) : (
+                <Button 
+                  className="bg-white hover:bg-gray-100 text-black text-sm py-2 px-6"
+                  onClick={() => participateMutation.mutate(
+                    participationStatus?.status === 'attending' ? 'not_participating' : 'attending'
+                  )}
+                  disabled={participateMutation.isPending}
+                  data-testid="button-attending"
+                >
+                  {participateMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : participationStatus?.status === 'attending' ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {t('attending')}
+                    </>
+                  ) : (
+                    t('rsvp')
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         )}
+
+        {/* Counts - Attending (left) and Interested (right) */}
+        <div className="flex items-center justify-between text-foreground/60 text-xs pt-2">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span>{event.attendingCount || 0} {t('xAttending')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Heart className="w-4 h-4 stroke-foreground stroke-[1.5] fill-none" />
+            <span>{event.interestedCount || 0} {t('xInterested')}</span>
+          </div>
+        </div>
 
       </div>
 
       {/* Ticket Selection Modal */}
       <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+        <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Select Your Ticket</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-foreground">{t('selectYourTicket')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
@@ -594,29 +634,29 @@ export default function EventPage() {
                     onClick={() => setSelectedTierId(tier.id)}
                     className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
                       selectedTierId === tier.id
-                        ? 'border-purple-500 bg-purple-600/20 ring-2 ring-purple-500/50'
-                        : 'border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-400/10'
+                        ? 'border-foreground bg-gray-800/50 ring-2 ring-foreground/50'
+                        : 'border-border bg-muted/50 hover:border-foreground/80 hover:bg-gray-800/50'
                     }`}
                     data-testid={`modal-ticket-tier-${tier.id}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="text-white font-semibold text-lg">{tier.name}</h4>
+                        <h4 className="text-foreground font-semibold text-lg">{tier.name}</h4>
                         {tier.description && (
                           <p className="text-gray-300 text-sm mt-1">{tier.description}</p>
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
+                        <div className="text-foreground font-bold text-lg">${parseFloat(tier.price).toFixed(2)}</div>
                         {tier.quantity && (
-                          <div className="text-gray-400 text-xs">{tier.quantity} available</div>
+                          <div className="text-muted-foreground text-xs">{tier.quantity} {t('xAvailable')}</div>
                         )}
                       </div>
                     </div>
                     {selectedTierId === tier.id && (
-                      <div className="flex items-center gap-2 text-purple-300 text-sm">
+                      <div className="flex items-center gap-2 text-foreground text-sm">
                         <CheckCircle className="w-4 h-4" />
-                        <span>Selected</span>
+                        <span>{t('selected')}</span>
                       </div>
                     )}
                   </div>
@@ -626,10 +666,10 @@ export default function EventPage() {
                   <Button
                     variant="outline"
                     onClick={() => setIsTicketModalOpen(false)}
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                    className="flex-1 border-border text-muted-foreground hover:bg-muted"
                     data-testid="button-cancel-modal"
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -639,33 +679,38 @@ export default function EventPage() {
                       }
                     }}
                     disabled={!selectedTierId || purchaseTicketMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50"
+                    className="flex-1 bg-white hover:bg-gray-100 text-black disabled:opacity-50"
                     data-testid="button-confirm-purchase"
                   >
                     {purchaseTicketMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
+                        {t('loading')}
                       </>
                     ) : selectedTierId ? (
                       <>
                         <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase
+                        {t('purchase')}
                       </>
                     ) : (
-                      'Select a ticket'
+                      t('selectATicket')
                     )}
                   </Button>
                 </div>
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-300">No ticket tiers available for this event.</p>
+                <p className="text-gray-300">{t('noEventsFound')}</p>
               </div>
             )}
           </div>
         </DialogContent>
       </Dialog>
+      </div>
+      {/* Scrollable content area end */}
+      
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

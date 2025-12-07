@@ -1,38 +1,37 @@
-import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 
 interface BackButtonProps {
   className?: string;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   fallbackPath?: string;
-  forceUsePathFallback?: boolean; // New prop to force using the fallback path
+  forceUsePathFallback?: boolean;
+  onClick?: () => void;
 }
 
 export function BackButton({ 
   className = "", 
   variant = "ghost", 
   fallbackPath = "/discover",
-  forceUsePathFallback = false
+  forceUsePathFallback = false,
+  onClick
 }: BackButtonProps) {
   const [, setLocation] = useLocation();
 
   const handleBack = () => {
-    // If forceUsePathFallback is true, always use the fallback path
+    if (onClick) {
+      onClick();
+      return;
+    }
+
     if (forceUsePathFallback) {
       setLocation(fallbackPath);
       return;
     }
     
-    // Check if we're on a profile page where back functionality may be problematic
-    const isProfilePage = window.location.pathname.startsWith('/profile/');
-    
-    // For profile pages or if history is empty, use the fallback path
-    if (isProfilePage || window.history.length <= 1) {
+    if (window.history.length <= 1) {
       setLocation(fallbackPath);
     } else {
-      // Otherwise try to use browser history
       window.history.back();
     }
   };
@@ -41,11 +40,13 @@ export function BackButton({
     <Button
       variant={variant}
       size="icon"
-      className={`text-white/60 hover:text-white ${className}`}
+      className={`group relative overflow-hidden transition-all duration-200 active:scale-95 hover:shadow-lg before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/30 before:via-primary/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity ${className}`}
       onClick={handleBack}
       aria-label="Go back"
+      data-testid="button-back"
     >
-      <ArrowLeft className="h-5 w-5" />
+      <span aria-hidden="true" className="text-lg leading-none tracking-tight relative z-10">{"<"}</span>
+      <span className="sr-only">Back</span>
     </Button>
   );
 }

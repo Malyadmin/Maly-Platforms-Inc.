@@ -6,6 +6,18 @@ import { desc, eq } from 'drizzle-orm';
 import { webSearch } from './services/search';
 import axios from 'axios';
 
+// Helper function to clean response of asterisks and markdown formatting
+function cleanResponse(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/`{1,3}/g, '')
+    .replace(/_([^_]+)_/g, '$1')
+    .trim();
+}
+
 // Enhanced function to query events with natural language interpretation
 async function queryEventsFromUserMessage(message: string) {
   try {
@@ -107,18 +119,28 @@ export async function handleChatMessage(req: Request, res: Response) {
     
     // Set response language based on client preference
     const responseLanguage = language || 'en';
+    
+    // Extract city from the message prefix [City: CityName]
+    let selectedCity = '';
+    let cleanedMessage = message;
+    const cityPrefixMatch = message.match(/^\[City:\s*([^\]]+)\]\s*/i);
+    if (cityPrefixMatch) {
+      selectedCity = cityPrefixMatch[1].trim();
+      cleanedMessage = message.replace(cityPrefixMatch[0], '').trim();
+      console.log('Extracted city from prefix:', selectedCity);
+    }
 
     // Check if message is asking about events
-    const isEventQuery = message.toLowerCase().includes('events') || 
-                        message.toLowerCase().includes('going on') || 
-                        message.toLowerCase().includes('happening') ||
-                        message.toLowerCase().includes('things to do');
+    const isEventQuery = cleanedMessage.toLowerCase().includes('events') || 
+                        cleanedMessage.toLowerCase().includes('going on') || 
+                        cleanedMessage.toLowerCase().includes('happening') ||
+                        cleanedMessage.toLowerCase().includes('things to do');
 
     if (isEventQuery) {
-      console.log('Detected event query:', message);
+      console.log('Detected event query:', cleanedMessage);
       
       // Get filtered events based on message content using our enhanced query function
-      const matchingEvents = await queryEventsFromUserMessage(message);
+      const matchingEvents = await queryEventsFromUserMessage(cleanedMessage);
       
       if (matchingEvents && matchingEvents.length > 0) {
         // Format event data for the AI
@@ -148,7 +170,7 @@ export async function handleChatMessage(req: Request, res: Response) {
         });
         
         // Create AI prompt with matching events included
-        const eventsPrompt = `You are an event-concierge responding to user questions. Based on the query "${message}", 
+        const eventsPrompt = `You are an event-concierge responding to user questions. Based on the query "${cleanedMessage}", 
 I found the following events that match their criteria. Use ONLY these events to answer the user's question:
 
 ${formattedEvents.map((event: any, index: number) => `
@@ -161,26 +183,33 @@ EVENT ${index + 1}: ${event.title}
 - Description: ${event.description}
 `).join('\n')}
 
-IMPORTANT: Respond in ${responseLanguage === 'es' ? 'Spanish' : 'English'} language.
+IMPORTANT: 
+- Respond in ${responseLanguage === 'es' ? 'Spanish' : 'English'} language.
+- Never use asterisks or markdown formatting symbols
+- Use plain text formatting only
+- Use line breaks and dashes for organization
 Respond in a friendly, helpful tone. Only mention events from the list above. If specific events match what the user is looking for, highlight those events. Provide event details including title, date, location, and price.`;
         
         // Send to OpenAI with the enhanced context
         const completion = await openai.chat.completions.create({
-          model: "gpt-4-turbo-preview",
+          model: "gpt-4o",
           messages: [
             { role: "system", content: eventsPrompt },
-            { role: "user", content: message }
+            { role: "user", content: cleanedMessage }
           ],
           max_tokens: 800
         });
         
-        const response = completion.choices[0].message.content;
+        const response = cleanResponse(completion.choices[0].message.content || '');
         return res.json({ response });
       } else {
         // No events found, explain this to the user
-        const noEventsPrompt = `You are an event concierge. The user asked about events: "${message}"
+        const noEventsPrompt = `You are an event concierge. The user asked about events: "${cleanedMessage}"
 
-IMPORTANT: Respond in ${responseLanguage === 'es' ? 'Spanish' : 'English'} language.
+IMPORTANT: 
+- Respond in ${responseLanguage === 'es' ? 'Spanish' : 'English'} language.
+- Never use asterisks or markdown formatting symbols
+- Use plain text formatting only
 
 Unfortunately, I couldn't find any events in our database matching those criteria. In your response:
 1. Apologize that you couldn't find matching events
@@ -188,35 +217,44 @@ Unfortunately, I couldn't find any events in our database matching those criteri
 3. Ask if they would like to see other events instead`;
         
         const completion = await openai.chat.completions.create({
-          model: "gpt-4-turbo-preview",
+          model: "gpt-4o",
           messages: [
             { role: "system", content: noEventsPrompt },
-            { role: "user", content: message }
+            { role: "user", content: cleanedMessage }
           ],
           max_tokens: 500
         });
         
-        const response = completion.choices[0].message.content;
+        const response = cleanResponse(completion.choices[0].message.content || '');
         return res.json({ response });
       }
     }
 
-    // Default handling
-    // Use the provided context if available (for specialized prompts), otherwise use the default system prompt
+    // Build city-aware system prompt
+    let cityContext = '';
+    if (selectedCity) {
+      cityContext = `\n\nIMPORTANT CONTEXT: The user is currently interested in ${selectedCity}. Tailor all your recommendations and insights specifically for ${selectedCity}. Always reference ${selectedCity} in your responses when giving location-based advice.`;
+    }
+
+    // Default handling with city context
     const systemContent = context 
-      ? (responseLanguage === 'es' ? `${context}\n\nIMPORTANT: Respond in Spanish language.` : context)
-      : (responseLanguage === 'es' ? `${SYSTEM_PROMPT}\n\nIMPORTANT: Respond in Spanish language.` : SYSTEM_PROMPT);
+      ? (responseLanguage === 'es' 
+          ? `${context}${cityContext}\n\nIMPORTANT: Respond in Spanish language. Never use asterisks or markdown formatting.` 
+          : `${context}${cityContext}\n\nIMPORTANT: Never use asterisks or markdown formatting.`)
+      : (responseLanguage === 'es' 
+          ? `${SYSTEM_PROMPT}${cityContext}\n\nIMPORTANT: Respond in Spanish language.` 
+          : `${SYSTEM_PROMPT}${cityContext}`);
       
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
       messages: [
         { role: "system", content: systemContent },
-        { role: "user", content: message }
+        { role: "user", content: cleanedMessage }
       ],
-      max_tokens: 800 // Increased token limit for more detailed responses
+      max_tokens: 1000
     });
 
-    const response = completion.choices[0].message.content;
+    const response = cleanResponse(completion.choices[0].message.content || '');
     res.json({ response });
 
   } catch (error: any) {

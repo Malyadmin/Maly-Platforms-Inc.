@@ -59,7 +59,7 @@ export function EventItinerary({ itinerary }: EventItineraryProps) {
               <div className="text-sm font-medium">
                 {formatTimeDisplay(item.startTime)} - {formatTimeDisplay(item.endTime)}
               </div>
-              <p className="text-white/70">{item.description}</p>
+              <p className="text-foreground/70">{item.description}</p>
             </div>
           </div>
         ))}

@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, Search, MessageCircle } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
+import { PageHeader } from "@/components/ui/page-header";
 
 // Mock data moved to a separate constant
 const mockConversations = [
@@ -44,7 +45,7 @@ const ConversationCard = ({ conversation, onClick }: {
   onClick: () => void;
 }) => (
   <Card
-    className="hover:bg-accent/5 transition-colors cursor-pointer"
+    className="hover:bg-foreground/10/5 transition-colors cursor-pointer"
     onClick={onClick}
   >
     <div className="p-4 flex items-center gap-4">
@@ -94,23 +95,11 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-black/40 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground hover:bg-accent"
-              onClick={() => setLocation("/")}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-xl font-semibold">Messages</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Messages"
+        backButtonFallbackPath="/"
+        className="bg-black/40"
+      />
 
       <div className="sticky top-16 z-10 bg-background/80 backdrop-blur-sm border-b border-accent">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">

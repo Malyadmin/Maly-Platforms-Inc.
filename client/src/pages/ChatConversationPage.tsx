@@ -8,8 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users } from 'lucide-react';
+import { ArrowLeft, SendIcon, AlertCircle, CheckCircle, Users, ChevronLeft } from 'lucide-react';
 import { ConversationMessage } from '@/types/inbox';
+import { BottomNav } from '@/components/ui/bottom-nav';
+import { HamburgerMenu } from '@/components/ui/hamburger-menu';
+import { useTranslation } from '@/lib/translations';
 
 interface ConversationInfo {
   id: number;
@@ -39,6 +42,7 @@ export default function ChatConversationPage() {
   const [match, params] = useRoute('/chat/conversation/:conversationId');
   const [, setLocation] = useLocation();
   const { user } = useUser();
+  const { t } = useTranslation();
   const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -184,10 +188,14 @@ export default function ChatConversationPage() {
               <h3 className="text-lg font-medium">Invalid Conversation</h3>
               <p className="text-sm text-gray-500 mt-2">The conversation could not be found</p>
               <Button
+                variant="outline"
+                size="icon"
                 className="mt-4"
                 onClick={() => setLocation('/inbox')}
+                aria-label="Back to inbox"
               >
-                Back to Inbox
+                <ChevronLeft className="h-5 w-5" />
+                <span className="sr-only">Back to Inbox</span>
               </Button>
             </div>
           </CardContent>
@@ -197,60 +205,96 @@ export default function ChatConversationPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-8 mx-auto px-4 sm:px-6 lg:px-8">
-      <Card className="w-full">
-        <CardHeader className="flex flex-row items-center border-b p-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-2"
-            onClick={() => setLocation('/inbox')}
-            data-testid="back-to-inbox"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Fixed Header - MALY logo, page title, back button, and hamburger menu */}
+      <header className="sticky top-0 bg-background border-b border-border shrink-0 z-50">
+        <div className="px-4 pt-3">
+          {/* Row 1: MALY Logo left, Hamburger right */}
+          <div className="flex items-center justify-between pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-14 w-auto logo-adaptive"
+            />
+            <HamburgerMenu />
+          </div>
           
+          {/* Row 2: Back button + Page title inline */}
+          <div className="flex items-center gap-2 pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation('/inbox')}
+              data-testid="back-to-inbox"
+              className="text-foreground hover:bg-foreground/10 p-1"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+              {t('chatsSpaced')}
+            </h1>
+          </div>
+        </div>
+      </header>
+
+      {/* Fixed Profile Bar - Sticky under header, never moves */}
+      <div className="w-full bg-background border-b border-border shrink-0 z-40">
+        <div className="flex flex-row items-center px-5 py-3">
           {isLoading && !conversation ? (
             <div className="flex items-center">
-              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-10 rounded-full bg-muted" />
               <div className="ml-3">
-                <Skeleton className="h-4 w-[120px]" />
-                <Skeleton className="h-3 w-[80px] mt-1" />
+                <Skeleton className="h-4 w-[120px] bg-muted" />
+                <Skeleton className="h-3 w-[80px] mt-1 bg-muted" />
               </div>
             </div>
           ) : conversation ? (
-            <div className="flex items-center">
-              <div className="relative">
-                <Avatar className="h-10 w-10">
-                  {!isGroupChat && conversation.otherParticipant?.profileImage && (
-                    <AvatarImage 
-                      src={conversation.otherParticipant.profileImage} 
-                      alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
-                    />
-                  )}
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {isGroupChat ? (
-                      <Users className="h-5 w-5" />
-                    ) : (
-                      conversation.title.substring(0, 2).toUpperCase()
+            <div className="flex items-center flex-1">
+              {!isGroupChat && conversation.otherParticipant ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const profileIdentifier = conversation.otherParticipant?.username || String(conversation.otherParticipant?.id || '');
+                    if (profileIdentifier) {
+                      setLocation(`/profile/${profileIdentifier}?from=/chat/conversation/${conversationId}`);
+                    }
+                  }}
+                  className="relative"
+                  data-testid="conversation-avatar-button"
+                >
+                  <Avatar className="h-10 w-10">
+                    {conversation.otherParticipant?.profileImage && (
+                      <AvatarImage 
+                        src={conversation.otherParticipant.profileImage} 
+                        alt={conversation.otherParticipant.fullName || conversation.otherParticipant.username || 'User'} 
+                      />
                     )}
-                  </AvatarFallback>
-                </Avatar>
-                {isGroupChat && (
+                    <AvatarFallback className="bg-muted text-foreground">
+                      {conversation.title.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              ) : (
+                <div className="relative">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-muted text-foreground">
+                      <Users className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
                     <Users className="h-3 w-3 text-white" />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               <div className="ml-3">
-                <CardTitle className="text-base" data-testid="conversation-title">
+                <h3 className="text-foreground font-medium text-base" data-testid="conversation-title">
                   {conversation.title}
                   {isGroupChat && (
                     <span className="ml-2 text-sm text-muted-foreground font-normal">
                       ({conversation.participantCount} members)
                     </span>
                   )}
-                </CardTitle>
+                </h3>
                 <p className="text-xs text-muted-foreground">
                   {isGroupChat ? 'Group Chat' : 'Direct Message'}
                 </p>
@@ -259,17 +303,22 @@ export default function ChatConversationPage() {
           ) : (
             <div className="flex items-center">
               <Avatar className="h-10 w-10">
-                <AvatarFallback>?</AvatarFallback>
+                <AvatarFallback className="bg-muted text-foreground">?</AvatarFallback>
               </Avatar>
               <div className="ml-3">
-                <CardTitle className="text-base">Loading...</CardTitle>
+                <h3 className="text-base text-foreground font-medium">Loading...</h3>
               </div>
             </div>
           )}
-        </CardHeader>
-        
-        <div className="flex flex-col h-[60vh]">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4" data-testid="messages-container">
+        </div>
+      </div>
+
+      {/* Scrollable Messages Area - Only this section scrolls */}
+      <div 
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 bg-background pb-36" 
+        style={{ overscrollBehavior: 'contain' }}
+        data-testid="messages-container"
+      >
             {isLoading && messages.length === 0 ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -300,7 +349,7 @@ export default function ChatConversationPage() {
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <SendIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <SendIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">No messages yet</h3>
                   <p className="text-sm text-gray-500 mt-2">
                     Send a message to start the conversation
@@ -308,7 +357,7 @@ export default function ChatConversationPage() {
                 </div>
               </div>
             ) : (
-              <>
+              <div className="space-y-4">
                 {messages.map((message, index) => {
                   const isCurrentUser = Number(message.sender_id) === user.id;
                   const dateHeader = formatMessageDate(message, index);
@@ -324,13 +373,24 @@ export default function ChatConversationPage() {
                       )}
                       <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
                         <div className={`flex gap-3 max-w-[80%] ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                          {!isCurrentUser && (
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={message.sender?.profileImage || undefined} alt={message.sender?.fullName || 'User'} />
-                              <AvatarFallback>
-                                {message.sender?.fullName?.substring(0, 2).toUpperCase() || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
+                          {!isCurrentUser && message.sender && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const profileIdentifier = message.sender?.username || String(message.sender?.id || '');
+                                if (profileIdentifier) {
+                                  setLocation(`/profile/${profileIdentifier}?from=/chat/conversation/${conversationId}`);
+                                }
+                              }}
+                              data-testid={`message-avatar-${message.id}`}
+                            >
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={message.sender?.profileImage || undefined} alt={message.sender?.fullName || 'User'} />
+                                <AvatarFallback>
+                                  {message.sender?.fullName?.substring(0, 2).toUpperCase() || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                            </button>
                           )}
                           <div>
                             <div className={`px-4 py-2 rounded-lg ${isCurrentUser 
@@ -360,36 +420,40 @@ export default function ChatConversationPage() {
                   );
                 })}
                 <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-          
-          <div className="p-4 border-t">
-            <form onSubmit={handleSendMessage} className="flex items-end gap-2" data-testid="message-form">
-              <div className="flex-1">
-                <Textarea 
-                  placeholder="Type a message..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="min-h-[80px] resize-none"
-                  disabled={sendMessageMutation.isPending}
-                  data-testid="message-input"
-                />
               </div>
-              <Button 
-                type="submit" 
-                disabled={!messageText.trim() || sendMessageMutation.isPending}
-                className="h-10"
-                data-testid="send-button"
-              >
-                <SendIcon className="h-4 w-4 mr-2" />
-                {sendMessageMutation.isPending ? 'Sending...' : 'Send'}
-              </Button>
-            </form>
+            )}
+      </div>
+      
+      {/* Fixed Message Input - Absolutely positioned above bottom navigation */}
+      <div 
+        className="fixed left-0 right-0 px-4 pt-3 bg-background border-t border-border z-50"
+        style={{ bottom: '80px', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
+      >
+        <form onSubmit={handleSendMessage} className="flex items-center gap-2" data-testid="message-form">
+          <div className="flex-1">
+            <Textarea 
+              placeholder="Type a message..."
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="min-h-[50px] max-h-[120px] resize-none bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary rounded-2xl"
+              disabled={sendMessageMutation.isPending}
+              data-testid="message-input"
+            />
           </div>
-        </div>
-      </Card>
+          <Button 
+            type="submit" 
+            disabled={!messageText.trim() || sendMessageMutation.isPending}
+            className="h-10 rounded-full bg-white hover:bg-gray-100 text-black"
+            data-testid="send-button"
+          >
+            <SendIcon className="h-4 w-4 text-white" />
+          </Button>
+        </form>
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

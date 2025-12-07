@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Filter, MapPin, Heart, Mail } from "lucide-react";
+import { Crown, SlidersHorizontal, MapPin, Heart, Mail } from "lucide-react";
 
 interface PremiumPaywallProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
 
   const featureConfig = {
     filtering: {
-      icon: Filter,
+      icon: SlidersHorizontal,
       title: 'Advanced Filtering',
       description: 'Filter by gender and location to find exactly who you\'re looking for',
       features: [
@@ -63,9 +63,9 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black text-white border-gray-800 max-w-sm mx-auto">
+      <DialogContent className="bg-black text-foreground border-gray-800 max-w-sm mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-white text-xl font-semibold text-center flex items-center justify-center gap-2">
+          <DialogTitle className="text-foreground text-xl font-semibold text-center flex items-center justify-center gap-2">
             <Crown className="h-6 w-6 text-yellow-500" />
             Premium Feature
           </DialogTitle>
@@ -75,9 +75,9 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           {/* Feature explanation */}
           <div className="text-center">
             <div className="bg-gray-900 rounded-lg p-4 mb-4">
-              <FeatureIcon className="h-12 w-12 text-purple-500 mx-auto mb-3" />
+              <FeatureIcon className="h-12 w-12 text-foreground mx-auto mb-3" />
               <h3 className="text-lg font-medium mb-2">{config.title}</h3>
-              <p className="text-gray-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {config.description}
               </p>
             </div>
@@ -97,15 +97,15 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
           </div>
 
           {/* Pricing */}
-          <div className="bg-purple-900/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold">$29<span className="text-lg font-normal text-gray-400">/month</span></div>
-            <p className="text-sm text-gray-400 mt-1">Cancel anytime</p>
+          <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold">$29<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+            <p className="text-sm text-muted-foreground mt-1">Cancel anytime</p>
           </div>
 
           {/* Action buttons */}
           <div className="space-y-3">
             <Button
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium"
+              className="w-full bg-white hover:bg-gray-100 text-black text-foreground font-medium"
               onClick={handleUpgrade}
               disabled={isUpgrading}
               data-testid="upgrade-to-premium-button"
@@ -115,7 +115,7 @@ export default function PremiumPaywall({ isOpen, onClose, feature = 'filtering' 
             
             <Button
               variant="outline"
-              className="w-full border-gray-600 text-gray-400 hover:bg-gray-800"
+              className="w-full border-gray-600 text-muted-foreground hover:bg-gray-800"
               onClick={onClose}
               data-testid="maybe-later-button"
             >

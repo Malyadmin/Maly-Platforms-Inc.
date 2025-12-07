@@ -12,11 +12,13 @@ export default function NotFoundPage() {
         <p className="text-xl text-muted-foreground">Page not found</p>
         <Button
           variant="ghost"
+          size="icon"
           onClick={() => setLocation("/")}
           className="mt-4"
+          aria-label="Back to home"
         >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Back to Home
+          <ChevronLeft className="h-5 w-5" />
+          <span className="sr-only">Back to Home</span>
         </Button>
       </div>
     </div>

@@ -3,10 +3,12 @@ import OpenAI from 'openai';
 
 type TranslationKey = 
   | 'discover'
+  | 'explore'
   | 'connect'
   | 'create'
   | 'make'
   | 'inbox'
+  | 'chats'
   | 'profile'
   | 'settings'
   | 'guide'
@@ -207,16 +209,527 @@ type TranslationKey =
   | 'successfullyUpdated'
   | 'proceedToPayment'
   | 'login'
-  | 'cancelParticipation';
+  | 'cancelParticipation'
+  // Hamburger Menu Sections
+  | 'aiTools'
+  | 'accountAndProfile'
+  | 'creatorTools'
+  | 'companyAndLegal'
+  | 'language'
+  // Menu Items
+  | 'aiConcierge'
+  | 'editProfile'
+  | 'notificationPreferences'
+  | 'creatorDashboard'
+  | 'stripeConnect'
+  | 'aboutMaly'
+  | 'termsAndConditions'
+  | 'privacyPolicy'
+  | 'paymentDisclaimer'
+  // Auth Page
+  | 'register'
+  | 'usernameOrEmail'
+  | 'password'
+  | 'enterYourInformation'
+  | 'alreadyHaveAccount'
+  | 'dontHaveAccount'
+  | 'signInToAccount'
+  | 'createNewAccount'
+  | 'username'
+  | 'email'
+  | 'enterUsername'
+  | 'enterUsernameOrEmail'
+  | 'enterEmail'
+  | 'enterPassword'
+  | 'name'
+  | 'enterName'
+  | 'enterAge'
+  | 'willNotBeDisplayed'
+  | 'whereAreYouBased'
+  | 'chooseYourVibe'
+  | 'profilePicture'
+  | 'profilePreview'
+  | 'iAgreeToThe'
+  | 'showPassword'
+  | 'hidePassword'
+  | 'events'
+  | 'discover'
+  // Common buttons and actions
+  | 'submit'
+  | 'back'
+  | 'next'
+  | 'done'
+  | 'close'
+  | 'delete'
+  | 'edit'
+  | 'save'
+  | 'update'
+  | 'confirm'
+  | 'search'
+  | 'filter'
+  | 'sort'
+  | 'view'
+  | 'add'
+  | 'remove'
+  | 'send'
+  | 'reply'
+  | 'forward'
+  // Validation and errors
+  | 'usernameOrEmailRequired'
+  | 'passwordMinLength'
+  | 'usernameMinLength'
+  | 'validEmailRequired'
+  | 'mustAcceptTerms'
+  | 'mustAcceptPrivacy'
+  | 'validationError'
+  | 'error'
+  // DiscoverPage & Event listings
+  | 'today'
+  | 'thisWeek'
+  | 'thisWeekend'
+  | 'nextWeek'
+  | 'nextWeekend'
+  | 'thisMonth'
+  | 'upcomingEvents'
+  | 'noEventsFound'
+  | 'noEventsInCity'
+  | 'tryOtherCity'
+  | 'anytime'
+  | 'filterByTime'
+  | 'filterByCity'
+  | 'filterByVibe'
+  | 'createFirstEvent'
+  | 'beFirstToCreateEvent'
+  // EventPage
+  | 'purchaseFailed'
+  | 'failedInitiateTicketPurchase'
+  | 'success'
+  | 'successfullyUpdatedParticipation'
+  | 'eventNotFound'
+  | 'rsvpRequestSent'
+  | 'dressCode'
+  | 'showMore'
+  | 'showLess'
+  | 'readMore'
+  | 'readLess'
+  | 'messageHost'
+  | 'selectTicketTier'
+  | 'requestToAttend'
+  | 'applicationPending'
+  | 'applicationApproved'
+  | 'applicationDeclined'
+  | 'cancelRequest'
+  // InboxPage
+  | 'conversations'
+  | 'noConversationsYet'
+  | 'noConversationsMatch'
+  | 'connectWithOthers'
+  | 'messages'
+  | 'groups'
+  | 'contacts'
+  | 'rsvpRequests'
+  | 'connectionRequests'
+  | 'accept'
+  | 'decline'
+  | 'viewEvent'
+  | 'participants'
+  // ConnectPage
+  | 'people'
+  | 'filters'
+  | 'allGenders'
+  | 'male'
+  | 'female'
+  | 'nonBinary'
+  | 'allVibes'
+  | 'allIntentions'
+  | 'addToContacts'
+  | 'added'
+  | 'addedSuccessfully'
+  | 'failedToAddContact'
+  | 'loading'
+  // Event Detail strings
+  | 'hostedBy'
+  | 'unknownHost'
+  | 'checkOutThisEvent'
+  | 'shareFailed'
+  | 'unableToShareEvent'
+  | 'linkCopied'
+  | 'eventLinkCopied'
+  | 'locationCoordinatesNotAvailable'
+  | 'viewMore'
+  | 'viewLess'
+  | 'accessRequestSent'
+  | 'accessRequestSentDescription'
+  | 'failedToSendAccessRequest'
+  | 'failedToUpdateParticipation'
+  | 'forDemoOnly'
+  // Profile strings
+  | 'contactAdded'
+  | 'contactAddedDescription'
+  | 'errorAddingContact'
+  | 'contactRemoved'
+  | 'contactRemovedDescription'
+  | 'errorRemovingContact'
+  | 'errorStartingConversation'
+  | 'message'
+  | 'age'
+  | 'years'
+  | 'profession'
+  | 'location'
+  | 'from'
+  | 'lived'
+  | 'nextStop'
+  | 'lookingFor'
+  | 'interests'
+  | 'currentVibe'
+  | 'profileNotFound'
+  | 'profile'
+  | 'connect'
+  | 'connected'
+  | 'profileLinkCopied'
+  | 'occupation'
+  | 'bio'
+  | 'vibe'
+  | 'intention'
+  | 'born'
+  | 'upcoming'
+  | 'moodUpdated'
+  | 'moodUpdatedDescription'
+  | 'errorUpdatingMood'
+  | 'selectYourTicket'
+  | 'selected'
+  | 'purchase'
+  | 'selectATicket'
+  | 'addCustomCity'
+  | 'enterCityName'
+  | 'when'
+  | 'city'
+  | 'vibes'
+  | 'addCity'
+  | 'noEventsMatchCriteria'
+  | 'clearFilters'
+  | 'scrollForMore'
+  | 'nextMonth'
+  | 'appearance'
+  | 'typeMessage'
+  | 'sendMessage'
+  | 'newMessage'
+  | 'groupChat'
+  | 'directMessage'
+  | 'startNewConversation'
+  | 'noMessagesYet'
+  | 'startConversation'
+  | 'eventChat'
+  | 'savedEvents'
+  | 'myEvents'
+  | 'hostedEvents'
+  | 'attendingEvents'
+  | 'noSavedEvents'
+  | 'noHostedEvents'
+  | 'noAttendingEvents'
+  | 'viewProfile'
+  | 'removeFromContacts'
+  | 'pendingRequest'
+  | 'requestSent'
+  | 'acceptRequest'
+  | 'declineRequest'
+  | 'connectionPending'
+  | 'loadingMore'
+  | 'endOfResults'
+  | 'tryDifferentFilters'
+  | 'noResultsFound'
+  | 'searchResults'
+  | 'recentSearches'
+  | 'clearHistory'
+  | 'popularSearches'
+  | 'seeAll'
+  | 'hideAll'
+  | 'sortBy'
+  | 'newest'
+  | 'oldest'
+  | 'mostPopular'
+  | 'priceHighToLow'
+  | 'priceLowToHigh'
+  | 'dateAscending'
+  | 'dateDescending'
+  // Additional ConnectPage strings
+  | 'profilesFound'
+  | 'profileFound'
+  | 'loadingUsers'
+  | 'noUsersFound'
+  | 'dating'
+  | 'social'
+  | 'networking'
+  | 'friends'
+  | 'all'
+  | 'allCities'
+  | 'pending'
+  | 'demo'
+  | 'userRemovedFromContacts'
+  | 'errorRemovingContact'
+  | 'userAddedToContacts'
+  // InboxPage additional strings
+  | 'youNeedToSignIn'
+  | 'signInToViewMessages'
+  | 'signIn'
+  | 'noMessagesYet'
+  | 'noGroupChatsYet'
+  | 'noConnectionsYet'
+  | 'unknownUser'
+  | 'groupThread'
+  | 'members'
+  // ProfilePage spaced headers
+  | 'profileSpaced'
+  | 'connectSpaced'
+  | 'chatsSpaced'
+  // EventPage strings
+  | 'exploreSpaced'
+  | 'requesting'
+  | 'request'
+  | 'attending'
+  | 'rsvp'
+  | 'xAttending'
+  | 'xInterested'
+  | 'xAvailable'
+  // ChatbotPage strings
+  | 'conciergeSpaced'
+  // NotificationPreferencesPage strings
+  | 'alertsSpaced'
+  | 'cityGuide'
+  | 'welcomeConcierge'
+  | 'conciergeBetaDescription'
+  // SignupFlowPage strings
+  | 'signupSpaced'
+  | 'createAccount'
+  | 'getStartedBasics'
+  | 'yourFullName'
+  | 'chooseUsername'
+  | 'phoneOptional'
+  | 'choosePassword'
+  | 'confirmPasswordLabel'
+  | 'tellUsAboutYourself'
+  | 'personalInfo'
+  | 'selectAge'
+  | 'selectGender'
+  | 'selectOrientation'
+  | 'whereAreYou'
+  | 'locationInfo'
+  | 'currentCity'
+  | 'bornIn'
+  | 'livedIn'
+  | 'nextDestination'
+  | 'yourVibes'
+  | 'vibesDescription'
+  | 'selectIntention'
+  | 'yourProfession'
+  | 'finishProfile'
+  | 'almostDone'
+  | 'writeBio'
+  | 'uploadProfile'
+  | 'agreeTerms'
+  | 'agreePrivacy'
+  | 'acceptTerms'
+  | 'acceptPrivacy'
+  | 'creatingAccount'
+  | 'submitProfile'
+  | 'registrationSuccess'
+  | 'registrationError'
+  // New signup flow instruction copy
+  | 'optional'
+  | 'welcomeToMaly'
+  | 'step1Instruction'
+  | 'step2Instruction'
+  | 'step3Instruction'
+  | 'step4Instruction'
+  | 'step5Instruction'
+  | 'phoneNumber'
+  | 'sexualOrientation'
+  | 'male'
+  | 'female'
+  | 'nonBinary'
+  | 'preferNotToSay'
+  | 'straight'
+  | 'gay'
+  | 'lesbian'
+  | 'bisexual'
+  | 'pansexual'
+  | 'asexual'
+  | 'queer'
+  | 'questioning'
+  | 'whereAreYouBased'
+  | 'currentLocation'
+  | 'nextLocation'
+  | 'enterCurrentCity'
+  | 'enterBirthplace'
+  | 'enterPreviousCity'
+  | 'enterNextDestination'
+  | 'yourVibeYourWorld'
+  | 'selectAtLeast2'
+  | 'intention'
+  | 'whatAreYouLookingFor'
+  | 'community'
+  | 'profession'
+  | 'enterProfession'
+  | 'makeProfileShine'
+  | 'profilePhoto'
+  | 'clearFaceRequired'
+  | 'profilePhotoRequired'
+  // Post-onboarding welcome message
+  | 'welcomeComplete'
+  | 'welcomeCompleteMessage'
+  | 'welcomeCompleteHint'
+  // MyTicketsPage strings
+  | 'myTickets'
+  | 'noTicketsYet'
+  | 'noTicketsDescription'
+  | 'pleaseLogin'
+  | 'loginToViewTickets'
+  | 'browseEvents'
+  | 'viewQR'
+  | 'showQRAtEntry'
+  | 'ticket'
+  | 'tickets'
+  // CreateEventFlowPage strings
+  | 'createSpaced'
+  | 'createYourEvent'
+  | 'promoteOrShare'
+  | 'eventTitle'
+  | 'conciseAndEngaging'
+  | 'eventSummary'
+  | 'briefOverview'
+  | 'buildYourEventGallery'
+  | 'addHighResPhotos'
+  | 'firstPictureFlyer'
+  | 'tooManyImages'
+  | 'maxImagesAllowed'
+  | 'validationError'
+  | 'atLeastOneImage'
+  | 'eventDetails'
+  | 'setLocationSchedule'
+  | 'onlineEvent'
+  | 'hostedVirtually'
+  | 'eventVisibility'
+  | 'selectVisibility'
+  | 'cityRequired'
+  | 'startTypingCity'
+  | 'venueAddress'
+  | 'addressPlaceholder'
+  | 'additionalLocationInfo'
+  | 'optionalFloorNotes'
+  | 'startDateTime'
+  | 'endDateTime'
+  | 'activitySchedule'
+  | 'addItinerary'
+  | 'addActivity'
+  | 'eventSetup'
+  | 'privacySettings'
+  | 'eventPrivacy'
+  | 'publicForEveryone'
+  | 'requiresApproval'
+  | 'guestApprovalDesc'
+  | 'dressCodeLabel'
+  | 'casualSmart'
+  | 'genderRestrictions'
+  | 'noRestriction'
+  | 'requiredVibes'
+  | 'selectVibes'
+  | 'ticketingSetup'
+  | 'eventPaid'
+  | 'setTicketPrices'
+  | 'eventFree'
+  | 'addTicketTier'
+  | 'tierName'
+  | 'tierDescription'
+  | 'price'
+  | 'quantity'
+  | 'unlimited'
+  | 'reviewSubmit'
+  | 'reviewEvent'
+  | 'readyToPublish'
+  | 'creating'
+  | 'createEvent'
+  | 'eventCreated'
+  | 'eventLive'
+  | 'errorCreating'
+  // EditProfilePage strings
+  | 'editSpaced'
+  | 'profileUpdated'
+  | 'profileUpdatedDescription'
+  | 'imagesUploaded'
+  | 'imagesUploadedDescription'
+  | 'uploadError'
+  | 'profileImagesUpdated'
+  | 'noVibesSelected'
+  | 'notSet'
+  | 'savingImages'
+  | 'saveImages'
+  | 'fullName'
+  // AppearancePage strings
+  | 'theme'
+  | 'selectTheme'
+  | 'light'
+  | 'dark'
+  | 'system'
+  | 'useLightTheme'
+  | 'useDarkTheme'
+  | 'followDeviceSettings'
+  | 'themeNote'
+  | 'note'
+  // Additional common strings
+  | 'failedToUpload'
+  | 'nameRequired'
+  | 'usernameRequired'
+  | 'emailRequired'
+  | 'passwordsDoNotMatch'
+  | 'mustAcceptTermsAndPrivacy'
+  // Creator Dashboard Page strings
+  | 'dashboardSpaced'
+  | 'myEvents'
+  | 'analytics'
+  | 'ticketSales'
+  | 'rsvps'
+  | 'views'
+  | 'tickets'
+  | 'revenue'
+  | 'earnings'
+  | 'totalRevenue'
+  | 'ticketsSold'
+  | 'platformFee'
+  | 'yourEarnings'
+  | 'noTicketSalesYet'
+  | 'salesWillAppear'
+  | 'completed'
+  | 'noPendingRsvpRequests'
+  | 'noCompletedRsvpRequests'
+  | 'acceptRsvpRequest'
+  | 'declineRsvpRequest'
+  | 'confirmAcceptRsvp'
+  | 'confirmDeclineRsvp'
+  | 'yesAccept'
+  | 'yesDecline'
+  | 'noEventsCreatedYet'
+  | 'createYourFirstEvent'
+  | 'noAnalyticsAvailable'
+  | 'failedToLoadDashboard'
+  | 'failedToLoadRsvpApplications'
+  | 'dateTbd'
+  | 'ticket'
+  | 'pleaseLoginToViewDashboard'
+  | 'goToLogin'
+  | 'accepted'
+  | 'declined';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
-    discover: 'Discover',
+    events: 'Events',
+    discover: 'Explore',
+    explore: 'Explore',
     login: 'Login',
     connect: 'Connect',
     create: 'Create',
     make: 'Make',
-    inbox: 'Inbox',
+    inbox: 'Chats',
+    chats: 'Chats',
     profile: 'Profile',
     settings: 'Settings',
     guide: 'City Guide',
@@ -293,9 +806,52 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     bestDayTrips: 'Best Day Trips',
     findingLocalInsights: 'Finding local insights...',
     askAnythingAbout: 'Ask anything about',
-    conciergeGreeting: "Hi, I'm Maly — like your local friend with great taste. I'll help you know where to go, who to know, and what to do.",
+    conciergeGreeting: "Hi, I’m Maly, your international concierge. Ask me where to go and what to do, and I’ll help you experience the best of any city.",
     premiumAdPartner: 'Premium Ad Partner',
     letsGetStarted: "Let's Get Started!",
+    myTickets: "My Tickets",
+    noTicketsYet: "No Tickets Yet",
+    noTicketsDescription: "When you purchase tickets to events, they'll appear here with QR codes for entry.",
+    pleaseLogin: "Please Log In",
+    loginToViewTickets: "Log in to view your purchased tickets and QR codes.",
+    browseEvents: "Browse Events",
+    viewQR: "View QR",
+    showQRAtEntry: "Show this QR code at the event entrance for check-in.",
+    ticket: "ticket",
+    tickets: "tickets",
+    'checkIn.title': "Check-In",
+    'checkIn.scanTickets': "Scan Tickets",
+    'checkIn.pastEvents': "Past Events",
+    'checkIn.selectEvent': "Select an event to start checking in attendees",
+    'checkIn.noUpcomingEvents': "No upcoming events to check in",
+    'checkIn.noPastEvents': "No past events",
+    'checkIn.total': "total",
+    'checkIn.checkedInLabel': "checked in",
+    'checkIn.attended': "attended",
+    'checkIn.scanningFor': "Scanning tickets for",
+    'checkIn.startScanning': "Start Scanning",
+    'checkIn.stopScanning': "Stop Scanning",
+    'checkIn.invalidTicket': "Invalid Ticket",
+    'checkIn.cameraError': "Camera Error",
+    'checkIn.cameraPermission': "Please allow camera access to scan QR codes",
+    'checkIn.event': "Event",
+    'checkIn.tickets': "Tickets",
+    'checkIn.status': "Status",
+    'checkIn.alreadyCheckedIn': "Already Checked In",
+    'checkIn.readyToCheckIn': "Ready to Check In",
+    'checkIn.confirmCheckIn': "Check In",
+    'checkIn.scanAnother': "Scan Another",
+    'checkIn.scanNewTicket': "Scan New Ticket",
+    'checkIn.confirmTitle': "Confirm Check-In",
+    'checkIn.confirmMessage': "Check in {name} to this event?",
+    'checkIn.confirm': "Confirm",
+    'checkIn.success': "Check-In Successful",
+    'checkIn.checkedIn': "has been checked in",
+    'checkIn.error': "Check-In Failed",
+    'checkIn.attendeeList': "Attendee List",
+    'checkIn.noAttendees': "No attendees for this event",
+    'checkIn.attendedEvent': "attended this event",
+    'checkIn.checkedInAt': "Checked in at",
     'Party & Nightlife': 'Party & Nightlife',
     'Fashion & Style': 'Fashion & Style',
     'Networking & Business': 'Networking & Business',
@@ -320,6 +876,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     whatsapp: 'WhatsApp',
     sms: 'SMS',
     done: 'Done',
+    close: 'Close',
+    search: 'Search',
+    filter: 'Filter',
+    sort: 'Sort',
+    view: 'View',
+    add: 'Add',
+    remove: 'Remove',
+    send: 'Send',
+    reply: 'Reply',
+    back: 'Back',
+    next: 'Next',
     yourStatus: 'Your Status',
     eventOptions: 'Event Options',
     editEvent: 'Edit Event',
@@ -404,16 +971,500 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     noLongerParticipating: 'You are no longer participating in this event',
     successfullyUpdated: 'Successfully updated',
     proceedToPayment: 'Proceed to Payment',
-    cancelParticipation: 'Cancel Participation'
+    cancelParticipation: 'Cancel Participation',
+    // Hamburger Menu Sections
+    aiTools: 'AI TOOLS',
+    accountAndProfile: 'ACCOUNT AND PROFILE',
+    creatorTools: 'CREATOR TOOLS',
+    companyAndLegal: 'COMPANY AND LEGAL',
+    language: 'LANGUAGE',
+    // Menu Items
+    aiConcierge: 'Concierge',
+    notificationPreferences: 'Notification Preferences',
+    creatorDashboard: 'Creator Dashboard',
+    checkInAttendees: 'Check-In Attendees',
+    stripeConnect: 'Stripe Connect',
+    aboutMaly: 'About Maly',
+    termsAndConditions: 'Terms & Conditions',
+    privacyPolicy: 'Privacy Policy',
+    paymentDisclaimer: 'Payment Disclaimer',
+    // Auth Page
+    register: 'Register',
+    usernameOrEmail: 'Username or Email',
+    password: 'Password',
+    enterYourInformation: 'Enter your information to get started',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?",
+    signInToAccount: 'Sign in to your Maly account',
+    createNewAccount: 'Create a new account to join our community',
+    enterUsername: 'Enter your username',
+    enterUsernameOrEmail: 'Enter your username or email',
+    enterEmail: 'Enter your email address',
+    enterPassword: 'Enter your password',
+    name: 'Name',
+    enterName: 'Enter your name',
+    enterAge: 'Enter your age',
+    willNotBeDisplayed: '(will not be displayed)',
+    whereAreYouBased: 'Where are you based?',
+    chooseYourVibe: 'Choose your vibe',
+    profilePicture: 'Profile Picture',
+    profilePreview: 'Profile preview',
+    iAgreeToThe: 'I agree to the',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    // Common buttons and actions
+    submit: 'Submit',
+    update: 'Update',
+    confirm: 'Confirm',
+    forward: 'Forward',
+    // Validation and errors
+    usernameOrEmailRequired: 'Username or email must be provided',
+    passwordMinLength: 'Password must be at least 6 characters',
+    usernameMinLength: 'Username must be at least 3 characters',
+    validEmailRequired: 'Please enter a valid email address',
+    mustAcceptTerms: 'You must accept the Terms and Conditions to register',
+    mustAcceptPrivacy: 'You must accept the Privacy Policy to register',
+    validationError: 'Validation Error',
+    error: 'Error',
+    // DiscoverPage & Event listings
+    today: 'TODAY',
+    thisWeek: 'THIS WEEK',
+    thisWeekend: 'THIS WEEKEND',
+    nextWeek: 'NEXT WEEK',
+    nextWeekend: 'NEXT WEEKEND',
+    thisMonth: 'THIS MONTH',
+    upcomingEvents: 'UPCOMING',
+    noEventsFound: 'No events found',
+    noEventsInCity: 'No events yet in',
+    tryOtherCity: 'Try selecting another city',
+    anytime: 'Anytime',
+    filterByTime: 'Filter by time',
+    filterByCity: 'Filter by city',
+    filterByVibe: 'Filter by vibe',
+    createFirstEvent: 'Create First Event',
+    beFirstToCreateEvent: 'Be the first to create an event',
+    // EventPage
+    purchaseFailed: 'Purchase Failed',
+    failedInitiateTicketPurchase: 'Failed to initiate ticket purchase. Please try again.',
+    success: 'Success',
+    successfullyUpdatedParticipation: 'Successfully updated participation status',
+    eventNotFound: 'Event not found',
+    rsvpRequestSent: 'RSVP request sent! The host will review your application.',
+    dressCode: 'Dress Code',
+    showMore: 'Show more',
+    showLess: 'Show less',
+    readMore: 'Read more',
+    readLess: 'Read less',
+    messageHost: 'Message Host',
+    selectTicketTier: 'Select a ticket tier',
+    requestToAttend: 'Request to Attend',
+    applicationPending: 'Application Pending',
+    applicationApproved: 'Application Approved',
+    applicationDeclined: 'Application Declined',
+    cancelRequest: 'Cancel Request',
+    // InboxPage
+    conversations: 'Conversations',
+    noConversationsYet: 'No conversations yet',
+    noConversationsMatch: 'No conversations match your search',
+    connectWithOthers: 'Connect with others to start messaging',
+    messages: 'Messages',
+    groups: 'Groups',
+    contacts: 'Contacts',
+    rsvpRequests: 'RSVP Requests',
+    connectionRequests: 'Connection Requests',
+    accept: 'Accept',
+    decline: 'Decline',
+    viewEvent: 'View Event',
+    participants: 'participants',
+    // ConnectPage
+    people: 'People',
+    filters: 'Filters',
+    allGenders: 'All Genders',
+    male: 'Male',
+    female: 'Female',
+    nonBinary: 'Non-Binary',
+    allVibes: 'All Vibes',
+    allIntentions: 'All Intentions',
+    addToContacts: 'Add to Contacts',
+    added: 'Added',
+    addedSuccessfully: 'Added successfully',
+    failedToAddContact: 'Failed to add contact',
+    loading: 'Loading...',
+    // Event Detail strings
+    hostedBy: 'Hosted by',
+    unknownHost: 'Unknown Host',
+    checkOutThisEvent: 'Check out this event:',
+    shareFailed: 'Share failed',
+    unableToShareEvent: 'Unable to share this event',
+    linkCopied: 'Link copied!',
+    eventLinkCopied: 'Event link copied to clipboard',
+    locationCoordinatesNotAvailable: 'Location coordinates not available',
+    viewMore: 'View More',
+    viewLess: 'View Less',
+    accessRequestSent: 'Access Request Sent',
+    accessRequestSentDescription: 'Your request has been sent to the event host for approval',
+    failedToSendAccessRequest: 'Failed to send access request',
+    failedToUpdateParticipation: 'Failed to update participation status',
+    forDemoOnly: 'FOR DEMO ONLY',
+    // Profile strings
+    contactAdded: 'Contact added',
+    contactAddedDescription: "They've been added to your contacts.",
+    errorAddingContact: 'Error adding contact',
+    contactRemoved: 'Contact removed',
+    contactRemovedDescription: "They've been removed from your contacts.",
+    errorRemovingContact: 'Error removing contact',
+    errorStartingConversation: 'Error starting conversation',
+    message: 'Message',
+    age: 'Age',
+    years: 'years',
+    profession: 'Profession',
+    location: 'Location',
+    from: 'From',
+    lived: 'Lived',
+    nextStop: 'Next Stop',
+    lookingFor: 'Looking For',
+    interests: 'Interests',
+    currentVibe: 'Current Vibe',
+    profileNotFound: 'Profile not found',
+    connect: 'Connect',
+    connected: 'Connected',
+    profileLinkCopied: 'Profile link copied to clipboard',
+    occupation: 'Occupation',
+    bio: 'Bio',
+    vibe: 'Vibe',
+    intention: 'Intention',
+    born: 'Born',
+    upcoming: 'Upcoming',
+    moodUpdated: 'Mood updated',
+    moodUpdatedDescription: 'Your mood has been updated successfully.',
+    errorUpdatingMood: 'Error updating mood',
+    selectYourTicket: 'Select Your Ticket',
+    selected: 'Selected',
+    purchase: 'Purchase',
+    selectATicket: 'Select a ticket',
+    addCustomCity: 'Add Custom City',
+    enterCityName: 'Enter city name',
+    when: 'When',
+    city: 'City',
+    vibes: 'Vibes',
+    addCity: '+ Add City',
+    noEventsMatchCriteria: 'No events match your search criteria',
+    clearFilters: 'Clear Filters',
+    scrollForMore: 'Scroll for more events',
+    nextMonth: 'NEXT MONTH',
+    appearance: 'Appearance',
+    typeMessage: 'Type a message...',
+    sendMessage: 'Send message',
+    newMessage: 'New Message',
+    groupChat: 'Group Chat',
+    directMessage: 'Direct Message',
+    startNewConversation: 'Start a new conversation',
+    noMessagesYet: 'No messages yet',
+    startConversation: 'Start the conversation',
+    eventChat: 'Event Chat',
+    savedEvents: 'Saved Events',
+    myEvents: 'My Events',
+    hostedEvents: 'Hosted Events',
+    attendingEvents: 'Attending Events',
+    noSavedEvents: 'No saved events',
+    noHostedEvents: 'No hosted events',
+    noAttendingEvents: 'No attending events',
+    viewProfile: 'View Profile',
+    removeFromContacts: 'Remove from Contacts',
+    pendingRequest: 'Pending Request',
+    requestSent: 'Request Sent',
+    acceptRequest: 'Accept Request',
+    declineRequest: 'Decline Request',
+    connectionPending: 'Connection Pending',
+    loadingMore: 'Loading more...',
+    endOfResults: 'End of results',
+    tryDifferentFilters: 'Try different filters',
+    noResultsFound: 'No results found',
+    searchResults: 'Search Results',
+    recentSearches: 'Recent Searches',
+    clearHistory: 'Clear History',
+    popularSearches: 'Popular Searches',
+    seeAll: 'See All',
+    hideAll: 'Hide All',
+    sortBy: 'Sort By',
+    newest: 'Newest',
+    oldest: 'Oldest',
+    mostPopular: 'Most Popular',
+    priceHighToLow: 'Price: High to Low',
+    priceLowToHigh: 'Price: Low to High',
+    dateAscending: 'Date: Ascending',
+    dateDescending: 'Date: Descending',
+    // Additional ConnectPage strings
+    profilesFound: 'profiles found',
+    profileFound: 'profile found',
+    loadingUsers: 'Loading users...',
+    noUsersFound: 'No users found',
+    dating: 'Dating',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Friends',
+    all: 'All',
+    allCities: 'All Cities',
+    pending: 'Pending',
+    demo: 'DEMO',
+    userRemovedFromContacts: 'User has been removed from your contacts.',
+    errorRemovingContact: 'Error removing contact',
+    userAddedToContacts: 'User has been added to your contacts.',
+    // InboxPage additional strings
+    youNeedToSignIn: 'You need to sign in',
+    signInToViewMessages: 'Sign in to view your messages',
+    signIn: 'Sign In',
+    noMessagesYet: 'No messages yet',
+    noGroupChatsYet: 'No group chats yet',
+    noConnectionsYet: 'No connections yet',
+    unknownUser: 'Unknown User',
+    groupThread: 'Group Thread',
+    members: 'members',
+    // ProfilePage spaced headers
+    profileSpaced: 'P R O F I L E',
+    connectSpaced: 'C O N N E C T',
+    chatsSpaced: 'C H A T S',
+    // EventPage strings
+    exploreSpaced: 'E X P L O R E',
+    requesting: 'Requesting...',
+    request: 'Request',
+    attending: 'Attending',
+    rsvp: 'RSVP',
+    xAttending: 'Attending',
+    xInterested: 'Interested',
+    xAvailable: 'available',
+    // ChatbotPage strings
+    conciergeSpaced: 'C O N C I E R G E',
+    // NotificationPreferencesPage strings
+    alertsSpaced: 'A L E R T S',
+    cityGuide: 'City Guide',
+    welcomeConcierge: "WELCOME TO YOUR CONCIERGE (BETA V1.5)",
+    conciergeBetaDescription: 'Restaurant reservations, hotel bookings, and curated community recommendations are coming soon.',
+    // SignupFlowPage strings
+    signupSpaced: 'S I G N U P',
+    createAccount: 'Create your account',
+    getStartedBasics: "Let's get started with the basics",
+    yourFullName: 'Your full name',
+    chooseUsername: 'Choose a username',
+    phoneOptional: 'Phone number (optional)',
+    choosePassword: 'Create a password',
+    confirmPasswordLabel: 'Confirm password',
+    tellUsAboutYourself: 'Tell us about yourself',
+    personalInfo: 'Some basic personal information',
+    selectAge: 'Select age range',
+    selectGender: 'Select gender',
+    selectOrientation: 'Select orientation',
+    whereAreYou: 'Where are you?',
+    locationInfo: 'Tell us about your locations',
+    currentCity: 'Current city',
+    bornIn: 'Born in',
+    livedIn: 'Lived in',
+    nextDestination: 'Next destination',
+    yourVibes: 'Your vibes',
+    vibesDescription: 'Select vibes that match your personality',
+    selectIntention: 'What brings you here?',
+    yourProfession: 'Your profession',
+    finishProfile: 'Finish your profile',
+    almostDone: "You're almost done!",
+    writeBio: 'Write a short bio',
+    uploadProfile: 'Upload profile photos',
+    agreeTerms: 'I agree to the Terms and Conditions',
+    agreePrivacy: 'I agree to the Privacy Policy',
+    acceptTerms: 'Accept Terms',
+    acceptPrivacy: 'Accept Privacy',
+    creatingAccount: 'Creating account...',
+    submitProfile: 'Complete Signup',
+    registrationSuccess: 'Account created successfully!',
+    registrationError: 'Error creating account',
+    // New signup flow instruction copy
+    optional: 'Optional',
+    welcomeToMaly: 'Welcome to Maly',
+    step1Instruction: "Let's start with the basics. This helps us create your account and tailor your experience.",
+    step2Instruction: 'A few details to personalize your experience and ensure a trusted community.',
+    step3Instruction: 'Your current city helps us show you the right people, places, and experiences.',
+    step4Instruction: 'Select the vibes and intentions that reflect how you explore and connect.',
+    step5Instruction: 'Add a clear photo so members and hosts know who you are. You can complete the rest later.',
+    phoneNumber: 'Phone Number',
+    sexualOrientation: 'Sexual Orientation',
+    male: 'Male',
+    female: 'Female',
+    nonBinary: 'Non-binary',
+    preferNotToSay: 'Prefer not to say',
+    straight: 'Straight',
+    gay: 'Gay',
+    lesbian: 'Lesbian',
+    bisexual: 'Bisexual',
+    pansexual: 'Pansexual',
+    asexual: 'Asexual',
+    queer: 'Queer',
+    questioning: 'Questioning',
+    whereAreYouBased: 'Where are you based?',
+    currentLocation: 'Current Location',
+    nextLocation: 'Next Location',
+    enterCurrentCity: 'Enter your current city',
+    enterBirthplace: 'Where were you born?',
+    enterPreviousCity: 'Cities you have lived in',
+    enterNextDestination: 'Where are you headed next?',
+    yourVibeYourWorld: 'Your vibe, your world',
+    selectAtLeast2: 'select at least 2',
+    intention: 'Intention',
+    whatAreYouLookingFor: 'What are you looking for?',
+    dating: 'Dating',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Friends',
+    community: 'Community',
+    profession: 'Profession',
+    enterProfession: 'What do you do?',
+    makeProfileShine: 'Make your profile shine',
+    profilePhoto: 'Profile Photo',
+    clearFaceRequired: 'clear face required',
+    profilePhotoRequired: 'A profile photo is required',
+    // Post-onboarding welcome message
+    welcomeComplete: "You're all set. Welcome to Maly.",
+    welcomeCompleteMessage: 'Your profile is now ready. You can update your details, add more photos, or edit your bio anytime.',
+    welcomeCompleteHint: 'Just go to Menu → Account → Edit Profile.',
+    // CreateEventFlowPage strings
+    createSpaced: 'C R E A T E',
+    createYourEvent: 'Create your event',
+    promoteOrShare: 'Promote or share remarkable experiences',
+    eventTitle: 'Event Title',
+    conciseAndEngaging: 'Concise and engaging',
+    eventSummary: 'Event Summary / Invitation',
+    briefOverview: 'A brief overview of your event. Use ChatGPT or similar if you need assistance.',
+    buildYourEventGallery: 'Build your event gallery',
+    addHighResPhotos: 'Add high resolution photos or flyer to your event',
+    firstPictureFlyer: 'First picture will be your event flyer',
+    tooManyImages: 'Too many images',
+    maxImagesAllowed: 'Maximum 6 images allowed',
+    validationError: 'Validation Error',
+    atLeastOneImage: 'At least one image is required to continue',
+    eventDetails: 'Event details',
+    setLocationSchedule: 'Set your event location and schedule',
+    onlineEvent: 'Online Event',
+    hostedVirtually: 'Event will be hosted virtually',
+    eventVisibility: 'Event Visibility',
+    selectVisibility: 'Select visibility',
+    cityRequired: 'City is required for physical events',
+    startTypingCity: 'Start typing city name...',
+    venueAddress: 'Venue Address',
+    addressPlaceholder: 'Full address of the venue',
+    additionalLocationInfo: 'Additional Location Info',
+    optionalFloorNotes: 'Floor, room number, or notes (optional)',
+    startDateTime: 'Start Date & Time',
+    endDateTime: 'End Date & Time',
+    activitySchedule: 'Activity Schedule',
+    addItinerary: 'Add itinerary or schedule for your event',
+    addActivity: 'Add Activity',
+    eventSetup: 'Event setup',
+    privacySettings: 'Set privacy and event requirements',
+    eventPrivacy: 'Event Privacy',
+    publicForEveryone: 'Public - visible to everyone',
+    requiresApproval: 'Requires Approval',
+    guestApprovalDesc: 'Guests need approval to attend',
+    dressCodeLabel: 'Dress Code',
+    casualSmart: 'Casual, Smart Casual, etc.',
+    genderRestrictions: 'Gender Restrictions',
+    noRestriction: 'No restriction',
+    requiredVibes: 'Required Vibes',
+    selectVibes: 'Select vibes',
+    ticketingSetup: 'Ticketing setup',
+    eventPaid: 'This event is paid',
+    setTicketPrices: 'Set your ticket prices',
+    eventFree: 'This event is free',
+    addTicketTier: 'Add Ticket Tier',
+    tierName: 'Tier Name',
+    tierDescription: 'Description (optional)',
+    price: 'Price',
+    quantity: 'Quantity',
+    unlimited: 'Unlimited',
+    reviewSubmit: 'Review & Submit',
+    reviewEvent: 'Review your event details',
+    readyToPublish: 'Your event is ready to be published',
+    creating: 'Creating...',
+    createEvent: 'Create Event',
+    eventCreated: 'Event Created',
+    eventLive: 'Your event is now live!',
+    errorCreating: 'Error creating event',
+    // EditProfilePage strings
+    editSpaced: 'E D I T',
+    profileUpdated: 'Profile Updated',
+    profileUpdatedDescription: 'Your profile has been successfully updated.',
+    imagesUploaded: 'Images Uploaded',
+    imagesUploadedDescription: 'image(s) uploaded successfully.',
+    uploadError: 'Upload Error',
+    profileImagesUpdated: 'Profile Images Updated',
+    noVibesSelected: 'No vibes selected',
+    notSet: 'Not set',
+    savingImages: 'Saving...',
+    saveImages: 'Save Images',
+    fullName: 'Full Name',
+    // AppearancePage strings
+    theme: 'Theme',
+    selectTheme: 'Select your preferred theme for the application',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+    useLightTheme: 'Use light theme',
+    useDarkTheme: 'Use dark theme',
+    followDeviceSettings: 'Follow device settings',
+    themeNote: 'System theme will automatically match your device\'s appearance settings. Changes take effect immediately.',
+    note: 'Note',
+    // Additional common strings
+    failedToUpload: 'Failed to upload images',
+    nameRequired: 'Name is required',
+    usernameRequired: 'Username is required',
+    emailRequired: 'Email is required',
+    passwordsDoNotMatch: 'Passwords do not match',
+    mustAcceptTermsAndPrivacy: 'You must accept the Terms and Privacy Policy',
+    // Creator Dashboard Page strings
+    dashboardSpaced: 'D A S H B O A R D',
+    myEvents: 'My Events',
+    analytics: 'Analytics',
+    ticketSales: 'Ticket Sales',
+    rsvps: 'RSVPs',
+    views: 'Views',
+    tickets: 'Tickets',
+    revenue: 'Revenue',
+    earnings: 'Earnings',
+    totalRevenue: 'Total Revenue',
+    ticketsSold: 'Tickets Sold',
+    platformFee: 'Platform Fee (3%)',
+    yourEarnings: 'Your Earnings',
+    noTicketSalesYet: 'No ticket sales yet',
+    salesWillAppear: 'Sales will appear here when tickets are purchased',
+    completed: 'Completed',
+    noPendingRsvpRequests: 'No pending RSVP requests',
+    noCompletedRsvpRequests: 'No completed RSVP requests (last 30 days)',
+    acceptRsvpRequest: 'Accept RSVP Request?',
+    declineRsvpRequest: 'Decline RSVP Request?',
+    confirmAcceptRsvp: "Are you sure you want to accept this RSVP request? They will be added to the event group chat and receive a notification.",
+    confirmDeclineRsvp: "Are you sure you want to decline this RSVP request? They will receive a notification.",
+    yesAccept: 'Yes, Accept',
+    yesDecline: 'Yes, Decline',
+    noEventsCreatedYet: 'No events created yet',
+    createYourFirstEvent: 'Create Your First Event',
+    noAnalyticsAvailable: 'No analytics available',
+    failedToLoadDashboard: 'Failed to load dashboard data',
+    failedToLoadRsvpApplications: 'Failed to load RSVP applications',
+    dateTbd: 'Date TBD',
+    ticket: 'ticket',
+    pleaseLoginToViewDashboard: 'Please log in to view your creator dashboard',
+    goToLogin: 'Go to Login',
+    accepted: 'Accepted',
+    declined: 'Declined'
   },
   es: {
-    discover: 'Descubrir',
+    events: 'Eventos',
+    discover: 'Explorar',
+    explore: 'Explorar',
     login: 'Iniciar Sesión',
     share: 'Compartir',
     connect: 'Conectar',
     create: 'Crear',
     make: 'Hacer',
-    inbox: 'Mensajes',
+    inbox: 'Chats',
+    chats: 'Chats',
     profile: 'Perfil',
     settings: 'Ajustes',
     guide: 'Guía Local',
@@ -446,6 +1497,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     home: 'Inicio',
     pageNotFound: 'Página No Encontrada',
     filters: 'Filtros',
+    connections: 'Conexiones',
     save: 'Guardar',
     edit: 'Editar',
     delete: 'Eliminar',
@@ -492,6 +1544,49 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     conciergeGreeting: "Hola, soy Maly — como tu amigo local con buen gusto. Te ayudaré a saber dónde ir, a quién conocer y qué hacer.",
     premiumAdPartner: 'Socio Premium de Publicidad',
     letsGetStarted: "¡Comencemos!",
+    myTickets: "Mis Entradas",
+    noTicketsYet: "Aún No Tienes Entradas",
+    noTicketsDescription: "Cuando compres entradas para eventos, aparecerán aquí con códigos QR para la entrada.",
+    pleaseLogin: "Por Favor Inicia Sesión",
+    loginToViewTickets: "Inicia sesión para ver tus entradas compradas y códigos QR.",
+    browseEvents: "Ver Eventos",
+    viewQR: "Ver QR",
+    showQRAtEntry: "Muestra este código QR en la entrada del evento para el registro.",
+    ticket: "entrada",
+    tickets: "entradas",
+    'checkIn.title': "Check-In",
+    'checkIn.scanTickets': "Escanear Entradas",
+    'checkIn.pastEvents': "Eventos Pasados",
+    'checkIn.selectEvent': "Selecciona un evento para comenzar el check-in",
+    'checkIn.noUpcomingEvents': "No hay eventos próximos para check-in",
+    'checkIn.noPastEvents': "No hay eventos pasados",
+    'checkIn.total': "total",
+    'checkIn.checkedInLabel': "registrados",
+    'checkIn.attended': "asistieron",
+    'checkIn.scanningFor': "Escaneando entradas para",
+    'checkIn.startScanning': "Iniciar Escaneo",
+    'checkIn.stopScanning': "Detener Escaneo",
+    'checkIn.invalidTicket': "Entrada Inválida",
+    'checkIn.cameraError': "Error de Cámara",
+    'checkIn.cameraPermission': "Por favor permite acceso a la cámara para escanear códigos QR",
+    'checkIn.event': "Evento",
+    'checkIn.tickets': "Entradas",
+    'checkIn.status': "Estado",
+    'checkIn.alreadyCheckedIn': "Ya Registrado",
+    'checkIn.readyToCheckIn': "Listo para Registrar",
+    'checkIn.confirmCheckIn': "Registrar",
+    'checkIn.scanAnother': "Escanear Otro",
+    'checkIn.scanNewTicket': "Escanear Nueva Entrada",
+    'checkIn.confirmTitle': "Confirmar Check-In",
+    'checkIn.confirmMessage': "¿Registrar a {name} en este evento?",
+    'checkIn.confirm': "Confirmar",
+    'checkIn.success': "Check-In Exitoso",
+    'checkIn.checkedIn': "ha sido registrado",
+    'checkIn.error': "Error en Check-In",
+    'checkIn.attendeeList': "Lista de Asistentes",
+    'checkIn.noAttendees': "No hay asistentes para este evento",
+    'checkIn.attendedEvent': "asistieron a este evento",
+    'checkIn.checkedInAt': "Registrado a las",
     'Party & Nightlife': 'Fiesta y Vida Nocturna',
     'Fashion & Style': 'Moda y Estilo',
     'Networking & Business': 'Networking y Negocios',
@@ -516,6 +1611,17 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     whatsapp: 'WhatsApp',
     sms: 'SMS',
     done: 'Listo',
+    close: 'Cerrar',
+    search: 'Buscar',
+    filter: 'Filtrar',
+    sort: 'Ordenar',
+    view: 'Ver',
+    add: 'Agregar',
+    remove: 'Quitar',
+    send: 'Enviar',
+    reply: 'Responder',
+    back: 'Atrás',
+    next: 'Siguiente',
     yourStatus: 'Tu Estado',
     eventOptions: 'Opciones del Evento',
     editEvent: 'Editar Evento',
@@ -600,7 +1706,488 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     backToEvent: 'Volver al Evento',
     qrCodeTicket: 'Después del pago, recibirás un código QR que se puede utilizar para la entrada al evento.',
     eventOrganizer: 'Organizador del Evento',
-    cancelParticipation: 'Cancelar Participación'
+    cancelParticipation: 'Cancelar Participación',
+    // Hamburger Menu Sections
+    aiTools: 'HERRAMIENTAS DE IA',
+    accountAndProfile: 'CUENTA Y PERFIL',
+    creatorTools: 'HERRAMIENTAS DE CREADOR',
+    companyAndLegal: 'EMPRESA Y LEGAL',
+    language: 'IDIOMA',
+    // Menu Items
+    aiConcierge: 'Conserje',
+    notificationPreferences: 'Preferencias de Notificación',
+    creatorDashboard: 'Panel de Creador',
+    checkInAttendees: 'Registrar Asistentes',
+    stripeConnect: 'Stripe Connect',
+    aboutMaly: 'Acerca de Maly',
+    termsAndConditions: 'Términos y Condiciones',
+    privacyPolicy: 'Política de Privacidad',
+    paymentDisclaimer: 'Descargo de Responsabilidad de Pago',
+    // Auth Page
+    register: 'Registrarse',
+    usernameOrEmail: 'Nombre de Usuario o Correo',
+    password: 'Contraseña',
+    enterYourInformation: 'Ingresa tu información para comenzar',
+    alreadyHaveAccount: '¿Ya tienes una cuenta?',
+    dontHaveAccount: '¿No tienes una cuenta?',
+    signInToAccount: 'Inicia sesión en tu cuenta de Maly',
+    createNewAccount: 'Crea una nueva cuenta para unirte a nuestra comunidad',
+    enterUsername: 'Ingresa tu nombre de usuario',
+    enterUsernameOrEmail: 'Ingresa tu nombre de usuario o correo',
+    enterEmail: 'Ingresa tu dirección de correo electrónico',
+    enterPassword: 'Ingresa tu contraseña',
+    name: 'Nombre',
+    enterName: 'Ingresa tu nombre',
+    enterAge: 'Ingresa tu edad',
+    willNotBeDisplayed: '(no se mostrará)',
+    whereAreYouBased: '¿Dónde te encuentras?',
+    chooseYourVibe: 'Elige tu ambiente',
+    profilePicture: 'Foto de Perfil',
+    profilePreview: 'Vista previa del perfil',
+    iAgreeToThe: 'Acepto los',
+    showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
+    // Common buttons and actions
+    submit: 'Enviar',
+    update: 'Actualizar',
+    confirm: 'Confirmar',
+    forward: 'Reenviar',
+    // Validation and errors
+    usernameOrEmailRequired: 'Se debe proporcionar un nombre de usuario o correo electrónico',
+    passwordMinLength: 'La contraseña debe tener al menos 6 caracteres',
+    usernameMinLength: 'El nombre de usuario debe tener al menos 3 caracteres',
+    validEmailRequired: 'Por favor ingresa una dirección de correo electrónico válida',
+    mustAcceptTerms: 'Debes aceptar los Términos y Condiciones para registrarte',
+    mustAcceptPrivacy: 'Debes aceptar la Política de Privacidad para registrarte',
+    validationError: 'Error de Validación',
+    error: 'Error',
+    // DiscoverPage & Event listings
+    today: 'HOY',
+    thisWeek: 'ESTA SEMANA',
+    thisWeekend: 'ESTE FIN DE SEMANA',
+    nextWeek: 'PRÓXIMA SEMANA',
+    nextWeekend: 'PRÓXIMO FIN DE SEMANA',
+    thisMonth: 'ESTE MES',
+    upcomingEvents: 'PRÓXIMOS',
+    noEventsFound: 'No se encontraron eventos',
+    noEventsInCity: 'Aún no hay eventos en',
+    tryOtherCity: 'Intenta seleccionar otra ciudad',
+    anytime: 'Cualquier momento',
+    filterByTime: 'Filtrar por tiempo',
+    filterByCity: 'Filtrar por ciudad',
+    filterByVibe: 'Filtrar por ambiente',
+    createFirstEvent: 'Crear Primer Evento',
+    beFirstToCreateEvent: 'Sé el primero en crear un evento',
+    // EventPage
+    purchaseFailed: 'Compra Fallida',
+    failedInitiateTicketPurchase: 'No se pudo iniciar la compra de entradas. Por favor, inténtalo de nuevo.',
+    success: 'Éxito',
+    successfullyUpdatedParticipation: 'Estado de participación actualizado exitosamente',
+    eventNotFound: 'Evento no encontrado',
+    rsvpRequestSent: '¡Solicitud RSVP enviada! El anfitrión revisará tu solicitud.',
+    dressCode: 'Código de Vestimenta',
+    showMore: 'Mostrar más',
+    showLess: 'Mostrar menos',
+    readMore: 'Leer más',
+    readLess: 'Leer menos',
+    messageHost: 'Mensaje al Anfitrión',
+    selectTicketTier: 'Selecciona un tipo de entrada',
+    requestToAttend: 'Solicitar Asistir',
+    applicationPending: 'Solicitud Pendiente',
+    applicationApproved: 'Solicitud Aprobada',
+    applicationDeclined: 'Solicitud Rechazada',
+    cancelRequest: 'Cancelar Solicitud',
+    // InboxPage
+    conversations: 'Conversaciones',
+    noConversationsYet: 'Aún no hay conversaciones',
+    noConversationsMatch: 'Ninguna conversación coincide con tu búsqueda',
+    connectWithOthers: 'Conecta con otros para comenzar a enviar mensajes',
+    messages: 'Mensajes',
+    groups: 'Grupos',
+    contacts: 'Contactos',
+    rsvpRequests: 'Solicitudes RSVP',
+    connectionRequests: 'Solicitudes de Conexión',
+    accept: 'Aceptar',
+    decline: 'Rechazar',
+    viewEvent: 'Ver Evento',
+    participants: 'participantes',
+    // ConnectPage
+    people: 'Personas',
+    filters: 'Filtros',
+    allGenders: 'Todos los Géneros',
+    male: 'Masculino',
+    female: 'Femenino',
+    nonBinary: 'No Binario',
+    allVibes: 'Todos los Ambientes',
+    allIntentions: 'Todas las Intenciones',
+    addToContacts: 'Agregar a Contactos',
+    added: 'Agregado',
+    addedSuccessfully: 'Agregado exitosamente',
+    failedToAddContact: 'No se pudo agregar contacto',
+    loading: 'Cargando...',
+    // Event Detail strings
+    hostedBy: 'Organizado por',
+    unknownHost: 'Anfitrión Desconocido',
+    checkOutThisEvent: 'Mira este evento:',
+    shareFailed: 'Error al compartir',
+    unableToShareEvent: 'No se puede compartir este evento',
+    linkCopied: '¡Enlace copiado!',
+    eventLinkCopied: 'Enlace del evento copiado al portapapeles',
+    locationCoordinatesNotAvailable: 'Coordenadas de ubicación no disponibles',
+    viewMore: 'Ver Más',
+    viewLess: 'Ver Menos',
+    accessRequestSent: 'Solicitud de Acceso Enviada',
+    accessRequestSentDescription: 'Tu solicitud ha sido enviada al anfitrión del evento para su aprobación',
+    failedToSendAccessRequest: 'No se pudo enviar la solicitud de acceso',
+    failedToUpdateParticipation: 'No se pudo actualizar el estado de participación',
+    forDemoOnly: 'SOLO PARA DEMO',
+    // Profile strings
+    contactAdded: 'Contacto agregado',
+    contactAddedDescription: 'Se ha agregado a tus contactos.',
+    errorAddingContact: 'Error al agregar contacto',
+    contactRemoved: 'Contacto eliminado',
+    contactRemovedDescription: 'Se ha eliminado de tus contactos.',
+    errorRemovingContact: 'Error al eliminar contacto',
+    errorStartingConversation: 'Error al iniciar conversación',
+    message: 'Mensaje',
+    age: 'Edad',
+    years: 'años',
+    profession: 'Profesión',
+    location: 'Ubicación',
+    from: 'De',
+    lived: 'Vivió',
+    nextStop: 'Próxima Parada',
+    lookingFor: 'Busco',
+    interests: 'Intereses',
+    currentVibe: 'Ambiente Actual',
+    profileNotFound: 'Perfil no encontrado',
+    connect: 'Conectar',
+    connected: 'Conectado',
+    profileLinkCopied: 'Enlace de perfil copiado al portapapeles',
+    occupation: 'Ocupación',
+    bio: 'Bio',
+    vibe: 'Ambiente',
+    intention: 'Intención',
+    born: 'Nacido',
+    upcoming: 'Próximo',
+    moodUpdated: 'Ambiente actualizado',
+    moodUpdatedDescription: 'Tu ambiente ha sido actualizado exitosamente.',
+    errorUpdatingMood: 'Error al actualizar ambiente',
+    selectYourTicket: 'Selecciona Tu Entrada',
+    selected: 'Seleccionado',
+    purchase: 'Comprar',
+    selectATicket: 'Selecciona una entrada',
+    addCustomCity: 'Agregar Ciudad Personalizada',
+    enterCityName: 'Ingresa el nombre de la ciudad',
+    when: 'Cuándo',
+    city: 'Ciudad',
+    vibes: 'Ambientes',
+    addCity: '+ Agregar Ciudad',
+    noEventsMatchCriteria: 'No hay eventos que coincidan con tu búsqueda',
+    clearFilters: 'Borrar Filtros',
+    scrollForMore: 'Desplázate para ver más eventos',
+    nextMonth: 'PRÓXIMO MES',
+    appearance: 'Apariencia',
+    typeMessage: 'Escribe un mensaje...',
+    sendMessage: 'Enviar mensaje',
+    newMessage: 'Nuevo Mensaje',
+    groupChat: 'Chat Grupal',
+    directMessage: 'Mensaje Directo',
+    startNewConversation: 'Iniciar una nueva conversación',
+    noMessagesYet: 'Aún no hay mensajes',
+    startConversation: 'Iniciar la conversación',
+    eventChat: 'Chat del Evento',
+    savedEvents: 'Eventos Guardados',
+    myEvents: 'Mis Eventos',
+    hostedEvents: 'Eventos Organizados',
+    attendingEvents: 'Eventos a los que Asistes',
+    noSavedEvents: 'No hay eventos guardados',
+    noHostedEvents: 'No hay eventos organizados',
+    noAttendingEvents: 'No hay eventos a los que asistas',
+    viewProfile: 'Ver Perfil',
+    removeFromContacts: 'Eliminar de Contactos',
+    pendingRequest: 'Solicitud Pendiente',
+    requestSent: 'Solicitud Enviada',
+    acceptRequest: 'Aceptar Solicitud',
+    declineRequest: 'Rechazar Solicitud',
+    connectionPending: 'Conexión Pendiente',
+    loadingMore: 'Cargando más...',
+    endOfResults: 'Fin de los resultados',
+    tryDifferentFilters: 'Prueba filtros diferentes',
+    noResultsFound: 'No se encontraron resultados',
+    searchResults: 'Resultados de Búsqueda',
+    recentSearches: 'Búsquedas Recientes',
+    clearHistory: 'Borrar Historial',
+    popularSearches: 'Búsquedas Populares',
+    seeAll: 'Ver Todo',
+    hideAll: 'Ocultar Todo',
+    sortBy: 'Ordenar Por',
+    newest: 'Más Nuevos',
+    oldest: 'Más Antiguos',
+    mostPopular: 'Más Populares',
+    priceHighToLow: 'Precio: Mayor a Menor',
+    priceLowToHigh: 'Precio: Menor a Mayor',
+    dateAscending: 'Fecha: Ascendente',
+    dateDescending: 'Fecha: Descendente',
+    // Additional ConnectPage strings
+    profilesFound: 'perfiles encontrados',
+    profileFound: 'perfil encontrado',
+    loadingUsers: 'Cargando usuarios...',
+    noUsersFound: 'No se encontraron usuarios',
+    dating: 'Citas',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Amigos',
+    all: 'Todos',
+    allCities: 'Todas las Ciudades',
+    pending: 'Pendiente',
+    demo: 'DEMO',
+    userRemovedFromContacts: 'Usuario eliminado de tus contactos.',
+    errorRemovingContact: 'Error al eliminar contacto',
+    userAddedToContacts: 'Usuario agregado a tus contactos.',
+    // InboxPage additional strings
+    youNeedToSignIn: 'Necesitas iniciar sesión',
+    signInToViewMessages: 'Inicia sesión para ver tus mensajes',
+    signIn: 'Iniciar Sesión',
+    noMessagesYet: 'Aún no hay mensajes',
+    noGroupChatsYet: 'Aún no hay chats grupales',
+    noConnectionsYet: 'Aún no hay conexiones',
+    unknownUser: 'Usuario Desconocido',
+    groupThread: 'Hilo Grupal',
+    members: 'miembros',
+    // ProfilePage spaced headers
+    profileSpaced: 'P E R F I L',
+    connectSpaced: 'C O N E C T A R',
+    chatsSpaced: 'C H A T S',
+    // EventPage strings
+    exploreSpaced: 'E X P L O R A R',
+    requesting: 'Solicitando...',
+    request: 'Solicitar',
+    attending: 'Asistiendo',
+    rsvp: 'RSVP',
+    xAttending: 'Asistiendo',
+    xInterested: 'Interesados',
+    xAvailable: 'disponibles',
+    // ChatbotPage strings
+    conciergeSpaced: 'C O N S E R J E',
+    // NotificationPreferencesPage strings
+    alertsSpaced: 'A L E R T A S',
+    cityGuide: 'Guía de Ciudad',
+    welcomeConcierge: 'Bienvenido al Conserje de Maly (Beta V1.5)',
+    conciergeBetaDescription: 'Próximamente: Reservaciones de restaurantes, reservas de hotel y recomendaciones de la comunidad.',
+    // SignupFlowPage strings
+    signupSpaced: 'R E G I S T R O',
+    createAccount: 'Crea tu cuenta',
+    getStartedBasics: 'Empecemos con lo básico',
+    yourFullName: 'Tu nombre completo',
+    chooseUsername: 'Elige un nombre de usuario',
+    phoneOptional: 'Número de teléfono (opcional)',
+    choosePassword: 'Crea una contraseña',
+    confirmPasswordLabel: 'Confirmar contraseña',
+    tellUsAboutYourself: 'Cuéntanos sobre ti',
+    personalInfo: 'Información personal básica',
+    selectAge: 'Seleccionar rango de edad',
+    selectGender: 'Seleccionar género',
+    selectOrientation: 'Seleccionar orientación',
+    whereAreYou: '¿Dónde estás?',
+    locationInfo: 'Cuéntanos sobre tus ubicaciones',
+    currentCity: 'Ciudad actual',
+    bornIn: 'Nacido en',
+    livedIn: 'Vivido en',
+    nextDestination: 'Próximo destino',
+    yourVibes: 'Tus vibes',
+    vibesDescription: 'Selecciona vibes que coincidan con tu personalidad',
+    selectIntention: '¿Qué te trae aquí?',
+    yourProfession: 'Tu profesión',
+    finishProfile: 'Completa tu perfil',
+    almostDone: '¡Ya casi terminas!',
+    writeBio: 'Escribe una breve biografía',
+    uploadProfile: 'Sube fotos de perfil',
+    agreeTerms: 'Acepto los Términos y Condiciones',
+    agreePrivacy: 'Acepto la Política de Privacidad',
+    acceptTerms: 'Aceptar Términos',
+    acceptPrivacy: 'Aceptar Privacidad',
+    creatingAccount: 'Creando cuenta...',
+    submitProfile: 'Completar Registro',
+    registrationSuccess: '¡Cuenta creada exitosamente!',
+    registrationError: 'Error al crear la cuenta',
+    // New signup flow instruction copy
+    optional: 'Opcional',
+    welcomeToMaly: 'Bienvenido a Maly',
+    step1Instruction: 'Empecemos con lo básico. Esto nos ayuda a crear tu cuenta y personalizar tu experiencia.',
+    step2Instruction: 'Algunos detalles para personalizar tu experiencia y asegurar una comunidad de confianza.',
+    step3Instruction: 'Tu ciudad actual nos ayuda a mostrarte las personas, lugares y experiencias correctas.',
+    step4Instruction: 'Selecciona las vibes e intenciones que reflejan cómo exploras y conectas.',
+    step5Instruction: 'Añade una foto clara para que miembros y anfitriones sepan quién eres. Puedes completar el resto después.',
+    phoneNumber: 'Número de Teléfono',
+    sexualOrientation: 'Orientación Sexual',
+    male: 'Masculino',
+    female: 'Femenino',
+    nonBinary: 'No binario',
+    preferNotToSay: 'Prefiero no decir',
+    straight: 'Heterosexual',
+    gay: 'Gay',
+    lesbian: 'Lesbiana',
+    bisexual: 'Bisexual',
+    pansexual: 'Pansexual',
+    asexual: 'Asexual',
+    queer: 'Queer',
+    questioning: 'Cuestionando',
+    whereAreYouBased: '¿Dónde te encuentras?',
+    currentLocation: 'Ubicación Actual',
+    nextLocation: 'Próxima Ubicación',
+    enterCurrentCity: 'Ingresa tu ciudad actual',
+    enterBirthplace: '¿Dónde naciste?',
+    enterPreviousCity: 'Ciudades donde has vivido',
+    enterNextDestination: '¿A dónde vas después?',
+    yourVibeYourWorld: 'Tu vibe, tu mundo',
+    selectAtLeast2: 'selecciona al menos 2',
+    intention: 'Intención',
+    whatAreYouLookingFor: '¿Qué estás buscando?',
+    dating: 'Citas',
+    social: 'Social',
+    networking: 'Networking',
+    friends: 'Amigos',
+    community: 'Comunidad',
+    profession: 'Profesión',
+    enterProfession: '¿A qué te dedicas?',
+    makeProfileShine: 'Haz brillar tu perfil',
+    profilePhoto: 'Foto de Perfil',
+    clearFaceRequired: 'rostro claro requerido',
+    profilePhotoRequired: 'Se requiere una foto de perfil',
+    // Post-onboarding welcome message
+    welcomeComplete: 'Todo listo. Bienvenido a Maly.',
+    welcomeCompleteMessage: 'Tu perfil está listo. Puedes actualizar tus datos, agregar más fotos o editar tu biografía en cualquier momento.',
+    welcomeCompleteHint: 'Solo ve a Menú → Cuenta → Editar Perfil.',
+    // CreateEventFlowPage strings
+    createSpaced: 'C R E A R',
+    createYourEvent: 'Crea tu evento',
+    promoteOrShare: 'Promociona o comparte experiencias extraordinarias',
+    eventTitle: 'Título del Evento',
+    conciseAndEngaging: 'Conciso y atractivo',
+    eventSummary: 'Resumen del Evento / Invitación',
+    briefOverview: 'Una breve descripción de tu evento. Usa ChatGPT o similar si necesitas ayuda.',
+    buildYourEventGallery: 'Construye tu galería de eventos',
+    addHighResPhotos: 'Agrega fotos en alta resolución o flyer a tu evento',
+    firstPictureFlyer: 'La primera imagen será el flyer de tu evento',
+    tooManyImages: 'Demasiadas imágenes',
+    maxImagesAllowed: 'Máximo 6 imágenes permitidas',
+    validationError: 'Error de Validación',
+    atLeastOneImage: 'Se requiere al menos una imagen para continuar',
+    eventDetails: 'Detalles del evento',
+    setLocationSchedule: 'Establece la ubicación y horario de tu evento',
+    onlineEvent: 'Evento en Línea',
+    hostedVirtually: 'El evento será virtual',
+    eventVisibility: 'Visibilidad del Evento',
+    selectVisibility: 'Seleccionar visibilidad',
+    cityRequired: 'La ciudad es requerida para eventos presenciales',
+    startTypingCity: 'Comienza a escribir el nombre de la ciudad...',
+    venueAddress: 'Dirección del Lugar',
+    addressPlaceholder: 'Dirección completa del lugar',
+    additionalLocationInfo: 'Información Adicional de Ubicación',
+    optionalFloorNotes: 'Piso, número de sala o notas (opcional)',
+    startDateTime: 'Fecha y Hora de Inicio',
+    endDateTime: 'Fecha y Hora de Fin',
+    activitySchedule: 'Horario de Actividades',
+    addItinerary: 'Agrega itinerario u horario para tu evento',
+    addActivity: 'Agregar Actividad',
+    eventSetup: 'Configuración del evento',
+    privacySettings: 'Establece privacidad y requisitos del evento',
+    eventPrivacy: 'Privacidad del Evento',
+    publicForEveryone: 'Público - visible para todos',
+    requiresApproval: 'Requiere Aprobación',
+    guestApprovalDesc: 'Los invitados necesitan aprobación para asistir',
+    dressCodeLabel: 'Código de Vestimenta',
+    casualSmart: 'Casual, Smart Casual, etc.',
+    genderRestrictions: 'Restricciones de Género',
+    noRestriction: 'Sin restricción',
+    requiredVibes: 'Vibes Requeridas',
+    selectVibes: 'Seleccionar vibes',
+    ticketingSetup: 'Configuración de entradas',
+    eventPaid: 'Este evento es de pago',
+    setTicketPrices: 'Establece los precios de tus entradas',
+    eventFree: 'Este evento es gratuito',
+    addTicketTier: 'Agregar Nivel de Entrada',
+    tierName: 'Nombre del Nivel',
+    tierDescription: 'Descripción (opcional)',
+    price: 'Precio',
+    quantity: 'Cantidad',
+    unlimited: 'Ilimitado',
+    reviewSubmit: 'Revisar y Enviar',
+    reviewEvent: 'Revisa los detalles de tu evento',
+    readyToPublish: 'Tu evento está listo para publicarse',
+    creating: 'Creando...',
+    createEvent: 'Crear Evento',
+    eventCreated: 'Evento Creado',
+    eventLive: '¡Tu evento ya está publicado!',
+    errorCreating: 'Error al crear el evento',
+    // EditProfilePage strings
+    editSpaced: 'E D I T A R',
+    profileUpdated: 'Perfil Actualizado',
+    profileUpdatedDescription: 'Tu perfil ha sido actualizado exitosamente.',
+    imagesUploaded: 'Imágenes Subidas',
+    imagesUploadedDescription: 'imagen(es) subida(s) exitosamente.',
+    uploadError: 'Error de Subida',
+    profileImagesUpdated: 'Imágenes de Perfil Actualizadas',
+    noVibesSelected: 'No hay vibes seleccionadas',
+    notSet: 'No establecido',
+    savingImages: 'Guardando...',
+    saveImages: 'Guardar Imágenes',
+    fullName: 'Nombre Completo',
+    // AppearancePage strings
+    theme: 'Tema',
+    selectTheme: 'Selecciona tu tema preferido para la aplicación',
+    light: 'Claro',
+    dark: 'Oscuro',
+    system: 'Sistema',
+    useLightTheme: 'Usar tema claro',
+    useDarkTheme: 'Usar tema oscuro',
+    followDeviceSettings: 'Seguir configuración del dispositivo',
+    themeNote: 'El tema del sistema seguirá automáticamente la configuración de apariencia de tu dispositivo. Los cambios se aplican inmediatamente.',
+    note: 'Nota',
+    // Additional common strings
+    failedToUpload: 'Error al subir imágenes',
+    nameRequired: 'El nombre es requerido',
+    usernameRequired: 'El nombre de usuario es requerido',
+    emailRequired: 'El correo electrónico es requerido',
+    passwordsDoNotMatch: 'Las contraseñas no coinciden',
+    mustAcceptTermsAndPrivacy: 'Debes aceptar los Términos y Política de Privacidad',
+    // Creator Dashboard Page strings
+    dashboardSpaced: 'P A N E L',
+    myEvents: 'Mis Eventos',
+    analytics: 'Estadísticas',
+    ticketSales: 'Ventas',
+    rsvps: 'RSVPs',
+    views: 'Vistas',
+    tickets: 'Entradas',
+    revenue: 'Ingresos',
+    earnings: 'Ganancias',
+    totalRevenue: 'Ingresos Totales',
+    ticketsSold: 'Entradas Vendidas',
+    platformFee: 'Comisión (3%)',
+    yourEarnings: 'Tus Ganancias',
+    noTicketSalesYet: 'Aún no hay ventas de entradas',
+    salesWillAppear: 'Las ventas aparecerán aquí cuando se compren entradas',
+    completed: 'Completado',
+    noPendingRsvpRequests: 'No hay solicitudes RSVP pendientes',
+    noCompletedRsvpRequests: 'No hay solicitudes RSVP completadas (últimos 30 días)',
+    acceptRsvpRequest: '¿Aceptar Solicitud RSVP?',
+    declineRsvpRequest: '¿Rechazar Solicitud RSVP?',
+    confirmAcceptRsvp: "¿Seguro que quieres aceptar esta solicitud RSVP? Se añadirá al chat del evento y recibirá una notificación.",
+    confirmDeclineRsvp: "¿Seguro que quieres rechazar esta solicitud RSVP? Recibirá una notificación.",
+    yesAccept: 'Sí, Aceptar',
+    yesDecline: 'Sí, Rechazar',
+    noEventsCreatedYet: 'Aún no has creado eventos',
+    createYourFirstEvent: 'Crea Tu Primer Evento',
+    noAnalyticsAvailable: 'No hay estadísticas disponibles',
+    failedToLoadDashboard: 'Error al cargar datos del panel',
+    failedToLoadRsvpApplications: 'Error al cargar solicitudes RSVP',
+    dateTbd: 'Fecha por confirmar',
+    ticket: 'entrada',
+    pleaseLoginToViewDashboard: 'Inicia sesión para ver tu panel de creador',
+    goToLogin: 'Ir a Iniciar Sesión',
+    accepted: 'Aceptado',
+    declined: 'Rechazado'
   }
 };
 

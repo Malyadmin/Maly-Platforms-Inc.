@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -23,25 +23,17 @@ import {
 import { 
   CalendarIcon, 
   Plus, 
-  Loader2,
-  ChevronsUpDown
+  Loader2
 } from "lucide-react";
 import { GradientHeader } from "@/components/ui/GradientHeader";
 import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VIBE_AND_MOOD_TAGS, DIGITAL_NOMAD_CITIES } from "@/lib/constants";
+import { VIBE_AND_MOOD_TAGS, CITIES_BY_REGION } from "@/lib/constants";
 import { useUser } from "@/hooks/use-user";
-import { ItineraryFormField } from "@/components/ItineraryFormField";
 import { useTranslation } from "@/lib/translations";
 import StripeConnectBanner from "@/components/StripeConnectBanner";
-
-// Define a simple schema for our form
-// Define a schema for itinerary items
-const itineraryItemSchema = z.object({
-  startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "End time is required"),
-  description: z.string().min(1, "Description is required"),
-});
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { Globe, Lock, Users } from "lucide-react";
 
 const eventSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -49,14 +41,11 @@ const eventSchema = z.object({
   location: z.string().min(3, "Location is required"),
   address: z.string().optional(),
   price: z.coerce.number().min(0).default(0),
-  isPrivate: z.boolean().default(false),
-  // Add a proper date validator to ensure valid dates
+  privacy: z.enum(["public", "private", "friends"]).default("public"),
+  isRsvp: z.boolean().default(false),
   date: z.string()
     .refine(val => !isNaN(Date.parse(val)), "Please enter a valid date")
     .default(() => new Date().toISOString()),
-  // Add itinerary field (optional array of itinerary items)
-  itinerary: z.array(itineraryItemSchema).optional().default([]),
-  // Include category field even though we don't show it in the UI anymore
   category: z.string().default("Other"),
 });
 
@@ -85,9 +74,8 @@ export default function CreateEventPage() {
       location: "",
       date: new Date().toISOString(),
       price: 0,
-      isPrivate: false,
-      itinerary: [], // Initialize with empty array
-      // Include a default category even though we don't show it in the UI anymore
+      privacy: "public",
+      isRsvp: false,
       category: "Other"
     },
   });
@@ -153,14 +141,8 @@ export default function CreateEventPage() {
       // Add all form fields
       Object.entries(data).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          if (key === 'itinerary' && Array.isArray(value)) {
-            // Serialize the itinerary array to JSON
-            formData.append(key, JSON.stringify(value));
-            console.log(`Added itinerary field with ${value.length} items`);
-          } else {
-            formData.append(key, value.toString());
-            console.log(`Added form field: ${key} = ${value}`);
-          }
+          formData.append(key, value.toString());
+          console.log(`Added form field: ${key} = ${value}`);
         }
       });
 
@@ -232,7 +214,7 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <GradientHeader 
         title={t('create')}
         backButtonFallbackPath="/"
@@ -241,8 +223,8 @@ export default function CreateEventPage() {
       <ScrollArea className="flex-1" style={{ height: 'calc(100vh - 140px)' }}>
         <div className="container mx-auto px-4 py-8 space-y-8 max-w-2xl">
             <div className="space-y-4">
-              <p className="text-sm text-white/60">{t('letsGetStarted')}</p>
-              <div className="relative aspect-[3/2] bg-white/5 rounded-lg overflow-hidden">
+              <p className="text-sm text-muted-foreground">{t('letsGetStarted')}</p>
+              <div className="relative aspect-[3/2] bg-muted/20 rounded-lg overflow-hidden">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -250,10 +232,10 @@ export default function CreateEventPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/10 transition-colors">
+                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-foreground/10 transition-colors">
                     <div className="flex flex-col items-center gap-2">
-                      <Plus className="w-8 h-8 text-white/60" />
-                      <span className="text-sm text-white/60">
+                      <Plus className="w-8 h-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
                         {t('addPhotosFlyer')}
                       </span>
                     </div>
@@ -303,7 +285,7 @@ export default function CreateEventPage() {
                     className={`h-auto min-h-8 px-3 py-1.5 text-sm whitespace-normal break-words ${
                       selectedTags.includes(tag)
                         ? ""
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        : "bg-white/5 border-white/10 hover:bg-foreground/10"
                     }`}
                     onClick={() => {
                       setSelectedTags((prev) =>
@@ -325,14 +307,28 @@ export default function CreateEventPage() {
                 value={form.watch("location")}
                 onValueChange={(value) => form.setValue("location", value)}
               >
-                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10">
+                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10">
                   <SelectValue placeholder={t('selectCity')} />
                 </SelectTrigger>
-                <SelectContent>
-                  {DIGITAL_NOMAD_CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                    <div key={region}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-foreground uppercase">
+                        {region}
+                      </div>
+                      {Object.entries(countries).map(([country, cities]) => (
+                        <div key={country}>
+                          <div className="px-3 py-1 text-xs text-muted-foreground">
+                            {country}
+                          </div>
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city} className="pl-6">
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   ))}
                 </SelectContent>
               </Select>
@@ -343,10 +339,19 @@ export default function CreateEventPage() {
             
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Event Address</h3>
-              <Input
-                {...form.register("address")}
-                className="bg-white/5 border-0 h-12"
-                placeholder="Enter exact event address"
+              <Controller
+                name="address"
+                control={form.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <LocationAutocomplete
+                    value={field.value || ""}
+                    onChange={(value) => field.onChange(value)}
+                    placeholder="Enter exact event address"
+                    className="bg-white/5 border-0 h-12"
+                    type="address"
+                  />
+                )}
               />
               {form.formState.errors.address && (
                 <p className="text-red-500 text-xs">{form.formState.errors.address.message}</p>
@@ -362,7 +367,7 @@ export default function CreateEventPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 justify-start text-left font-normal"
+                    className="w-full h-12 bg-white/5 border-white/10 hover:bg-foreground/10 justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {form.watch("date") ? (
@@ -426,22 +431,89 @@ export default function CreateEventPage() {
               )}
             </div>
 
-            {/* Event Itinerary */}
-            <div className="space-y-4 bg-white/5 p-6 rounded-lg">
-              <FormProvider {...form}>
-                <ItineraryFormField name="itinerary" />
-              </FormProvider>
-              {form.formState.errors.itinerary && (
-                <p className="text-red-500 text-xs">Please check itinerary details</p>
-              )}
+            {/* Event Privacy */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">{t('eventPrivacy') || 'Event Privacy'}</h3>
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "public")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "public"
+                      ? "border-foreground bg-foreground/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
+                  }`}
+                >
+                  <Globe className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('public') || 'Public'}</p>
+                    <p className="text-xs text-muted-foreground">{t('publicEventDesc') || 'Visible to everyone on Explore'}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "private")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "private"
+                      ? "border-foreground bg-foreground/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
+                  }`}
+                >
+                  <Lock className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('private') || 'Private'}</p>
+                    <p className="text-xs text-muted-foreground">{t('privateEventDesc') || 'Shows blurred on Explore, accessible via link'}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("privacy", "friends")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
+                    form.watch("privacy") === "friends"
+                      ? "border-foreground bg-foreground/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
+                  }`}
+                >
+                  <Users className="h-5 w-5" />
+                  <div className="text-left">
+                    <p className="font-medium">{t('friendsOnly') || 'Friends Only'}</p>
+                    <p className="text-xs text-muted-foreground">{t('friendsOnlyDesc') || 'Only accessible via shared link'}</p>
+                  </div>
+                </button>
+              </div>
             </div>
+
+            {/* RSVP Option (for free events) */}
+            {form.watch("price") === 0 && (
+              <div className="space-y-4">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("isRsvp", !form.watch("isRsvp"))}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all w-full ${
+                    form.watch("isRsvp")
+                      ? "border-foreground bg-foreground/10"
+                      : "border-border bg-muted/20 hover:bg-muted/40"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    form.watch("isRsvp") ? "border-foreground bg-foreground" : "border-muted-foreground/40"
+                  }`}>
+                    {form.watch("isRsvp") && <span className="text-white text-xs">✓</span>}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium">{t('requireRsvp') || 'Require RSVP'}</p>
+                    <p className="text-xs text-muted-foreground">{t('rsvpDesc') || 'Guests must RSVP and be approved to attend'}</p>
+                  </div>
+                </button>
+              </div>
+            )}
 
             {/* Publication Button */}
             <div className="space-y-4">
               <div className="flex gap-4">
                 <Button
                   type="button"
-                  className="flex-1 h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white"
+                  className="flex-1 h-12 bg-white hover:bg-gray-100 text-black text-white"
                   disabled={loading}
                   onClick={publishEvent}
                 >
@@ -465,11 +537,11 @@ export default function CreateEventPage() {
         </div>
       </ScrollArea>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border">
         <div className="container mx-auto max-w-2xl p-4">
           <Button
             type="button"
-            className="w-full h-12 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 hover:from-teal-700 hover:via-blue-700 hover:to-purple-700 text-white transition-all duration-200"
+            className="w-full h-12 bg-white hover:bg-gray-100 text-black text-white transition-all duration-200"
             disabled={loading}
             onClick={publishEvent}
           >

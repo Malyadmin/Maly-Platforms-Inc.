@@ -13,35 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Custom styled inbox icon with gradient
-const GradientInboxIcon = () => {
-  return (
-    <div className="relative">
-      <svg 
-        width="33" 
-        height="33" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="url(#inbox-gradient)" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-        className="lucide lucide-inbox"
-      >
-        <defs>
-          <linearGradient id="inbox-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="50%" stopColor="#a855f7" />
-            <stop offset="100%" stopColor="#ec4899" />
-          </linearGradient>
-        </defs>
-        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-      </svg>
-    </div>
-  );
-};
-
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -123,7 +94,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border sticky top-0 z-50 bg-black text-white">
+      <header className="border-b border-border sticky top-0 z-50 bg-background text-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -132,19 +103,6 @@ export function Layout({ children }: LayoutProps) {
               </a>
             </div>
             <div className="flex items-center gap-4">
-              {/* Mobile Inbox Icon */}
-              {(userDisplayData || user) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden interactive-hover p-2"
-                  onClick={() => setLocation("/inbox")}
-                >
-                  <GradientInboxIcon />
-                  <span className="sr-only">Inbox</span>
-                </Button>
-              )}
-              
               {/* User profile or avatar - only show when authenticated */}
               {(userDisplayData || user) && (
                 <Button 
@@ -153,7 +111,7 @@ export function Layout({ children }: LayoutProps) {
                   className="interactive-hover hidden md:flex items-center gap-2"
                   onClick={() => setLocation("/profile")}
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-foreground overflow-hidden">
                     {(userDisplayData || user)?.profileImage ? (
                       <img 
                         src={(userDisplayData || user)?.profileImage} 
@@ -185,7 +143,7 @@ export function Layout({ children }: LayoutProps) {
                       (!item.isAdmin || (user && user.isAdmin)) && (
                         <DropdownMenuItem 
                           key={index}
-                          className={`cursor-pointer interactive-hover ${item.isPremium ? 'text-purple-500 font-medium' : ''} ${item.isAdmin ? 'text-red-500 font-medium' : ''}`}
+                          className={`cursor-pointer interactive-hover ${item.isPremium ? 'text-[#B57CFF] font-medium' : ''} ${item.isAdmin ? 'text-foreground/70 font-medium' : ''}`}
                           onClick={() => item.onClick ? item.onClick() : setLocation(item.href)}
                         >
                           <item.icon className="w-4 h-4 mr-2" />

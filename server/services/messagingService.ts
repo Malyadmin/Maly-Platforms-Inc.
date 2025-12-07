@@ -2,7 +2,7 @@ import { db } from "../../db";
 import { 
   messages, 
   users, 
-  userConnections,
+  userContacts,
   conversations,
   conversationParticipants,
   events,
@@ -14,6 +14,7 @@ import {
   NewConversationParticipant
 } from "../../db/schema";
 import { eq, and, or, desc, asc, ne, isNull } from "drizzle-orm";
+import { sendMessageNotification } from './pushNotificationService';
 
 // Extended conversation type that matches iOS Conversation model exactly
 interface ExtendedConversation {
@@ -39,33 +40,25 @@ interface ExtendedConversation {
   // Removed createdBy - not in iOS model
 }
 
-// Send a message (only between connected users)
+// Send a message (sender must have receiver in contacts)
 export async function sendMessage({ senderId, receiverId, content }: {
   senderId: number;
   receiverId: number;
   content: string;
 }) {
-  // Check if users are connected
-  const connectionExists = await db.query.userConnections.findFirst({
-    where: or(
-      and(
-        eq(userConnections.followerId, senderId),
-        eq(userConnections.followingId, receiverId),
-        eq(userConnections.status, "accepted")
-      ),
-      and(
-        eq(userConnections.followerId, receiverId),
-        eq(userConnections.followingId, senderId),
-        eq(userConnections.status, "accepted")
-      )
+  // Check if sender has receiver in contacts
+  const contactExists = await db.query.userContacts.findFirst({
+    where: and(
+      eq(userContacts.ownerId, senderId),
+      eq(userContacts.contactId, receiverId)
     )
   });
 
-  // For now, we're going to log and allow messages even if users aren't connected
-  if (!connectionExists) {
-    console.log(`WARNING: Sending message between non-connected users ${senderId} and ${receiverId}`);
+  // For now, we're going to log and allow messages even if users aren't in contacts
+  if (!contactExists) {
+    console.log(`WARNING: Sending message from ${senderId} to ${receiverId} without contact relationship`);
     // Instead of throwing an error, we'll just continue
-    // throw new Error("Users must be connected to send messages");
+    // throw new Error("Users must be in contacts to send messages");
   }
 
   // Create the message
@@ -388,27 +381,19 @@ export async function getConversationMessages(conversationId: number, userId: nu
 
 // Get messages between two users (legacy function for backward compatibility)
 export async function getMessages(userId: number, otherId: number) {
-  // Check if users are connected
-  const connectionExists = await db.query.userConnections.findFirst({
-    where: or(
-      and(
-        eq(userConnections.followerId, userId),
-        eq(userConnections.followingId, otherId),
-        eq(userConnections.status, "accepted")
-      ),
-      and(
-        eq(userConnections.followerId, otherId),
-        eq(userConnections.followingId, userId),
-        eq(userConnections.status, "accepted")
-      )
+  // Check if user has other in contacts
+  const contactExists = await db.query.userContacts.findFirst({
+    where: and(
+      eq(userContacts.ownerId, userId),
+      eq(userContacts.contactId, otherId)
     )
   });
 
-  // For now, we're going to log and allow messages even if users aren't connected
-  if (!connectionExists) {
-    console.log(`WARNING: Getting messages between non-connected users ${userId} and ${otherId}`);
+  // For now, we're going to log and allow messages even if users aren't in contacts
+  if (!contactExists) {
+    console.log(`WARNING: Getting messages between users ${userId} and ${otherId} without contact relationship`);
     // Instead of throwing an error, we'll just continue
-    // throw new Error("Users must be connected to view messages");
+    // throw new Error("Users must be in contacts to view messages");
   }
 
   return db.query.messages.findMany({
@@ -635,6 +620,28 @@ export async function sendMessageToConversation({ senderId, conversationId, cont
       profileImage: true
     }
   });
+
+  // Send push notifications to other conversation participants
+  try {
+    const participants = await db.query.conversationParticipants.findMany({
+      where: and(
+        eq(conversationParticipants.conversationId, conversationId),
+        ne(conversationParticipants.userId, senderId) // Exclude sender
+      )
+    });
+
+    const senderName = sender?.fullName || 'Someone';
+    const messagePreview = content.length > 50 ? content.substring(0, 50) + '...' : content;
+
+    for (const participant of participants) {
+      if (participant.userId) {
+        await sendMessageNotification(participant.userId, senderName, messagePreview);
+      }
+    }
+  } catch (error) {
+    console.error('Error sending push notifications for message:', error);
+    // Don't fail the message send if push notifications fail
+  }
 
   // Return the message with sender info formatted for iOS
   if (result.length > 0 && sender) {

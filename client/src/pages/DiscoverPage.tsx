@@ -4,20 +4,20 @@ import { useEvents } from "@/hooks/use-events";
 import { useUser } from "@/hooks/use-user";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Plus, Star, Calendar, X, UserCircle, Filter } from "lucide-react";
+import { MapPin, Users, Plus, Star, Calendar, X, UserCircle, SlidersHorizontal, ChevronDown, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
-import { DIGITAL_NOMAD_CITIES, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
+import { DIGITAL_NOMAD_CITIES, CITIES_BY_REGION, VIBE_AND_MOOD_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "@/lib/translations";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EventGridSkeleton } from "@/components/ui/content-skeleton";
 import { FirstEventModal } from "@/components/FirstEventModal";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { IOSEventCard } from "@/components/ui/ios-event-card";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,12 +57,12 @@ export default function DiscoverPage() {
   // Price display helper function for translation
   const renderPrice = (price: string) => {
     if (price === "0") {
-      return <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">{t('free')}</p>;
+      return <p className="font-semibold text-foreground text-xs sm:text-sm md:text-lg">{t('free')}</p>;
     } else {
       return (
         <>
-          <p className="font-semibold text-white text-xs sm:text-sm md:text-lg">${price}</p>
-          <p className="text-[8px] sm:text-xs md:text-sm text-white/60">{t('perPerson')}</p>
+          <p className="font-semibold text-foreground text-xs sm:text-sm md:text-lg">${price}</p>
+          <p className="text-[8px] sm:text-xs md:text-sm text-foreground/60">{t('perPerson')}</p>
         </>
       );
     }
@@ -72,10 +72,13 @@ export default function DiscoverPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<string>('Anytime');
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showFiltersBar, setShowFiltersBar] = useState(true);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [customCities, setCustomCities] = useState<string[]>([]);
+  const [showAddCityDialog, setShowAddCityDialog] = useState(false);
+  const [newCityInput, setNewCityInput] = useState('');
   // Removed dateFilter state, as we'll always show all events organized by date
-  const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity);
+  const { events: fetchedEvents, isLoading } = useEvents(undefined, selectedCity === 'all' ? undefined : selectedCity);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [displayCount, setDisplayCount] = useState(24); // Increased initial count to display more items
@@ -83,6 +86,23 @@ export default function DiscoverPage() {
   const observerTarget = useRef(null);
   const [showFirstEventModal, setShowFirstEventModal] = useState(false);
   const [seenEmptyCities, setSeenEmptyCities] = useState<string[]>([]);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  
+  // Check for new user welcome message
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewUser = urlParams.get('welcome') === 'true' || localStorage.getItem('maly_new_user') === 'true';
+    
+    if (isNewUser) {
+      setShowWelcomeModal(true);
+      // Clear the flag so it only shows once
+      localStorage.removeItem('maly_new_user');
+      // Clean up URL without refreshing page
+      if (urlParams.get('welcome')) {
+        window.history.replaceState({}, '', '/discover');
+      }
+    }
+  }, []);
   
   const allEvents = fetchedEvents || [];
 
@@ -96,7 +116,7 @@ export default function DiscoverPage() {
     return matchesSearch && matchesCategory && matchesEventTypes;
   });
 
-  // Date utilities for categorizing events
+  // Date utilities for categorizing events - using cascade approach to prevent overlaps
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   
@@ -108,115 +128,88 @@ export default function DiscoverPage() {
   const endOfToday = new Date(startOfToday);
   endOfToday.setHours(23, 59, 59, 999);
   
-  // Calculate THIS WEEK (Monday-Friday of current week)
-  // If today is a weekend day, thisWeek will be empty
-  const startOfThisWeek = new Date(startOfToday);
-  const endOfThisWeek = new Date(startOfToday);
+  // Calculate THIS WEEKEND (current Sat-Sun if we're before or on Sunday)
+  let startOfThisWeekend = new Date(startOfToday);
+  let endOfThisWeekend = new Date(startOfToday);
   
-  // Set to Monday of current week if we're before or on Friday
-  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-    // Only include days after today up to Friday
-    // End of this week is Friday of current week
-    const daysUntilFriday = 5 - dayOfWeek;
-    endOfThisWeek.setDate(startOfToday.getDate() + daysUntilFriday);
-    endOfThisWeek.setHours(23, 59, 59, 999);
-  } else {
-    // If today is weekend, thisWeek is empty (set end before start)
-    endOfThisWeek.setDate(startOfToday.getDate() - 1);
-  }
-  
-  // Calculate THIS WEEKEND (Saturday-Sunday of current week)
-  const startOfThisWeekend = new Date(startOfToday);
-  const endOfThisWeekend = new Date(startOfToday);
-  
-  if (dayOfWeek < 6) { // Before Saturday
-    // Start of this weekend is upcoming Saturday
-    startOfThisWeekend.setDate(startOfToday.getDate() + (6 - dayOfWeek));
-    startOfThisWeekend.setHours(0, 0, 0, 0);
-    
-    // End of this weekend is upcoming Sunday
-    endOfThisWeekend.setDate(startOfToday.getDate() + (7 - dayOfWeek));
+  if (dayOfWeek === 0) { // Today is Sunday - this weekend is just today
     endOfThisWeekend.setHours(23, 59, 59, 999);
-  } else if (dayOfWeek === 6) { // Today is Saturday
-    // Start of this weekend is today
-    // End of this weekend is tomorrow (Sunday)
+  } else if (dayOfWeek === 6) { // Today is Saturday - this weekend is Sat-Sun
     endOfThisWeekend.setDate(startOfToday.getDate() + 1);
     endOfThisWeekend.setHours(23, 59, 59, 999);
-  } else { // Today is Sunday
-    // Today is the last day of this weekend
+  } else { // Mon-Fri - this weekend is upcoming Sat-Sun
+    const daysUntilSaturday = 6 - dayOfWeek;
+    startOfThisWeekend.setDate(startOfToday.getDate() + daysUntilSaturday);
+    startOfThisWeekend.setHours(0, 0, 0, 0);
+    endOfThisWeekend.setDate(startOfThisWeekend.getDate() + 1); // Sunday
     endOfThisWeekend.setHours(23, 59, 59, 999);
   }
   
-  // Calculate NEXT WEEK (Monday-Friday of next week)
-  const startOfNextWeek = new Date(startOfToday);
-  const endOfNextWeek = new Date(startOfToday);
+  // Calculate THIS WEEK (Mon-Fri, only days after today and before this weekend)
+  let startOfThisWeek = new Date(endOfToday);
+  startOfThisWeek.setMilliseconds(startOfThisWeek.getMilliseconds() + 1); // Start right after today ends
   
-  // Find days until next Monday
-  let daysUntilNextMonday = (8 - dayOfWeek) % 7;
-  if (daysUntilNextMonday === 0) daysUntilNextMonday = 7; // If today is Monday, go to next Monday
+  let endOfThisWeek = new Date(startOfThisWeekend);
+  endOfThisWeek.setMilliseconds(endOfThisWeek.getMilliseconds() - 1); // End right before this weekend starts
   
-  // Start of next week is next Monday
-  startOfNextWeek.setDate(startOfToday.getDate() + daysUntilNextMonday);
-  startOfNextWeek.setHours(0, 0, 0, 0);
-  
-  // End of next week is next Friday
-  endOfNextWeek.setDate(startOfNextWeek.getDate() + 4); // Monday + 4 days = Friday
-  endOfNextWeek.setHours(23, 59, 59, 999);
-  
-  // Calculate NEXT WEEKEND (Saturday-Sunday of next week)
-  const startOfNextWeekend = new Date(endOfNextWeek);
-  startOfNextWeekend.setDate(endOfNextWeek.getDate() + 1); // Friday + 1 = Saturday
+  // Calculate NEXT WEEKEND (Sat-Sun of next week)
+  const startOfNextWeekend = new Date(endOfThisWeekend);
+  startOfNextWeekend.setDate(endOfThisWeekend.getDate() + 6); // Next Saturday (7 days after this Sunday, minus 1)
   startOfNextWeekend.setHours(0, 0, 0, 0);
   
   const endOfNextWeekend = new Date(startOfNextWeekend);
-  endOfNextWeekend.setDate(startOfNextWeekend.getDate() + 1); // Saturday + 1 = Sunday
+  endOfNextWeekend.setDate(startOfNextWeekend.getDate() + 1); // Next Sunday
   endOfNextWeekend.setHours(23, 59, 59, 999);
   
+  // Calculate NEXT WEEK (Mon-Fri between this weekend and next weekend)
+  let startOfNextWeek = new Date(endOfThisWeekend);
+  startOfNextWeek.setMilliseconds(startOfNextWeek.getMilliseconds() + 1); // Start right after this weekend
+  
+  let endOfNextWeek = new Date(startOfNextWeekend);
+  endOfNextWeek.setMilliseconds(endOfNextWeek.getMilliseconds() - 1); // End right before next weekend
+  
   // THIS MONTH is everything after next weekend up to 30 days from today
-  const startOfRestOfMonth = new Date(endOfNextWeekend);
-  startOfRestOfMonth.setDate(endOfNextWeekend.getDate() + 1);
-  startOfRestOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(endOfNextWeekend);
+  startOfMonth.setMilliseconds(startOfMonth.getMilliseconds() + 1);
   
   const endOfMonth = new Date(startOfToday);
   endOfMonth.setDate(startOfToday.getDate() + 30);
+  endOfMonth.setHours(23, 59, 59, 999);
 
-  // Group events by date categories
+  // Group events by date categories - using cascade to ensure no overlaps
+  const categorizedEvents = filteredEvents.map(event => ({
+    event,
+    date: new Date(event.date)
+  }));
+
   const groupedEvents = {
-    todayOnly: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "TODAY" - Events happening only today
-      return eventDate >= startOfToday && eventDate <= endOfToday;
-    }),
-    thisWeek: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS WEEK" - Weekdays (Mon-Fri) of current week, excluding today
-      return eventDate > endOfToday && eventDate <= endOfThisWeek;
-    }),
-    thisWeekend: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS WEEKEND" - Saturday and Sunday of current week
-      return eventDate >= startOfThisWeekend && eventDate <= endOfThisWeekend;
-    }),
-    nextWeek: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "NEXT WEEK" - Weekdays (Mon-Fri) of next week
-      return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
-    }),
-    nextWeekend: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "NEXT WEEKEND" - Saturday and Sunday of next week
-      return eventDate >= startOfNextWeekend && eventDate <= endOfNextWeekend;
-    }),
-    month: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "THIS MONTH" - Events after next weekend but within 30 days
-      return eventDate > endOfNextWeekend && eventDate < endOfMonth;
-    }),
-    upcoming: filteredEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      // "UPCOMING" - Events more than 30 days from now
-      return eventDate >= endOfMonth;
-    })
+    todayOnly: categorizedEvents
+      .filter(({ date }) => date >= startOfToday && date <= endOfToday)
+      .map(({ event }) => event),
+    
+    thisWeek: categorizedEvents
+      .filter(({ date }) => date > endOfToday && date < startOfThisWeekend)
+      .map(({ event }) => event),
+    
+    thisWeekend: categorizedEvents
+      .filter(({ date }) => date >= startOfThisWeekend && date <= endOfThisWeekend)
+      .map(({ event }) => event),
+    
+    nextWeek: categorizedEvents
+      .filter(({ date }) => date > endOfThisWeekend && date < startOfNextWeekend)
+      .map(({ event }) => event),
+    
+    nextWeekend: categorizedEvents
+      .filter(({ date }) => date >= startOfNextWeekend && date <= endOfNextWeekend)
+      .map(({ event }) => event),
+    
+    month: categorizedEvents
+      .filter(({ date }) => date > endOfNextWeekend && date <= endOfMonth)
+      .map(({ event }) => event),
+    
+    upcoming: categorizedEvents
+      .filter(({ date }) => date > endOfMonth)
+      .map(({ event }) => event)
   };
 
   // Create a flattened list of all filtered events for display count
@@ -273,264 +266,376 @@ export default function DiscoverPage() {
     setSeenEmptyCities(prev => [...prev, selectedCity]);
   };
 
+  // Toggle dropdown
+  const toggleDropdown = (dropdown: string) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
+  // Handle filter click
+  const handleFilterClick = () => {
+    setShowFiltersBar(!showFiltersBar);
+    setActiveDropdown(null);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCity("all");
+    setSelectedEventTypes([]);
+    setSelectedTimeFilter('Anytime');
+  };
+
+  // Handle adding custom city
+  const handleAddCity = () => {
+    const trimmedCity = newCityInput.trim();
+    if (trimmedCity && !customCities.includes(trimmedCity) && !DIGITAL_NOMAD_CITIES.includes(trimmedCity)) {
+      setCustomCities(prev => [trimmedCity, ...prev]);
+      setSelectedCity(trimmedCity);
+      setNewCityInput('');
+      setShowAddCityDialog(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
+      {/* Add City Dialog */}
+      <Dialog open={showAddCityDialog} onOpenChange={setShowAddCityDialog}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">{t('addCustomCity')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={newCityInput}
+              onChange={(e) => setNewCityInput(e.target.value)}
+              placeholder={t('enterCityName')}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddCity(); }}
+              data-testid="input-custom-city"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setShowAddCityDialog(false); setNewCityInput(''); }} data-testid="button-cancel-add-city">
+                {t('cancel')}
+              </Button>
+              <Button onClick={handleAddCity} disabled={!newCityInput.trim()} data-testid="button-confirm-add-city">
+                {t('add')}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <FirstEventModal 
         cityName={selectedCity} 
         open={showFirstEventModal} 
         onClose={handleModalClose} 
       />
-      
-      {/* iOS-style Filter Modal */}
-      <Dialog open={showFilterModal} onOpenChange={setShowFilterModal}>
-        <DialogContent className="bg-black text-white border-gray-800 max-w-md">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowFilterModal(false)}
-                className="text-white p-0 h-auto font-normal"
-              >
-                Cancel
-              </Button>
-              <DialogTitle className="text-white text-lg font-semibold">Filter Events</DialogTitle>
-              <Button 
-                variant="ghost" 
-                onClick={() => setSelectedEventTypes([])}
-                className="text-white p-0 h-auto font-normal"
-              >
-                Clear All
-              </Button>
+
+      {/* Welcome Modal for new users */}
+      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
+        <DialogContent className="bg-card border-border max-w-sm mx-auto">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-white text-black flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <p className="text-gray-400 text-sm mt-2">Customize your event discovery</p>
+            <DialogTitle className="text-xl font-semibold text-center text-foreground">
+              {t('welcomeComplete')}
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground mt-2">
+              {t('welcomeCompleteMessage')}
+            </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-6 mt-6">
-            {/* When Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                <h3 className="text-white font-medium">When</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {['Anytime', 'Today', 'This Week', 'This Weekend'].map((time) => (
-                  <Button
-                    key={time}
-                    variant={selectedTimeFilter === time ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedTimeFilter(time)}
-                    className={`rounded-full ${
-                      selectedTimeFilter === time 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* City Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                <h3 className="text-white font-medium">City</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[{ value: 'all', label: t('allLocations') }, ...DIGITAL_NOMAD_CITIES.map(city => ({ value: city, label: city }))].map((cityOption) => (
-                  <Button
-                    key={cityOption.value}
-                    variant={selectedCity === cityOption.value ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCity(cityOption.value)}
-                    className={`rounded-full text-xs px-3 py-1 h-8 ${
-                      selectedCity === cityOption.value 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {cityOption.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Vibes Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
-                <h3 className="text-white font-medium">Vibes</h3>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {VIBE_AND_MOOD_TAGS.map((vibe) => (
-                  <Button
-                    key={vibe}
-                    variant={selectedEventTypes.includes(vibe) ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedEventTypes(prev => 
-                        prev.includes(vibe) 
-                          ? prev.filter(t => t !== vibe)
-                          : [...prev, vibe]
-                      );
-                    }}
-                    className={`rounded-full text-xs px-3 py-1 h-8 ${
-                      selectedEventTypes.includes(vibe) 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'border-gray-600 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {vibe}
-                  </Button>
-                ))}
-              </div>
-            </div>
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground text-center">
+              {t('welcomeCompleteHint')}
+            </p>
           </div>
+          <Button 
+            onClick={() => setShowWelcomeModal(false)}
+            className="w-full mt-4 bg-white text-black text-white hover:bg-gray-100"
+            data-testid="button-welcome-close"
+          >
+            {t('letsGetStarted')}
+          </Button>
         </DialogContent>
       </Dialog>
-      {/* iOS-style Header */}
-      <div className="bg-black text-white sticky top-0 z-50">
-        {/* MÁLY logo centered at top */}
-        <div className="flex justify-center pt-3 pb-4">
+
+      {/* iOS-style Header - Fixed at top */}
+      <div className="bg-background text-foreground shrink-0 z-50">
+        {/* Top bar with MÁLY logo and hamburger menu (includes theme toggle) */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <img 
             src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
             alt="MÁLY" 
-            className="h-12 w-auto"
+            className="h-14 w-auto logo-adaptive"
           />
+          <HamburgerMenu />
         </div>
         
         {/* Controls section */}
-        <div className="px-5 pb-4">
-          <div className="flex items-center justify-between">
-            {/* Discover title */}
-            <h2 className="text-white text-lg font-medium">Discover</h2>
+        <div className="px-5">
+          <div className="flex items-center justify-between pb-3">
+            {/* Explore title with gradient - uppercase with extra letter spacing */}
+            <div>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+                E V E N T S
+              </h2>
+              <p className="text-muted-foreground text-xs mt-1">Discover remarkable experiences that bring us together worldwide.</p>
+              {selectedCity !== 'all' && (
+                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
+              )}
+            </div>
             
-            {/* Filter and Search icons */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={() => setShowFilterModal(true)}
+            {/* Filter icon */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-foreground p-2 hover:bg-foreground/10"
+              onClick={handleFilterClick}
+              data-testid="filters-button"
+            >
+              <svg 
+                width="28" 
+                height="28" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-7 w-7"
               >
-                <Filter className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white p-2 hover:bg-white/10"
-                onClick={() => setShowSearch(!showSearch)}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
+                <line x1="4" y1="9" x2="20" y2="9" />
+                <circle cx="9" cy="9" r="2" />
+                <line x1="4" y1="15" x2="20" y2="15" />
+                <circle cx="14" cy="15" r="2" />
+              </svg>
+            </Button>
           </div>
+          
+          {/* Show event count here when filter bar is hidden */}
+          {!showFiltersBar && (
+            <p className="text-xs sm:text-sm text-muted-foreground py-3">
+              {filteredEvents.length} {t('eventsFound')}
+            </p>
+          )}
         </div>
-        
-        {/* Search Bar (conditionally shown) */}
-        {showSearch && (
-          <div className="px-4 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder={t('searchEvents')}
-                className="pl-10 bg-gray-800 border-gray-700 text-white"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-      </div>
 
-      <div className="flex-1 overflow-auto">
-        <main className="bg-black text-white pb-24">
-          {/* Selected Filters Display */}
+        {/* Filter Bar - Shows when filter icon is clicked */}
+        {showFiltersBar && (
+          <div className="border-t border-border">
+          {/* Filter Categories */}
+          <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
+            {/* When */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('when')}
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
+                data-testid="filter-category-when"
+              >
+                {t('when')}
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'when' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'when' && (
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[140px]">
+                  {[
+                    { key: 'Anytime', label: t('anytime') },
+                    { key: 'Today', label: t('today') },
+                    { key: 'This Week', label: t('thisWeek') },
+                    { key: 'This Weekend', label: t('thisWeekend') },
+                    { key: 'Next Week', label: t('nextWeek') },
+                    { key: 'Next Month', label: t('nextMonth') }
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => { setSelectedTimeFilter(key); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
+                      data-testid={`when-option-${key.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* City */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('city')}
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
+                data-testid="filter-category-city"
+              >
+                {t('city')}
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'city' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'city' && (
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedCity('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg sticky top-0 bg-popover border-b border-border"
+                    data-testid="city-option-all"
+                  >
+                    {t('allLocations')}
+                  </button>
+                  {customCities.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
+                      data-testid={`city-option-custom-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                  {Object.entries(CITIES_BY_REGION).map(([region, countries]) => (
+                    <div key={region}>
+                      <div className="px-4 py-2 text-xs font-semibold text-foreground uppercase">
+                        {region}
+                      </div>
+                      {Object.entries(countries).map(([country, cities]) => (
+                        <div key={country}>
+                          <div className="px-4 py-1 text-xs text-muted-foreground bg-background/50">
+                            {country}
+                          </div>
+                          {cities.map((city) => (
+                            <button
+                              key={city}
+                              onClick={() => { setSelectedCity(city); setActiveDropdown(null); }}
+                              className="w-full text-left px-6 py-2 text-sm text-popover-foreground hover:bg-muted"
+                              data-testid={`city-option-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                            >
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => { setShowAddCityDialog(true); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted last:rounded-b-lg border-t border-border sticky bottom-0 bg-popover"
+                    data-testid="city-option-add"
+                  >
+                    {t('addCity')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Vibes */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('vibes')}
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
+                data-testid="filter-category-vibes"
+              >
+                {t('vibes')}
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'vibes' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'vibes' && (
+                <div className="absolute top-full right-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                  {VIBE_AND_MOOD_TAGS.map((vibe) => (
+                    <button
+                      key={vibe}
+                      onClick={() => {
+                        setSelectedEventTypes(prev => 
+                          prev.includes(vibe) 
+                            ? prev.filter(t => t !== vibe)
+                            : [...prev, vibe]
+                        );
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted flex items-center gap-2"
+                      data-testid={`vibe-option-${vibe.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {selectedEventTypes.includes(vibe) && <span className="text-foreground">✓</span>}
+                      {vibe}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Clear All X */}
+            {(selectedCity !== 'all' || selectedEventTypes.length > 0 || selectedTimeFilter !== 'Anytime') && (
+              <button
+                onClick={clearAllFilters}
+                className="ml-auto text-foreground hover:text-foreground transition-colors"
+                data-testid="clear-all-filters"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+
+          {/* Selected Filters Bar */}
           {selectedEventTypes.length > 0 && (
-            <div className="px-4 py-3 border-b border-gray-800">
+            <div className="px-5 pb-3">
               <div className="flex flex-wrap gap-2">
                 {selectedEventTypes.map((type) => (
                   <Badge
                     key={type}
                     variant="secondary"
-                    className="px-3 py-1 flex items-center gap-2 text-xs bg-gray-800 text-white"
+                    className="bg-muted text-foreground flex items-center gap-1.5 px-2 sm:px-3 py-1 text-[10px] sm:text-xs max-w-[45vw] sm:max-w-none"
                   >
-                    {type}
+                    <span className="truncate">{type}</span>
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedEventTypes(prev => prev.filter(t => t !== type));
-                      }}
-                      className="hover:text-red-400 focus:outline-none"
+                      onClick={() => setSelectedEventTypes(prev => prev.filter(t => t !== type))}
+                      className="hover:text-foreground transition-colors flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 ))}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedEventTypes([])}
-                  className="text-gray-400 hover:text-white text-xs h-8 px-3"
-                >
-                  Clear all
-                </Button>
               </div>
             </div>
           )}
+          </div>
+        )}
+      </div>
 
-          <div className="px-4 py-6">
+      <div className="flex-1 overflow-auto">
+        <main className="bg-background text-foreground pb-24">
+          <div className="px-5 py-3">
             {/* Event Grid with Date Categories */}
-            <div className="space-y-6 sm:space-y-8">
-              <h2 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">
-                {filteredEvents.length} {t('eventsFound')}
-              </h2>
+            <div className="space-y-3">
+              {/* Show event count below filter bar when it's visible */}
+              {showFiltersBar && (
+                <div className="pb-3">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {filteredEvents.length} {t('eventsFound')}
+                  </p>
+                </div>
+              )}
 
             {isLoading ? (
-              // Loading skeleton list
-              <div className="space-y-6">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="flex gap-4 p-2">
-                    <Skeleton className="w-32 h-32 flex-shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-4 w-1/3" />
-                      <div className="flex gap-2 mt-2">
-                        {[1, 2, 3, 4].map((_, i) => (
-                          <Skeleton key={i} className="w-8 h-8" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <EventGridSkeleton count={6} />
             ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-center">
-                <p className="text-lg text-muted-foreground mb-4">No events match your search criteria</p>
+                <p className="text-lg text-muted-foreground mb-4">{t('noEventsMatchCriteria')}</p>
                 <Button variant="outline" onClick={() => {
                   setSearchTerm("");
                   setSelectedCategory("all");
                   setSelectedEventTypes([]);
                 }}>
-                  {t('filters')}
+                  {t('clearFilters')}
                 </Button>
               </div>
             ) : (
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {selectedTimeFilter === 'Anytime' ? (
                   // Show all time-based sections when "Anytime" is selected
                   <>
                     {/* Today's Events Section */}
                     {groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('today')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -540,11 +645,11 @@ export default function DiscoverPage() {
                     
                     {/* This Week Section */}
                     {groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeek')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -554,11 +659,11 @@ export default function DiscoverPage() {
                     
                     {/* This Weekend Section */}
                     {groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeekend')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -568,11 +673,11 @@ export default function DiscoverPage() {
                     
                     {/* Next Week Section */}
                     {groupedEvents.nextWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEK</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeek')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.nextWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -582,11 +687,11 @@ export default function DiscoverPage() {
 
                     {/* Next Weekend Section */}
                     {groupedEvents.nextWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">NEXT WEEKEND</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeekend')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.nextWeekend.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -596,11 +701,11 @@ export default function DiscoverPage() {
 
                     {/* This Month Section */}
                     {groupedEvents.month.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS MONTH</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisMonth')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.month.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -610,11 +715,11 @@ export default function DiscoverPage() {
 
                     {/* Upcoming Events Section */}
                     {groupedEvents.upcoming.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">UPCOMING</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('upcomingEvents')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.upcoming.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -626,11 +731,11 @@ export default function DiscoverPage() {
                   // Show only the selected time period
                   <>
                     {selectedTimeFilter === 'Today' && groupedEvents.todayOnly.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">TODAY</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('today')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.todayOnly.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -639,11 +744,11 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Week' && groupedEvents.thisWeek.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEK</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeek')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeek.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
@@ -652,12 +757,38 @@ export default function DiscoverPage() {
                     )}
                     
                     {selectedTimeFilter === 'This Weekend' && groupedEvents.thisWeekend.length > 0 && (
-                      <div className="space-y-6">
-                        <div className="py-2">
-                          <h2 className="text-sm font-medium text-white tracking-wide">THIS WEEKEND</h2>
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('thisWeekend')}</h2>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           {groupedEvents.thisWeekend.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'Next Week' && groupedEvents.nextWeek.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextWeek')}</h2>
+                        </div>
+                        <div className="space-y-4">
+                          {groupedEvents.nextWeek.map((event: any) => (
+                            <IOSEventCard key={event.id} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedTimeFilter === 'Next Month' && groupedEvents.month.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="pb-2">
+                          <h2 className="text-sm font-medium text-foreground tracking-wide">{t('nextMonth')}</h2>
+                        </div>
+                        <div className="space-y-4">
+                          {groupedEvents.month.map((event: any) => (
                             <IOSEventCard key={event.id} event={event} />
                           ))}
                         </div>
@@ -675,13 +806,13 @@ export default function DiscoverPage() {
                  groupedEvents.month.length === 0 && 
                  groupedEvents.upcoming.length === 0 && (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <p className="text-lg text-muted-foreground mb-4">No events match your search criteria</p>
+                    <p className="text-lg text-muted-foreground mb-4">{t('noEventsMatchCriteria')}</p>
                     <Button variant="outline" onClick={() => {
                       setSearchTerm("");
                       setSelectedCategory("all");
                       setSelectedEventTypes([]);
                     }}>
-                      Clear Filters
+                      {t('clearFilters')}
                     </Button>
                   </div>
                 )}
@@ -699,7 +830,7 @@ export default function DiscoverPage() {
                         <div className="h-2 w-2 bg-muted-foreground rounded-full"></div>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">Scroll for more events</p>
+                      <p className="text-sm text-muted-foreground">{t('scrollForMore')}</p>
                     )}
                   </div>
                 )}
@@ -708,12 +839,11 @@ export default function DiscoverPage() {
           </div>
         </div>
       </main>
+      </div>
+      {/* Scrollable content area end */}
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-        <BottomNav />
-      </div>
-    </div>
+      <BottomNav />
     </div>
   );
 }

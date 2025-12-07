@@ -11,8 +11,8 @@ if (!process.env.NODE_ENV) {
 }
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: 'infinity' }));
+app.use(express.urlencoded({ extended: true, limit: 'infinity' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
@@ -63,19 +63,6 @@ app.use((req, res, next) => {
     const PORT = 5000;
     let maxRetries = 3;
     let currentTry = 0;
-
-    const cleanupPort = async () => {
-      try {
-        log('Checking for processes on port 5000...');
-        // In Replit environment, just wait a moment for any existing connections to close
-        await new Promise(resolve => setTimeout(resolve, 500));
-        log('Port cleanup completed');
-      } catch (err) {
-        log('Port cleanup failed, but continuing...');
-      }
-    };
-
-    await cleanupPort();
     const { app: routedApp, httpServer } = await createApp();
 
     // Setup Vite or static serving
@@ -113,9 +100,8 @@ app.use((req, res, next) => {
         });
       } catch (error) {
         if (currentTry < maxRetries) {
-          log('Retrying after cleanup...');
-          await cleanupPort();
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Reduced delay
+          log('Retrying...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
           return startServer();
         } else {
           throw new Error(`Failed to start server after ${maxRetries} attempts`);

@@ -1,48 +1,182 @@
 import { type Event } from "@db/schema";
 
-// Cities organized by region, but stored in a flat array for the UI
-export const DIGITAL_NOMAD_CITIES = [
-  // North America
-  "Mexico City",
-  "Puerto Escondido",
-  "New York City",
-  "Miami",
-  "Los Angeles",
-  "Tulum",
-  "Austin",
-  "Toronto",
-  
-  // South & Central America
-  "São Paulo",
-  "Rio de Janeiro",
-  "Costa Rica",
-  "Medellín",
-  "Buenos Aires",
-  "Lima",
-  "Cartagena",
-  
-  // Europe
-  "Lisbon",
-  "Barcelona",
-  "Berlin",
-  "Paris",
-  "Amsterdam",
-  "London",
-  "Mykonos",
-  "Ibiza",
-  
-  // Middle East
-  "Dubai",
-  "Tel Aviv",
-  
-  // Asia & Oceania
-  "Bali",
-  "Bangkok",
-  "Tokyo",
-  "Seoul",
-  "Ho Chi Minh City",
-  "Sydney"
-];
+// Cities organized by region for grouped dropdowns
+export const CITIES_BY_REGION = {
+  "North America": {
+    "United States": [
+      "New York City",
+      "Miami",
+      "Los Angeles",
+      "San Francisco",
+      "San Diego",
+      "Austin",
+      "Dallas",
+      "Houston",
+      "Chicago"
+    ],
+    "Mexico": [
+      "Mexico City",
+      "Tulum",
+      "Cancun",
+      "Oaxaca",
+      "Puerto Escondido",
+      "Cabo San Lucas",
+      "Guadalajara",
+      "Playa del Carmen"
+    ],
+    "Canada": [
+      "Toronto",
+      "Vancouver",
+      "Montreal"
+    ]
+  },
+  "Central America & Caribbean": {
+    "Costa Rica": [
+      "San José",
+      "Tamarindo",
+      "Santa Teresa",
+      "Nosara"
+    ],
+    "Panama": [
+      "Panama City",
+      "Bocas del Toro"
+    ],
+    "Puerto Rico": [
+      "San Juan"
+    ]
+  },
+  "South America": {
+    "Colombia": [
+      "Medellín",
+      "Bogotá",
+      "Cartagena"
+    ],
+    "Brazil": [
+      "São Paulo",
+      "Rio de Janeiro",
+      "Florianópolis",
+      "Salvador"
+    ],
+    "Argentina": [
+      "Buenos Aires"
+    ],
+    "Peru": [
+      "Lima"
+    ],
+    "Chile": [
+      "Santiago"
+    ]
+  },
+  "Europe": {
+    "Portugal": [
+      "Lisbon",
+      "Porto",
+      "Madeira"
+    ],
+    "Spain": [
+      "Barcelona",
+      "Madrid",
+      "Valencia",
+      "Ibiza",
+      "Mallorca"
+    ],
+    "France": [
+      "Paris",
+      "Nice",
+      "Cannes",
+      "St. Tropez"
+    ],
+    "Italy": [
+      "Rome",
+      "Milan",
+      "Florence",
+      "Naples",
+      "Amalfi Coast"
+    ],
+    "Greece": [
+      "Athens",
+      "Mykonos",
+      "Santorini",
+      "Paros"
+    ],
+    "Croatia": [
+      "Split",
+      "Hvar",
+      "Dubrovnik"
+    ],
+    "Germany": [
+      "Berlin",
+      "Munich"
+    ],
+    "Netherlands": [
+      "Amsterdam"
+    ],
+    "United Kingdom": [
+      "London"
+    ],
+    "Turkey": [
+      "Istanbul",
+      "Bodrum"
+    ],
+    "Georgia": [
+      "Tbilisi"
+    ],
+    "Switzerland": [
+      "Zurich"
+    ]
+  },
+  "Middle East": {
+    "United Arab Emirates": [
+      "Dubai",
+      "Abu Dhabi"
+    ],
+    "Israel": [
+      "Tel Aviv"
+    ]
+  },
+  "Africa": {
+    "South Africa": [
+      "Cape Town"
+    ],
+    "Morocco": [
+      "Marrakech"
+    ]
+  },
+  "Asia": {
+    "Indonesia": [
+      "Bali (Canggu, Ubud, Seminyak)"
+    ],
+    "Thailand": [
+      "Bangkok",
+      "Chiang Mai",
+      "Phuket",
+      "Koh Samui"
+    ],
+    "Vietnam": [
+      "Ho Chi Minh City",
+      "Da Nang"
+    ],
+    "Japan": [
+      "Tokyo",
+      "Osaka"
+    ],
+    "Singapore": [
+      "Singapore"
+    ],
+    "South Korea": [
+      "Seoul"
+    ],
+    "India": [
+      "Goa",
+      "Bangalore"
+    ]
+  }
+};
+
+// Flat array of all cities for backward compatibility
+export const DIGITAL_NOMAD_CITIES = Object.values(CITIES_BY_REGION).flatMap(
+  countries => Object.values(countries).flat()
+);
 
 export const DEFAULT_CITY = "Mexico City";
 
@@ -117,7 +251,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "public",
+      shareToken: null,
+      requireApproval: false,
+      isRsvp: false,
+      dressCode: null,
+      viewCount: 0
     },
     {
       id: Math.floor(Math.random() * 1000),
@@ -147,7 +287,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "private",
+      shareToken: null,
+      requireApproval: true,
+      isRsvp: true,
+      dressCode: null,
+      viewCount: 0
     },
     {
       id: Math.floor(Math.random() * 1000),
@@ -177,7 +323,13 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
       timeFrame: null,
       stripeProductId: null,
       stripePriceId: null,
-      itinerary: null
+      itinerary: null,
+      privacy: "public",
+      shareToken: null,
+      requireApproval: false,
+      isRsvp: false,
+      dressCode: null,
+      viewCount: 0
     }
   ];
   return acc;
@@ -195,13 +347,43 @@ export const VIBE_AND_MOOD_TAGS = [
   "Single & Social",
   "Chill & Recharge",
   "Adventure & Exploring",
-  "Spiritual & Intentional"
+  "Spiritual & Intentional",
+  "Dancing & Music",
+  "Volunteering & Service",
+  "Fundraiser & Charity"
 ];
 
 // For backward compatibility, keeping INTEREST_TAGS and MOOD_TAGS
 // but pointing to the same list of VIBE_AND_MOOD_TAGS
 export const INTEREST_TAGS = VIBE_AND_MOOD_TAGS;
 export const MOOD_TAGS = VIBE_AND_MOOD_TAGS;
+
+// Helper function to format intention values for display
+export function formatIntentionLabel(intention: string | string[] | null | undefined): string {
+  if (!intention) return "";
+  
+  // Handle array of intentions
+  if (Array.isArray(intention)) {
+    return intention.map(i => formatSingleIntention(i)).join(", ");
+  }
+  
+  // Handle single intention
+  return formatSingleIntention(intention);
+}
+
+// Format a single intention value to its display label
+function formatSingleIntention(value: string): string {
+  const intentionMap: Record<string, string> = {
+    "dating": "Dating",
+    "social": "Social",
+    "networking": "Networking",
+    "friends": "Friends",
+    "community": "Community"
+  };
+  
+  // Return mapped value or capitalize first letter as fallback
+  return intentionMap[value.toLowerCase()] || value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
 
 export const MOCK_USER_PROFILES = {
   member: {

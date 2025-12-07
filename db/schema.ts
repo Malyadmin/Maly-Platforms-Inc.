@@ -17,7 +17,10 @@ export const users = pgTable("users", {
   profileImages: jsonb("profile_images").$type<string[]>().default([]), 
   location: text("location"), // Current location
   birthLocation: text("birth_location"),
+  livedLocation: text("lived_location"), // Places where user has lived
   nextLocation: text("next_location"),
+  phoneNumber: text("phone_number"), // User phone number
+  intention: text("intention"), // dating, social, networking, friends
   interests: jsonb("interests").$type<string[]>(),
   currentMoods: jsonb("current_moods").$type<string[]>(), // Filter by mood
   profession: text("profession"),
@@ -59,16 +62,20 @@ export const events = pgTable("events", {
   availableTickets: integer("available_tickets"),
   createdAt: timestamp("created_at").defaultNow(),
   isPrivate: boolean("is_private").default(false),
+  privacy: text("privacy").default("public"), // public, private, friends - controls visibility
+  shareToken: text("share_token"), // Unique token for sharing private/friends events
   requireApproval: boolean("require_approval").default(false), // For private events requiring access approval
   isRsvp: boolean("is_rsvp").default(false), // For RSVP events requiring approval
   isBusinessEvent: boolean("is_business_event").default(false),
   tags: jsonb("tags").$type<string[]>().default([]),
   attendingCount: integer("attending_count").default(0),
   interestedCount: integer("interested_count").default(0),
+  viewCount: integer("view_count").default(0),
   timeFrame: text("time_frame"), // Today, This Week, This Weekend, This Month, Next Month
   stripeProductId: text("stripe_product_id"), // For payment integration
   stripePriceId: text("stripe_price_id"), // For payment integration
   itinerary: jsonb("itinerary").$type<{ startTime: string; endTime: string; description: string }[]>().default([]),
+  dressCode: text("dress_code"), // Dress code for the event
 });
 
 export const ticketTiers = pgTable("ticket_tiers", {
@@ -96,6 +103,8 @@ export const eventParticipants = pgTable("event_participants", {
   paymentStatus: text("payment_status").default("pending"), // pending, completed, refunded
   paymentIntentId: text("payment_intent_id"), // For Stripe integration
   checkInStatus: boolean("check_in_status").default(false), // For event check-in
+  checkedInAt: timestamp("checked_in_at"), // Timestamp when attendee was checked in
+  checkedInBy: integer("checked_in_by").references(() => users.id), // Creator who checked in the attendee
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   stripeCheckoutSessionId: text("stripe_checkout_session_id"), // Added for tracking checkout
@@ -135,15 +144,14 @@ export const messages = pgTable("messages", {
   language: text("language").default("en"), // For message translation
 });
 
-// New table for user connections/follows
-export const userConnections = pgTable("user_connections", {
-  followerId: integer("follower_id").references(() => users.id),
-  followingId: integer("following_id").references(() => users.id),
-  status: text("status").default("pending"), // pending, accepted, declined
+// Simple contacts table - one-way relationship for building contact lists
+export const userContacts = pgTable("user_contacts", {
+  ownerId: integer("owner_id").references(() => users.id),
+  contactId: integer("contact_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
-    pk: primaryKey({ columns: [table.followerId, table.followingId] }),
+    pk: primaryKey({ columns: [table.ownerId, table.contactId] }),
   };
 });
 
@@ -241,8 +249,7 @@ export const userRelations = relations(users, ({ many, one }) => ({
   receivedMessages: many(messages, { relationName: "receivedMessages" }),
   createdConversations: many(conversations),
   conversationParticipations: many(conversationParticipants),
-  followers: many(userConnections, { relationName: "followers" }),
-  following: many(userConnections, { relationName: "following" }),
+  contacts: many(userContacts, { relationName: "contacts" }),
   sentInvitations: many(invitations, { relationName: "sentInvitations" }),
   referredBy: one(users, {
     fields: [users.referredBy],
@@ -331,16 +338,15 @@ export const conversationParticipantsRelations = relations(conversationParticipa
   }),
 }));
 
-export const userConnectionsRelations = relations(userConnections, ({ one }) => ({
-  follower: one(users, {
-    fields: [userConnections.followerId],
+export const userContactsRelations = relations(userContacts, ({ one }) => ({
+  owner: one(users, {
+    fields: [userContacts.ownerId],
     references: [users.id],
-    relationName: "following",
+    relationName: "contacts",
   }),
-  following: one(users, {
-    fields: [userConnections.followingId],
+  contact: one(users, {
+    fields: [userContacts.contactId],
     references: [users.id],
-    relationName: "followers",
   }),
 }));
 
@@ -434,10 +440,10 @@ export const selectTicketTierSchema = createSelectSchema(ticketTiers);
 export type TicketTier = typeof ticketTiers.$inferSelect;
 export type NewTicketTier = typeof ticketTiers.$inferInsert;
 
-export const insertUserConnectionSchema = createInsertSchema(userConnections);
-export const selectUserConnectionSchema = createSelectSchema(userConnections);
-export type UserConnection = typeof userConnections.$inferSelect;
-export type NewUserConnection = typeof userConnections.$inferInsert;
+export const insertUserContactSchema = createInsertSchema(userContacts);
+export const selectUserContactSchema = createSelectSchema(userContacts);
+export type UserContact = typeof userContacts.$inferSelect;
+export type NewUserContact = typeof userContacts.$inferInsert;
 
 export const insertInvitationSchema = createInsertSchema(invitations);
 export const selectInvitationSchema = createSelectSchema(invitations);
@@ -466,3 +472,39 @@ export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPa
 export const selectSubscriptionPaymentSchema = createSelectSchema(subscriptionPayments);
 export type SubscriptionPayment = typeof subscriptionPayments.$inferSelect;
 export type NewSubscriptionPayment = typeof subscriptionPayments.$inferInsert;
+
+// Notification preferences table
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull().unique(),
+  inAppMessages: boolean("in_app_messages").default(true),
+  inAppEvents: boolean("in_app_events").default(true),
+  inAppRsvp: boolean("in_app_rsvp").default(true),
+  inAppTickets: boolean("in_app_tickets").default(true),
+  pushMessages: boolean("push_messages").default(false),
+  pushEvents: boolean("push_events").default(false),
+  pushRsvp: boolean("push_rsvp").default(false),
+  pushTickets: boolean("push_tickets").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Push notification subscriptions table
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences);
+export const selectNotificationPreferencesSchema = createSelectSchema(notificationPreferences);
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+export type NewNotificationPreferences = typeof notificationPreferences.$inferInsert;
+
+export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions);
+export const selectPushSubscriptionSchema = createSelectSchema(pushSubscriptions);
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type NewPushSubscription = typeof pushSubscriptions.$inferInsert;
