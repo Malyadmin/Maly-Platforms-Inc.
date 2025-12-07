@@ -1,4 +1,3 @@
-import React from 'react';
 import { BackButton } from '@/components/ui/back-button';
 import { useLocation } from 'wouter';
 import { LucideIcon } from 'lucide-react';
@@ -24,17 +23,16 @@ export function PageHeader({
 }: PageHeaderProps) {
   const [location] = useLocation();
   
-  // Auto-detect if we're on profile page to force fallback
   const isProfilePage = location.startsWith('/profile/');
   const shouldForcePathFallback = forceUsePathFallback || isProfilePage;
   
   return (
-    <header className={`sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border ${className}`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <header className={`sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border ${className}`}>
+      <div className="container mx-auto px-5 py-4">
         <div className="space-y-2 sm:space-y-3">
-          <div className="flex items-center gap-2 text-left">
-            {Icon && <Icon className="w-6 h-6" />}
-            <h1 className="text-lg font-semibold">
+          <div className="flex items-center gap-3 text-left">
+            {Icon && <Icon className="w-5 h-5 text-foreground" />}
+            <h1 className="text-[28px] font-light tracking-wide uppercase text-foreground">
               {title}
             </h1>
             {children && (

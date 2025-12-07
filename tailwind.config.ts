@@ -5,6 +5,9 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -22,28 +25,28 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "oklch(70% 0.3 290)", // Neon purple
+          DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "oklch(30% 0.02 290)", // Dark grey
+          DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
         muted: {
-          DEFAULT: "oklch(30% 0.02 290)", // Dark grey
+          DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "oklch(70% 0.3 290)", // Neon purple
+          DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        border: "oklch(30% 0.02 290)", // Dark grey
-        input: "oklch(30% 0.02 290)", // Dark grey
-        ring: "oklch(70% 0.3 290)", // Neon purple
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
@@ -61,6 +64,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      spacing: {
+        'text': '4px',
+        'cards': '20px',
+        'sections': '32px',
+        'page': '20px',
+      },
+      fontSize: {
+        'page-title': ['30px', { lineHeight: '1.2', letterSpacing: '0.05em', fontWeight: '300' }],
+        'section-label': ['14px', { lineHeight: '1.4', letterSpacing: '0.03em', fontWeight: '500' }],
+        'event-title': ['16px', { lineHeight: '1.4', fontWeight: '500' }],
+        'event-meta': ['13px', { lineHeight: '1.4', fontWeight: '400' }],
+        'nav-label': ['11px', { lineHeight: '1.2', fontWeight: '400' }],
+        'btn': ['14px', { lineHeight: '1', letterSpacing: '0.05em', fontWeight: '500' }],
       },
       keyframes: {
         "accordion-down": {
