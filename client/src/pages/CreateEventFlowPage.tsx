@@ -72,7 +72,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       <div className="p-6 space-y-8">
         <div>
           <h2 className="text-2xl font-light mb-2">{t('createYourEvent')}</h2>
-          <p className="text-muted-foreground text-sm">{t('promoteOrShare')}</p>
         </div>
 
 
