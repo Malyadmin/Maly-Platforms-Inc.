@@ -16,7 +16,7 @@ export function PremiumBadge({ size = "md", className = "" }: PremiumBadgeProps)
 
   return (
     <div 
-      className={`flex-shrink-0 inline-flex items-center justify-center rounded-full bg-white ${className}`}
+      className={`flex-shrink-0 inline-flex items-center justify-center rounded-full bg-white border border-black dark:border-transparent ${className}`}
       style={{ width: iconSize, height: iconSize, padding: '2px' }}
     >
       <img 

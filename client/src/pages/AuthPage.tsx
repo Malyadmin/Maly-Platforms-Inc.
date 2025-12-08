@@ -297,10 +297,10 @@ export default function AuthPage() {
       
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isLogin ? t('login') : t('register')}</CardTitle>
+          <CardTitle>{isLogin ? 'Welcome Back' : t('register')}</CardTitle>
           <CardDescription>
             {isLogin 
-              ? t('signInToAccount')
+              ? 'A world full of new people, places, and experiences awaits.'
               : t('createNewAccount')
             }
           </CardDescription>
@@ -652,7 +652,7 @@ export default function AuthPage() {
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : isLogin ? (
-                t('login')
+                'Enter Maly'
               ) : (
                 t('register')
               )}
@@ -674,7 +674,7 @@ export default function AuthPage() {
             disabled={isSubmitting}
           >
             {isLogin
-              ? `${t('dontHaveAccount')} ${t('register')}`
+              ? 'New here? Create your account'
               : `${t('alreadyHaveAccount')} ${t('login')}`}
           </Button>
         </CardFooter>

@@ -82,7 +82,6 @@ export default function ChatbotPage() {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const quickPrompts = getQuickPrompts(t, language);
   const { toast } = useToast();
-  const hasShownToast = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -108,10 +107,11 @@ export default function ChatbotPage() {
     }
   }, [language, messages, setMessages, t]);
   
-  // Show toast notification on page load (only once)
+  // Show toast notification on page load (only once per session)
   useEffect(() => {
-    if (!hasShownToast.current) {
-      hasShownToast.current = true;
+    const toastKey = 'maly_concierge_toast_shown';
+    if (!sessionStorage.getItem(toastKey)) {
+      sessionStorage.setItem(toastKey, 'true');
       toast({
         title: t('welcomeConcierge'),
         description: t('conciergeBetaDescription'),
@@ -252,7 +252,7 @@ export default function ChatbotPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
                       message.role === "assistant"
-                        ? "bg-white"
+                        ? "bg-white border border-black dark:border-transparent"
                         : "bg-accent"
                     }`}
                   >

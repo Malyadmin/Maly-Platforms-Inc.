@@ -399,30 +399,7 @@ export default function EventPage() {
               data-testid="button-interested"
             >
               {participationStatus?.status === 'interested' ? (
-                <svg 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="transition-all"
-                >
-                  <defs>
-                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#9333ea" />
-                      <stop offset="50%" stopColor="#db2777" />
-                      <stop offset="100%" stopColor="#ef4444" />
-                    </linearGradient>
-                  </defs>
-                  <path 
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
-                    fill="url(#heartGradient)"
-                    stroke="url(#heartGradient)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <Heart className="w-5 h-5 fill-red-500 stroke-red-500 stroke-[1.5] transition-all" />
               ) : (
                 <Heart className="w-4 h-4 fill-none stroke-foreground stroke-[1.5] transition-all" />
               )}
