@@ -473,7 +473,7 @@ export default function CheckInPage() {
             {!isScanning && (
               <Button
                 onClick={startScanner}
-                className="w-full bg-white hover:bg-gray-100 text-black font-semibold py-6 text-lg"
+                className="w-full bg-white hover:bg-gray-100 text-black font-semibold py-6 text-lg border border-black dark:border-transparent"
                 data-testid="button-start-scan"
               >
                 <Camera className="w-5 h-5 mr-2" />
