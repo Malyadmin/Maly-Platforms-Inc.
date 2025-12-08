@@ -252,7 +252,7 @@ export default function ChatbotPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
                       message.role === "assistant"
-                        ? "bg-white"
+                        ? "bg-white border border-black dark:border-transparent"
                         : "bg-accent"
                     }`}
                   >

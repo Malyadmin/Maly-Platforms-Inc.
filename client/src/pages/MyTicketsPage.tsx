@@ -143,7 +143,7 @@ export default function MyTicketsPage() {
               <p className="text-muted-foreground text-sm mb-6">{t('noTicketsDescription')}</p>
               <Button 
                 onClick={() => setLocation('/discover')}
-                className="bg-white hover:bg-gray-100 text-black"
+                className="bg-white hover:bg-gray-100 text-black border border-black dark:border-transparent"
                 data-testid="button-browse-events"
               >
                 {t('browseEvents')}
