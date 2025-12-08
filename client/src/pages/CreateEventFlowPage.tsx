@@ -261,11 +261,11 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
         <button
           type="submit"
           form="step1-form"
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -553,11 +553,11 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
         <button
           type="submit"
           form="step3-form"
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -671,11 +671,11 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
         <button
           type="submit"
           form="step4-form"
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -914,11 +914,11 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
       </div>
 
       {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
         <button
           type="submit"
           form="step5-form"
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-next"
         >
           <ArrowRight className="h-5 w-5" />
@@ -1061,11 +1061,11 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
       </div>
 
       {/* Fixed Create Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8 bg-black">
+      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
         <button
           type="submit"
           form="step6-form"
-          className="w-full py-4 bg-white hover:bg-gray-100 text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
           data-testid="button-create"
         >
           <ArrowRight className="h-5 w-5" />
