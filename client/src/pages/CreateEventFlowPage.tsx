@@ -114,6 +114,10 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
             {onBack && (
               <BackButton onClick={onBack} className="text-foreground" />
             )}
+            <div>
+              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>C R E A T E</h2>
+              <p className="text-muted-foreground text-xs mt-1">Publish and share curated experiences, from paid to free to private.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -123,10 +127,6 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
 
       {/* Content */}
       <div className="p-6 space-y-6">
-        <div>
-          <h2 className="text-2xl font-light mb-2">{t('createYourEvent')}</h2>
-        </div>
-
         {/* Image Upload Section */}
         <div className="space-y-4">
           <div>
