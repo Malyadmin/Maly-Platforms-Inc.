@@ -337,7 +337,8 @@ export default function ChatbotPage() {
                 <Button 
                   type="submit" 
                   disabled={isLoading || !input.trim()}
-                  className="px-8 interactive-hover"
+                  className="px-3 interactive-hover"
+                  size="sm"
                   aria-label="Send message"
                 >
                   <Send className="w-4 h-4" />
