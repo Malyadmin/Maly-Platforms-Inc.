@@ -159,20 +159,20 @@ export default function ChatbotPage() {
           </div>
           
           {/* Row 2: Back button + Page title inline */}
-          <div className="flex items-center gap-2 pb-2">
-            <button
-              onClick={() => window.history.back()}
-              className="text-foreground hover:text-foreground/70 p-1"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <div>
+          <div className="pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => window.history.back()}
+                className="text-foreground hover:text-foreground/70 p-1"
+                aria-label="Go back"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
               <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
                 C O N C I E R G E
               </h1>
-              <p className="text-muted-foreground text-xs mt-1">Get local insights, tailored to your vibe.</p>
             </div>
+            <p className="text-muted-foreground text-xs mt-1">Get local insights, tailored to your vibe.</p>
           </div>
         </div>
       </header>
