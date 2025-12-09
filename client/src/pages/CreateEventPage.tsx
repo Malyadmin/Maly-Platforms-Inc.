@@ -25,7 +25,6 @@ import {
   Plus, 
   Loader2
 } from "lucide-react";
-import { GradientHeader } from "@/components/ui/GradientHeader";
 import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { VIBE_AND_MOOD_TAGS, CITIES_BY_REGION } from "@/lib/constants";
@@ -215,12 +214,7 @@ export default function CreateEventPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <GradientHeader 
-        title={t('create')}
-        backButtonFallbackPath="/"
-      />
-
-      <ScrollArea className="flex-1" style={{ height: 'calc(100vh - 140px)' }}>
+      <ScrollArea className="flex-1" style={{ height: '100vh' }}>
         <div className="container mx-auto px-4 py-8 space-y-8 max-w-2xl">
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">{t('letsGetStarted')}</p>
