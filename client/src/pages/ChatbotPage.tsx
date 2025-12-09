@@ -267,7 +267,7 @@ export default function ChatbotPage() {
                     )}
                   </div>
                   <div
-                    className={`rounded-lg p-4 max-w-[85%] md:max-w-[80%] break-words ${
+                    className={`rounded-lg pt-1 pb-4 px-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
                         ? "bg-muted/30 glass"
                         : "bg-white text-black"
