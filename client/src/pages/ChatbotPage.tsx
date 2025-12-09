@@ -267,13 +267,13 @@ export default function ChatbotPage() {
                     )}
                   </div>
                   <div
-                    className={`rounded-lg pt-1 pb-4 px-4 max-w-[85%] md:max-w-[80%] break-words ${
+                    className={`rounded-lg pt-0 pb-4 px-4 max-w-[85%] md:max-w-[80%] break-words ${
                       message.role === "assistant"
                         ? "bg-muted/30 glass"
                         : "bg-white text-black"
                     }`}
                   >
-                    <div className="text-sm">
+                    <div className="text-sm leading-tight">
                       {message.content.split('\n').map((line, idx) => {
                         // Match numbered list items (1., 2., etc.)
                         if (/^\d+\./.test(line)) {
