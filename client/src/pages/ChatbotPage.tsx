@@ -245,7 +245,7 @@ export default function ChatbotPage() {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex gap-3 mb-4 ${
+                  className={`flex gap-3 mb-4 items-start ${
                     message.role === "assistant" ? "flex-row" : "flex-row-reverse"
                   }`}
                 >
