@@ -349,8 +349,7 @@ export const VIBE_AND_MOOD_TAGS = [
   "Adventure & Exploring",
   "Spiritual & Intentional",
   "Dancing & Music",
-  "Volunteering & Service",
-  "Fundraiser & Charity"
+  "Volunteering & Service"
 ];
 
 // For backward compatibility, keeping INTEREST_TAGS and MOOD_TAGS
