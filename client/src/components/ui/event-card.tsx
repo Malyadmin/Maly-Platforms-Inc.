@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useTranslation } from "@/lib/translations";
+import { transformImageUrl } from "@/lib/imageTransform";
 
 interface EventCardProps {
   title: string;
@@ -36,7 +37,7 @@ export function EventCard({
     <Card className="overflow-hidden bg-card border-border rounded-sm">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={imageUrl}
+          src={transformImageUrl(imageUrl)}
           alt={title}
           className="object-cover w-full h-full"
         />

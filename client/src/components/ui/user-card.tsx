@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { transformImageUrl } from "@/lib/imageTransform";
 
 // User interface matching the one used in ConnectPage
 interface User {
@@ -74,7 +75,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
         <div className="relative w-full h-full">
           {currentImage ? (
             <img 
-              src={currentImage} 
+              src={transformImageUrl(currentImage)} 
               alt={displayName}
               className="w-full h-full object-cover"
             />
@@ -119,7 +120,7 @@ export function UserCard({ user, onClick, className = "", variant = 'horizontal'
       <div className="relative">
         <Avatar className="h-12 w-12 border-2 border-white/10">
           <AvatarImage 
-            src={currentImage || undefined} 
+            src={transformImageUrl(currentImage) || undefined} 
             alt={displayName}
           />
           <AvatarFallback className="bg-gray-700 text-foreground text-sm font-medium">

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useLocation } from "wouter";
 import { Lock } from "lucide-react";
+import { transformImageUrl } from "@/lib/imageTransform";
 
 interface Event {
   id: number;
@@ -61,7 +62,7 @@ export function IOSEventCard({ event }: IOSEventCardProps) {
         {event.image ? (
           <>
             <img
-              src={event.image}
+              src={transformImageUrl(event.image)}
               alt={event.title}
               className={`w-full h-full object-cover ${isPrivateBlurred ? 'blur-xl' : ''}`}
               loading="lazy"

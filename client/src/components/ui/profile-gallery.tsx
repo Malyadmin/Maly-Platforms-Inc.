@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, ImageIcon, Edit3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { transformImageUrl } from "@/lib/imageTransform";
 
 interface ProfileGalleryProps {
   images: File[];
@@ -65,7 +66,7 @@ export function ProfileGallery({
           <div className="relative group">
             <div className="aspect-square rounded-lg overflow-hidden border-2 border-dashed border-gray-600 relative">
               <img
-                src={imagePreviews[0]}
+                src={transformImageUrl(imagePreviews[0])}
                 alt="Main profile photo"
                 className="w-full h-full object-cover"
               />

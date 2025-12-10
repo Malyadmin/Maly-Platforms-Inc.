@@ -21,7 +21,7 @@ export const uploadToCloudinary = async (
         public_id: `uploads/${Date.now()}_${filename}`,
         folder: resourceType === 'image' ? 'images' : 'videos',
         transformation: resourceType === 'image' 
-          ? [{ width: 1200, height: 800, crop: 'limit', format: 'auto', quality: 'auto' }]
+          ? [{ width: 1200, crop: 'scale', format: 'auto', quality: 'auto' }]
           : [{ video_codec: 'auto', quality: 'auto' }]
       },
       (error, result) => {
