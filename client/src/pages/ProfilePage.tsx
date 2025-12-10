@@ -402,9 +402,6 @@ export default function ProfilePage() {
               {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
             </h2>
           </div>
-          {profileData?.location && (
-            <p className="text-foreground text-sm ml-8">{profileData.location}</p>
-          )}
         </div>
         {currentUser && profileData?.id !== currentUser?.id && (
           <Button
@@ -543,7 +540,7 @@ export default function ProfilePage() {
                     <button 
                       onClick={() => removeConnectionMutation.mutate(profileData.id)}
                       disabled={removeConnectionMutation.isPending}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-white hover:bg-gray-100 text-black text-foreground border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-white hover:bg-gray-100 text-black border-0 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-4 whitespace-nowrap font-medium transition-all disabled:opacity-50"
                       data-testid="button-remove-contact"
                     >
                       {removeConnectionMutation.isPending ? (
