@@ -146,16 +146,14 @@ export function LargeProfileView({ user, onConnect, onClick, className = "" }: L
         <div className="absolute bottom-0 left-0 right-0 p-6 text-foreground">
           {/* Main Profile Info */}
           <div className="mb-4">
-            <h2 className="text-3xl font-bold mb-2">{displayName}</h2>
-            <div className="flex items-center gap-4 text-lg text-foreground/90">
-              {user.age && <span>{user.age}</span>}
-              {user.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{user.location}</span>
-                </div>
-              )}
-            </div>
+            <h2 className="text-3xl font-bold mb-1">{displayName}</h2>
+            {user.location && (
+              <div className="flex items-center gap-1 text-lg text-foreground/90 mb-2">
+                <MapPin className="h-4 w-4" />
+                <span>{user.location}</span>
+              </div>
+            )}
+            {user.age && <span className="text-lg text-foreground/90">{user.age}</span>}
             {user.profession && (
               <p className="text-foreground/80 mt-2">{user.profession}</p>
             )}
