@@ -172,7 +172,7 @@ export default function ChatbotPage() {
                 C O N C I E R G E
               </h1>
             </div>
-            <p className="text-muted-foreground text-xs mt-1">Get local insights, tailored to your vibe.</p>
+            <p className="text-muted-foreground text-xs mt-1">Get local insights, tailored to your vibe and taste.</p>
           </div>
         </div>
       </header>

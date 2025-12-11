@@ -380,7 +380,7 @@ export default function DiscoverPage() {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
                 E V E N T S
               </h2>
-              <p className="text-muted-foreground text-xs mt-1">Discover experiences that connect us worldwide.</p>
+              <p className="text-muted-foreground text-xs mt-1">Discover remarkable experiences that connect us worldwide.</p>
               {selectedCity !== 'all' && (
                 <p className="text-foreground text-sm mt-1">{selectedCity}</p>
               )}
