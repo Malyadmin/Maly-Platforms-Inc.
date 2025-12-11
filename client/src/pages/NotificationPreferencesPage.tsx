@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Bell, BellOff, MessageSquare, Calendar, UserCheck, Ticket } from 'lucide-react';
+import { ChevronLeft, Bell, BellOff, MessageSquare, Calendar, UserCheck, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
+import { BottomNav } from '@/components/ui/bottom-nav';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
 import { useTranslation } from '@/lib/translations';
@@ -39,7 +40,6 @@ export default function NotificationPreferencesPage() {
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
-    // Check if push notifications are supported
     if ('Notification' in window && 'serviceWorker' in navigator) {
       setPushSupported(true);
       setPushPermission(Notification.permission);
@@ -74,7 +74,6 @@ export default function NotificationPreferencesPage() {
       return false;
     }
 
-    // iOS requires subscription from standalone PWA, not Safari tab
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     if (!isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
       toast({
@@ -125,12 +124,10 @@ export default function NotificationPreferencesPage() {
       const registration = await navigator.serviceWorker.ready;
       console.log('[PUSH] Service worker ready');
       
-      // Get the VAPID public key from the server
       const vapidResponse = await fetch('/api/notifications/vapid-key');
       const { publicKey } = await vapidResponse.json();
       console.log('[PUSH] Got VAPID key');
 
-      // Required for iOS: userVisibleOnly must be true
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicKey),
@@ -141,7 +138,6 @@ export default function NotificationPreferencesPage() {
         isApple: subscription.endpoint.includes('apple.com')
       });
 
-      // Send subscription to server
       const response = await fetch('/api/notifications/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -172,7 +168,6 @@ export default function NotificationPreferencesPage() {
   };
 
   const handleToggle = async (key: keyof NotificationSettings, value: boolean) => {
-    // If enabling any push notification, request permission first
     if (key.startsWith('push') && value) {
       const granted = await requestPushPermission();
       if (!granted) {
@@ -273,32 +268,36 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background border-b border-gray-800">
-        <div className="flex items-center justify-between px-5 py-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.history.back()}
-            className="text-foreground p-2 hover:bg-foreground/10"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
+    <div className="min-h-screen bg-background text-foreground flex flex-col pb-24">
+      <header className="sticky top-0 z-40 bg-background border-b border-border">
+        <div className="px-4 pt-3">
+          <div className="flex items-center justify-between pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-14 w-auto logo-adaptive"
+            />
+            <HamburgerMenu />
+          </div>
           
-          <h1 className="text-foreground text-lg font-medium uppercase whitespace-nowrap" style={{ letterSpacing: '0.3em' }}>
-            {t('alertsSpaced')}
-          </h1>
-          
-          <HamburgerMenu />
+          <div className="flex items-center gap-2 pb-2">
+            <button
+              onClick={() => window.history.back()}
+              className="text-foreground hover:text-foreground/70 p-1"
+              aria-label="Go back"
+              data-testid="button-back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+              {t('alertsSpaced')}
+            </h1>
+          </div>
         </div>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
-          {/* Push Notification Status */}
           {!pushSupported && (
             <Card className="bg-background/40 border-border">
               <CardContent className="pt-6">
@@ -339,7 +338,6 @@ export default function NotificationPreferencesPage() {
             </Card>
           )}
 
-          {/* Notification Categories */}
           <Card className="bg-background/40 border-gray-800">
             <CardHeader>
               <CardTitle className="text-foreground text-base">Notification Preferences</CardTitle>
@@ -382,7 +380,6 @@ export default function NotificationPreferencesPage() {
             </CardContent>
           </Card>
 
-          {/* Info Card */}
           <Card className="bg-background/40 border-gray-800">
             <CardContent className="pt-6">
               <div className="space-y-2 text-xs text-muted-foreground">
@@ -397,6 +394,8 @@ export default function NotificationPreferencesPage() {
           </Card>
         </div>
       </div>
+      
+      <BottomNav />
     </div>
   );
 }

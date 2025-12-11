@@ -1,33 +1,37 @@
-import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col pb-24">
       <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
-        <div className="flex items-center justify-between px-5 py-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.history.back()}
-            className="text-foreground p-2 hover:bg-foreground/10"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
+        <div className="px-4 pt-3">
+          <div className="flex items-center justify-between pb-2">
+            <img 
+              src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+              alt="MÁLY" 
+              className="h-14 w-auto logo-adaptive"
+            />
+            <HamburgerMenu />
+          </div>
           
-          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-            P R I V A C Y
-          </h1>
-          
-          <HamburgerMenu />
+          <div className="flex items-center gap-2 pb-2">
+            <button
+              onClick={() => window.history.back()}
+              className="text-foreground hover:text-foreground/70 p-1"
+              aria-label="Go back"
+              data-testid="button-back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+              Privacy
+            </h1>
+          </div>
         </div>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
           <p className="text-sm text-muted-foreground">Last updated: November 2024</p>
@@ -150,6 +154,8 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
+      
+      <BottomNav />
     </div>
   );
 }

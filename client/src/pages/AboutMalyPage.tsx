@@ -1,13 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 export default function AboutMalyPage() {
   return (
-    <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col">
-      {/* Header - MALY logo, title, back button stacked */}
+    <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col pb-24">
       <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
         <div className="px-4 pt-3">
-          {/* Row 1: MALY Logo left, Hamburger right */}
           <div className="flex items-center justify-between pb-2">
             <img 
               src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
@@ -17,7 +16,6 @@ export default function AboutMalyPage() {
             <HamburgerMenu />
           </div>
           
-          {/* Row 2: Back button + Page title inline, left justified */}
           <div className="flex items-center gap-2 pb-2">
             <button
               onClick={() => window.history.back()}
@@ -27,14 +25,13 @@ export default function AboutMalyPage() {
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              A B O U T
+            <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+              About
             </h1>
           </div>
         </div>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
           <section>
@@ -81,6 +78,8 @@ export default function AboutMalyPage() {
           </section>
         </div>
       </div>
+      
+      <BottomNav />
     </div>
   );
 }

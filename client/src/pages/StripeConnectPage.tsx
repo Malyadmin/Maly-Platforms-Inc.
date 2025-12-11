@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, AlertCircle, CreditCard, DollarSign, Shield, ArrowRight } from 'lucide-react';
 import { HamburgerMenu } from '@/components/ui/hamburger-menu';
+import { BottomNav } from '@/components/ui/bottom-nav';
 import { useUser } from '@/hooks/use-user';
 import { useToast } from '@/hooks/use-toast';
 
@@ -132,9 +133,46 @@ export default function StripeConnectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
+      <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col pb-24">
         <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
-          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <div className="px-4 pt-3">
+            <div className="flex items-center justify-between pb-2">
+              <img 
+                src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
+                alt="MÁLY" 
+                className="h-14 w-auto logo-adaptive"
+              />
+              <HamburgerMenu />
+            </div>
+            
+            <div className="flex items-center gap-2 pb-2">
+              <button
+                onClick={() => window.history.back()}
+                className="text-foreground hover:text-foreground/70 p-1"
+                aria-label="Go back"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
+                Payment Setup
+              </h1>
+            </div>
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-foreground" />
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background dark:bg-black text-foreground flex flex-col pb-24">
+      <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
+        <div className="px-4 pt-3">
+          <div className="flex items-center justify-between pb-2">
             <img 
               src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
               alt="MÁLY" 
@@ -142,57 +180,23 @@ export default function StripeConnectPage() {
             />
             <HamburgerMenu />
           </div>
-          <div className="px-5 pb-3 flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
+          
+          <div className="flex items-center gap-2 pb-2">
+            <button
               onClick={() => window.history.back()}
-              className="text-foreground p-1 hover:bg-foreground/10"
+              className="text-foreground hover:text-foreground/70 p-1"
+              aria-label="Go back"
               data-testid="button-back"
             >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+              <ChevronLeft className="h-5 w-5" />
+            </button>
             <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
               Payment Setup
             </h1>
           </div>
-        </header>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-foreground" />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-background dark:bg-black text-white flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background dark:bg-black border-b border-border">
-        <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img 
-            src="/attached_assets/IMG_1849-removebg-preview_1758943125594.png" 
-            alt="MÁLY" 
-            className="h-14 w-auto logo-adaptive"
-          />
-          <HamburgerMenu />
-        </div>
-        <div className="px-5 pb-3 flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.history.back()}
-            className="text-foreground p-1 hover:bg-foreground/10"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.2em' }}>
-            Payment Setup
-          </h1>
         </div>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
@@ -200,7 +204,6 @@ export default function StripeConnectPage() {
               Set up your payment account to receive payouts from ticket sales
             </p>
             
-            {/* Development Mode Warning */}
             {import.meta.env.MODE === 'development' && (
               <Alert className="mt-4 bg-orange-950 border-orange-800">
                 <AlertCircle className="h-4 w-4 text-orange-400" />
@@ -212,13 +215,12 @@ export default function StripeConnectPage() {
             )}
           </div>
 
-          {/* Benefits Section */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <DollarSign className="h-5 w-5 text-green-500" />
-                  <CardTitle className="text-lg text-white">Direct Payouts</CardTitle>
+                  <CardTitle className="text-lg text-foreground">Direct Payouts</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -232,7 +234,7 @@ export default function StripeConnectPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-5 w-5 text-blue-500" />
-                  <CardTitle className="text-lg text-white">Easy Checkout</CardTitle>
+                  <CardTitle className="text-lg text-foreground">Easy Checkout</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -246,7 +248,7 @@ export default function StripeConnectPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-2">
                   <Shield className="h-5 w-5 text-foreground" />
-                  <CardTitle className="text-lg text-white">Secure & Compliant</CardTitle>
+                  <CardTitle className="text-lg text-foreground">Secure & Compliant</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -257,10 +259,9 @@ export default function StripeConnectPage() {
             </Card>
           </div>
 
-          {/* Status Section */}
           <Card className="mb-6 bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white">Account Status</CardTitle>
+              <CardTitle className="text-foreground">Account Status</CardTitle>
               <CardDescription className="text-muted-foreground">
                 Your current payment setup status
               </CardDescription>
@@ -329,7 +330,7 @@ export default function StripeConnectPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-white">Connect Account</span>
+                    <span className="font-medium text-foreground">Connect Account</span>
                     <Badge variant="outline" className="bg-green-950 text-green-400 border-green-800">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Created
@@ -337,7 +338,7 @@ export default function StripeConnectPage() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-white">Onboarding Complete</span>
+                    <span className="font-medium text-foreground">Onboarding Complete</span>
                     {status.onboardingComplete ? (
                       <Badge variant="outline" className="bg-green-950 text-green-400 border-green-800">
                         <CheckCircle className="w-3 h-3 mr-1" />
@@ -353,7 +354,7 @@ export default function StripeConnectPage() {
 
                   {status.chargesEnabled !== undefined && (
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">Accept Payments</span>
+                      <span className="font-medium text-foreground">Accept Payments</span>
                       <Badge variant="outline" className={status.chargesEnabled ? "bg-green-950 text-green-400 border-green-800" : "bg-red-950 text-red-400 border-red-800"}>
                         {status.chargesEnabled ? (
                           <>
@@ -372,7 +373,7 @@ export default function StripeConnectPage() {
 
                   {status.payoutsEnabled !== undefined && (
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">Receive Payouts</span>
+                      <span className="font-medium text-foreground">Receive Payouts</span>
                       <Badge variant="outline" className={status.payoutsEnabled ? "bg-green-950 text-green-400 border-green-800" : "bg-red-950 text-red-400 border-red-800"}>
                         {status.payoutsEnabled ? (
                           <>
@@ -433,10 +434,9 @@ export default function StripeConnectPage() {
             </CardContent>
           </Card>
 
-          {/* Fee Information */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white">Fees & Payouts</CardTitle>
+              <CardTitle className="text-foreground">Fees & Payouts</CardTitle>
               <CardDescription className="text-muted-foreground">
                 How payments work on Maly
               </CardDescription>
@@ -465,6 +465,8 @@ export default function StripeConnectPage() {
           </Card>
         </div>
       </div>
+      
+      <BottomNav />
     </div>
   );
 }
