@@ -537,7 +537,7 @@ export default function EditProfilePage() {
           <div className="absolute bottom-6 left-6 right-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                <h1 className="text-3xl sm:text-4xl font-bold text-white dark:text-foreground tracking-tight">
                   {profileData.fullName || user.username}
                 </h1>
                 <label className="p-2 bg-white hover:bg-gray-100 text-black rounded-full cursor-pointer transition-colors shadow-lg">
