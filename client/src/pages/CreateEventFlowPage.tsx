@@ -252,21 +252,18 @@ function Step1BasicInfo({ data, onNext, onBack }: Step1Props) {
           </div>
         </form>
 
-        {/* Bottom spacing for mobile */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
-        <button
-          type="submit"
-          form="step1-form"
-          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-next"
-        >
-          <ArrowRight className="h-5 w-5" />
-          {t('next')}
-        </button>
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step1-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
       
       {/* Bottom Navigation */}
@@ -544,21 +541,18 @@ function Step3EventDetails({ data, onNext, onBack }: Step3Props) {
           </form>
         </Form>
 
-        {/* Bottom spacing */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
-        <button
-          type="submit"
-          form="step3-form"
-          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-next"
-        >
-          <ArrowRight className="h-5 w-5" />
-          {t('next')}
-        </button>
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step3-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
       
       {/* Bottom Navigation */}
@@ -662,21 +656,18 @@ function Step4EventSpecifics({ data, onNext, onBack }: Step4Props) {
           </form>
         </Form>
 
-        {/* Bottom spacing */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
-        <button
-          type="submit"
-          form="step4-form"
-          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-next"
-        >
-          <ArrowRight className="h-5 w-5" />
-          Next
-        </button>
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step4-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            Next
+          </button>
+        </div>
       </div>
       
       {/* Bottom Navigation */}
@@ -905,21 +896,18 @@ function Step5PricingAudience({ data, onNext, onBack }: Step5Props) {
           </form>
         </Form>
 
-        {/* Bottom spacing */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
-        <button
-          type="submit"
-          form="step5-form"
-          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-next"
-        >
-          <ArrowRight className="h-5 w-5" />
-          Next
-        </button>
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step5-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            Next
+          </button>
+        </div>
       </div>
       
       {/* Bottom Navigation */}
@@ -1052,21 +1040,18 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           </form>
         </Form>
 
-        {/* Bottom spacing */}
-        <div className="h-32"></div>
-      </div>
-
-      {/* Fixed Create Button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 pb-8">
-        <button
-          type="submit"
-          form="step6-form"
-          className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-          data-testid="button-create"
-        >
-          <ArrowRight className="h-5 w-5" />
-          {t('createEvent')}
-        </button>
+        {/* Create Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step6-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-create"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('createEvent')}
+          </button>
+        </div>
       </div>
       
       {/* Bottom Navigation */}
