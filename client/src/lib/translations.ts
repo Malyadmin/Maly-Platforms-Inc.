@@ -1220,6 +1220,10 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     unknownUser: 'Unknown User',
     groupThread: 'Group Thread',
     members: 'members',
+    // Page subtitles
+    discoverEventSubtitle: 'Discover remarkable experiences that connect us worldwide.',
+    connectPeopleSubtitle: 'Find your tribe for connection and belonging, anywhere.',
+    inboxChatsSubtitle: 'Stay connected to make plans in real life.',
     // ProfilePage spaced headers
     profileSpaced: 'P R O F I L E',
     connectSpaced: 'C O N N E C T',
@@ -1955,6 +1959,10 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     unknownUser: 'Usuario Desconocido',
     groupThread: 'Hilo Grupal',
     members: 'miembros',
+    // Page subtitles
+    discoverEventSubtitle: 'Descubre experiencias extraordinarias que nos conectan en todo el mundo.',
+    connectPeopleSubtitle: 'Encuentra tu tribu para conexión y pertenencia, en cualquier lugar.',
+    inboxChatsSubtitle: 'Mantente conectado para hacer planes en la vida real.',
     // ProfilePage spaced headers
     profileSpaced: 'P E R F I L',
     connectSpaced: 'C O N E C T A R',

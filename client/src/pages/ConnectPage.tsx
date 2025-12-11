@@ -421,7 +421,7 @@ export function ConnectPage() {
           </h2>
           <div className="flex items-center justify-between mt-1">
             <div>
-              <p className="text-muted-foreground text-xs">Find your tribe for connection and belonging, anywhere.</p>
+              <p className="text-muted-foreground text-xs">{t('connectPeopleSubtitle')}</p>
               {selectedCity !== 'all' && (
                 <p className="text-foreground text-sm mt-1">{selectedCity}</p>
               )}
