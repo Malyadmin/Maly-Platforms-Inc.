@@ -220,7 +220,7 @@ export default function ChatbotPage() {
         
         <div className="max-w-2xl mx-auto">
           {/* Quick prompts */}
-          <div className="bg-muted/20 border border-border rounded-lg mb-4 p-4">
+          <div className="mb-4 p-4">
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map(({ text, icon: Icon, prompt, specializedPrompt, ariaLabel }) => (
                 <Button
