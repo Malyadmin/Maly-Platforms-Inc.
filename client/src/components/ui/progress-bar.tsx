@@ -17,12 +17,12 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
             <div key={stepNumber} className="flex items-center flex-1">
               {/* Step indicator */}
               <div
-                className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+                className={`h-2 flex-1 rounded-full transition-all duration-300 border border-gray-400 dark:border-gray-600 ${
                   isCompleted
-                    ? 'bg-white'
+                    ? 'bg-gray-700 dark:bg-gray-400'
                     : isCurrent
-                    ? 'bg-white'
-                    : 'bg-gray-600'
+                    ? 'bg-gray-700 dark:bg-gray-400'
+                    : 'bg-transparent'
                 }`}
               />
               
@@ -30,7 +30,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
               {index < totalSteps - 1 && (
                 <div
                   className={`h-0.5 w-2 transition-all duration-300 ${
-                    isCompleted ? 'bg-white' : 'bg-gray-600'
+                    isCompleted ? 'bg-gray-700 dark:bg-gray-400' : 'bg-gray-400 dark:bg-gray-600'
                   }`}
                 />
               )}
