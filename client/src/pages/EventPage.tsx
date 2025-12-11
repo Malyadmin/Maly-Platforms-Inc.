@@ -296,27 +296,30 @@ export default function EventPage() {
           />
         </div>
         
-        {/* Bottom bar with Explore title and Back button */}
-        <div className="px-5 pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (window.history.length > 1) {
-                    window.history.back();
-                  } else {
-                    setLocation('/discover');
-                  }
-                }}
-                className="text-foreground hover:text-foreground transition-colors"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
-            </div>
-            {/* Share Button - includes share token for private/friends events */}
-            <Button
+        {/* Title section with back button */}
+        <div className="px-5 pb-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  setLocation('/discover');
+                }
+              }}
+              className="text-foreground hover:text-foreground transition-colors"
+              data-testid="button-back"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('exploreSpaced')}</h2>
+          </div>
+        </div>
+
+        {/* Action buttons section */}
+        <div className="px-5 py-2 flex justify-end">
+          {/* Share Button - includes share token for private/friends events */}
+          <Button
               variant="ghost"
               size="sm"
               onClick={async () => {
@@ -360,8 +363,7 @@ export default function EventPage() {
               data-testid="button-share"
             >
               <Share className="h-4 w-4" />
-            </Button>
-          </div>
+          </Button>
         </div>
       </header>
 

@@ -379,63 +379,63 @@ export default function ProfilePage() {
     </div>
     
     {/* Profile title with gradient - uppercase with extra letter spacing */}
-    <div className="px-5 pb-3">
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                if (fromUrl) {
-                  setLocation(fromUrl);
-                } else if (window.history.length > 1) {
-                  window.history.back();
-                } else {
-                  setLocation("/discover");
-                }
-              }}
-              className="text-foreground/80 hover:text-foreground transition-colors"
-              data-testid="button-back"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-              {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
-            </h2>
-          </div>
-        </div>
-        {currentUser && profileData?.id !== currentUser?.id && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              setShareClicked(true);
-              const shareUrl = `${window.location.origin}/profile/${profileData.username || profileData.id}`;
-              if (navigator.share) {
-                try {
-                  await navigator.share({
-                    title: `Check out ${profileData.fullName || profileData.username}'s profile on Maly`,
-                    text: `${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`,
-                    url: shareUrl,
-                  });
-                } catch (err) {
-                  console.error('Share failed:', err);
-                }
-              } else {
-                await navigator.clipboard.writeText(shareUrl);
-                toast({
-                  title: t('linkCopied'),
-                  description: t('profileLinkCopied'),
-                });
-              }
-            }}
-            className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
-            data-testid="button-share"
-          >
-            <Share className="h-4 w-4" />
-          </Button>
-        )}
+    <div className="px-5 pb-3 border-b border-border">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => {
+            if (fromUrl) {
+              setLocation(fromUrl);
+            } else if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              setLocation("/discover");
+            }
+          }}
+          className="text-foreground/80 hover:text-foreground transition-colors"
+          data-testid="button-back"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+          {profileData?.id === currentUser?.id ? t('profileSpaced') : t('connectSpaced')}
+        </h2>
       </div>
     </div>
+
+    {/* Action buttons section */}
+    {currentUser && profileData?.id !== currentUser?.id && (
+      <div className="px-5 py-2 flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={async () => {
+            setShareClicked(true);
+            const shareUrl = `${window.location.origin}/profile/${profileData.username || profileData.id}`;
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: `Check out ${profileData.fullName || profileData.username}'s profile on Maly`,
+                  text: `${currentUser?.fullName || currentUser?.username || 'Someone'} has invited you to connect with ${profileData.fullName || profileData.username} on Maly.`,
+                  url: shareUrl,
+                });
+              } catch (err) {
+                console.error('Share failed:', err);
+              }
+            } else {
+              await navigator.clipboard.writeText(shareUrl);
+              toast({
+                title: t('linkCopied'),
+                description: t('profileLinkCopied'),
+              });
+            }
+          }}
+          className={`p-2 hover:bg-foreground/10 ${shareClicked ? 'text-foreground' : 'text-foreground'}`}
+          data-testid="button-share"
+        >
+          <Share className="h-4 w-4" />
+        </Button>
+      </div>
+    )}
   </header>
 
   {/* Scrollable content area */}

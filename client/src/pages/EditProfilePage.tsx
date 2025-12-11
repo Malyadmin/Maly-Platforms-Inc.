@@ -461,7 +461,7 @@ export default function EditProfilePage() {
           <HamburgerMenu />
         </div>
         
-        <div className="px-5 pb-3">
+        <div className="px-5 pb-3 border-b border-border">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLocation(`/profile/${user?.username}`)}

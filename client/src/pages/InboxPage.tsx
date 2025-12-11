@@ -294,13 +294,13 @@ export default function InboxPage() {
         </div>
         
         {/* Chats title with gradient */}
-        <div className="px-5 pb-3">
+        <div className="px-5 pb-3 border-b border-border">
           <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }} data-testid="inbox-title">C H A T S</h2>
           <p className="text-muted-foreground text-xs mt-1">Stay connected to make plans in real life.</p>
         </div>
 
         {/* Filter Bar - Always Present */}
-        <div className="bg-background border-b border-border">
+        <div className="bg-background">
           <div className="px-5 py-3 flex items-center justify-between">
             <button
               onClick={() => setActiveFilter('all')}

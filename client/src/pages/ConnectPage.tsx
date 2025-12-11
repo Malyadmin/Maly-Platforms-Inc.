@@ -414,25 +414,33 @@ export function ConnectPage() {
           <HamburgerMenu />
         </div>
         
-        {/* Controls section */}
+        {/* Title section with divider */}
+        <div className="px-5 pb-3 border-b border-border">
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            P E O P L E
+          </h2>
+          <p className="text-muted-foreground text-xs mt-1">Find your tribe for connection and belonging, anywhere.</p>
+          {selectedCity !== 'all' && (
+            <p className="text-foreground text-sm mt-1">{selectedCity}</p>
+          )}
+        </div>
+
+        {/* Controls section - filter icon and profile count */}
         <div className="px-5">
-          <div className="flex items-center justify-between pb-3">
-            {/* Connect title - uppercase with extra letter spacing */}
-            <div>
-              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                P E O P L E
-              </h2>
-              <p className="text-muted-foreground text-xs mt-1">Find your tribe for connection and belonging, anywhere.</p>
-              {selectedCity !== 'all' && (
-                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
-              )}
-            </div>
+          <div className="flex items-center justify-between py-2">
+            {/* Show profile count here when filter bar is hidden */}
+            {!showFiltersBar && (
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
+              </p>
+            )}
+            {showFiltersBar && <div />}
             
             {/* Filter icon */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground p-2 hover:bg-foreground/10"
+              className="text-foreground p-2 hover:bg-foreground/10 ml-auto"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -454,19 +462,12 @@ export function ConnectPage() {
               </svg>
             </Button>
           </div>
-          
-          {/* Show profile count here when filter bar is hidden */}
-          {!showFiltersBar && (
-            <p className="text-xs sm:text-sm text-muted-foreground py-3">
-              {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
-            </p>
-          )}
         </div>
       </header>
 
       {/* Filter Bar - Shows when filter icon is clicked */}
       {showFiltersBar && (
-        <div className="bg-background border-b border-border">
+        <div className="bg-background">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* Gender */}

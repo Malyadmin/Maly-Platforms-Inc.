@@ -400,14 +400,14 @@ export default function CreatorDashboardPage() {
         </div>
         
         {/* Dashboard title with gradient */}
-        <div className="px-5 pb-3">
+        <div className="px-5 pb-3 border-b border-border">
           <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             {t('dashboardSpaced')}
           </h2>
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-background dark:bg-black border-b border-border">
+        <div className="bg-background dark:bg-black">
           <div className="px-5 py-3 flex items-center justify-between gap-4">
             <button
               onClick={() => setActiveFilter('events')}

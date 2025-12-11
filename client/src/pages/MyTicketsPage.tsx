@@ -114,7 +114,7 @@ export default function MyTicketsPage() {
           <HamburgerMenu />
         </div>
         
-        <div className="px-5 pb-3 flex items-center gap-3">
+        <div className="px-5 pb-3 flex items-center gap-3 border-b border-border">
           <button
             onClick={() => setLocation('/discover')}
             className="p-1 text-foreground hover:bg-foreground/10 rounded-full transition-colors"

@@ -372,25 +372,33 @@ export default function DiscoverPage() {
           <HamburgerMenu />
         </div>
         
-        {/* Controls section */}
+        {/* Title section with divider */}
+        <div className="px-5 pb-3 border-b border-border">
+          <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
+            E V E N T S
+          </h2>
+          <p className="text-muted-foreground text-xs mt-1">Discover remarkable experiences that connect us worldwide.</p>
+          {selectedCity !== 'all' && (
+            <p className="text-foreground text-sm mt-1">{selectedCity}</p>
+          )}
+        </div>
+
+        {/* Controls section - filter icon and event count */}
         <div className="px-5">
-          <div className="flex items-center justify-between pb-3">
-            {/* Explore title with gradient - uppercase with extra letter spacing */}
-            <div>
-              <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
-                E V E N T S
-              </h2>
-              <p className="text-muted-foreground text-xs mt-1">Discover remarkable experiences that connect us worldwide.</p>
-              {selectedCity !== 'all' && (
-                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
-              )}
-            </div>
+          <div className="flex items-center justify-between py-2">
+            {/* Show event count here when filter bar is hidden */}
+            {!showFiltersBar && (
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {filteredEvents.length} {t('eventsFound')}
+              </p>
+            )}
+            {showFiltersBar && <div />}
             
             {/* Filter icon */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground p-2 hover:bg-foreground/10"
+              className="text-foreground p-2 hover:bg-foreground/10 ml-auto"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -412,18 +420,11 @@ export default function DiscoverPage() {
               </svg>
             </Button>
           </div>
-          
-          {/* Show event count here when filter bar is hidden */}
-          {!showFiltersBar && (
-            <p className="text-xs sm:text-sm text-muted-foreground py-3">
-              {filteredEvents.length} {t('eventsFound')}
-            </p>
-          )}
         </div>
 
         {/* Filter Bar - Shows when filter icon is clicked */}
         {showFiltersBar && (
-          <div className="border-t border-border">
+          <div className="">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
             {/* When */}
