@@ -200,7 +200,7 @@ export default function StripeConnectPage() {
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <p className="text-gray-300 text-center">
+            <p className="text-black dark:text-gray-300 text-center">
               Set up your payment account to receive payouts from ticket sales
             </p>
             
@@ -444,15 +444,15 @@ export default function StripeConnectPage() {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Platform Fee</span>
-                  <Badge variant="outline" className="border-border text-gray-300">3%</Badge>
+                  <span className="text-black dark:text-gray-300">Platform Fee</span>
+                  <Badge variant="outline" className="border-border text-black dark:text-gray-300">3%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-300">You Receive</span>
+                  <span className="text-black dark:text-gray-300">You Receive</span>
                   <Badge variant="outline" className="bg-green-950 text-green-400 border-green-800">97%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Payout Schedule</span>
+                  <span className="text-black dark:text-gray-300">Payout Schedule</span>
                   <span className="text-sm text-muted-foreground">2-7 business days</span>
                 </div>
               </div>
