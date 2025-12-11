@@ -377,28 +377,18 @@ export default function DiscoverPage() {
           <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             E V E N T S
           </h2>
-          <p className="text-muted-foreground text-xs mt-1">Discover remarkable experiences that connect us worldwide.</p>
-          {selectedCity !== 'all' && (
-            <p className="text-foreground text-sm mt-1">{selectedCity}</p>
-          )}
-        </div>
-
-        {/* Controls section - filter icon and event count */}
-        <div className="px-5">
-          <div className="flex items-center justify-between py-2">
-            {/* Show event count here when filter bar is hidden */}
-            {!showFiltersBar && (
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {filteredEvents.length} {t('eventsFound')}
-              </p>
-            )}
-            {showFiltersBar && <div />}
-            
+          <div className="flex items-center justify-between mt-1">
+            <div>
+              <p className="text-muted-foreground text-xs">Discover remarkable experiences that connect us worldwide.</p>
+              {selectedCity !== 'all' && (
+                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
+              )}
+            </div>
             {/* Filter icon */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground p-2 hover:bg-foreground/10 ml-auto"
+              className="text-foreground p-2 hover:bg-foreground/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -421,6 +411,24 @@ export default function DiscoverPage() {
             </Button>
           </div>
         </div>
+
+        {/* Filter Bar - Shows when filter icon is clicked (UNDER divider) */}
+        {showFiltersBar && (
+          <div className="px-5 py-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+              {filteredEvents.length} {t('eventsFound')}
+            </p>
+          </div>
+        )}
+        
+        {/* Show event count when filter bar is hidden */}
+        {!showFiltersBar && (
+          <div className="px-5 py-2">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {filteredEvents.length} {t('eventsFound')}
+            </p>
+          </div>
+        )}
 
         {/* Filter Bar - Shows when filter icon is clicked */}
         {showFiltersBar && (

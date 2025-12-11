@@ -419,28 +419,18 @@ export function ConnectPage() {
           <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>
             P E O P L E
           </h2>
-          <p className="text-muted-foreground text-xs mt-1">Find your tribe for connection and belonging, anywhere.</p>
-          {selectedCity !== 'all' && (
-            <p className="text-foreground text-sm mt-1">{selectedCity}</p>
-          )}
-        </div>
-
-        {/* Controls section - filter icon and profile count */}
-        <div className="px-5">
-          <div className="flex items-center justify-between py-2">
-            {/* Show profile count here when filter bar is hidden */}
-            {!showFiltersBar && (
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
-              </p>
-            )}
-            {showFiltersBar && <div />}
-            
+          <div className="flex items-center justify-between mt-1">
+            <div>
+              <p className="text-muted-foreground text-xs">Find your tribe for connection and belonging, anywhere.</p>
+              {selectedCity !== 'all' && (
+                <p className="text-foreground text-sm mt-1">{selectedCity}</p>
+              )}
+            </div>
             {/* Filter icon */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground p-2 hover:bg-foreground/10 ml-auto"
+              className="text-foreground p-2 hover:bg-foreground/10"
               onClick={handleFilterClick}
               data-testid="filters-button"
             >
@@ -463,9 +453,16 @@ export function ConnectPage() {
             </Button>
           </div>
         </div>
+
+        {/* Profile count - always shown */}
+        <div className="px-5 py-2">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {users?.length || 0} {users?.length === 1 ? t('profileFound') : t('profilesFound')}
+          </p>
+        </div>
       </header>
 
-      {/* Filter Bar - Shows when filter icon is clicked */}
+      {/* Filter Bar - Shows when filter icon is clicked (UNDER divider) */}
       {showFiltersBar && (
         <div className="bg-background">
           {/* Filter Categories */}
