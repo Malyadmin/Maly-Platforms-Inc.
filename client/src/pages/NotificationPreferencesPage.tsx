@@ -234,7 +234,7 @@ export default function NotificationPreferencesPage() {
       
       <div className="grid grid-cols-2 gap-4 pl-7">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-300">In-App</span>
+          <span className="text-xs text-black dark:text-muted-foreground">In-App</span>
           <Switch
             checked={settings[inAppKey]}
             onCheckedChange={(checked) => handleToggle(inAppKey, checked)}
@@ -244,7 +244,7 @@ export default function NotificationPreferencesPage() {
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-300">Push</span>
+          <span className="text-xs text-black dark:text-muted-foreground">Push</span>
           <Switch
             checked={settings[pushKey]}
             onCheckedChange={(checked) => handleToggle(pushKey, checked)}
