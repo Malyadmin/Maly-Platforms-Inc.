@@ -1780,8 +1780,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
           }
         }
         
-        // Calculate net revenue (after 3% platform fee)
-        const platformFee = eventRevenue * 0.03;
+        // Calculate net revenue (after 10% platform fee)
+        const platformFee = eventRevenue * 0.10;
         const netRevenue = eventRevenue - platformFee;
 
         // Get view count for this event

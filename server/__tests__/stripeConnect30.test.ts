@@ -264,7 +264,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         .expect(200);
 
       expect(response.body.sessionId).toBe('cs_test123');
-      expect(response.body.metadata.applicationFeeAmount).toBe('150'); // 3% of $50
+      expect(response.body.metadata.applicationFeeAmount).toBe('500'); // 10% of $50
     });
 
     test('13. Should calculate correct fee for multiple quantities', async () => {
@@ -274,7 +274,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         .send({ eventId: 2, quantity: 2 })
         .expect(200);
 
-      expect(response.body.metadata.applicationFeeAmount).toBe('600'); // 3% of $200 (2x$100)
+      expect(response.body.metadata.applicationFeeAmount).toBe('2000'); // 10% of $200 (2x$100)
     });
 
     test('14. Should handle decimal pricing correctly', async () => {
@@ -284,7 +284,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         .send({ eventId: 3, quantity: 1 })
         .expect(200);
 
-      expect(response.body.metadata.applicationFeeAmount).toBe('78'); // 3% of $25.99
+      expect(response.body.metadata.applicationFeeAmount).toBe('260'); // 10% of $25.99
     });
 
     test('15. Should process high-value tickets correctly', async () => {
@@ -294,7 +294,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         .send({ eventId: 4, quantity: 1 })
         .expect(200);
 
-      expect(response.body.metadata.applicationFeeAmount).toBe('1500'); // 3% of $500
+      expect(response.body.metadata.applicationFeeAmount).toBe('5000'); // 10% of $500
     });
 
     test('16. Should handle free events with zero application fee', async () => {
@@ -306,7 +306,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
 
 
       
-      expect(response.body.metadata.applicationFeeAmount).toBe('0'); // 3% of $0
+      expect(response.body.metadata.applicationFeeAmount).toBe('0'); // 10% of $0
     });
 
     test('17. Should reject invalid event ID', async () => {
@@ -496,7 +496,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
 
       // Validate key implementation features
       expect('Express Connect account creation').toBeDefined();
-      expect('3% application fee calculation').toBeDefined();
+      expect('10% application fee calculation').toBeDefined();
       expect('Destination charges with Connect accounts').toBeDefined();
       expect('Webhook processing for account updates').toBeDefined();
       expect('Authentication and security measures').toBeDefined();

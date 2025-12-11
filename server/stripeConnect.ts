@@ -3,7 +3,7 @@
  * 
  * This module implements a complete Stripe Connect system that allows event hosts
  * to connect their bank accounts and receive direct payouts from ticket sales,
- * while automatically collecting a 3% application fee on all transactions.
+ * while automatically collecting a 10% application fee on all transactions.
  * 
  * Features:
  * - Express Connect account creation and onboarding
@@ -250,10 +250,10 @@ export async function handleConnectWebhook(req: Request, res: Response) {
 }
 
 /**
- * Calculates application fee for a given amount (3% platform fee)
+ * Calculates application fee for a given amount (10% platform fee)
  */
 export function calculateApplicationFee(amountInCents: number): number {
-  return Math.round(amountInCents * 0.03);
+  return Math.round(amountInCents * 0.10);
 }
 
 /**

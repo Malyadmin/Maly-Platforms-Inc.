@@ -88,9 +88,9 @@ export default function StripeConnectBanner({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-1">
-                  <span className="text-orange-600 dark:text-orange-300">You'll receive (97%):</span>
+                  <span className="text-orange-600 dark:text-orange-300">You'll receive (90%):</span>
                   <span className="font-semibold text-green-600 dark:text-green-400">
-                    ${(parseFloat(eventPrice) * 0.97).toFixed(2)}
+                    ${(parseFloat(eventPrice) * 0.90).toFixed(2)}
                   </span>
                 </div>
               </div>

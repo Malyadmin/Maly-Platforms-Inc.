@@ -474,7 +474,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
           expect.objectContaining({
             payment_intent_data: {
-              application_fee_amount: 300, // 3% of $100 (2 tickets * $50)
+              application_fee_amount: 1000, // 10% of $100 (2 tickets * $50)
               transfer_data: {
                 destination: 'acct_test123',
               },
@@ -484,7 +484,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         expect(response.body.sessionId).toBe('cs_test123');
       });
 
-      test('should calculate 3% application fee correctly for different ticket prices', async () => {
+      test('should calculate 10% application fee correctly for different ticket prices', async () => {
         const mockSession = { id: 'cs_test123' };
         (mockStripe.checkout.sessions.create).mockResolvedValue(mockSession);
         (mockDb.insert).mockReturnValue({
@@ -509,7 +509,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
           expect.objectContaining({
             payment_intent_data: {
-              application_fee_amount: 78, // 3% of $25.99 = $0.78
+              application_fee_amount: 260, // 10% of $25.99 = $2.60
               transfer_data: {
                 destination: 'acct_test123',
               },
@@ -574,7 +574,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
               userId: '1',
               quantity: '3',
               creatorId: '1',
-              applicationFeeAmount: '450', // 3% of $150 (3 * $50)
+              applicationFeeAmount: '1500', // 10% of $150 (3 * $50)
             },
           })
         );
@@ -674,7 +674,7 @@ describe('Stripe Connect Comprehensive E2E Test Suite - 30 Tests', () => {
         expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
           expect.objectContaining({
             payment_intent_data: {
-              application_fee_amount: 1500, // 3% of $500 = $15
+              application_fee_amount: 5000, // 10% of $500 = $50
               transfer_data: {
                 destination: 'acct_test123',
               },

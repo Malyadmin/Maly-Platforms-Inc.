@@ -38,7 +38,7 @@ Preferred communication style: Simple, everyday language.
 - **Messaging System**: Advanced conversation-based messaging supporting both direct messages and group chats. Event-specific group chats are automatically created when hosts approve RSVP requests, enabling seamless communication among event attendees.
 - **Social Features**: User browse and connection requests, interest and mood-based user matching, and city-based user discovery.
 - **AI Integration**: Utilizes OpenAI API for intelligent event recommendations, AI-powered chat concierge, natural language processing for event queries, and compatibility scoring for user connections.
-- **Payment System**: Complete Stripe integration with Express Connect for host payouts. Features include event ticketing, premium subscriptions, automatic 3% platform fee collection, direct payouts to host bank accounts, comprehensive webhook processing, and full E2E test coverage with 31 passing tests.
+- **Payment System**: Complete Stripe integration with Express Connect for host payouts. Features include event ticketing, premium subscriptions, automatic 10% platform fee collection, direct payouts to host bank accounts, comprehensive webhook processing, and full E2E test coverage with 31 passing tests.
 
 ### UI/UX Decisions
 - Consistent, accessible design using Tailwind CSS and Shadcn/UI.
@@ -157,7 +157,7 @@ Preferred communication style: Simple, everyday language.
 
 - **PostgreSQL**: Primary relational database.
 - **OpenAI API**: For AI-powered features and recommendations.
-- **Stripe**: Complete payment ecosystem with Express Connect accounts, automatic fee collection (3%), direct host payouts, webhook processing, and comprehensive test coverage.
+- **Stripe**: Complete payment ecosystem with Express Connect accounts, automatic fee collection (10%), direct host payouts, webhook processing, and comprehensive test coverage.
 - **Mapbox API**: Geographic coordinate conversion and location services (geocoding).
 - **Cloudinary**: Centralized media upload service for images and videos.
 - **Replit**: For development environment, deployment, and object storage.

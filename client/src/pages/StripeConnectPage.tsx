@@ -445,11 +445,11 @@ export default function StripeConnectPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-black dark:text-gray-300">Platform Fee</span>
-                  <Badge variant="outline" className="border-border text-black dark:text-gray-300">3%</Badge>
+                  <Badge variant="outline" className="border-border text-black dark:text-gray-300">10%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-black dark:text-gray-300">You Receive</span>
-                  <Badge variant="outline" className="bg-green-950 text-green-400 border-green-800">97%</Badge>
+                  <Badge variant="outline" className="bg-green-950 text-green-400 border-green-800">90%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-black dark:text-gray-300">Payout Schedule</span>
@@ -458,7 +458,7 @@ export default function StripeConnectPage() {
               </div>
               <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-border">
                 <p className="text-sm text-muted-foreground">
-                  Example: For a $100 ticket, you receive $97 and Maly collects $3 as a platform fee.
+                  Example: For a $100 ticket, you receive $90 and Maly collects $10 as a platform fee.
                 </p>
               </div>
             </CardContent>

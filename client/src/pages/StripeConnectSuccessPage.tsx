@@ -51,7 +51,7 @@ export default function StripeConnectSuccessPage() {
             <div className="space-y-2">
               <h3 className="font-semibold">✅ Direct Payouts Enabled</h3>
               <p className="text-sm text-muted-foreground">
-                You'll receive 97% of ticket sales directly to your bank account within 2-7 business days
+                You'll receive 90% of ticket sales directly to your bank account within 2-7 business days
               </p>
             </div>
             

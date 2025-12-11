@@ -55,7 +55,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
-  const platformFee = eventPrice * 0.03; // 3% platform fee
+  const platformFee = eventPrice * 0.10; // 10% platform fee
   const totalAmount = eventPrice + platformFee;
 
   useEffect(() => {
@@ -176,7 +176,7 @@ function CheckoutForm({ event, onSuccess, onClose }: CheckoutFormProps) {
               <span className="text-foreground">${eventPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-foreground/70">Platform Fee (3%)</span>
+              <span className="text-foreground/70">Platform Fee (10%)</span>
               <span className="text-foreground">${platformFee.toFixed(2)}</span>
             </div>
             <Separator className="bg-white/20" />
