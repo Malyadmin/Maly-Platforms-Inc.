@@ -435,40 +435,6 @@ export default function DiscoverPage() {
           <div className="">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
-            {/* When */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('when')}
-                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
-                data-testid="filter-category-when"
-              >
-                {t('when')}
-                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'when' ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {activeDropdown === 'when' && (
-                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[140px]">
-                  {[
-                    { key: 'Anytime', label: t('anytime') },
-                    { key: 'Today', label: t('today') },
-                    { key: 'This Week', label: t('thisWeek') },
-                    { key: 'This Weekend', label: t('thisWeekend') },
-                    { key: 'Next Week', label: t('nextWeek') },
-                    { key: 'Next Month', label: t('nextMonth') }
-                  ].map(({ key, label }) => (
-                    <button
-                      key={key}
-                      onClick={() => { setSelectedTimeFilter(key); setActiveDropdown(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
-                      data-testid={`when-option-${key.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* City */}
             <div className="relative">
               <button
@@ -530,6 +496,40 @@ export default function DiscoverPage() {
                   >
                     {t('addCity')}
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* When */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('when')}
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
+                data-testid="filter-category-when"
+              >
+                {t('when')}
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'when' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {activeDropdown === 'when' && (
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[140px]">
+                  {[
+                    { key: 'Anytime', label: t('anytime') },
+                    { key: 'Today', label: t('today') },
+                    { key: 'This Week', label: t('thisWeek') },
+                    { key: 'This Weekend', label: t('thisWeekend') },
+                    { key: 'Next Week', label: t('nextWeek') },
+                    { key: 'Next Month', label: t('nextMonth') }
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => { setSelectedTimeFilter(key); setActiveDropdown(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
+                      data-testid={`when-option-${key.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

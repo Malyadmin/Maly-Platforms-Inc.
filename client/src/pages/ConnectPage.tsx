@@ -467,52 +467,6 @@ export function ConnectPage() {
         <div className="bg-background">
           {/* Filter Categories */}
           <div className="px-5 py-3 flex items-center justify-between gap-6 relative">
-            {/* Gender */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('gender')}
-                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
-                data-testid="filter-category-gender"
-              >
-                {t('gender')}
-                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'gender' ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {/* Gender Dropdown */}
-              {activeDropdown === 'gender' && (
-                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[120px]">
-                  <button
-                    onClick={() => { setSelectedGender('all'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg"
-                    data-testid="gender-option-all"
-                  >
-                    {t('all')}
-                  </button>
-                  <button
-                    onClick={() => { setSelectedGender('male'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
-                    data-testid="gender-option-male"
-                  >
-                    {t('male')}
-                  </button>
-                  <button
-                    onClick={() => { setSelectedGender('female'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
-                    data-testid="gender-option-female"
-                  >
-                    {t('female')}
-                  </button>
-                  <button
-                    onClick={() => { setSelectedGender('other'); setActiveDropdown(null); }}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
-                    data-testid="gender-option-other"
-                  >
-                    {t('other')}
-                  </button>
-                </div>
-              )}
-            </div>
-
             {/* City */}
             <div className="relative">
               <button
@@ -574,6 +528,52 @@ export function ConnectPage() {
                     data-testid="location-option-add"
                   >
                     {t('addCity')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Gender */}
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown('gender')}
+                className="text-foreground text-sm hover:text-foreground transition-colors flex items-center gap-1"
+                data-testid="filter-category-gender"
+              >
+                {t('gender')}
+                <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === 'gender' ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Gender Dropdown */}
+              {activeDropdown === 'gender' && (
+                <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-xl z-50 min-w-[120px]">
+                  <button
+                    onClick={() => { setSelectedGender('all'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent first:rounded-t-lg"
+                    data-testid="gender-option-all"
+                  >
+                    {t('all')}
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('male'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
+                    data-testid="gender-option-male"
+                  >
+                    {t('male')}
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('female'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent"
+                    data-testid="gender-option-female"
+                  >
+                    {t('female')}
+                  </button>
+                  <button
+                    onClick={() => { setSelectedGender('other'); setActiveDropdown(null); }}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent last:rounded-b-lg"
+                    data-testid="gender-option-other"
+                  >
+                    {t('other')}
                   </button>
                 </div>
               )}
