@@ -1221,9 +1221,9 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     groupThread: 'Group Thread',
     members: 'members',
     // Page subtitles
-    discoverEventSubtitle: 'Discover remarkable experiences that connect us worldwide.',
+    discoverEventSubtitle: 'Discover curated experiences that connect us worldwide.',
     connectPeopleSubtitle: 'Find your tribe for connection and belonging, anywhere.',
-    inboxChatsSubtitle: 'Stay connected to make plans in real life.',
+    inboxChatsSubtitle: 'Stay connected and make plans in real life.',
     // ProfilePage spaced headers
     profileSpaced: 'P R O F I L E',
     connectSpaced: 'C O N N E C T',
@@ -1960,9 +1960,9 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     groupThread: 'Hilo Grupal',
     members: 'miembros',
     // Page subtitles
-    discoverEventSubtitle: 'Descubre experiencias extraordinarias que nos conectan en todo el mundo.',
-    connectPeopleSubtitle: 'Encuentra tu tribu para conexión y pertenencia, en cualquier lugar.',
-    inboxChatsSubtitle: 'Mantente conectado para hacer planes en la vida real.',
+    discoverEventSubtitle: 'Descubre experiencias curadas que nos conectan en todo el mundo.',
+    connectPeopleSubtitle: 'Encuentra tu tribu para conectar y sentirte parte, donde estés.',
+    inboxChatsSubtitle: 'Mantente en contacto y haz planes en la vida real.',
     // ProfilePage spaced headers
     profileSpaced: 'P E R F I L',
     connectSpaced: 'C O N E C T A R',
