@@ -160,10 +160,10 @@ export default function ChatbotPage() {
           
           {/* Row 2: Back button + Page title inline */}
           <div className="pb-2">
-            <div className="flex items-center gap-2 justify-start">
+            <div className="flex items-center gap-2 justify-start -ml-1">
               <button
                 onClick={() => window.history.back()}
-                className="text-foreground hover:text-foreground/70 p-1"
+                className="text-foreground hover:text-foreground/70"
                 aria-label="Go back"
               >
                 <ChevronLeft className="h-5 w-5" />
