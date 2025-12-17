@@ -160,7 +160,7 @@ export default function ChatbotPage() {
           
           {/* Row 2: Back button + Page title inline */}
           <div className="pb-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-start">
               <button
                 onClick={() => window.history.back()}
                 className="text-foreground hover:text-foreground/70 p-1"
