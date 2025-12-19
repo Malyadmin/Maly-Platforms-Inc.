@@ -53,6 +53,7 @@ const categories = [
 
 export default function DiscoverPage() {
   const { t } = useTranslation();
+  const { user } = useUser();
   
   // Price display helper function for translation
   const renderPrice = (price: string) => {
@@ -335,11 +336,20 @@ export default function DiscoverPage() {
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
         <DialogContent className="bg-card border-border max-w-sm mx-auto">
           <DialogHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-white text-black flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-white" />
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-white text-black flex items-center justify-center overflow-hidden">
+              {user?.profileImage ? (
+                <img 
+                  src={user.profileImage} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <CheckCircle className="w-8 h-8 text-primary" />
+              )}
             </div>
             <DialogTitle className="text-xl font-semibold text-center text-foreground">
-              {t('welcomeComplete')}
+              <div>{t('youreAllSet')}</div>
+              <div>{t('welcomeToMaly')}</div>
             </DialogTitle>
             <DialogDescription className="text-center text-muted-foreground mt-2">
               {t('welcomeCompleteMessage')}
@@ -352,7 +362,7 @@ export default function DiscoverPage() {
           </div>
           <Button 
             onClick={() => setShowWelcomeModal(false)}
-            className="w-full mt-4 bg-white text-black text-white hover:bg-gray-100"
+            className="w-full mt-4 bg-white text-black hover:bg-gray-100"
             data-testid="button-welcome-close"
           >
             {t('letsGetStarted')}

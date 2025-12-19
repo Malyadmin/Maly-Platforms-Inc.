@@ -578,6 +578,8 @@ type TranslationKey =
   | 'welcomeComplete'
   | 'welcomeCompleteMessage'
   | 'welcomeCompleteHint'
+  | 'youreAllSet'
+  | 'welcomeToMaly'
   // MyTicketsPage strings
   | 'myTickets'
   | 'noTicketsYet'
@@ -1326,6 +1328,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     profilePhotoRequired: 'A profile photo is required',
     // Post-onboarding welcome message
     welcomeComplete: "You're all set. Welcome to Maly.",
+    youreAllSet: "You're all set.",
+    welcomeToMaly: "Welcome to Maly.",
     welcomeCompleteMessage: 'Your profile is now ready. You can update your details, add more photos, or edit your bio anytime.',
     welcomeCompleteHint: 'Just go to Menu → Account → Edit Profile.',
     // CreateEventFlowPage strings
@@ -2065,6 +2069,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     profilePhotoRequired: 'Se requiere una foto de perfil',
     // Post-onboarding welcome message
     welcomeComplete: 'Todo listo. Bienvenido a Maly.',
+    youreAllSet: 'Todo listo.',
+    welcomeToMaly: 'Bienvenido a Maly.',
     welcomeCompleteMessage: 'Tu perfil está listo. Puedes actualizar tus datos, agregar más fotos o editar tu biografía en cualquier momento.',
     welcomeCompleteHint: 'Solo ve a Menú → Cuenta → Editar Perfil.',
     // CreateEventFlowPage strings
