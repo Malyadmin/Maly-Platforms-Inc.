@@ -1,0 +1,333 @@
+
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+
+[VAPID] Public key length: 87, first 20 chars: BPjUJiuadFgVYE67URFM
+[VAPID] Private key length: 43
+✓ Push notifications configured with VAPID keys
+Anthropic SDK not available, using fallback compatibility scoring
+Anthropic SDK not available, using fallback translation methods
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+5:27:21 PM [express] NODE_ENV: production, isProduction: true
+5:27:21 PM [express] Using static file serving for production
+5:27:21 PM [express] Attempting to start server (attempt 1/3)
+5:27:21 PM [express] Server started successfully on port 5000
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Full request query object: {}
+User browse request received with city=undefined
+Mood filters: none
+Deserializing user: 250
+Query returned 9 users (limit: 20, offset: 0)
+Found 9 users, total: 9
+5:42:07 PM [express] GET /api/users/browse 304 in 189ms :: {"users":[{"id":250,"username":"test2","f…
+Deserialized user found: test2
+Full request query object: { currentUserId: '250' }
+User browse: Using currentUserId from query: 250
+User browse request received with city=undefined
+Mood filters: none
+Deserializing user: 250
+Deserialized user found: test2
+Query returned 8 users (limit: 20, offset: 0)
+Deserialized user found: test2
+Found 8 users, total: 9
+User verified exists: test2
+5:42:07 PM [express] GET /api/users/browse 200 in 363ms :: {"users":[{"id":249,"username":"test","fu…
+5:42:07 PM [express] POST /api/verify-user 200 in 486ms :: {"valid":true}
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:07 PM [express] GET /api/contacts/check/245 200 in 138ms :: {"isContact":false}
+5:42:07 PM [express] GET /api/contacts/check/242 200 in 138ms :: {"isContact":false}
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:08 PM [express] GET /api/contacts/check/246 200 in 261ms :: {"isContact":false}
+5:42:08 PM [express] GET /api/contacts/check/249 200 in 262ms :: {"isContact":false}
+5:42:08 PM [express] GET /api/contacts/check/241 200 in 127ms :: {"isContact":false}
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:08 PM [express] GET /api/contacts/check/239 200 in 124ms :: {"isContact":false}
+Deserialized user found: test2
+5:42:08 PM [express] GET /api/contacts/check/238 200 in 129ms :: {"isContact":false}
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+5:42:08 PM [express] GET /api/contacts/check/240 200 in 331ms :: {"isContact":false}
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Fetching user with username: test
+Deserialized user found: test2
+Found user by username: test
+5:42:10 PM [express] GET /api/users/username/test 200 in 127ms :: {"id":249,"username":"test","email…
+Deserializing user: 250
+Deserialized user found: test2
+Fetching user with username: test
+Found user by username: test
+5:42:10 PM [express] GET /api/users/username/test 304 in 132ms :: {"id":249,"username":"test","email…
+Deserializing user: 250
+Deserialized user found: test2
+5:42:10 PM [express] GET /api/contacts/check/249 304 in 128ms :: {"isContact":false}
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Full request query object: { currentUserId: '250' }
+User browse: Using currentUserId from query: 250
+User browse request received with city=undefined
+Mood filters: none
+Deserialized user found: test2
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:17 PM [express] GET /api/contacts/check/242 304 in 122ms :: {"isContact":false}
+5:42:17 PM [express] GET /api/contacts/check/245 304 in 125ms :: {"isContact":false}
+5:42:17 PM [express] GET /api/contacts/check/246 304 in 126ms :: {"isContact":false}
+Deserializing user: 250
+Deserialized user found: test2
+5:42:17 PM [express] GET /api/contacts/check/249 304 in 257ms :: {"isContact":false}
+Deserialized user found: test2
+Query returned 8 users (limit: 20, offset: 0)
+Found 8 users, total: 9
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+5:42:17 PM [express] GET /api/users/browse 304 in 336ms :: {"users":[{"id":249,"username":"test","fu…
+5:42:17 PM [express] GET /api/contacts/check/241 304 in 346ms :: {"isContact":false}
+Deserialized user found: test2
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:17 PM [express] GET /api/contacts/check/238 304 in 122ms :: {"isContact":false}
+5:42:17 PM [express] GET /api/contacts/check/240 304 in 125ms :: {"isContact":false}
+5:42:17 PM [express] GET /api/contacts/check/239 304 in 126ms :: {"isContact":false}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+5:42:17 PM [express] GET /api/contacts/check/245 304 in 133ms :: {"isContact":false}
+Deserialized user found: test2
+Deserialized user found: test2
+Deserialized user found: test2
+5:42:17 PM [express] GET /api/contacts/check/242 304 in 144ms :: {"isContact":false}
+5:42:18 PM [express] GET /api/contacts/check/249 304 in 124ms :: {"isContact":false}
+5:42:18 PM [express] GET /api/contacts/check/241 304 in 124ms :: {"isContact":false}
+5:42:18 PM [express] GET /api/contacts/check/246 304 in 126ms :: {"isContact":false}
+Deserializing user: 250
+Deserialized user found: test2
+5:42:18 PM [express] GET /api/contacts/check/238 304 in 124ms :: {"isContact":false}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:42:18 PM [express] GET /api/contacts/check/240 304 in 127ms :: {"isContact":false}
+5:42:18 PM [express] GET /api/contacts/check/239 304 in 129ms :: {"isContact":false}
+Deserializing user: 250
+Deserialized user found: test2
+Fetching events with params: { location: undefined, currentUserId: 250 }
+No location filter applied, showing all events
+Deserializing user: 250
+Deserialized user found: test2
+Found 20 events in database before filtering
+Found 19 events to display
+Returning 19 events from database
+5:42:46 PM [express] GET /api/events 304 in 349ms :: [{"id":202,"title":"RSVP Beach Sunset Party","d…
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Event creation request received from user: test2
+Form data: [Object: null prototype] {
+  title: 'test',
+  description: 'tesgstetsegwg',
+  category: 'Other',
+  location: 'Austin, 1n3gngo',
+  date: '2027-01-01T05:00:00.000Z',
+  time: '00:00:00',
+  price: '0',
+  ticketTiers: '[{"name":"VIP","description":"gowngoijwg","price":0,"quantity":1}]',
+  eventPrivacy: 'private',
+  isRsvp: 'true',
+  city: 'Austin',
+  address: '1n3gngo',
+  tags: '["party-nightlife","day-parties","dining-drinks","Paid Event"]'
+}
+File: undefined
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1766166297/images/uploads/1766166297197_easter-egg-g8800b5b90_1280.jpg.jpg
+Geocoding location: 1n3gngo
+Geocoding failed or returned no results
+Creating new event: test
+Event successfully saved to database with ID: 216
+Error sending event matching notifications: Error: UNDEFINED_VALUE: Undefined values are not allowed
+    at handleValue (file:///home/runner/workspace/node_modules/postgres/src/types.js:83:20)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:225:38
+    at Array.forEach (<anonymous>)
+    at build (file:///home/runner/workspace/node_modules/postgres/src/connection.js:225:25)
+    at Object.execute (file:///home/runner/workspace/node_modules/postgres/src/connection.js:167:7)
+    at go (file:///home/runner/workspace/node_modules/postgres/src/index.js:344:14)
+    at Query.handler (file:///home/runner/workspace/node_modules/postgres/src/index.js:333:14)
+    at Query.handle (file:///home/runner/workspace/node_modules/postgres/src/query.js:140:65)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'UNDEFINED_VALUE'
+}
+DEBUG: Tiers prepared for insertion: [
+  {
+    eventId: 216,
+    name: 'VIP',
+    description: 'gowngoijwg',
+    price: 0,
+    quantity: 1,
+    stripeProductId: null,
+    stripePriceId: null,
+    isActive: true,
+    createdAt: 2025-12-19T17:44:58.213Z
+  }
+]
+Inserting 1 ticket tiers into database
+Deserializing user: 250
+Deserialized user found: test2
+Successfully created 1 ticket tiers in database
+5:45:00 PM [express] POST /api/events 201 in 6097ms :: {"success":true,"message":"Event published su…
+Event creation request received from user: test2
+Form data: [Object: null prototype] {
+  title: 'test',
+  description: 'tesgstetsegwg',
+  category: 'Other',
+  location: 'Austin, 1n3gngo',
+  date: '2027-01-01T05:00:00.000Z',
+  time: '00:00:00',
+  price: '0',
+  ticketTiers: '[{"name":"VIP","description":"gowngoijwg","price":0,"quantity":1}]',
+  eventPrivacy: 'private',
+  isRsvp: 'true',
+  city: 'Austin',
+  address: '1n3gngo',
+  tags: '["party-nightlife","day-parties","dining-drinks","Paid Event"]'
+}
+File: undefined
+Deserializing user: 250
+Deserialized user found: test2
+Fetching events with params: { location: undefined, currentUserId: 250 }
+No location filter applied, showing all events
+Found 21 events in database before filtering
+Found 20 events to display
+Returning 20 events from database
+5:45:00 PM [express] GET /api/events 200 in 191ms :: [{"id":216,"title":"test","description":"tesgst…
+Uploaded event image to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1766166301/images/uploads/1766166300689_easter-egg-g8800b5b90_1280.jpg.jpg
+Geocoding location: 1n3gngo
+Geocoding failed or returned no results
+Creating new event: test
+Event successfully saved to database with ID: 217
+Error sending event matching notifications: Error: UNDEFINED_VALUE: Undefined values are not allowed
+    at handleValue (file:///home/runner/workspace/node_modules/postgres/src/types.js:83:20)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:225:38
+    at Array.forEach (<anonymous>)
+    at build (file:///home/runner/workspace/node_modules/postgres/src/connection.js:225:25)
+    at Object.execute (file:///home/runner/workspace/node_modules/postgres/src/connection.js:167:7)
+    at go (file:///home/runner/workspace/node_modules/postgres/src/index.js:344:14)
+    at Query.handler (file:///home/runner/workspace/node_modules/postgres/src/index.js:333:14)
+    at Query.handle (file:///home/runner/workspace/node_modules/postgres/src/query.js:140:65)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'UNDEFINED_VALUE'
+}
+DEBUG: Tiers prepared for insertion: [
+  {
+    eventId: 217,
+    name: 'VIP',
+    description: 'gowngoijwg',
+    price: 0,
+    quantity: 1,
+    stripeProductId: null,
+    stripePriceId: null,
+    isActive: true,
+    createdAt: 2025-12-19T17:45:02.220Z
+  }
+]
+Inserting 1 ticket tiers into database
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Successfully created 1 ticket tiers in database
+5:45:04 PM [express] POST /api/events 201 in 4075ms :: {"success":true,"message":"Event published su…
+Deserializing user: 250
+Deserialized user found: test2
+Found event in database with creator: test, creator: test2
+5:45:04 PM [express] GET /api/events/216 200 in 296ms :: {"id":216,"title":"test","description":"tes…
+Deserializing user: 250
+Deserialized user found: test2
+Fetching events with params: { location: undefined, currentUserId: 250 }
+No location filter applied, showing all events
+Found 22 events in database before filtering
+Deserializing user: 250
+Found 21 events to display
+Returning 21 events from database
+5:45:04 PM [express] GET /api/events 200 in 168ms :: [{"id":216,"title":"test","description":"tesgst…
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Auth successful via passport session for user: test2
+5:45:08 PM [express] GET /api/events/216/applications/250 404 in 131ms :: {"error":"No application f…
+Deserializing user: 250
+Deserialized user found: test2
+Found event in database with creator: test, creator: test2
+5:45:08 PM [express] GET /api/events/216 200 in 289ms :: {"id":216,"title":"test","description":"tes…
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Fetching events with params: { location: undefined, currentUserId: 250 }
+No location filter applied, showing all events
+Found 22 events in database before filtering
+Found 21 events to display
+Returning 21 events from database
+5:45:09 PM [express] GET /api/events 304 in 184ms :: [{"id":216,"title":"test","description":"tesgst…
+Deserializing user: 250
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Auth successful via passport session for user: test2
+Deserialized user found: test2
+Deserialized user found: test2
+5:46:04 PM [express] GET /api/events/216/applications/250 404 in 265ms :: {"error":"No application f…
+Found event in database with creator: test, creator: test2
+5:46:04 PM [express] GET /api/events/216 200 in 425ms :: {"id":216,"title":"test","description":"tes…
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Fetching events with params: { location: undefined, currentUserId: 250 }
+No location filter applied, showing all events
+Deserialized user found: test2
+Found 22 events in database before filtering
+Found 21 events to display
+Returning 21 events from database
+5:46:10 PM [express] GET /api/events 304 in 170ms :: [{"id":216,"title":"test","description":"tesgst…
