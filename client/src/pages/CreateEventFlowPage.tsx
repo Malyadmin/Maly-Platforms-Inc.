@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight } from "lucide-react";
+import { RotateCcw, Plus, ImageIcon, Upload, Calendar, MapPin, Clock, Trash2, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EventCreationStep, eventCreationSchema, step1Schema, step3Schema, step4Schema, step5Schema, step6Schema, type EventCreationData, type TicketTier, EVENT_PRIVACY_OPTIONS, VIBE_OPTIONS } from "../../../shared/eventCreation";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -921,9 +921,10 @@ interface Step6Props {
   data: EventCreationData;
   onNext: (data: Partial<EventCreationData>) => void;
   onBack: () => void;
+  isSubmitting?: boolean;
 }
 
-function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
+function Step6AudienceTargeting({ data, onNext, onBack, isSubmitting = false }: Step6Props) {
   const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(step6Schema),
@@ -1045,11 +1046,21 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
           <button
             type="submit"
             form="step6-form"
-            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            disabled={isSubmitting}
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="button-create"
           >
-            <ArrowRight className="h-5 w-5" />
-            {t('createEvent')}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Creating Event...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="h-5 w-5" />
+                {t('createEvent')}
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -1064,6 +1075,7 @@ function Step6AudienceTargeting({ data, onNext, onBack }: Step6Props) {
 export default function CreateEventFlowPage() {
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<EventCreationStep>(EventCreationStep.BasicInfo);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [eventData, setEventData] = useState<EventCreationData>({
     // Initialize with default values from schema
@@ -1122,6 +1134,8 @@ export default function CreateEventFlowPage() {
   };
 
   const handleSubmitEvent = async (finalEventData: EventCreationData) => {
+    if (isSubmitting) return; // Prevent double submission
+    setIsSubmitting(true);
     console.log("🚀 Starting event submission...");
     console.log("📋 Final event data - vibes:", finalEventData.vibes, "requireApproval:", finalEventData.requireApproval);
     try {
@@ -1207,6 +1221,7 @@ export default function CreateEventFlowPage() {
         title: "Creation Failed",
         description: error instanceof Error ? error.message : "Failed to create event. Please try again."
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -1257,6 +1272,7 @@ export default function CreateEventFlowPage() {
             data={eventData}
             onNext={handleNext}
             onBack={handleBack}
+            isSubmitting={isSubmitting}
           />
         );
       
