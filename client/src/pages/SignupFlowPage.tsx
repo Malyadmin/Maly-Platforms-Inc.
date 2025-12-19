@@ -985,26 +985,24 @@ export default function SignupFlowPage() {
       const response = await fetch('/api/register-redirect', {
         method: 'POST',
         body: registrationData,
-        credentials: 'include',
-        redirect: 'manual'
+        credentials: 'include'
       });
       
-      // Handle redirect responses (3xx status codes)
-      if (response.type === 'opaqueredirect' || response.status >= 300 && response.status < 400) {
-        // Set flag for new user welcome message
-        localStorage.setItem('maly_new_user', 'true');
-        // Wait a moment for session to be established, then navigate
-        setTimeout(() => {
-          window.location.href = '/discover?welcome=true';
-        }, 100);
-      } else if (response.ok) {
-        // Set flag for new user welcome message
-        localStorage.setItem('maly_new_user', 'true');
-        // Direct success without redirect
-        window.location.href = '/discover?welcome=true';
-      } else {
+      if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(errorData.error || errorData.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      
+      // Set flag for new user welcome message
+      localStorage.setItem('maly_new_user', 'true');
+      
+      // Redirect to discover page with welcome parameter
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        window.location.href = '/discover?welcome=true';
       }
     } catch (error: any) {
       console.error("Registration error:", error);

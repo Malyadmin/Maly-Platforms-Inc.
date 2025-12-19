@@ -539,14 +539,14 @@ export function setupAuth(app: Express) {
         req.login(newUser, (err) => {
           if (err) {
             console.error("Login after registration failed in redirect flow:", err);
-            return res.redirect('/auth?error=Authentication+failed+after+registration');
+            return res.status(500).json({ error: 'Authentication failed after registration' });
           }
 
-          // Save session and redirect
+          // Save session and return JSON response
           req.session.save((err) => {
             if (err) {
               console.error("Session save error during redirect flow:", err);
-              return res.redirect('/auth?error=Session+error');
+              return res.status(500).json({ error: 'Session error' });
             }
 
             // Detect if we're in Replit environment for cookie settings
@@ -566,11 +566,16 @@ export function setupAuth(app: Express) {
             res.cookie('sessionId', sessionId, cookieOptions);
             res.setHeader('x-session-id', sessionId);
 
-            console.log("Registration successful, redirecting to discover page with session:", sessionId);
+            console.log("Registration successful, returning success response with session:", sessionId);
             
-            // Add a timestamp to break browser caching and include session ID in URL
-            const timestamp = Date.now();
-            return res.redirect(`/discover?sessionId=${sessionId}&ts=${timestamp}&welcome=true`);
+            // Return JSON response with success and redirect info
+            return res.json({
+              success: true,
+              authenticated: true,
+              user: newUser,
+              sessionId: sessionId,
+              redirectUrl: '/discover?welcome=true'
+            });
           });
         });
       } catch (dbError) {
