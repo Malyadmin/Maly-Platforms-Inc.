@@ -541,7 +541,7 @@ export default function EditProfilePage() {
                   {profileData.fullName || user.username}
                 </h1>
                 <PremiumBadge size="md" />
-                <label className="p-2 bg-white hover:bg-gray-100 rounded-full cursor-pointer transition-colors shadow-lg">
+                <label className="flex items-center justify-center bg-white hover:bg-gray-100 rounded-full cursor-pointer transition-colors shadow-lg" style={{ width: '20px', height: '20px' }}>
                   <Pencil className="h-4 w-4 text-black" />
                   <input
                     type="file"
