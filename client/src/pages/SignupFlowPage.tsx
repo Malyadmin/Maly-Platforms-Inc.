@@ -609,8 +609,8 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
                 return (
                   <Badge
                     key={vibe}
-                    variant={isSelected ? "default" : "outline"}
-                    className={`cursor-pointer transition-all ${isSelected ? "bg-primary hover:bg-primary/90" : "hover:bg-muted"}`}
+                    variant="outline"
+                    className={`cursor-pointer transition-all ${isSelected ? "bg-white text-black border-white hover:bg-gray-100 dark:bg-white dark:text-black dark:border-white dark:hover:bg-gray-100" : "border-border text-foreground hover:bg-muted"}`}
                     onClick={() => handleVibeToggle(vibe)}
                     data-testid={`badge-vibe-${vibe.replace(/\s+/g, '-')}`}
                   >
