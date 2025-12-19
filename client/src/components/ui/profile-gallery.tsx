@@ -75,7 +75,7 @@ export function ProfileGallery({
               <button
                 type="button"
                 onClick={() => removeImage(0)}
-                className="bg-red-500 text-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-200 transition-colors"
                 data-testid="remove-main-image"
               >
                 ×
@@ -120,7 +120,7 @@ export function ProfileGallery({
                   />
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs z-20"
+                    className="absolute top-1 right-1 bg-white text-black rounded-full w-4 h-4 flex items-center justify-center text-xs z-20"
                     data-testid={`remove-image-${index}`}
                   >
                     ×
