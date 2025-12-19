@@ -300,7 +300,7 @@ export default function AuthPage() {
           <CardTitle>{isLogin ? 'Welcome Back' : t('register')}</CardTitle>
           <CardDescription>
             {isLogin 
-              ? 'A world full of new people, places, and experiences awaits.'
+              ? 'A world of people, places, and experiences awaits.'
               : t('createNewAccount')
             }
           </CardDescription>

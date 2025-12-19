@@ -1288,7 +1288,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     step1Instruction: "Let's start with the basics. This helps us create your account and tailor your experience.",
     step2Instruction: 'A few details to personalize your experience and ensure a trusted community.',
     step3Instruction: 'Your current city helps us show you the right people, places, and experiences.',
-    step4Instruction: 'Select the vibes and intentions that reflect how you explore and connect.',
+    step4Instruction: 'Your selections help us connect you to people and events that match your mood and events that match your mood & interests. You can edit your vibe anytime in your profile settings.',
     step5Instruction: 'Add a clear photo so members and hosts know who you are. You can complete the rest later.',
     phoneNumber: 'Phone Number',
     sexualOrientation: 'Sexual Orientation',
