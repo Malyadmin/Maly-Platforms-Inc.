@@ -273,10 +273,25 @@ export default function EventPage() {
     }
   }, [event]);
 
-  if (isLoading || !event) {
+  if (isLoading) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-        {t('loading')}
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <p className="mt-4 text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
+
+  if (queryError || !event) {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground items-center justify-center">
+        <XCircle className="w-12 h-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-medium mb-2">{t('eventNotFound')}</h2>
+        <p className="text-muted-foreground mb-6">{t('eventMayHaveBeenRemoved')}</p>
+        <Button onClick={() => setLocation('/discover')} data-testid="button-back-to-discover">
+          {t('backToDiscover')}
+        </Button>
+        <BottomNav />
       </div>
     );
   }

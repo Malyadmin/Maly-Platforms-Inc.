@@ -309,6 +309,8 @@ type TranslationKey =
   | 'success'
   | 'successfullyUpdatedParticipation'
   | 'eventNotFound'
+  | 'eventMayHaveBeenRemoved'
+  | 'backToDiscover'
   | 'rsvpRequestSent'
   | 'dressCode'
   | 'showMore'
@@ -1056,6 +1058,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     success: 'Success',
     successfullyUpdatedParticipation: 'Successfully updated participation status',
     eventNotFound: 'Event not found',
+    eventMayHaveBeenRemoved: 'This event may have been removed or is no longer available.',
+    backToDiscover: 'Back to Discover',
     rsvpRequestSent: 'RSVP request sent! The host will review your application.',
     dressCode: 'Dress Code',
     showMore: 'Show more',
@@ -1798,6 +1802,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     success: 'Éxito',
     successfullyUpdatedParticipation: 'Estado de participación actualizado exitosamente',
     eventNotFound: 'Evento no encontrado',
+    eventMayHaveBeenRemoved: 'Este evento puede haber sido eliminado o ya no está disponible.',
+    backToDiscover: 'Volver a Explorar',
     rsvpRequestSent: '¡Solicitud RSVP enviada! El anfitrión revisará tu solicitud.',
     dressCode: 'Código de Vestimenta',
     showMore: 'Mostrar más',

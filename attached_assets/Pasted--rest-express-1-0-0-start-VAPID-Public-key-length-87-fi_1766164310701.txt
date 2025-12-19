@@ -1,0 +1,78 @@
+
+> rest-express@1.0.0 start
+[VAPID] Public key length: 87, first 20 chars: BPjUJiuadFgVYE67URFM
+[VAPID] Private key length: 43
+✓ Push notifications configured with VAPID keys
+Anthropic SDK not available, using fallback compatibility scoring
+Anthropic SDK not available, using fallback translation methods
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+5:08:54 PM [express] NODE_ENV: production, isProduction: true
+5:08:54 PM [express] Using static file serving for production
+5:08:54 PM [express] Attempting to start server (attempt 1/3)
+5:08:54 PM [express] Server started successfully on port 5000
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+User verified exists: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:10:43 PM [express] POST /api/verify-user 200 in 271ms :: {"valid":true}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:10:45 PM [express] GET /api/events/214 404 in 2273ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:10:46 PM [express] GET /api/events/214 404 in 128ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+5:10:51 PM [express] GET /api/events/214 404 in 129ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:10:53 PM [express] GET /api/events/214 404 in 138ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserializing user: 250
+Deserialized user found: test2
+Deserialized user found: test2
+5:11:30 PM [express] GET /api/events/214 404 in 126ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+Deserializing user: 250
+Deserialized user found: test2
+5:11:31 PM [express] GET /api/events/214 404 in 124ms :: {"error":"Event not found"}
+Deserializing user: 250
+Deserialized user found: test2
