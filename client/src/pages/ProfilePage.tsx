@@ -503,7 +503,7 @@ export default function ProfilePage() {
       <div className="space-y-0.5">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-2 drop-shadow-lg">
           <span>{profileData.fullName || profileData.username}</span>
-          {profileData.isPremium && <PremiumBadge size="md" />}
+          <PremiumBadge size="md" />
         </h1>
         
         {profileData.location && (

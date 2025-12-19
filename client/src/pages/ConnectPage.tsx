@@ -775,7 +775,7 @@ export function ConnectPage() {
                         onClick={() => handleUserClick(user)}
                       >
                         <span className="overflow-hidden">{user.fullName || user.username}</span>
-                        {user.isPremium && <PremiumBadge size="sm" />}
+                        <PremiumBadge size="sm" />
                       </h3>
                       
                       {/* Middle elements - evenly spaced */}
