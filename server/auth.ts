@@ -15,6 +15,7 @@ import path from 'path';
 import pgPool from './lib/pg-pool';
 import jwt from 'jsonwebtoken';
 import { requireAuth } from './middleware/auth.middleware';
+import { sanitizeString, sanitizeObject } from './validation/schemas';
 import { 
   getOrCreateDirectConversation, 
   getConversations, 
@@ -217,6 +218,11 @@ export function setupAuth(app: Express) {
       // Handle the uploaded profile image (basic storage, cloudinary is used in register-redirect)
       const profileImage = req.file ? `/uploads/${req.file.filename}` : null;
 
+      // Sanitize user input to prevent XSS attacks
+      const sanitizedFullName = fullName ? sanitizeString(fullName) : null;
+      const sanitizedBio = bio ? sanitizeString(bio) : null;
+      const sanitizedProfession = profession ? sanitizeString(profession) : null;
+
       if (!username || !password || !email) {
         return res.status(400).send("Username, email, and password are required");
       }
@@ -265,9 +271,9 @@ export function setupAuth(app: Express) {
       const processedInterests = interests && Array.isArray(interests) ? interests : null;
       const processedMoods = currentMoods && Array.isArray(currentMoods) ? currentMoods : null;
 
-      // Create additional user metadata
+      // Create additional user metadata (with sanitized values)
       const userData = {
-        profession: profession || null,
+        profession: sanitizedProfession,
         age: age ? Number(age) : null,
         gender: gender || null,
         nextLocation: nextLocation || null,
@@ -276,11 +282,11 @@ export function setupAuth(app: Express) {
         livedLocation: livedLocation || null,
         sexualOrientation: sexualOrientation || null,
         intention: intention || null,
-        bio: bio || null,
+        bio: sanitizedBio,
         currentMoods: processedMoods
       };
 
-      // Create user with extended fields
+      // Create user with extended fields (using sanitized values)
       try {
         const [newUser] = await db
           .insert(users)
@@ -288,7 +294,7 @@ export function setupAuth(app: Express) {
             username,
             email,
             password: hashedPassword,
-            fullName: fullName || null,
+            fullName: sanitizedFullName,
             location: location || null,
             interests: processedInterests,
             profileImage: profileImage || null,
@@ -322,8 +328,10 @@ export function setupAuth(app: Express) {
               return next(err);
             }
             console.log("Registration successful - created both session and JWT for user:", username);
+            // Sanitize user object - remove password before sending response
+            const { password: _, ...userWithoutPassword } = newUser as any;
             return res.json({ 
-              user: newUser,
+              user: userWithoutPassword,
               authenticated: true,
               token: token // Include JWT token for iOS compatibility
             });
@@ -503,9 +511,14 @@ export function setupAuth(app: Express) {
         }
       }
 
-      // Create additional user metadata
+      // Sanitize user input to prevent XSS attacks
+      const sanitizedFullName = fullName ? sanitizeString(fullName) : null;
+      const sanitizedBio = bio ? sanitizeString(bio) : null;
+      const sanitizedProfession = profession ? sanitizeString(profession) : null;
+
+      // Create additional user metadata (with sanitized values)
       const userData = {
-        profession: profession || null,
+        profession: sanitizedProfession,
         age: age ? Number(age) : null,
         gender: gender || null,
         nextLocation: nextLocation || null,
@@ -514,7 +527,7 @@ export function setupAuth(app: Express) {
         livedLocation: livedLocation || null,
         sexualOrientation: sexualOrientation || null,
         intention: intention || null,
-        bio: bio || null,
+        bio: sanitizedBio,
         currentMoods: processedMoods,
         profileImages: profileImages.length > 0 ? profileImages : null
       };
@@ -526,7 +539,7 @@ export function setupAuth(app: Express) {
             username,
             email,
             password: hashedPassword,
-            fullName: fullName || null,
+            fullName: sanitizedFullName,
             location: location || null,
             interests: processedInterests,
             profileImage: profileImage || null,
@@ -568,11 +581,14 @@ export function setupAuth(app: Express) {
 
             console.log("Registration successful, returning success response with session:", sessionId);
             
+            // Sanitize user object - remove password before sending response
+            const { password: _, ...userWithoutPassword } = newUser as any;
+            
             // Return JSON response with success and redirect info with sessionId in URL (matching login-redirect pattern)
             return res.json({
               success: true,
               authenticated: true,
-              user: newUser,
+              user: userWithoutPassword,
               sessionId: sessionId,
               redirectUrl: `/discover?welcome=true&sessionId=${sessionId}&ts=${Date.now()}`
             });
@@ -884,7 +900,9 @@ export function setupAuth(app: Express) {
           .where(eq(users.id, userId))
           .returning();
 
-        res.json(updatedUser);
+        // Sanitize user object - remove password before sending response
+        const { password: _, ...userWithoutPassword } = updatedUser as any;
+        res.json(userWithoutPassword);
       } else {
         return res.status(401).json({ error: "Not authenticated" });
       }

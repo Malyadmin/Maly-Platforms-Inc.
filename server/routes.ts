@@ -45,7 +45,7 @@ import { verifyToken, verifyTokenOptional } from './middleware/jwtAuth';
 // Import admin authentication middleware
 import { requireAdmin } from './middleware/adminAuth';
 // Import validation schemas
-import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema } from './validation/schemas';
+import { createEventSchema, updateEventSchema, createMessageSchema, paginationSchema, userBrowseSchema, makeAdminSchema, ticketTierSchema, sanitizeString, sanitizeObject } from './validation/schemas';
 // Import push notification service
 import { sendRSVPNotification, sendTicketConfirmation, sendEventNotification } from './services/pushNotificationService';
 
@@ -2145,11 +2145,8 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       res.json(mockEvent);
     } catch (error) {
       console.error("Error fetching event:", error);
-      let message = "Failed to fetch event";
-      if (error instanceof Error) {
-          message = error.message;
-      }
-      res.status(500).json({ error: message });
+      // Use generic error message to avoid exposing database internals
+      res.status(500).json({ error: "Failed to fetch event" });
     }
   });
 
@@ -3312,6 +3309,14 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
       // Remove sensitive fields that shouldn't be updated directly
       const { password, email, id, ...safeFields } = updateData;
       
+      // Sanitize string fields to prevent XSS attacks
+      const fieldsToSanitize = ['fullName', 'bio', 'profession', 'businessName', 'businessDescription'];
+      for (const field of fieldsToSanitize) {
+        if (field in safeFields && typeof safeFields[field] === 'string') {
+          safeFields[field] = sanitizeString(safeFields[field]);
+        }
+      }
+      
       // Process arrays to ensure proper storage format
       if (safeFields.interests && Array.isArray(safeFields.interests)) {
         safeFields.interests = safeFields.interests.length > 0 ? safeFields.interests : [];
@@ -3350,8 +3355,12 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
         where: eq(users.id, userId)
       });
       
-      // Return the updated user data
-      return res.json(updatedUser || { error: "User not found after update" });
+      // Sanitize user object - remove password before sending response
+      if (updatedUser) {
+        const { password: _, ...userWithoutPassword } = updatedUser as any;
+        return res.json(userWithoutPassword);
+      }
+      return res.json({ error: "User not found after update" });
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(500).json({ error: "Failed to update profile" });

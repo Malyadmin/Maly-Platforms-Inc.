@@ -1,5 +1,36 @@
 import { z } from 'zod';
 
+/**
+ * Sanitize string to prevent XSS attacks
+ * Escapes HTML special characters
+ */
+export function sanitizeString(str: string): string {
+  if (!str || typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+
+/**
+ * Sanitize an object's string properties to prevent XSS
+ */
+export function sanitizeObject<T extends Record<string, any>>(obj: T, fieldsToSanitize: string[]): T {
+  const sanitized = { ...obj };
+  for (const field of fieldsToSanitize) {
+    if (field in sanitized && typeof sanitized[field] === 'string') {
+      (sanitized as any)[field] = sanitizeString(sanitized[field]);
+    }
+  }
+  return sanitized;
+}
+
+// Zod transform helper for sanitizing strings
+const sanitizedString = () => z.string().transform(sanitizeString);
+
 // Ticket tier schema for tiered ticketing
 export const ticketTierSchema = z.object({
   name: z.string().min(1, 'Tier name is required').max(100, 'Tier name too long'),

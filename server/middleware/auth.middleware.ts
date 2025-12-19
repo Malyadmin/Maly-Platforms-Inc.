@@ -121,10 +121,13 @@ export async function checkAuthentication(req: Request, res: Response, next?: Ne
       return next();
     }
     
+    // Sanitize user object - remove password before sending response
+    const { password: _, ...userWithoutPassword } = req.user as any;
+    
     // Otherwise return authentication status with user data
     return res.json({ 
       authenticated: true,
-      user: req.user
+      user: userWithoutPassword
     });
   }
 
