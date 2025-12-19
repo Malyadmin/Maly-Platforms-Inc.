@@ -41,11 +41,6 @@ export function EventCard({
           alt={title}
           className="object-cover w-full h-full"
         />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-          <div className="bg-black/70 text-white font-medium px-4 py-2 text-center rotate-[-15deg] text-sm uppercase tracking-wide whitespace-nowrap">
-            FOR DEMO ONLY
-          </div>
-        </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/70">
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col gap-1">
