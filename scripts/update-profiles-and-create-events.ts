@@ -13,7 +13,7 @@ const profileUpdates = [
   },
   {
     username: 'zara_creative',
-    currentMoods: ['Fashion & Style', 'Networking & Business', 'Creative & Artsy']
+    currentMoods: ['Creative & Artsy', 'Networking & Business', 'Culture & Travel']
   },
   {
     username: 'sophia_wellness',
