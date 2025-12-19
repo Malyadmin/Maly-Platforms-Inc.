@@ -105,16 +105,19 @@ type TranslationKey =
   | 'premiumAdPartner'
   | 'letsGetStarted'
   | 'Party & Nightlife'
-  | 'Fashion & Style'
-  | 'Networking & Business'
+  | 'Dancing & Music'
+  | 'Day Parties'
+  | 'Afterhours'
   | 'Dining & Drinks'
   | 'Outdoor & Nature'
   | 'Wellness & Fitness'
   | 'Creative & Artsy'
-  | 'Single & Social'
+  | 'Networking & Business'
   | 'Chill & Recharge'
   | 'Adventure & Exploring'
   | 'Spiritual & Intentional'
+  | 'Culture & Travel'
+  | 'Volunteering & Service'
   | 'editProfile'
   | 'shareProfile'
   | 'connectProfile'
@@ -855,16 +858,19 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'checkIn.attendedEvent': "attended this event",
     'checkIn.checkedInAt': "Checked in at",
     'Party & Nightlife': 'Party & Nightlife',
-    'Fashion & Style': 'Fashion & Style',
-    'Networking & Business': 'Networking & Business',
+    'Dancing & Music': 'Dancing & Music',
+    'Day Parties': 'Day Parties',
+    'Afterhours': 'Afterhours',
     'Dining & Drinks': 'Dining & Drinks',
     'Outdoor & Nature': 'Outdoor & Nature',
     'Wellness & Fitness': 'Wellness & Fitness',
     'Creative & Artsy': 'Creative & Artsy',
-    'Single & Social': 'Single & Social',
+    'Networking & Business': 'Networking & Business',
     'Chill & Recharge': 'Chill & Recharge',
     'Adventure & Exploring': 'Adventure & Exploring',
     'Spiritual & Intentional': 'Spiritual & Intentional',
+    'Culture & Travel': 'Culture & Travel',
+    'Volunteering & Service': 'Volunteering & Service',
     editProfile: 'Edit Profile',
     shareProfile: 'Share Profile',
     connectProfile: 'Connect',
@@ -1596,16 +1602,19 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'checkIn.attendedEvent': "asistieron a este evento",
     'checkIn.checkedInAt': "Registrado a las",
     'Party & Nightlife': 'Fiesta y Vida Nocturna',
-    'Fashion & Style': 'Moda y Estilo',
-    'Networking & Business': 'Networking y Negocios',
+    'Dancing & Music': 'Baile y Música',
+    'Day Parties': 'Fiestas de Día',
+    'Afterhours': 'Afterhours',
     'Dining & Drinks': 'Comidas y Bebidas',
     'Outdoor & Nature': 'Aire Libre y Naturaleza',
     'Wellness & Fitness': 'Bienestar y Fitness',
     'Creative & Artsy': 'Creativo y Artístico',
-    'Single & Social': 'Solteros y Social',
+    'Networking & Business': 'Networking y Negocios',
     'Chill & Recharge': 'Relajación y Recarga',
     'Adventure & Exploring': 'Aventura y Exploración',
     'Spiritual & Intentional': 'Espiritual e Intencional',
+    'Culture & Travel': 'Cultura y Viajes',
+    'Volunteering & Service': 'Voluntariado y Servicio',
     editProfile: 'Editar Perfil',
     shareProfile: 'Compartir Perfil',
     connectProfile: 'Conectar',

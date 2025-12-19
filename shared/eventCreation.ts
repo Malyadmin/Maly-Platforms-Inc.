@@ -119,20 +119,18 @@ export const EVENT_PRIVACY_OPTIONS = [
 ];
 
 export const VIBE_OPTIONS = [
-  { value: "music-nightlife", label: "Music & Nightlife" },
-  { value: "fashion-style", label: "Fashion & Style" },
-  { value: "networking-business", label: "Networking & Business" },
+  { value: "party-nightlife", label: "Party & Nightlife" },
+  { value: "dancing-music", label: "Dancing & Music" },
+  { value: "day-parties", label: "Day Parties" },
+  { value: "afterhours", label: "Afterhours" },
   { value: "dining-drinks", label: "Dining & Drinks" },
   { value: "outdoor-nature", label: "Outdoor & Nature" },
-  { value: "sport-recreation", label: "Sport & Recreation" },
-  { value: "wellness-movement", label: "Wellness & Movement" },
+  { value: "wellness-fitness", label: "Wellness & Fitness" },
   { value: "creative-artsy", label: "Creative & Artsy" },
-  { value: "single-social", label: "Single & Social" },
+  { value: "networking-business", label: "Networking & Business" },
   { value: "chill-recharge", label: "Chill & Recharge" },
   { value: "adventure-exploring", label: "Adventure & Exploring" },
   { value: "spiritual-intentional", label: "Spiritual & Intentional" },
   { value: "culture-travel", label: "Culture & Travel" },
-  { value: "luxury-lifestyle", label: "Luxury & Lifestyle" },
-  { value: "learning-growth", label: "Learning & Growth" },
-  { value: "philanthropy-impact", label: "Philanthropy & Impact" },
+  { value: "volunteering-service", label: "Volunteering & Service" },
 ];

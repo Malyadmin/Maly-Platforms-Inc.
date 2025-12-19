@@ -338,17 +338,18 @@ export const MOCK_EVENTS: Record<string, Event[]> = DIGITAL_NOMAD_CITIES.reduce(
 // Vibe and mood tags for user profiles, events, and filtering
 export const VIBE_AND_MOOD_TAGS = [
   "Party & Nightlife",
-  "Fashion & Style",
-  "Networking & Business",
+  "Dancing & Music",
+  "Day Parties",
+  "Afterhours",
   "Dining & Drinks",
   "Outdoor & Nature",
   "Wellness & Fitness",
   "Creative & Artsy",
-  "Single & Social",
+  "Networking & Business",
   "Chill & Recharge",
   "Adventure & Exploring",
   "Spiritual & Intentional",
-  "Dancing & Music",
+  "Culture & Travel",
   "Volunteering & Service"
 ];
 
