@@ -1,0 +1,94 @@
+
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+
+[VAPID] Public key length: 87, first 20 chars: BPjUJiuadFgVYE67URFM
+[VAPID] Private key length: 43
+✓ Push notifications configured with VAPID keys
+Anthropic SDK not available, using fallback compatibility scoring
+Anthropic SDK not available, using fallback translation methods
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+3:59:41 PM [express] NODE_ENV: production, isProduction: true
+3:59:41 PM [express] Using static file serving for production
+3:59:41 PM [express] Attempting to start server (attempt 1/3)
+3:59:41 PM [express] Server started successfully on port 5000
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+4:09:23 PM [express] GET /api/replit-info 304 in 84ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Deserialized user found: test
+Checking authentication for: /api/auth/check
+Auth check: User is authenticated via passport
+4:09:23 PM [express] GET /api/auth/check 200 in 286ms :: {"authenticated":true,"user":{"id":249,"use…
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Fetching events with params: { location: undefined, currentUserId: 249 }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Deserializing user: 249
+Found 23 events to display
+Returning 23 events from database
+Deserialized user found: test
+4:09:23 PM [express] GET /api/events 304 in 186ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Logout attempt for user: test
+Logout successful for user: test
+4:09:26 PM [express] POST /api/logout 200 in 128ms :: {"message":"Logged out successfully"}
+4:09:27 PM [express] GET /api/replit-info 304 in 22ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Found 23 events to display
+Returning 23 events from database
+4:09:27 PM [express] GET /api/events 304 in 129ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Logout attempt for user: undefined
+Logout successful for user: undefined
+4:09:30 PM [express] POST /api/logout 200 in 87ms :: {"message":"Logged out successfully"}
+4:09:30 PM [express] GET /api/replit-info 304 in 25ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Found 23 events to display
+Returning 23 events from database
+4:09:31 PM [express] GET /api/events 304 in 122ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Found 23 events to display
+Returning 23 events from database
+4:09:33 PM [express] GET /api/events 304 in 102ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Found 23 events to display
+Returning 23 events from database
+4:09:50 PM [express] GET /api/events 304 in 109ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Logout attempt for user: undefined
+Logout successful for user: undefined
+4:10:07 PM [express] POST /api/logout 200 in 238ms :: {"message":"Logged out successfully"}
+4:10:07 PM [express] GET /api/replit-info 304 in 22ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Fetching events with params: { location: undefined, currentUserId: undefined }
+No location filter applied, showing all events
+Found 24 events in database before filtering
+Found 23 events to display
+Returning 23 events from database
+4:10:08 PM [express] GET /api/events 304 in 108ms :: [{"id":214,"title":"Art Week Party","descriptio…
