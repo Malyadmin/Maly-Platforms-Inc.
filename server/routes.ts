@@ -804,20 +804,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   next(err);
 });
 
-// Add your routes here
-app.get('/api/events/:city', (req: Request, res: Response) => {
-  const city = req.params.city;
-  const cityEvents = newEvents[city as keyof typeof newEvents] || [];
-  res.json(cityEvents);
-});
-
-app.get('/api/users/:city', (req: Request, res: Response) => {
-  const city = req.params.city;
-  const cityUsers = MOCK_USERS[city as keyof typeof MOCK_USERS] || [];
-  res.json(cityUsers);
-});
-
-
 // Middleware to check if user is authenticated
 // Import centralized authentication functions instead of duplicated local implementations
 import { isAuthenticated, checkAuthentication, requireAuth } from './middleware/auth.middleware';
@@ -1398,38 +1384,46 @@ export function registerRoutes(app: Express): { app: Express; httpServer: Server
     }
   });
 
-  app.get("/api/users/:username", async (req, res) => {
+  app.get("/api/users/:usernameOrId", async (req, res) => {
     try {
-      const { username } = req.params;
+      const { usernameOrId } = req.params;
       const currentUser = req.user;
 
-      // If username is undefined/null and user is logged in, return current user
-      if ((!username || username === 'undefined') && currentUser) {
+      // If param is undefined/null and user is logged in, return current user
+      if ((!usernameOrId || usernameOrId === 'undefined') && currentUser) {
         console.log("Returning current user profile:", currentUser.username);
         return res.json(currentUser);
       }
 
-      // If username is provided, get from database
-      const dbUser = await db.select()
-        .from(users)
-        .where(eq(users.username, username || ''))
-        .limit(1);
+      // Check if the param is a numeric ID
+      const isNumericId = /^\d+$/.test(usernameOrId);
+      
+      let dbUser;
+      if (isNumericId) {
+        // Lookup by ID
+        console.log(`Looking up user by ID: ${usernameOrId}`);
+        const result = await db.select()
+          .from(users)
+          .where(eq(users.id, parseInt(usernameOrId)))
+          .limit(1);
+        dbUser = result;
+      } else {
+        // Lookup by username
+        console.log(`Looking up user by username: ${usernameOrId}`);
+        const result = await db.select()
+          .from(users)
+          .where(eq(users.username, usernameOrId))
+          .limit(1);
+        dbUser = result;
+      }
 
       if (dbUser && dbUser.length > 0) {
-        console.log("Found real user in database:", dbUser[0].username);
-        return res.json(dbUser[0]);
+        console.log("Found user in database:", dbUser[0].username);
+        const { password, ...userWithoutPassword } = dbUser[0] as any;
+        return res.json(userWithoutPassword);
       }
 
-      // If not found in DB, fallback to mock data while we're developing
-      const mockUser = Object.values(MOCK_USERS)
-        .flat()
-        .find(u => u.username === username);
-
-      if (!mockUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      res.json(mockUser);
+      return res.status(404).json({ error: "User not found" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
