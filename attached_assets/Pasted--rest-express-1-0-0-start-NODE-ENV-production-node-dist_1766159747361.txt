@@ -1,0 +1,79 @@
+
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+
+[VAPID] Public key length: 87, first 20 chars: BPjUJiuadFgVYE67URFM
+[VAPID] Private key length: 43
+✓ Push notifications configured with VAPID keys
+Anthropic SDK not available, using fallback compatibility scoring
+Anthropic SDK not available, using fallback translation methods
+[ROUTE DEBUG] Starting route registration...
+Using PostgreSQL session store with table: session
+[ROUTE DEBUG] Route registration completed. All routes should be available now.
+3:47:59 PM [express] NODE_ENV: production, isProduction: true
+3:47:59 PM [express] Using static file serving for production
+3:47:59 PM [express] Attempting to start server (attempt 1/3)
+3:47:59 PM [express] Server started successfully on port 5000
+Deserializing user: 248
+User not found during deserialization, clearing session for ID: 248
+Checking authentication for: /api/auth/check
+Auth check: User not authenticated
+3:53:20 PM [express] GET /api/auth/check 304 in 46ms :: {"authenticated":false,"message":"Not logged…
+3:53:21 PM [express] GET /api/replit-info 304 in 44ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Uploaded public image 1 to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1766159685/images/uploads/1766159685153_IMG_2240_copy-removebg-preview.png.png
+Uploaded public image 2 to Cloudinary: https://res.cloudinary.com/dwmolc54p/image/upload/v1766159687/images/uploads/1766159687136_95022277-DSC_0043.jpeg.jpg
+3:54:48 PM [express] POST /api/upload-images-public 200 in 4175ms :: {"success":true,"message":"2 im…
+Registration+redirect attempt: [Object: null prototype] {
+  fullName: 'test',
+  username: 'test',
+  email: 'test@gmail.com',
+  password: '123456',
+  age: '19',
+  gender: 'male',
+  location: 'Austin',
+  birthLocation: 'Philly',
+  livedLocation: 'London',
+  nextLocation: 'Lagos',
+  intention: 'dating',
+  profession: 'Coder',
+  bio: 'I like to code',
+  currentMoods: '["Dining & Drinks","Party & Nightlife","Creative & Artsy"]',
+  profileImages: '["https://res.cloudinary.com/dwmolc54p/image/upload/v1766159685/images/uploads/1766159685153_IMG_2240_copy-removebg-preview.png.png","https://res.cloudinary.com/dwmolc54p/image/upload/v1766159687/images/uploads/1766159687136_95022277-DSC_0043.jpeg.jpg"]',
+  profileImage: 'https://res.cloudinary.com/dwmolc54p/image/upload/v1766159685/images/uploads/1766159685153_IMG_2240_copy-removebg-preview.png.png'
+}
+File upload received: No
+Using 2 pre-uploaded profile images
+Hashing new password
+Generated hash length: 64
+User registered successfully for redirect flow: test
+Serializing user: 249
+Registration successful, returning success response with session: qYFRym9iAeL3KrVO627dKAeE_EY74a6X
+3:54:49 PM [express] POST /api/register-redirect 200 in 251ms :: {"success":true,"authenticated":tru…
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserializing user: 249
+Deserialized user found: test
+Fetching events with params: { location: undefined, currentUserId: 249 }
+No location filter applied, showing all events
+Deserializing user: 249
+Deserialized user found: test
+Found 24 events in database before filtering
+3:54:50 PM [express] GET /api/replit-info 304 in 328ms :: {"isReplit":true,"replId":"82e7ad69-963b-4…
+Deserialized user found: test
+Found 23 events to display
+Returning 23 events from database
+3:54:50 PM [express] GET /api/events 304 in 395ms :: [{"id":214,"title":"Art Week Party","descriptio…
+Deserializing user: 249
+Deserialized user found: test
+3:54:50 PM [express] GET /api/replit-info 304 in 84ms :: {"isReplit":true,"replId":"82e7ad69-963b-47…
+Deserializing user: 249
+Deserialized user found: test
+Deserializing user: 249
+Deserialized user found: test
