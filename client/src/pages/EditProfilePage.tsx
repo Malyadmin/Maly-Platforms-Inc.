@@ -13,6 +13,7 @@ import { BottomNav } from "@/components/ui/bottom-nav";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { useTranslation } from "@/lib/translations";
+import { PremiumBadge } from "@/components/ui/premium-badge";
 
 const moodStyles = {
   "Party & Nightlife": "bg-gray-800/50 text-foreground hover:bg-gray-800/50 border-gray-600/50",
@@ -540,8 +541,9 @@ export default function EditProfilePage() {
                 <h1 className="text-3xl sm:text-4xl font-bold text-white dark:text-foreground tracking-tight">
                   {profileData.fullName || user.username}
                 </h1>
-                <label className="p-2 bg-white hover:bg-gray-100 text-black rounded-full cursor-pointer transition-colors shadow-lg">
-                  <Pencil className="h-4 w-4 text-foreground" />
+                <PremiumBadge size="md" />
+                <label className="p-2 bg-white hover:bg-gray-100 rounded-full cursor-pointer transition-colors shadow-lg">
+                  <Pencil className="h-4 w-4 text-black" />
                   <input
                     type="file"
                     accept="image/*"
