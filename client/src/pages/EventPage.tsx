@@ -377,12 +377,6 @@ export default function EventPage() {
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          {/* Demo pill badge - bottom right */}
-          <div className="absolute bottom-3 right-3 pointer-events-none z-10">
-            <div className="bg-black/50 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full">
-              {t('forDemoOnly')}
-            </div>
-          </div>
         </div>
       )}
 
