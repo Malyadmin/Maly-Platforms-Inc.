@@ -643,7 +643,7 @@ export default function ProfilePage() {
                 handleMessageClick();
               }}
               disabled={createConversationMutation.isPending}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-white hover:bg-gray-100 text-black border-0"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium py-2.5 px-4 transition-all disabled:opacity-50 bg-white hover:bg-gray-100 text-black border border-black"
               data-testid="button-message"
             >
               {createConversationMutation.isPending ? (
