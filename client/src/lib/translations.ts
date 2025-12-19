@@ -365,7 +365,6 @@ type TranslationKey =
   | 'accessRequestSentDescription'
   | 'failedToSendAccessRequest'
   | 'failedToUpdateParticipation'
-  | 'forDemoOnly'
   // Profile strings
   | 'contactAdded'
   | 'contactAddedDescription'
@@ -1113,7 +1112,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     accessRequestSentDescription: 'Your request has been sent to the event host for approval',
     failedToSendAccessRequest: 'Failed to send access request',
     failedToUpdateParticipation: 'Failed to update participation status',
-    forDemoOnly: 'FOR DEMO ONLY',
     // Profile strings
     contactAdded: 'Contact added',
     contactAddedDescription: "They've been added to your contacts.",
@@ -1214,7 +1212,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     all: 'All',
     allCities: 'All Cities',
     pending: 'Pending',
-    demo: 'DEMO',
     userRemovedFromContacts: 'User has been removed from your contacts.',
     errorRemovingContact: 'Error removing contact',
     userAddedToContacts: 'User has been added to your contacts.',
@@ -1857,7 +1854,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     accessRequestSentDescription: 'Tu solicitud ha sido enviada al anfitrión del evento para su aprobación',
     failedToSendAccessRequest: 'No se pudo enviar la solicitud de acceso',
     failedToUpdateParticipation: 'No se pudo actualizar el estado de participación',
-    forDemoOnly: 'SOLO PARA DEMO',
     // Profile strings
     contactAdded: 'Contacto agregado',
     contactAddedDescription: 'Se ha agregado a tus contactos.',
@@ -1958,7 +1954,6 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     all: 'Todos',
     allCities: 'Todas las Ciudades',
     pending: 'Pendiente',
-    demo: 'DEMO',
     userRemovedFromContacts: 'Usuario eliminado de tus contactos.',
     errorRemovingContact: 'Error al eliminar contacto',
     userAddedToContacts: 'Usuario agregado a tus contactos.',
