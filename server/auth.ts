@@ -568,13 +568,13 @@ export function setupAuth(app: Express) {
 
             console.log("Registration successful, returning success response with session:", sessionId);
             
-            // Return JSON response with success and redirect info
+            // Return JSON response with success and redirect info with sessionId in URL (matching login-redirect pattern)
             return res.json({
               success: true,
               authenticated: true,
               user: newUser,
               sessionId: sessionId,
-              redirectUrl: '/discover?welcome=true'
+              redirectUrl: `/discover?welcome=true&sessionId=${sessionId}&ts=${Date.now()}`
             });
           });
         });
