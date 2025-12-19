@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ChevronLeft, Eye, EyeOff, ImageIcon, Upload } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff, ImageIcon, Upload, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Badge } from "@/components/ui/badge";
@@ -149,16 +149,6 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
-            <Button
-              type="submit"
-              form="step1-form"
-              variant="outline"
-              size="sm"
-              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
-              data-testid="button-next"
-            >
-              {t('next')}
-            </Button>
           </div>
         </div>
       </div>
@@ -277,6 +267,19 @@ function Step1BasicInfo({ data, onNext, onBack }: StepProps) {
             )}
           </div>
         </form>
+
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step1-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -322,16 +325,6 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
-            <Button
-              type="submit"
-              form="step2-form"
-              variant="outline"
-              size="sm"
-              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
-              data-testid="button-next"
-            >
-              {t('next')}
-            </Button>
           </div>
         </div>
       </div>
@@ -401,6 +394,19 @@ function Step2Demographics({ data, onNext, onBack }: StepProps) {
             </select>
           </div>
         </form>
+
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step2-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -447,16 +453,6 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
-            <Button
-              type="submit"
-              form="step3-form"
-              variant="outline"
-              size="sm"
-              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
-              data-testid="button-next"
-            >
-              {t('next')}
-            </Button>
           </div>
         </div>
       </div>
@@ -517,6 +513,19 @@ function Step3Locations({ data, onNext, onBack }: StepProps) {
             />
           </div>
         </form>
+
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step3-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -574,16 +583,6 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
-            <Button
-              type="submit"
-              form="step4-form"
-              variant="outline"
-              size="sm"
-              className="rounded-full border-border bg-muted/30 text-foreground hover:bg-muted/50 px-4 py-2"
-              data-testid="button-next"
-            >
-              {t('next')}
-            </Button>
           </div>
         </div>
       </div>
@@ -654,6 +653,19 @@ function Step4Preferences({ data, onNext, onBack }: StepProps) {
             />
           </div>
         </form>
+
+        {/* Next Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step4-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-next"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('next')}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -725,14 +737,6 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
               <h2 className="text-foreground text-lg font-medium uppercase" style={{ letterSpacing: '0.3em' }}>{t('signupSpaced')}</h2>
             </div>
             
-            <button
-              type="submit"
-              form="step5-form"
-              className="text-foreground font-medium"
-              data-testid="button-create"
-            >
-              {t('submitProfile')}
-            </button>
           </div>
         </div>
       </div>
@@ -870,6 +874,19 @@ function Step5ProfileCompletion({ data, onNext, onBack }: StepProps) {
             </div>
           </div>
         </form>
+
+        {/* Submit Button */}
+        <div className="pt-4 pb-24">
+          <button
+            type="submit"
+            form="step5-form"
+            className="w-full py-4 bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+            data-testid="button-create"
+          >
+            <ArrowRight className="h-5 w-5" />
+            {t('submitProfile')}
+          </button>
+        </div>
       </div>
     </div>
   );
