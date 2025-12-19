@@ -549,8 +549,28 @@ export function setupAuth(app: Express) {
               return res.redirect('/auth?error=Session+error');
             }
 
-            console.log("Registration successful, redirecting to discover page");
-            return res.redirect('/discover');
+            // Detect if we're in Replit environment for cookie settings
+            const isReplitEnv = !!process.env.REPL_ID;
+            const cookieOptions = {
+              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+              httpOnly: true,
+              sameSite: isReplitEnv ? 'none' as const : 'lax' as const,
+              secure: isReplitEnv ? true : false,
+              partitioned: isReplitEnv ? true : undefined
+            };
+
+            const sessionId = req.sessionID;
+            
+            // Set cookies with different names to maximize persistence (matching login-redirect pattern)
+            res.cookie('maly_session_id', sessionId, cookieOptions);
+            res.cookie('sessionId', sessionId, cookieOptions);
+            res.setHeader('x-session-id', sessionId);
+
+            console.log("Registration successful, redirecting to discover page with session:", sessionId);
+            
+            // Add a timestamp to break browser caching and include session ID in URL
+            const timestamp = Date.now();
+            return res.redirect(`/discover?sessionId=${sessionId}&ts=${timestamp}&welcome=true`);
           });
         });
       } catch (dbError) {
